@@ -1,0 +1,38 @@
+﻿with open('src/pages/RegisterPage.jsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+content = content.replace('width: %', 'width: ${(passwordStrength/4)*100}%')
+
+# Fix text
+content = content.replace("Mt khu x'ac nhn kh'ong kh'op!", "Mật khẩu xác nhận không khớp!")
+content = content.replace("Mt khu phi c'o 'it nh'at 6 k'y tu!", "Mật khẩu phải có ít nhất 6 ký tự!")
+content = content.replace("Dng k'y thnh c'ong! Vui long dng nhp.", "Đăng ký thành công! Vui lòng đăng nhập.")
+content = content.replace("C'o l~oi xy ra khi dng k'y", "Có lỗi xảy ra khi đăng ký")
+content = content.replace("Y'eu", "Yếu")
+content = content.replace("Trung binh", "Trung bình")
+content = content.replace("Kh'a", "Khá")
+content = content.replace("Mnh", "Mạnh")
+content = content.replace("B'at du hnh trinh cua bn", "Bắt đầu hành trình của bạn")
+content = content.replace("Dng k'y ti khon de qun l'y tour, nhn u'u d~ai ri'eng v t'ich diem doi qu h'ap d~an tu he th'ong cua ch'ung t'oi.", "Đăng ký tài khoản để quản lý tour, nhận ưu đãi riêng và tích điểm đổi quà hấp dẫn từ hệ thống của chúng tôi.")
+content = content.replace("H~o tro kh'ach hng 24/7", "Hỗ trợ khách hàng 24/7")
+content = content.replace("Thanh to'an an ton 100%", "Thanh toán an toàn 100%")
+content = content.replace("H'uy tour linh hot", "Hủy tour linh hoạt")
+content = content.replace("To Ti Khon M'oi", "Tạo Tài Khoản Mới")
+content = content.replace("Dien th'ong tin de tham gia cong dong VietTour", "Điền thông tin để tham gia cộng đồng VietTour")
+content = content.replace("Ho v T'en", "Họ và Tên")
+content = content.replace("VD: Nguyen Vn A", "VD: Nguyễn Văn A")
+content = content.replace("S'o dien thoi", "Số điện thoại")
+content = content.replace("T'en dng nhp", "Tên đăng nhập")
+content = content.replace("Nhp t'en dng nhp", "Nhập tên đăng nhập")
+content = content.replace("Mt khu", "Mật khẩu")
+content = content.replace("Tu 6 k'y tu tro l'en", "Từ 6 ký tự trở lên")
+content = content.replace("X'ac nhn mt khu", "Xác nhận mật khẩu")
+content = content.replace("Nhp li mt khu", "Nhập lại mật khẩu")
+content = content.replace("Mt khu kh'ong kh'op", "Mật khẩu không khớp")
+content = content.replace("Dang xu l'y...", "Đang xử lý...")
+content = content.replace("To Ti Khon Ngay", "Tạo Tài Khoản Ngay")
+content = content.replace("D~a c'o ti khon?", "Đã có tài khoản?")
+content = content.replace("Dng nhp ngay", "Đăng nhập ngay")
+
+with open('src/pages/RegisterPage.jsx', 'w', encoding='utf-8') as f:
+    f.write(content)

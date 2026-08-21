@@ -1,0 +1,145 @@
+/* --- Auth Pages (Login & Register) --- */
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
+.auth-left {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(232, 64, 12, 0.9), rgba(196, 51, 8, 0.9)), url('https://images.unsplash.com/photo-1528127269322-539801943592') center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+.auth-left h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.auth-left p {
+  font-size: 1.2rem;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.auth-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  background: white;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+  background: white;
+  padding: 50px 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.auth-card h2 {
+  font-size: 2rem;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.auth-subtitle {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon-wrapper i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.input-icon-wrapper input {
+  width: 100%;
+  padding: 14px 15px 14px 45px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #f9fafb;
+}
+
+.input-icon-wrapper input:focus {
+  border-color: #e8400c;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(232, 64, 12, 0.1);
+}
+
+.btn-block {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.auth-link {
+  color: #e8400c;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 5px;
+  transition: color 0.2s;
+}
+
+.auth-link:hover {
+  color: #c43308;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .auth-page {
+    flex-direction: column;
+  }
+  .auth-left {
+    padding: 60px 20px;
+  }
+}

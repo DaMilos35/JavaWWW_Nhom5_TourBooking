@@ -1,0 +1,21 @@
+/* --- Profile & Orders --- */
+.profile-page, .my-orders-page { background-color: #f3f4f6; min-height: 100vh; padding: 40px 0; }
+.profile-card, .orders-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; }
+.profile-header { display: flex; align-items: center; gap: 30px; margin-bottom: 40px; border-bottom: 2px solid #f3f4f6; padding-bottom: 30px; }
+.profile-avatar { width: 100px; height: 100px; background: #e0e7ff; color: #4f46e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: bold; }
+.profile-info h2 { font-size: 2rem; color: #1e3a8a; margin-bottom: 5px; }
+.profile-info p { color: #6b7280; font-size: 1.1rem; }
+.order-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 25px; margin-bottom: 20px; transition: 0.3s; }
+.order-item:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-color: #d1d5db; }
+.order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e5e7eb; }
+.order-id { font-weight: 700; color: #1e3a8a; font-size: 1.1rem; }
+.order-date { color: #6b7280; font-size: 0.95rem; }
+.status-badge { padding: 6px 15px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-pending { background: #fef3c7; color: #d97706; }
+.status-confirmed { background: #d1fae5; color: #059669; }
+.status-completed { background: #e0e7ff; color: #4338ca; }
+.status-cancelled { background: #fee2e2; color: #dc2626; }
+.order-detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; color: #4b5563; }
+.order-footer { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #d1d5db; display: flex; justify-content: space-between; align-items: center; }
+.order-total-lbl { font-weight: 600; color: #374151; }
+.order-total-val { font-size: 1.4rem; font-weight: 800; color: #e8400c; }

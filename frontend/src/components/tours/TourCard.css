@@ -1,0 +1,147 @@
+/* =====================================================
+   TourCard.css - Card component for tour listings
+   Inspired by Klook/Dulichviet card design
+   ===================================================== */
+
+.tour-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tour-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Image section --- */
+.tour-img-wrapper {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+}
+
+.tour-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.tour-card:hover .tour-img {
+  transform: scale(1.08);
+}
+
+.tour-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--primary, #e8400c);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* --- Info section --- */
+.tour-info {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tour-meta {
+  display: flex;
+  gap: 14px;
+  font-size: 0.82rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.tour-meta .duration,
+.tour-meta .location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tour-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 10px;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  flex: 1;
+}
+
+.tour-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+
+.rating-text {
+  margin-left: 6px;
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 600;
+}
+
+/* --- Footer section --- */
+.tour-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+.tour-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 0.72rem;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.price-amount {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary, #e8400c);
+}
+
+.btn-detail {
+  display: inline-block;
+  padding: 8px 18px;
+  background: var(--primary, #e8400c);
+  color: white;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-detail:hover {
+  background: #c73500;
+  transform: scale(1.03);
+}

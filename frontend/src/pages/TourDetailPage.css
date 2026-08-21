@@ -1,0 +1,35 @@
+/* --- Tour Detail Page --- */
+.tour-detail-page { min-height: 100vh; padding-bottom: 40px; }
+.py-4 { padding-top: 2rem; padding-bottom: 2rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.breadcrumb { font-size: 0.9rem; color: #6b7280; margin-bottom: 15px; }
+.breadcrumb span { margin: 0 5px; }
+.breadcrumb .active { color: #e8400c; font-weight: 600; }
+.td-title { font-size: 2.5rem; color: #1e3a8a; font-weight: 800; margin-bottom: 15px; line-height: 1.2; }
+.td-meta { display: flex; align-items: center; gap: 20px; color: #4b5563; font-size: 1rem; flex-wrap: wrap; }
+.td-meta .rating { color: #f59e0b; font-weight: bold; }
+.badge-cat { background: #e0e7ff; color: #4f46e5; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+.main-img { width: 100%; height: 500px; object-fit: cover; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+.td-layout { display: flex; gap: 40px; align-items: flex-start; }
+.td-main { flex: 2; min-width: 0; }
+.td-sidebar { flex: 1; min-width: 350px; position: sticky; top: 90px; }
+.td-highlights { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f3f4f6; }
+.hl-item { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; color: #4b5563; }
+.hl-item svg { font-size: 2rem; color: #e8400c; }
+.hl-item b { color: #1e3a8a; font-size: 1.05rem; }
+.td-section { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
+.td-desc h3 { margin-bottom: 15px; color: #1e3a8a; }
+.booking-card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 2px solid #fff; transition: all 0.3s; }
+.booking-card:hover { border-color: #ffe4de; }
+.price-box { margin-bottom: 25px; border-bottom: 1px solid #e5e7eb; padding-bottom: 20px; }
+.price-box .price { font-size: 2.2rem; font-weight: 900; color: #e8400c; }
+.quantity-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: 600; }
+.qty-controls { display: flex; align-items: center; gap: 15px; background: #f3f4f6; padding: 5px; border-radius: 8px; }
+.qty-controls button { width: 35px; height: 35px; border: none; background: white; border-radius: 6px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s; }
+.qty-controls button:hover { background: #e8400c; color: white; }
+.total-box { display: flex; justify-content: space-between; align-items: center; margin: 25px 0; font-size: 1.2rem; font-weight: bold; }
+.total-price { font-size: 1.8rem; color: #1e3a8a; }
+.w-100 { width: 100%; }
+.support-info { font-size: 0.9rem; color: #6b7280; }
+@media (max-width: 992px) { .td-layout { flex-direction: column; } .td-sidebar { width: 100%; min-width: auto; } .td-highlights { grid-template-columns: repeat(2, 1fr); } }

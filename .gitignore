@@ -1,0 +1,27 @@
+﻿# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# React build
+frontend/build/
+frontend/.env.local
+
+# Java / Maven
+backend/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
