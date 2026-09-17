@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaClock, FaCalendarAlt, FaUserFriends, FaStar, FaCheck } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaClock, FaCalendarAlt, FaUserFriends, FaStar, FaCheck, FaShoppingCart, FaBolt } from 'react-icons/fa';
 import { tourApi } from '../api/axiosConfig';
 import { useCart } from '../context/CartContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -33,6 +33,7 @@ const TourDetailPage = () => {
 
   const handleAddToCart = () => {
     addToCart(tour, quantity);
+    toast.success('Đã thêm vào giỏ hàng!');
   };
 
   const handleBuyNow = () => {
@@ -48,24 +49,24 @@ const TourDetailPage = () => {
   };
 
   return (
-    <div className="tour-detail-page bg-light">
+    <div className="tour-detail-page">
       <div className="container py-4">
         {/* Header */}
-        <div className="td-header mb-3">
+        <div className="td-header mb-4">
           <div className="breadcrumb">
-            <span>Trang chủ</span> {'>'} <span>Tours</span> {'>'} <span className="active">{tour.name}</span>
+            <span onClick={() => navigate('/')}>Trang chủ</span> {'>'} <span onClick={() => navigate('/tours')}>Tours</span> {'>'} <span className="active">{tour.name || tour.tourName}</span>
           </div>
-          <h1 className="td-title">{tour.name}</h1>
+          <h1 className="td-title">{tour.name || tour.tourName}</h1>
           <div className="td-meta">
-            <span className="rating"><FaStar color="#ffc107"/> {tour.rating || 5}/5</span>
-            {tour.category && <span className="badge-cat">{tour.category.name}</span>}
-            <span className="location"><FaMapMarkerAlt /> {tour.departureLocation}</span>
+            <span className="rating"><FaStar className="text-warning" /> {tour.rating || '4.9'}/5 Đánh giá</span>
+            {tour.category && <span className="badge-cat">{tour.category.name || tour.category.categoryName}</span>}
+            <span className="location"><FaMapMarkerAlt /> Khởi hành từ {tour.departureLocation}</span>
           </div>
         </div>
 
         {/* Gallery */}
         <div className="td-gallery mb-4">
-          <img src={tour.imageUrl || 'https://via.placeholder.com/1200x500'} alt={tour.name} className="main-img" />
+          <img src={tour.imageUrl || 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&q=80'} alt={tour.name || tour.tourName} className="main-img" />
         </div>
 
         {/* Content Layout */}
@@ -73,10 +74,18 @@ const TourDetailPage = () => {
           {/* Left Column */}
           <div className="td-main">
             <div className="td-highlights mb-4">
-              <div className="hl-item"><FaClock /> <span>Thời gian:<br/><b>{tour.duration || '3 Ngày 2 Đêm'}</b></span></div>
-              <div className="hl-item"><FaCalendarAlt /> <span>Khởi hành:<br/><b>Hàng ngày</b></span></div>
-              <div className="hl-item"><FaUserFriends /> <span>Chỗ trống:<br/><b>{tour.availableSeats || 10} chỗ</b></span></div>
-              <div className="hl-item"><FaMapMarkerAlt /> <span>Tập trung:<br/><b>{tour.departureLocation}</b></span></div>
+              <div className="hl-item">
+                <FaClock className="hl-icon" /> 
+                <div className="hl-text"><span>Thời gian</span><b>{tour.duration || '3 Ngày 2 Đêm'}</b></div>
+              </div>
+              <div className="hl-item">
+                <FaCalendarAlt className="hl-icon" /> 
+                <div className="hl-text"><span>Khởi hành</span><b>Hàng ngày</b></div>
+              </div>
+              <div className="hl-item">
+                <FaUserFriends className="hl-icon" /> 
+                <div className="hl-text"><span>Chỗ trống</span><b>{tour.availableSeats || 10} chỗ</b></div>
+              </div>
             </div>
 
             <div className="td-section">
@@ -87,11 +96,11 @@ const TourDetailPage = () => {
             <div className="td-section">
               <h3>Dịch vụ bao gồm</h3>
               <ul className="included-list">
-                <li><FaCheck color="green" /> Xe đời mới máy lạnh đưa đón suốt tuyến</li>
-                <li><FaCheck color="green" /> Khách sạn tiêu chuẩn (2-3 người/phòng)</li>
-                <li><FaCheck color="green" /> Ăn uống theo chương trình</li>
-                <li><FaCheck color="green" /> Hướng dẫn viên nhiệt tình, kinh nghiệm</li>
-                <li><FaCheck color="green" /> Bảo hiểm du lịch</li>
+                <li><FaCheck className="text-success" /> Xe đời mới máy lạnh đưa đón suốt tuyến</li>
+                <li><FaCheck className="text-success" /> Khách sạn tiêu chuẩn (2-3 người/phòng)</li>
+                <li><FaCheck className="text-success" /> Ăn uống theo chương trình</li>
+                <li><FaCheck className="text-success" /> Hướng dẫn viên nhiệt tình, kinh nghiệm</li>
+                <li><FaCheck className="text-success" /> Bảo hiểm du lịch lên đến 50.000.000đ</li>
               </ul>
             </div>
           </div>
@@ -100,11 +109,12 @@ const TourDetailPage = () => {
           <div className="td-sidebar">
             <div className="booking-card">
               <div className="price-box">
-                <span className="price">{formatPrice(tour.price)}</span> / khách
+                <span className="price">{formatPrice(tour.price)}</span>
+                <span className="price-unit">/ khách</span>
               </div>
               
               <div className="quantity-box">
-                <label>Số lượng khách:</label>
+                <label>Số lượng khách</label>
                 <div className="qty-controls">
                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
                   <input type="number" value={quantity} readOnly />
@@ -118,17 +128,17 @@ const TourDetailPage = () => {
               </div>
 
               <div className="action-btns">
-                <button className="btn btn-outline w-100 mb-2" onClick={handleAddToCart}>
-                  Thêm vào giỏ hàng
+                <button className="btn btn-outline btn-full mb-3" onClick={handleAddToCart}>
+                  <FaShoppingCart /> Thêm Giỏ Hàng
                 </button>
-                <button className="btn btn-primary w-100" onClick={handleBuyNow}>
-                  Đặt Ngay
+                <button className="btn btn-primary btn-full" onClick={handleBuyNow}>
+                  <FaBolt /> Đặt Ngay
                 </button>
               </div>
               
-              <div className="support-info mt-3 text-center">
-                <p>Cần hỗ trợ? Gọi ngay</p>
-                <h4 style={{color: 'var(--primary)'}}>1900 1234 5678</h4>
+              <div className="support-info mt-4">
+                <p>Hỗ trợ tư vấn 24/7</p>
+                <h4 className="text-accent">1900 1234</h4>
               </div>
             </div>
           </div>
