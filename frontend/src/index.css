@@ -1,59 +1,55 @@
 :root {
-  /* DoMixue Dark Theme Variables */
-  --primary-color: #3B82F6;
-  --primary-hover: #2563EB;
-  --secondary-color: #23262F;
-  --bg-dark: #141416;
-  --bg-card: #23262F;
-  --text-primary: #FCFCFD;
-  --text-secondary: #777E90;
-  --border-color: #353945;
-  --success-color: #58C27D;
-  --danger-color: #FF6651;
-  --warning-color: #FFD166;
+  /* Premium Dark Theme (Traveloka x DoMixue Vibe) */
+  --bg-main: #0B0F19;           /* Nền chính - Đen ánh xanh sâu */
+  --bg-surface: #1C2434;        /* Nền Card/Nổi - Xám xanh thanh lịch */
+  --bg-surface-hover: #26334D;  
   
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.15);
-  --radius: 12px;
-  --radius-lg: 24px;
-  --transition: all 0.2s ease-in-out;
+  --text-pure: #FFFFFF;         /* Trắng tinh tuyệt đối cho tiêu đề */
+  --text-muted: #94A3B8;        /* Xám sáng cho văn bản phụ (Tương phản cao) */
+  
+  --accent-blue: #0EA5E9;       /* Xanh dương tươi sáng (Nút bấm, điểm nhấn) */
+  --accent-blue-hover: #0284C7;
+  
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-danger: #EF4444;
+
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --shadow-float: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Be Vietnam Pro', 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-primary);
+  background-color: var(--bg-main);
+  color: var(--text-pure);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Container */
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
 /* Typography */
-h1, h2, h3, h4, h5, h6 { 
-  font-weight: 700; 
-  color: var(--text-primary); 
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-pure);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
-.text-center { text-align: center; }
-.mt-4 { margin-top: 1.5rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-.mr-2 { margin-right: 0.5rem; }
+
+p, span, div {
+  color: var(--text-muted); /* Chữ mặc định là xám sáng, dễ đọc trên nền tối */
+}
+
+/* Override text colors for emphasis */
+.text-pure { color: var(--text-pure) !important; }
+.text-accent { color: var(--accent-blue) !important; }
 
 /* Buttons */
 .btn {
@@ -62,75 +58,46 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   gap: 8px;
   padding: 12px 24px;
-  border-radius: 99px; /* Pill shape like DoMixue */
+  border-radius: var(--radius-pill);
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
   border: none;
-  font-size: 1rem;
-}
-.btn-primary { 
-  background-color: var(--primary-color); 
-  color: white; 
-}
-.btn-primary:hover { 
-  background-color: var(--primary-hover); 
-  transform: translateY(-1px); 
-}
-.btn-secondary { 
-  background-color: var(--bg-card); 
-  color: var(--text-primary); 
-  border: 2px solid var(--border-color);
-}
-.btn-secondary:hover {
-  border-color: var(--text-secondary);
-}
-.btn-outline { 
-  background-color: transparent; 
-  border: 2px solid var(--border-color); 
-  color: var(--text-primary); 
-}
-.btn-outline:hover { 
-  border-color: var(--text-primary); 
+  color: var(--text-pure) !important; /* Luôn đảm bảo chữ trên nút là trắng */
 }
 
-/* Form Controls */
-.form-group { margin-bottom: 24px; }
-.form-group label { 
-  display: block; 
-  margin-bottom: 12px; 
-  font-weight: 600; 
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.form-control { 
-  width: 100%; 
-  padding: 16px; 
-  background-color: var(--bg-dark);
-  border: 2px solid var(--border-color); 
-  border-radius: var(--radius); 
-  color: var(--text-primary);
-  font-size: 1rem;
-  transition: var(--transition); 
-}
-.form-control:focus { 
-  border-color: var(--primary-color); 
-  outline: none; 
-}
-.form-control::placeholder {
-  color: var(--text-secondary);
+.btn-primary {
+  background: var(--accent-blue);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 
-/* Utility Classes */
-.text-primary { color: var(--primary-color); }
-.text-danger { color: var(--danger-color); }
-.text-success { color: var(--success-color); }
-.text-secondary { color: var(--text-secondary); }
+.btn-primary:hover {
+  background: var(--accent-blue-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+}
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-dark); }
-::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-outline:hover {
+  border-color: var(--text-pure);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Utility Containers */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Card Reset */
+.card-surface {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--text-pure); /* Mọi text trong card ưu tiên màu trắng */
+}

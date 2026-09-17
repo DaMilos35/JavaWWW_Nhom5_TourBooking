@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaSearch, FaFireAlt, FaRegCompass, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaSearch, FaRegCompass, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaCalendarAlt, FaUserFriends, FaArrowRight } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -42,22 +42,22 @@ const HomePage = () => {
 
   if (loading) return <LoadingSpinner />;
 
-  // Lấy 6 tour nổi bật (giả sử là các tour đầu tiên)
-  const featuredTours = tours.slice(0, 6);
+  const featuredTours = tours.slice(0, 8);
 
   return (
     <div className="homepage">
-      {/* Hero Section */}
+      {/* Premium Hero Section */}
       <section className="hero-section">
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <h1 className="hero-title">KHÁM PHÁ THẾ GIỚI <br />CÙNG CHÚNG TÔI</h1>
-          <p className="hero-subtitle">Trải nghiệm những chuyến đi đáng nhớ với dịch vụ đẳng cấp</p>
+          <h1 className="hero-title">Khám Phá Thế Giới<br/>Theo Cách Của Bạn</h1>
+          <p className="hero-subtitle">Hàng ngàn điểm đến tuyệt vời với trải nghiệm đẳng cấp đang chờ đón bạn.</p>
           
-          <div className="search-widget-container">
-            <form className="search-widget" onSubmit={handleSearch}>
+          <form className="search-widget-wrapper" onSubmit={handleSearch}>
+            <div className="search-field">
+              <FaMapMarkerAlt className="search-icon" />
               <div className="search-input-group">
-                <FaMapMarkerAlt className="search-icon" />
+                <span className="search-label">Điểm đến</span>
                 <input 
                   type="text" 
                   placeholder="Bạn muốn đi đâu?" 
@@ -66,19 +66,38 @@ const HomePage = () => {
                   className="search-input"
                 />
               </div>
-              <button type="submit" className="search-btn">
-                <FaSearch /> Tìm Kiếm
-              </button>
-            </form>
-          </div>
+            </div>
+
+            <div className="search-field" style={{ flex: 0.8 }}>
+              <FaCalendarAlt className="search-icon" />
+              <div className="search-input-group">
+                <span className="search-label">Ngày đi</span>
+                <input type="text" placeholder="Thêm ngày" className="search-input" />
+              </div>
+            </div>
+
+            <div className="search-field" style={{ flex: 0.8, borderRight: 'none' }}>
+              <FaUserFriends className="search-icon" />
+              <div className="search-input-group">
+                <span className="search-label">Khách</span>
+                <input type="text" placeholder="1 Khách, 1 Phòng" className="search-input" />
+              </div>
+            </div>
+
+            <button type="submit" className="btn-search-massive">
+              <FaSearch /> Tìm Kiếm
+            </button>
+          </form>
         </div>
       </section>
 
-      {/* Featured Categories */}
+      {/* Featured Categories (Traveloka Style) */}
       <section className="categories-section container">
         <div className="section-header">
-          <h2><FaRegCompass className="mr-2 text-primary" /> Danh Mục Nổi Bật</h2>
-          <p>Lựa chọn hành trình phù hợp với phong cách của bạn</p>
+          <div>
+            <h2 className="section-title">Điểm Đến Yêu Thích</h2>
+            <p className="section-subtitle">Gợi ý những địa điểm không thể bỏ qua trong mùa này</p>
+          </div>
         </div>
         
         <div className="category-cards">
@@ -92,53 +111,55 @@ const HomePage = () => {
               />
               <div className="category-overlay">
                 <h3>{cat.name || cat.categoryName}</h3>
+                <span className="category-count">Hơn 50+ Tours</span>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* Featured Tours */}
-      <section className="featured-tours-section container">
+      {/* Features Grid */}
+      <section className="features-section container">
+        <div className="features-grid">
+          <div className="feature-box">
+            <div className="feature-icon-wrapper"><FaPlaneDeparture /></div>
+            <h3>Bay Mọi Nơi</h3>
+            <p>Hàng ngàn chuyến bay và điểm đến với mạng lưới đối tác toàn cầu.</p>
+          </div>
+          <div className="feature-box">
+            <div className="feature-icon-wrapper"><FaHandHoldingUsd /></div>
+            <h3>Giá Tốt Bất Ngờ</h3>
+            <p>Luôn đảm bảo mức giá cạnh tranh nhất, không phí ẩn.</p>
+          </div>
+          <div className="feature-box">
+            <div className="feature-icon-wrapper"><FaShieldAlt /></div>
+            <h3>Giao Dịch An Toàn</h3>
+            <p>Mã hóa chuẩn quốc tế, bảo vệ thông tin cá nhân và thẻ của bạn tuyệt đối.</p>
+          </div>
+          <div className="feature-box">
+            <div className="feature-icon-wrapper"><FaHeadset /></div>
+            <h3>Hỗ Trợ Chuyên Nghiệp</h3>
+            <p>Đội ngũ CSKH tận tâm sẵn sàng hỗ trợ bạn 24/7 trong mọi tình huống.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Tours List */}
+      <section className="featured-tours-section container" style={{ marginBottom: '100px' }}>
         <div className="section-header">
-          <h2><FaFireAlt className="mr-2 text-danger" /> Tour Thịnh Hành</h2>
-          <p>Những điểm đến được yêu thích nhất trong tháng</p>
+          <div>
+            <h2 className="section-title">Tour Thịnh Hành</h2>
+            <p className="section-subtitle">Khám phá các ưu đãi tốt nhất đang được săn đón</p>
+          </div>
+          <Link to="/tours" className="btn btn-outline" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            Xem Tất Cả <FaArrowRight />
+          </Link>
         </div>
         
         <div className="tour-grid">
           {featuredTours.map(tour => (
             <TourCard key={tour.id || tour.tourId} tour={tour} />
           ))}
-        </div>
-        
-        <div className="text-center mt-4">
-          <Link to="/tours" className="btn btn-secondary">Xem Tất Cả Tour</Link>
-        </div>
-      </section>
-
-      {/* Why Choose Us */}
-      <section className="features-section container">
-        <div className="features-grid">
-          <div className="feature-box">
-            <div className="feature-icon-wrapper"><FaPlaneDeparture /></div>
-            <h3>Hành trình đa dạng</h3>
-            <p>Hàng trăm điểm đến hấp dẫn trong và ngoài nước chờ bạn khám phá.</p>
-          </div>
-          <div className="feature-box">
-            <div className="feature-icon-wrapper"><FaHandHoldingUsd /></div>
-            <h3>Giá cả cạnh tranh</h3>
-            <p>Cam kết mang đến mức giá tốt nhất cùng nhiều ưu đãi hấp dẫn.</p>
-          </div>
-          <div className="feature-box">
-            <div className="feature-icon-wrapper"><FaShieldAlt /></div>
-            <h3>Thanh toán an toàn</h3>
-            <p>Hệ thống thanh toán bảo mật 100%, hỗ trợ đa dạng phương thức.</p>
-          </div>
-          <div className="feature-box">
-            <div className="feature-icon-wrapper"><FaHeadset /></div>
-            <h3>Hỗ trợ 24/7</h3>
-            <p>Đội ngũ tư vấn viên luôn sẵn sàng giải đáp mọi thắc mắc của bạn.</p>
-          </div>
         </div>
       </section>
     </div>
