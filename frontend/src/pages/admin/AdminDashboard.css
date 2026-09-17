@@ -1,0 +1,209 @@
+.dashboard-container {
+  padding-bottom: 20px;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e1e2d;
+  margin-bottom: 5px;
+}
+
+.dashboard-subtitle {
+  color: #b5b5c3;
+  font-size: 0.95rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.03);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  margin-right: 20px;
+}
+
+.bg-light-primary { background-color: #e1f0ff; color: #3699ff; }
+.bg-light-success { background-color: #c9f7f5; color: #1bc5bd; }
+.bg-light-info { background-color: #eee5ff; color: #8950fc; }
+.bg-light-warning { background-color: #fff4de; color: #ffa800; }
+
+.text-primary { color: #3699ff; }
+.text-success { color: #1bc5bd; }
+.text-info { color: #8950fc; }
+.text-warning { color: #ffa800; }
+
+.stat-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #3f4254;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  color: #b5b5c3;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.stat-trend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.stat-trend.positive { color: #1bc5bd; }
+
+.dashboard-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10px;
+}
+
+.dashboard-col-8 {
+  width: 66.666667%;
+  padding: 0 10px;
+}
+
+.dashboard-col-4 {
+  width: 33.333333%;
+  padding: 0 10px;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.03);
+  margin-bottom: 20px;
+  height: 100%;
+}
+
+.card-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid #ebedf3;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1e1e2d;
+  margin: 0;
+}
+
+.card-body {
+  padding: 25px;
+}
+.card-body.p-0 {
+  padding: 0;
+}
+
+/* Admin Table */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+  padding: 15px 25px;
+  text-align: left;
+  border-bottom: 1px dashed #ebedf3;
+  color: #3f4254;
+}
+
+.admin-table th {
+  font-weight: 600;
+  color: #b5b5c3;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-success { background: #c9f7f5; color: #1bc5bd; }
+.badge-warning { background: #fff4de; color: #ffa800; }
+.badge-primary { background: #e1f0ff; color: #3699ff; }
+
+/* Progress Bars */
+.top-tour-item {
+  margin-bottom: 20px;
+}
+
+.tour-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tour-name {
+  font-weight: 600;
+  color: #3f4254;
+}
+
+.tour-sales {
+  color: #b5b5c3;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.tour-progress {
+  height: 6px;
+  background-color: #ebedf3;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 3px;
+}
+.bg-primary { background-color: #3699ff; }
+.bg-success { background-color: #1bc5bd; }
+.bg-warning { background-color: #ffa800; }
+
+@media (max-width: 992px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-col-8, .dashboard-col-4 { width: 100%; }
+}
