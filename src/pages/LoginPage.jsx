@@ -21,8 +21,6 @@ const LoginPage = () => {
 
   const handleQuickLogin = (userType) => {
     if (userType === 'admin') {
-      setCredentials({ username: 'admin', password: '123' });
-      // auto submit with admin/123456
       setCredentials({ username: 'admin', password: '123456' });
     } else {
       setCredentials({ username: 'customer1', password: '123456' });

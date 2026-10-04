@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 
 // Layouts
 import Navbar from './components/layout/Navbar';
@@ -18,6 +19,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import MyOrdersPage from './pages/MyOrdersPage';
+import WishlistPage from './pages/WishlistPage';
+import HelpCenterPage from './pages/HelpCenterPage';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -46,6 +49,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
+        <WishlistProvider>
         <Router>
           <ToastContainer position="top-right" autoClose={3000} />
           <Routes>
@@ -54,12 +58,15 @@ function App() {
             <Route path="/tours" element={<UserLayout><TourListPage /></UserLayout>} />
             <Route path="/tours/:id" element={<UserLayout><TourDetailPage /></UserLayout>} />
             <Route path="/cart" element={<UserLayout><CartPage /></UserLayout>} />
+            <Route path="/wishlist" element={<UserLayout><WishlistPage /></UserLayout>} />
+            <Route path="/help" element={<UserLayout><HelpCenterPage /></UserLayout>} />
             <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />
             <Route path="/register" element={<UserLayout><RegisterPage /></UserLayout>} />
 
             {/* Private User Routes */}
             <Route path="/checkout" element={<PrivateRoute><UserLayout><CheckoutPage /></UserLayout></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
+            <Route path="/settings" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
             <Route path="/my-orders" element={<PrivateRoute><UserLayout><MyOrdersPage /></UserLayout></PrivateRoute>} />
 
             {/* Admin Routes */}
@@ -75,6 +82,7 @@ function App() {
             </Route>
           </Routes>
         </Router>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );

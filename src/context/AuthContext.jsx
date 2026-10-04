@@ -52,14 +52,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updated));
   };
 
-  // Tiện ích chuyển đổi nhanh tài khoản demo (Quản trị viên hoặc Khách hàng)
-  const switchDemoAccount = async (targetRole) => {
-    const creds = targetRole === 'ADMIN' 
-      ? { username: 'admin', password: '123' } 
-      : { username: 'customer1', password: '123' };
-    return await login(creds);
-  };
-
   const register = async (data) => {
     try {
       await authApi.register(data);
@@ -89,7 +81,6 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     updateUser,
-    switchDemoAccount,
     register,
     logout,
     isAdmin,
