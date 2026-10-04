@@ -1,15 +1,8 @@
 .footer {
-<<<<<<< HEAD
   background-color: #ffffff;
   color: #1f497d;
   padding: 60px 0 24px;
   border-top: 1px solid #e2e8f0;
-=======
-  background-color: #0b0f19;
-  color: #fff;
-  padding: 60px 0 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .footer-container {
@@ -30,11 +23,7 @@
 .footer-logo {
   font-size: 1.4rem;
   font-weight: 800;
-<<<<<<< HEAD
   color: #1f497d;
-=======
-  color: #ffffff;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   display: flex;
   align-items: center;
   gap: 10px;
@@ -43,11 +32,7 @@
 }
 
 .footer-about {
-<<<<<<< HEAD
   color: #6c757d;
-=======
-  color: #94a3b8;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   line-height: 1.6;
   margin-bottom: 20px;
   font-size: 0.9rem;
@@ -62,49 +47,29 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-<<<<<<< HEAD
   background-color: #f7f9fc;
   border: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #6c757d;
-=======
-  background-color: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #94a3b8;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 14px;
   transition: all 0.2s ease;
   text-decoration: none;
 }
 
 .social-icon:hover {
-<<<<<<< HEAD
   background-color: #ff5722;
   color: #ffffff;
   transform: translateY(-2px);
   border-color: #ff5722;
-=======
-  background-color: #0ea5e9;
-  color: #ffffff;
-  transform: translateY(-2px);
-  border-color: #0ea5e9;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .footer-title {
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 20px;
-<<<<<<< HEAD
   color: #1f497d;
-=======
-  color: #ffffff;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   position: relative;
   padding-bottom: 8px;
 }
@@ -116,11 +81,7 @@
   bottom: 0;
   width: 32px;
   height: 2px;
-<<<<<<< HEAD
   background-color: #ff5722;
-=======
-  background-color: #0ea5e9;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   border-radius: 2px;
 }
 
@@ -135,11 +96,7 @@
 }
 
 .footer-links a {
-<<<<<<< HEAD
   color: #6c757d;
-=======
-  color: #94a3b8;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   text-decoration: none;
   transition: all 0.2s ease;
   display: flex;
@@ -149,21 +106,13 @@
 }
 
 .footer-links a:hover {
-<<<<<<< HEAD
   color: #ff5722;
-=======
-  color: #0ea5e9;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   transform: translateX(4px);
 }
 
 .link-icon {
   font-size: 0.7rem;
-<<<<<<< HEAD
   color: #ff5722;
-=======
-  color: #0ea5e9;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .contact-item {
@@ -171,20 +120,12 @@
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 14px;
-<<<<<<< HEAD
   color: #6c757d;
-=======
-  color: #94a3b8;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 0.9rem;
 }
 
 .contact-icon {
-<<<<<<< HEAD
   color: #ff5722;
-=======
-  color: #0ea5e9;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 16px;
   margin-top: 4px;
   flex-shrink: 0;
@@ -198,27 +139,16 @@
 .newsletter-input {
   flex: 1;
   padding: 10px 14px;
-<<<<<<< HEAD
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 8px 0 0 8px;
   color: #1f497d;
-=======
-  background: #1c2434;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px 0 0 8px;
-  color: #ffffff;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   outline: none;
   font-size: 0.9rem;
 }
 
 .newsletter-btn {
-<<<<<<< HEAD
   background-color: #ff5722;
-=======
-  background-color: #0ea5e9;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   color: white;
   border: none;
   padding: 0 18px;
@@ -239,26 +169,16 @@
 }
 
 .newsletter-btn:hover {
-<<<<<<< HEAD
   background-color: #e64a19;
-=======
-  background-color: #0284c7;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .footer-bottom {
   max-width: 1280px;
   margin: 40px auto 0;
   padding: 20px 24px 0;
-<<<<<<< HEAD
   border-top: 1px solid #e2e8f0;
   text-align: center;
   color: #6c757d;
-=======
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: center;
-  color: #64748b;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 0.85rem;
 }
 
