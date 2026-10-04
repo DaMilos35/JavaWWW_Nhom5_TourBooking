@@ -1,126 +1,100 @@
-# 🌏 Du Lịch Việt - Nền Tảng Đặt Tour Du Lịch Trực Tuyến
+# Du Lịch Việt — Đặt tour trực tuyến
 
-> Website đặt tour du lịch cao cấp chuẩn UX/UI 2026, hỗ trợ đầy đủ quy trình nghiệp vụ cho Khách hàng (Customer) và Quản trị viên (Admin).  
-> **Dự án Fullstack chạy ngay trên mọi máy tính (Windows, macOS, Linux) chỉ với Node.js!**
+Ứng dụng gồm giao diện React/Vite và REST API Java Servlet chạy trên Apache Tomcat. Giao diện hiện tại được giữ nguyên; Vite chuyển tiếp các yêu cầu `/api` sang Tomcat trong lúc phát triển.
 
----
+Giao diện có danh sách tour đã lưu (lưu cục bộ theo trình duyệt), Trung tâm trợ giúp tìm kiếm được và menu trạng thái các đơn gần đây. Ngôn ngữ tiếng Anh và thông báo đẩy chưa được hỗ trợ; menu ngôn ngữ chỉ báo trạng thái hiện có, còn menu thông báo đọc trạng thái đơn từ API khi người dùng mở.
 
-## ⚡ Cài Đặt & Chạy Ngay (Chỉ 2 Bước)
+## Công nghệ
 
-Dự án đã được đóng gói trọn gói bao gồm cả Frontend (React + Vite) và Backend API (Express TypeScript) cùng bộ dữ liệu mẫu phong phú (tours, danh mục, đơn hàng, tài khoản demo). Bạn **không cần cài đặt SQL Server hay cấu hình phức tạp**, tải về là chạy được ngay:
+- Frontend: React 18, Vite, React Router, Axios.
+- Backend: Java 17+, Jakarta Servlet 6, Apache Tomcat 10.1+, Maven WAR.
+- Cơ sở dữ liệu: MariaDB / MySQL.
+- Xác thực: JWT Bearer token; mật khẩu được băm bằng BCrypt.
 
-### 1. Cài đặt các thư viện:
-```bash
-npm install
+## Chuẩn bị cơ sở dữ liệu
+
+1. Khởi động MariaDB và xác nhận cổng của server (mặc định `3306`).
+2. Mở `database/schema.sql` trong HeidiSQL, chọn kết nối MariaDB local rồi chạy toàn bộ script. Script sẽ tạo database `TourBookingDB` và **xóa rồi tạo lại** các bảng trong database đó cùng dữ liệu mẫu. Không chạy nếu database `TourBookingDB` đang có dữ liệu cần giữ.
+3. Tài khoản demo: `admin` / `123456` và `customer1` / `123456`.
+
+`database/schema.sql` đã thêm sẵn danh mục, tour, người dùng và một số đơn hàng. Không cần chạy thêm `database/seed_vi.sql`. Nếu muốn thay danh mục/tour bằng bộ dữ liệu tiếng Việt khác, có thể chạy `database/seed_vi.sql` trong HeidiSQL sau đó; script này xóa toàn bộ đơn hàng và chi tiết đơn hàng hiện có, nhưng giữ lại tài khoản người dùng.
+
+Các tour trong hai script là dữ liệu minh họa, không phải chào bán thật; giá, số chỗ, điểm đánh giá và mô tả cần được xác minh trước khi sử dụng thực tế. Ngày khởi hành mẫu được tạo tương đối theo ngày chạy script. Cơ sở dữ liệu đã nạp từ bản cũ không tự đổi ngày: cập nhật tour hết lịch trong mục quản trị trước khi gửi yêu cầu đặt.
+
+## Chạy API trên Tomcat
+
+Yêu cầu Java 17 trở lên, Maven 3.9+ và Tomcat 10.1+. Cách đơn giản nhất trên Windows là tạo file cấu hình ngoài source code:
+
+```powershell
+Copy-Item backend/tourbooking.properties.example "$env:USERPROFILE\.tourbooking.properties"
+notepad "$env:USERPROFILE\.tourbooking.properties"
 ```
 
-### 2. Khởi chạy ứng dụng:
-```bash
+Sửa `DB_PASSWORD` thành mật khẩu MariaDB của bạn. Thay giá trị `JWT_SECRET` bằng chuỗi ngẫu nhiên riêng (ít nhất 32 ký tự). `DB_DEBUG=true` bật chi tiết SQL để debug local; tắt thành `false` trước khi chạy môi trường public. File này nằm ngoài project/source code và bị Git bỏ qua. Servlet tự đọc file khi khởi động; không cần nhập DB credentials vào VM options của IntelliJ.
+
+Sau khi lưu file, dừng rồi chạy lại Tomcat từ IntelliJ. Backend ưu tiên cấu hình theo thứ tự environment variables, JVM system properties, rồi `%USERPROFILE%\.tourbooking.properties`. Nếu database còn lỗi, response JSON trả kèm `detail`, `sqlState` và `vendorCode` để dễ xác định nguyên nhân.
+
+Nếu muốn giữ cấu hình trong IntelliJ, vẫn có thể truyền các biến qua VM options hoặc environment variables. Với **Windows Service**, cũng có thể đặt các biến trong Java Options của Tomcat Service Manager:
+
+```text
+-DDB_URL=jdbc:mariadb://127.0.0.1:3306/TourBookingDB?useUnicode=true&characterEncoding=utf8
+-DDB_USERNAME=root
+-DDB_PASSWORD=your-mariadb-password
+-DJWT_SECRET=your-own-random-secret-with-at-least-32-characters
+-DCORS_ORIGIN=http://localhost:3000
+```
+
+Nếu bỏ qua `JWT_SECRET`, ứng dụng vẫn chạy với khóa ngẫu nhiên tạm thời và ghi cảnh báo trong log Tomcat; token đăng nhập sẽ hết hiệu lực khi Tomcat restart.
+
+Đóng gói WAR:
+
+```powershell
+mvn -f backend/pom.xml clean package
+```
+
+Chép `backend/target/tourbooking-api.war` vào thư mục `webapps` của Tomcat, rồi khởi động Tomcat. API có base URL:
+
+```text
+http://localhost:8080/tourbooking-api/api
+```
+
+Ứng dụng đọc cấu hình từ environment variables trước, sau đó mới đến JVM system properties. Thiếu cấu hình database vẫn sẽ được báo lỗi khi cần kết nối database.
+
+## Chạy giao diện React
+
+Từ thư mục gốc, cài dependencies và chạy Vite:
+
+```powershell
+npm install
 npm run dev
 ```
 
-Sau khi chạy lệnh, mở trình duyệt và truy cập:
-👉 **`http://localhost:3000`**
+Mở `http://localhost:3000`. Mặc định Vite proxy `/api` tới Tomcat root tại `http://localhost:8080`, vì vậy cần bật API trước. Nếu deploy WAR với context path khác `/`, hãy cập nhật target trong `vite.config.ts` tương ứng hoặc đặt `VITE_API_URL` (ví dụ `http://localhost:8080/tourbooking-api/api`) trước khi build giao diện.
 
----
+Tạo bản build giao diện:
 
-## 🔑 Tài Khoản Trải Nghiệm Có Sẵn
-
-Bạn có thể đăng nhập ngay bằng các tài khoản mẫu dưới đây (hoặc bấm nút đăng nhập nhanh trên giao diện):
-
-| Vai trò | Tên đăng nhập (Username) | Mật khẩu (Password) | Chức năng chính |
-| :--- | :--- | :--- | :--- |
-| **Quản Trị Viên (Admin)** | `admin` | `123456` | Toàn quyền quản trị hệ thống tại `/admin` |
-| **Khách Hàng (Customer)** | `customer1` | `123456` | Đặt tour, thanh toán, quản lý đơn hàng |
-| **Khách Mới (Guest)** | Tự đăng ký | Tùy chọn | Đăng ký trực tiếp tại trang `/register` |
-
-> 💡 **Tiện ích chuyển vai trò 1-click (Role Switcher)**:  
-> Khi đang đăng nhập, bạn có thể bấm vào avatar trên thanh Menu Navbar hoặc chân Sidebar Admin để chuyển đổi qua lại tức thì giữa **Quản trị viên** và **Khách hàng** mà không cần mất công đăng xuất và gõ lại mật khẩu!
-
----
-
-## 🌟 Tính Năng Nổi Bật
-
-### 👤 Dành cho Khách Hàng (Customer & Guest)
-- **Trang chủ & Khám phá**: Tìm kiếm tour theo từ khóa, địa điểm khởi hành, khoảng giá và danh mục điểm đến.
-- **Chi tiết tour**: Lịch trình chi tiết từng ngày, thông tin dịch vụ bao gồm/không bao gồm, tính giá linh hoạt theo số lượng khách, hình ảnh chất lượng cao.
-- **Giỏ hàng thông minh**: Thêm/xóa/sửa số lượng vé, lưu trạng thái tự động.
-- **Thanh toán đa phương thức (Checkout)**: Điền thông tin hành khách, lựa chọn phương thức thanh toán thực tế (VietQR ngân hàng 24/7, VNPAY, Thẻ quốc tế Visa/Mastercard, Tiền mặt).
-- **Lịch sử đơn hàng (`/my-orders`)**: Theo dõi tiến độ đơn, hủy đơn khi còn chờ xử lý, **In phiếu xác nhận / Hóa đơn điện tử** có mã QR.
-- **Hồ sơ cá nhân (`/profile`)**: Cập nhật thông tin liên hệ và tính năng đổi mật khẩu an toàn.
-
-### 🛡️ Dành cho Quản Trị Viên (Admin Panel `/admin`)
-- **Dashboard tổng quan**: Báo cáo doanh thu thực tế, số lượng đơn, khách hàng mới, tour đang mở bán và tuyến tour thịnh hành.
-- **Quản lý Tour (`/admin/tours`)**: 
-  - Thêm mới, chỉnh sửa thông tin tour, số chỗ trống, điểm đánh giá.
-  - Hỗ trợ nút **Gợi ý ảnh mẫu nhanh** (Hạ Long, Đà Nẵng, Phú Quốc, Sapa, Thái Lan, Nhật Bản) và xem trước ảnh trực tiếp.
-  - Bật/tắt trạng thái mở bán (`Mở bán` / `Tạm ẩn`) tức thì bằng 1 click.
-  - Bảo vệ dữ liệu: không cho phép xóa tour nếu tour đó đang có trong đơn hàng của khách.
-- **Quản lý Danh mục (`/admin/categories`)**: Thêm mới, sửa tên, ảnh đại diện và mô tả danh mục; thống kê số lượng tour thuộc từng nhóm.
-- **Quản lý Đơn hàng (`/admin/orders`)**: 
-  - Bộ lọc tab trạng thái hiển thị số lượng trực tiếp (`Tất cả`, `Chờ xử lý`, `Đã xác nhận`, `Hoàn thành`, `Đã hủy`).
-  - Tìm kiếm nhanh theo mã đơn, họ tên hoặc số điện thoại khách.
-  - Chuyển đổi trạng thái đơn hàng (Chờ xử lý → Đã xác nhận → Hoàn thành → Đã hủy).
-  - Trang chi tiết đơn hàng cho phép chỉnh sửa số lượng vé (tự động tính lại tổng tiền) và nút in hóa đơn/phiếu thu.
-- **Quản lý Người dùng (`/admin/users`)**: 
-  - Xem danh sách tài khoản, số lượng đơn hàng từng người đã đặt.
-  - Nâng quyền thành Admin hoặc hạ quyền về Customer với cơ chế bảo vệ an toàn (chống tự tước quyền của chính mình).
-  - Tạm khóa / Mở khóa tài khoản người dùng vi phạm.
-
----
-
-## 📱 Thiết Kế Đáp Ứng (Responsive UX/UI 2026)
-
-- Tương thích tối ưu trên mọi độ phân giải:
-  - 📱 **Mobile (360px - 480px)**: Sidebar admin tự động chuyển thành ngăn kéo trượt (Off-canvas Drawer) có lớp nền mờ (Backdrop), bảng dữ liệu hỗ trợ cuộn mượt mà.
-  - 💻 **Tablet (768px - 1024px)**: Menu co giãn linh hoạt, thanh tìm kiếm thông minh.
-  - 🖥️ **Desktop (1280px - 1920px+)**: Giao diện rộng rãi, thao tác trực quan.
-- Chuẩn hóa toàn bộ văn bản tiếng Việt Unicode UTF-8 chính xác, không lỗi font chữ.
-
----
-
-## 🛠️ Công Nghệ Sử Dụng
-
-- **Frontend**: React 18, React Router v6, React-Toastify, React Icons, Axios.
-- **Build Tool**: Vite (cực nhanh, hỗ trợ module bundling hiện đại).
-- **Backend & API**: Node.js 20+, Express.js, TypeScript (`tsx`).
-- **Bảo mật**: JWT (JSON Web Token) Bearer Authentication, bcryptjs mã hóa mật khẩu, Role-based Access Control (RBAC).
-
----
-
-## 📦 Các Lệnh Thường Dùng
-
-| Lệnh | Ý nghĩa |
-| :--- | :--- |
-| `npm run dev` | Khởi chạy máy chủ phát triển Fullstack tại cổng 3000 |
-| `npm run build` | Đóng gói sản phẩm tối ưu cho môi trường Production vào thư mục `/dist` |
-| `npm start` | Chạy ứng dụng production với Node.js |
-| `npm run lint` | Kiểm tra toàn bộ mã nguồn TypeScript, đảm bảo không có lỗi cú pháp |
-
----
-
-## 🚀 Hướng Dẫn Đẩy Lên GitHub Của Bạn
-
-Nếu bạn muốn tạo một repository mới trên GitHub cá nhân và đưa toàn bộ mã nguồn lên:
-
-```bash
-# 1. Khởi tạo Git
-git init
-
-# 2. Thêm tất cả các file vào Git (đã loại trừ node_modules qua .gitignore)
-git add .
-
-# 3. Tạo commit đầu tiên
-git commit -m "feat: complete travel tour booking platform with full customer and admin features"
-
-# 4. Đổi tên nhánh chính thành main
-git branch -M main
-
-# 5. Liên kết với kho lưu trữ GitHub của bạn (thay bằng URL repo của bạn)
-git remote add origin https://github.com/TÊN_GITHUB_CỦA_BẠN/TÊN_REPO.git
-
-# 6. Đẩy mã nguồn lên GitHub
-git push -u origin main
+```powershell
+npm run build
 ```
 
-Chúc bạn có những trải nghiệm tuyệt vời với nền tảng **Du Lịch Việt**! 🚀
+## Kiểm thử bằng Postman
+
+Import collection `postman/TourBooking.postman_collection.json`. Mặc định collection dùng `http://localhost:8080/tourbooking-api/api`.
+
+1. Gửi **Admin login** hoặc **Customer login** để lưu token vào collection variables.
+2. Gọi endpoint public để kiểm tra danh mục/tour; các request cần đăng nhập tự gửi Bearer token.
+3. Với request quản trị, đăng nhập admin trước. Request tạo đơn lưu `orderId` vào collection variables để dùng tiếp ở request xem/hủy đơn.
+
+Collection bao gồm xác thực, danh mục, tìm kiếm/lọc tour, hồ sơ, đơn hàng và các thao tác quản trị thường dùng. API JSON dùng UTF-8; lỗi trả về dạng `{ "message": "..." }`.
+
+## API
+
+Các endpoint được giữ tương thích với client React:
+
+- Public: `/auth/login`, `/auth/register`, `/categories`, `/tours`, `/tours/search`, `/tours/filter`.
+- Người dùng: `/users/me`, `/orders`, `/orders/my`, `/orders/{id}`, `/orders/{id}/cancel`.
+- Quản trị (Bearer token có role `ADMIN`): `/admin/dashboard`, `/admin/tours`, `/admin/categories`, `/admin/users`, `/admin/orders`.
+
+Khi đặt tour, server tính tổng tiền từ giá hiện tại trong database, kiểm tra số chỗ còn lại và cập nhật tồn chỗ trong transaction; không tin giá/tổng tiền do client gửi lên.
+
+Checkout hiện chỉ tạo yêu cầu ở trạng thái `PENDING`, chưa tích hợp cổng thanh toán. Tour đã qua ngày khởi hành bị từ chối ở giao diện và API. Lịch trình theo ngày, dịch vụ bao gồm và chính sách đổi/hủy chưa có trường dữ liệu riêng nên giao diện báo rõ khi chưa được cung cấp.

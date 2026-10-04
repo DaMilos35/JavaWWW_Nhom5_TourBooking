@@ -10,13 +10,11 @@ import {
   FaSignOutAlt, 
   FaCompass, 
   FaBell, 
-  FaExchangeAlt,
   FaUserShield,
   FaHome
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { adminApi } from '../../api/axiosConfig';
-import { toast } from 'react-toastify';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
@@ -25,7 +23,7 @@ const AdminLayout = () => {
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, switchDemoAccount } = useAuth();
+  const { user, logout } = useAuth();
 
   // Tải số lượng đơn hàng đang chờ xử lý để hiển thị thông báo
   useEffect(() => {
@@ -52,17 +50,6 @@ const AdminLayout = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  // Chuyển sang tài khoản khách hàng để kiểm thử trải nghiệm mua tour
-  const handleQuickSwitchToCustomer = async () => {
-    try {
-      await switchDemoAccount('CUSTOMER');
-      toast.info('Đã chuyển sang tài khoản khách hàng (customer1)');
-      navigate('/');
-    } catch (e) {
-      toast.error('Không thể chuyển tài khoản');
-    }
   };
 
   const navItems = [
@@ -135,32 +122,6 @@ const AdminLayout = () => {
           </ul>
         </nav>
 
-        {/* Tiện ích chuyển đổi nhanh tài khoản dưới chân sidebar */}
-        {sidebarOpen && (
-          <div style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            <button 
-              onClick={handleQuickSwitchToCustomer}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '9px 12px',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '8px',
-                color: '#cbd5e1',
-                fontSize: '0.82rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              title="Đổi vai trò sang khách hàng để thử nghiệm đặt tour"
-            >
-              <FaExchangeAlt /> Thử nghiệm: Sang Khách
-            </button>
-          </div>
-        )}
       </aside>
 
       {/* Khu vực nội dung chính */}

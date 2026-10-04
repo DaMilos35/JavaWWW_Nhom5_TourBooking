@@ -4,6 +4,7 @@ import { FaArrowLeft, FaPrint, FaCheck, FaTimes, FaSave } from 'react-icons/fa';
 import { adminApi, orderApi } from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import FallbackImage from '../../components/common/FallbackImage';
 
 const AdminOrderDetail = () => {
   const { id } = useParams();
@@ -173,9 +174,9 @@ const AdminOrderDetail = () => {
                 {order.orderDetails?.map(detail => (
                   <tr key={detail.id || detail.orderDetailId} style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '12px' }}>
-                      <img 
-                        src={detail.tour?.imageUrl || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=100&q=80'} 
-                        alt="tour" 
+                      <FallbackImage
+                        src={detail.tour?.imageUrl}
+                        alt={detail.tour?.name || 'Tour'}
                         style={{ width: '56px', height: '42px', objectFit: 'cover', borderRadius: '6px' }}
                       />
                     </td>

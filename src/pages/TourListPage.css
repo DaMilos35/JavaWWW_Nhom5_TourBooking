@@ -114,7 +114,28 @@
 
 .sort-select {
   width: 200px;
+  padding: 10px 36px 10px 14px;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-pill);
+  color: var(--text-pure);
+  background-color: var(--bg-main);
+  appearance: none;
+  -webkit-appearance: none;
+  color-scheme: dark;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+}
+
+.sort-select option {
+  color: var(--text-pure);
+  background-color: var(--bg-surface);
+}
+
+.sort-select:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
 .tours-grid-list {
@@ -131,6 +152,33 @@
 .empty-state h3 {
   color: var(--text-pure);
   margin-bottom: 12px;
+}
+
+.filter-error {
+  display: grid;
+  gap: 8px;
+  color: #fca5a5;
+  font-size: 0.85rem;
+}
+
+.filter-error button {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #38bdf8;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.load-error {
+  margin-bottom: 24px;
+  color: #fca5a5;
+}
+
+.load-error p {
+  margin-bottom: 16px;
 }
 
 @media (max-width: 992px) {

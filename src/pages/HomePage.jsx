@@ -1,43 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaSearch, FaRegCompass, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaCalendarAlt, FaUserFriends, FaArrowRight } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaSearch, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaArrowRight } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import FallbackImage from '../components/common/FallbackImage';
+import SelectDropdown from '../components/common/SelectDropdown';
 import './HomePage.css';
 
 const HomePage = () => {
   const [tours, setTours] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
+  const [priceRange, setPriceRange] = useState('');
   const navigate = useNavigate();
 
+  const fetchData = async () => {
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const [toursRes, catsRes] = await Promise.all([
+        tourApi.getAll(),
+        categoryApi.getAll()
+      ]);
+      setTours(toursRes.data);
+      setCategories(catsRes.data);
+    } catch (error) {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [toursRes, catsRes] = await Promise.all([
-          tourApi.getAll(),
-          categoryApi.getAll()
-        ]);
-        setTours(toursRes.data);
-        setCategories(catsRes.data);
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu trang chủ:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchKeyword.trim()) {
-      navigate(`/tours?keyword=${encodeURIComponent(searchKeyword)}`);
-    } else {
-      navigate('/tours');
-    }
+    const params = new URLSearchParams();
+    if (searchKeyword.trim()) params.set('keyword', searchKeyword.trim());
+    if (searchCategory) params.set('category', searchCategory);
+    if (priceRange) params.set('price', priceRange);
+    const query = params.toString();
+    navigate(query ? `/tours?${query}` : '/tours');
+  };
+
+  const retryLoading = () => {
+    fetchData();
+  };
+
+  const formatTourCount = (count) => {
+    const tourCount = Number(count) || 0;
+    return `${tourCount} tour`;
   };
 
   if (loading) return <LoadingSpinner />;
@@ -46,20 +64,20 @@ const HomePage = () => {
 
   return (
     <div className="homepage">
-      {/* Premium Hero Section */}
       <section className="hero-section">
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <h1 className="hero-title">Khám Phá Thế Giới<br/>Theo Cách Của Bạn</h1>
-          <p className="hero-subtitle">Hàng ngàn điểm đến tuyệt vời với trải nghiệm đẳng cấp đang chờ đón bạn.</p>
+          <h1 className="hero-title">Tìm tour phù hợp<br />cho chuyến đi sắp tới</h1>
+          <p className="hero-subtitle">So sánh điểm đến, lịch trình và giá trước khi đặt tour.</p>
           
           <form className="search-widget-wrapper" onSubmit={handleSearch}>
             <div className="search-field">
-              <FaMapMarkerAlt className="search-icon" />
+              <FaMapMarkerAlt className="search-icon" aria-hidden="true" />
               <div className="search-input-group">
-                <span className="search-label">Điểm đến</span>
+                <label className="search-label" htmlFor="home-tour-keyword">Điểm đến</label>
                 <input 
-                  type="text" 
+                  id="home-tour-keyword"
+                  type="search"
                   placeholder="Bạn muốn đi đâu?" 
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
@@ -68,99 +86,132 @@ const HomePage = () => {
               </div>
             </div>
 
-            <div className="search-field" style={{ flex: 0.8 }}>
-              <FaCalendarAlt className="search-icon" />
+            <div className="search-field">
               <div className="search-input-group">
-                <span className="search-label">Ngày đi</span>
-                <input type="text" placeholder="Thêm ngày" className="search-input" />
+                <label className="search-label" htmlFor="home-tour-category">Danh mục</label>
+                <SelectDropdown
+                  id="home-tour-category"
+                  label="Danh mục"
+                  value={searchCategory}
+                  onChange={setSearchCategory}
+                  options={[
+                    { value: '', label: 'Tất cả tour' },
+                    ...categories.map((category) => ({
+                      value: String(category.id || category.categoryId),
+                      label: category.name || category.categoryName,
+                    })),
+                  ]}
+                />
               </div>
             </div>
 
-            <div className="search-field" style={{ flex: 0.8, borderRight: 'none' }}>
-              <FaUserFriends className="search-icon" />
+            <div className="search-field">
               <div className="search-input-group">
-                <span className="search-label">Khách</span>
-                <input type="text" placeholder="1 Khách, 1 Phòng" className="search-input" />
+                <label className="search-label" htmlFor="home-tour-price">Ngân sách</label>
+                <SelectDropdown
+                  id="home-tour-price"
+                  label="Ngân sách"
+                  value={priceRange}
+                  onChange={setPriceRange}
+                  options={[
+                    { value: '', label: 'Mọi mức giá' },
+                    { value: 'low', label: 'Dưới 5 triệu' },
+                    { value: 'mid', label: '5–10 triệu' },
+                    { value: 'high', label: 'Trên 10 triệu' },
+                  ]}
+                />
               </div>
             </div>
 
             <button type="submit" className="btn-search-massive">
-              <FaSearch /> Tìm Kiếm
+              <FaSearch aria-hidden="true" /> Tìm Kiếm
             </button>
           </form>
         </div>
       </section>
 
-      {/* Featured Categories (Traveloka Style) */}
+      {loadError && (
+        <div className="container">
+          <div className="homepage-error card-surface" role="alert">
+            <p>Chưa tải được danh sách tour. Kiểm tra kết nối máy chủ rồi thử lại.</p>
+            <button type="button" className="btn btn-outline" onClick={retryLoading}>Thử lại</button>
+          </div>
+        </div>
+      )}
+
       <section className="categories-section container">
         <div className="section-header">
           <div>
-            <h2 className="section-title">Điểm Đến Yêu Thích</h2>
-            <p className="section-subtitle">Gợi ý những địa điểm không thể bỏ qua trong mùa này</p>
+            <h2 className="section-title">Tour theo danh mục</h2>
+            <p className="section-subtitle">Chọn nhóm tour bạn muốn khám phá</p>
           </div>
         </div>
         
         <div className="category-cards">
           {categories.map(cat => (
             <Link to={`/tours?category=${cat.id || cat.categoryId}`} key={cat.id || cat.categoryId} className="category-card">
-              <img 
-                src={cat.imageUrl || 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80'} 
+              <FallbackImage
+                src={cat.imageUrl}
                 alt={cat.name || cat.categoryName} 
                 className="category-img"
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/600x400?text=Category'; }}
+                loading="lazy"
               />
               <div className="category-overlay">
                 <h3>{cat.name || cat.categoryName}</h3>
-                <span className="category-count">Hơn 50+ Tours</span>
+                <span className="category-count">{formatTourCount(cat.tourCount)}</span>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* Features Grid */}
       <section className="features-section container">
         <div className="features-grid">
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaPlaneDeparture /></div>
-            <h3>Bay Mọi Nơi</h3>
-            <p>Hàng ngàn chuyến bay và điểm đến với mạng lưới đối tác toàn cầu.</p>
+            <h3>Nhiều lựa chọn</h3>
+            <p>Xem các hành trình trong nước, quốc tế và nghỉ dưỡng tại một nơi.</p>
           </div>
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaHandHoldingUsd /></div>
-            <h3>Giá Tốt Bất Ngờ</h3>
-            <p>Luôn đảm bảo mức giá cạnh tranh nhất, không phí ẩn.</p>
+            <h3>Giá rõ ràng</h3>
+            <p>Xem giá tour và số chỗ còn lại trước khi thêm vào giỏ hàng.</p>
           </div>
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaShieldAlt /></div>
-            <h3>Giao Dịch An Toàn</h3>
-            <p>Mã hóa chuẩn quốc tế, bảo vệ thông tin cá nhân và thẻ của bạn tuyệt đối.</p>
+            <h3>Theo dõi đơn hàng</h3>
+            <p>Đăng nhập để xem trạng thái và thông tin các đơn đã đặt.</p>
           </div>
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaHeadset /></div>
-            <h3>Hỗ Trợ Chuyên Nghiệp</h3>
-            <p>Đội ngũ CSKH tận tâm sẵn sàng hỗ trợ bạn 24/7 trong mọi tình huống.</p>
+            <h3>Thông tin liên hệ</h3>
+            <p>Liên hệ đội ngũ hỗ trợ qua số điện thoại hoặc email ở cuối trang.</p>
           </div>
         </div>
       </section>
 
-      {/* Featured Tours List */}
       <section className="featured-tours-section container" style={{ marginBottom: '100px' }}>
         <div className="section-header">
           <div>
-            <h2 className="section-title">Tour Thịnh Hành</h2>
-            <p className="section-subtitle">Khám phá các ưu đãi tốt nhất đang được săn đón</p>
+            <h2 className="section-title">Tour đang mở bán</h2>
+            <p className="section-subtitle">Xem thông tin và giá của các tour hiện có</p>
           </div>
           <Link to="/tours" className="btn btn-outline" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             Xem Tất Cả <FaArrowRight />
           </Link>
         </div>
         
-        <div className="tour-grid">
-          {featuredTours.map(tour => (
-            <TourCard key={tour.id || tour.tourId} tour={tour} />
-          ))}
-        </div>
+        {featuredTours.length > 0 ? (
+          <div className="tour-grid">
+            {featuredTours.map(tour => (
+              <TourCard key={tour.id || tour.tourId} tour={tour} />
+            ))}
+          </div>
+        ) : !loadError ? (
+          <div className="homepage-error card-surface">
+            <p>Hiện chưa có tour mở bán.</p>
+          </div>
+        ) : null}
       </section>
     </div>
   );

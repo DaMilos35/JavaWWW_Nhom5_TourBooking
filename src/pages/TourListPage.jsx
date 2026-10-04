@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FaSearch, FaFilter, FaRedo } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
@@ -8,18 +8,22 @@ import './TourListPage.css';
 
 const TourListPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const paramCategory = searchParams.get('category');
   const paramKeyword = searchParams.get('keyword');
+  const paramPrice = searchParams.get('price');
 
   const [tours, setTours] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [categoryLoadError, setCategoryLoadError] = useState(false);
   
   // Filters
   const [searchTerm, setSearchTerm] = useState(paramKeyword || '');
   const [selectedCategory, setSelectedCategory] = useState(paramCategory || '');
-  const [priceRange, setPriceRange] = useState('');
+  const [priceRange, setPriceRange] = useState(paramPrice || '');
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
@@ -27,8 +31,9 @@ const TourListPage = () => {
   }, []);
 
   useEffect(() => {
-    if (paramCategory) setSelectedCategory(paramCategory);
-    if (paramKeyword) setSearchTerm(paramKeyword);
+    setSelectedCategory(paramCategory || '');
+    setSearchTerm(paramKeyword || '');
+    setPriceRange(paramPrice || '');
   }, [location.search]);
 
   useEffect(() => {
@@ -36,16 +41,18 @@ const TourListPage = () => {
   }, [selectedCategory]);
 
   const fetchCategories = async () => {
+    setCategoryLoadError(false);
     try {
       const res = await categoryApi.getAll();
       setCategories(res.data);
     } catch (error) {
-      console.error('Lỗi khi tải danh mục', error);
+      setCategoryLoadError(true);
     }
   };
 
   const fetchTours = async () => {
     setLoading(true);
+    setLoadError('');
     try {
       let res;
       if (selectedCategory) {
@@ -55,7 +62,8 @@ const TourListPage = () => {
       }
       setTours(res.data || []);
     } catch (error) {
-      console.error('Lỗi khi tải tours', error);
+      setTours([]);
+      setLoadError('Chưa tải được danh sách tour. Kiểm tra kết nối máy chủ rồi thử lại.');
     } finally {
       setLoading(false);
     }
@@ -63,7 +71,12 @@ const TourListPage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Search is handled reactively by filtered results
+    const params = new URLSearchParams();
+    if (searchTerm.trim()) params.set('keyword', searchTerm.trim());
+    if (selectedCategory) params.set('category', selectedCategory);
+    if (priceRange) params.set('price', priceRange);
+    const query = params.toString();
+    navigate(query ? `/tours?${query}` : '/tours');
   };
 
   const resetFilters = () => {
@@ -71,7 +84,7 @@ const TourListPage = () => {
     setSelectedCategory('');
     setPriceRange('');
     setSortBy('newest');
-    fetchTours();
+    navigate('/tours');
   };
 
   // Client-side filtering & sorting for instant response
@@ -93,6 +106,13 @@ const TourListPage = () => {
   if (priceRange === 'mid') displayedTours = displayedTours.filter(t => t.price >= 5000000 && t.price <= 10000000);
   if (priceRange === 'high') displayedTours = displayedTours.filter(t => t.price > 10000000);
 
+  if (sortBy === 'newest') {
+    const getCreatedAt = (tour) => {
+      const timestamp = Date.parse(tour.createdAt || tour.created_at || '');
+      return Number.isFinite(timestamp) ? timestamp : 0;
+    };
+    displayedTours.sort((a, b) => getCreatedAt(b) - getCreatedAt(a));
+  }
   if (sortBy === 'price_asc') displayedTours.sort((a, b) => a.price - b.price);
   if (sortBy === 'price_desc') displayedTours.sort((a, b) => b.price - a.price);
 
@@ -132,6 +152,12 @@ const TourListPage = () => {
                     </label>
                   );
                 })}
+                {categoryLoadError && (
+                  <div className="filter-error" role="status">
+                    <span>Chưa tải được danh mục tour.</span>
+                    <button type="button" onClick={fetchCategories}>Thử lại</button>
+                  </div>
+                )}
               </div>
 
               <div className="filter-group">
@@ -156,6 +182,7 @@ const TourListPage = () => {
 
               <button 
                 className="btn btn-outline w-100 mt-2" 
+                type="button"
                 onClick={resetFilters}
                 style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
@@ -169,8 +196,9 @@ const TourListPage = () => {
             <div className="search-bar-top card-surface">
               <form onSubmit={handleSearch} className="search-form-list">
                 <input 
-                  type="text" 
+                  type="search"
                   className="form-control" 
+                  aria-label="Tìm theo điểm đến, tên tour hoặc thành phố khởi hành"
                   placeholder="Tìm kiếm điểm đến, tên tour hoặc thành phố khởi hành..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -184,22 +212,16 @@ const TourListPage = () => {
                     outline: 'none'
                   }}
                 />
-                <button type="submit" className="btn btn-primary" style={{ borderRadius: '8px', width: 'auto', padding: '10px 16px' }}>
+                <button type="submit" className="btn btn-primary" aria-label="Tìm tour" style={{ borderRadius: '8px', width: 'auto', padding: '10px 16px' }}>
                   <FaSearch />
                 </button>
               </form>
               
               <select 
                 className="form-control sort-select" 
+                aria-label="Sắp xếp danh sách tour"
                 value={sortBy} 
                 onChange={(e) => setSortBy(e.target.value)}
-                style={{
-                  background: '#0b0f19',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#fff',
-                  padding: '10px 14px',
-                  borderRadius: '8px'
-                }}
               >
                 <option value="newest">Sắp xếp: Mới nhất</option>
                 <option value="price_asc">Sắp xếp: Giá tăng dần</option>
@@ -207,9 +229,16 @@ const TourListPage = () => {
               </select>
             </div>
 
+            {loadError && (
+              <div className="empty-state card-surface load-error" role="alert">
+                <p>{loadError}</p>
+                <button type="button" className="btn btn-primary" onClick={fetchTours}>Thử lại</button>
+              </div>
+            )}
+
             {loading ? (
               <LoadingSpinner />
-            ) : displayedTours.length > 0 ? (
+            ) : loadError ? null : displayedTours.length > 0 ? (
               <div className="tours-grid-list">
                 {displayedTours.map(tour => (
                   <TourCard key={tour.id || tour.tourId} tour={tour} />
