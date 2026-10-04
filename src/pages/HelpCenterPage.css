@@ -7,7 +7,11 @@
   padding: 48px 24px 38px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
+<<<<<<< HEAD
   background: linear-gradient(125deg, #ffffff, #f7f9fc);
+=======
+  background: linear-gradient(125deg, var(--bg-surface), #17283a);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   text-align: center;
 }
 
@@ -58,7 +62,11 @@
 }
 
 .help-search input::placeholder {
+<<<<<<< HEAD
   color: #6c757d;
+=======
+  color: #94a3b8;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .help-category-list {
@@ -83,7 +91,11 @@
 .help-category-list button:hover,
 .help-category-list button.is-active {
   border-color: var(--accent-blue);
+<<<<<<< HEAD
   background: #f7f9fc;
+=======
+  background: rgba(14, 165, 233, 0.1);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   color: var(--text-pure);
 }
 

@@ -9,6 +9,7 @@ Giao diện có danh sách tour đã lưu (lưu cục bộ theo trình duyệt),
 - Frontend: React 18, Vite, React Router, Axios.
 - Backend: Java 17+, Jakarta Servlet 6, Apache Tomcat 10.1+, Maven WAR.
 - Cơ sở dữ liệu: MariaDB / MySQL.
+<<<<<<< HEAD
 
 ## Chạy nhanh trên máy mới bằng Docker
 
@@ -38,6 +39,8 @@ Các mật khẩu mặc định trong Compose chỉ dành cho chạy local/demo.
 Nếu service không khởi động, xem log bằng `docker compose logs --tail=100 db api web`. Để dừng các service mà vẫn giữ dữ liệu, chạy `docker compose down`.
 
 ## Chuẩn bị cơ sở dữ liệu
+=======
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 - Xác thực: JWT Bearer token; mật khẩu được băm bằng BCrypt.
 
 ## Chuẩn bị cơ sở dữ liệu
@@ -91,6 +94,7 @@ http://localhost:8080/tourbooking-api/api
 
 ## Chạy giao diện React
 
+<<<<<<< HEAD
 Chỉ cần cách này khi phát triển giao diện trực tiếp trên máy host thay vì chạy Compose. Yêu cầu Node.js 20+; dùng `npm ci` để cài đúng các phiên bản đã khóa trong `package-lock.json`:
 
 ```powershell
@@ -99,6 +103,16 @@ npm run dev
 ```
 
 Mở `http://localhost:3000`. Cần khởi động Tomcat và deploy `tourbooking-api.war` trước; Vite proxy `/api` tới context `/tourbooking-api` tại `http://localhost:8080/tourbooking-api`. Nếu WAR được deploy với tên/context path khác, cập nhật target trong `vite.config.ts` tương ứng hoặc đặt `VITE_API_URL` (ví dụ `http://localhost:8080/tourbooking-api/api`) trước khi build giao diện. Nếu API không chạy, kiểm tra Tomcat ở cổng `8080` và trạng thái deploy của ứng dụng trước khi thử lại.
+=======
+Từ thư mục gốc, cài dependencies và chạy Vite:
+
+```powershell
+npm install
+npm run dev
+```
+
+Mở `http://localhost:3000`. Mặc định Vite proxy `/api` tới Tomcat root tại `http://localhost:8080`, vì vậy cần bật API trước. Nếu deploy WAR với context path khác `/`, hãy cập nhật target trong `vite.config.ts` tương ứng hoặc đặt `VITE_API_URL` (ví dụ `http://localhost:8080/tourbooking-api/api`) trước khi build giao diện.
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 
 Tạo bản build giao diện:
 
