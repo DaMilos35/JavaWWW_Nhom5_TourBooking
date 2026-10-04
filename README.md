@@ -69,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Mở `http://localhost:3000`. Mặc định Vite proxy `/api` tới Tomcat root tại `http://localhost:8080`, vì vậy cần bật API trước. Nếu deploy WAR với context path khác `/`, hãy cập nhật target trong `vite.config.ts` tương ứng hoặc đặt `VITE_API_URL` (ví dụ `http://localhost:8080/tourbooking-api/api`) trước khi build giao diện.
+Mở `http://localhost:3000`. Cần khởi động Tomcat và deploy `tourbooking-api.war` trước; Vite proxy `/api` tới context `/tourbooking-api` tại `http://localhost:8080/tourbooking-api`. Nếu WAR được deploy với tên/context path khác, cập nhật target trong `vite.config.ts` tương ứng hoặc đặt `VITE_API_URL` (ví dụ `http://localhost:8080/tourbooking-api/api`) trước khi build giao diện. Nếu API không chạy, kiểm tra Tomcat ở cổng `8080` và trạng thái deploy của ứng dụng trước khi thử lại.
 
 Tạo bản build giao diện:
 

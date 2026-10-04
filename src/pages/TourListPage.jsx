@@ -20,7 +20,7 @@ const TourListPage = () => {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [categoryLoadError, setCategoryLoadError] = useState(false);
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState(paramKeyword || '');
   const [selectedCategory, setSelectedCategory] = useState(paramCategory || '');
@@ -95,9 +95,9 @@ const TourListPage = () => {
     const tourLoc = (tour.departureLocation || '').toLowerCase();
     const query = searchTerm.toLowerCase().trim();
 
-    const matchesSearch = !query || 
-      tourName.includes(query) || 
-      tourDesc.includes(query) || 
+    const matchesSearch = !query ||
+      tourName.includes(query) ||
+      tourDesc.includes(query) ||
       tourLoc.includes(query);
 
     return matchesSearch;
@@ -125,16 +125,16 @@ const TourListPage = () => {
           <aside className="sidebar">
             <div className="filter-card card-surface">
               <h3 className="filter-title"><FaFilter className="text-accent" /> BỘ LỌC TÌM KIẾM</h3>
-              
+
               <div className="filter-group">
                 <h4>Danh Mục Tour</h4>
                 <label className="radio-label">
-                  <input 
-                    type="radio" 
-                    name="category" 
-                    value="" 
-                    checked={selectedCategory === ''} 
-                    onChange={() => setSelectedCategory('')} 
+                  <input
+                    type="radio"
+                    name="category"
+                    value=""
+                    checked={selectedCategory === ''}
+                    onChange={() => setSelectedCategory('')}
                   />
                   Tất cả các tour
                 </label>
@@ -142,10 +142,10 @@ const TourListPage = () => {
                   const catIdStr = String(cat.id || cat.categoryId);
                   return (
                     <label key={catIdStr} className="radio-label">
-                      <input 
-                        type="radio" 
-                        name="category" 
-                        value={catIdStr} 
+                      <input
+                        type="radio"
+                        name="category"
+                        value={catIdStr}
                         checked={String(selectedCategory) === catIdStr}
                         onChange={() => setSelectedCategory(catIdStr)}
                       />
@@ -181,8 +181,8 @@ const TourListPage = () => {
                 </label>
               </div>
 
-              <button 
-                className="btn btn-outline w-100 mt-2" 
+              <button
+                className="btn btn-outline w-100 mt-2"
                 type="button"
                 onClick={resetFilters}
                 style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
@@ -196,28 +196,19 @@ const TourListPage = () => {
           <main className="main-content">
             <div className="search-bar-top card-surface">
               <form onSubmit={handleSearch} className="search-form-list">
-                <input 
+                <input
                   type="search"
-                  className="form-control" 
+                  className="form-control tour-search-input"
                   aria-label="Tìm theo điểm đến, tên tour hoặc thành phố khởi hành"
-                  placeholder="Tìm kiếm điểm đến, tên tour hoặc thành phố khởi hành..." 
+                  placeholder="Tìm kiếm điểm đến, tên tour hoặc thành phố khởi hành..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    flex: 1,
-                    background: '#0b0f19',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff',
-                    padding: '10px 16px',
-                    borderRadius: '8px',
-                    outline: 'none'
-                  }}
                 />
-                <button type="submit" className="btn btn-primary" aria-label="Tìm tour" style={{ borderRadius: '8px', width: 'auto', padding: '10px 16px' }}>
+                <button type="submit" className="btn btn-primary" aria-label="Tìm tour">
                   <FaSearch />
                 </button>
               </form>
-              
+
               <SelectDropdown
                 id="tour-sort"
                 className="sort-select-dropdown"

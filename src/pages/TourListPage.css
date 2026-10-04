@@ -104,6 +104,20 @@
   border-radius: var(--radius-pill);
 }
 
+.tour-search-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-pure);
+}
+
+.tour-search-input::placeholder {
+  color: var(--text-muted);
+}
+
 .search-form-list .btn {
   border-radius: 50%;
   width: 50px;

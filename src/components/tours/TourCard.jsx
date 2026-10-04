@@ -38,15 +38,15 @@ const TourCard = ({ tour }) => {
             <span><FaMapMarkerAlt /> {tour.departureLocation || 'Việt Nam'}</span>
             <span aria-hidden="true">·</span>
             <span><FaClock /> {tour.duration || 3} ngày</span>
-            {hasSeatCount && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span className="tc-seats">
-                  {tour.availableSeats > 0 ? `Còn ${tour.availableSeats} chỗ` : 'Hết chỗ'}
-                </span>
-              </>
-            )}
           </div>
+
+          {hasSeatCount && (
+            <div className="tc-seats-row">
+              <span className="tc-seats">
+                {tour.availableSeats > 0 ? `Còn ${tour.availableSeats} chỗ` : 'Hết chỗ'}
+              </span>
+            </div>
+          )}
 
           <div className="tc-footer">
             <div className="tc-price-wrap">
