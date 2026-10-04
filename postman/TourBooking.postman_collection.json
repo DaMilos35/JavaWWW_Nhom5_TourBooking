@@ -8,11 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-<<<<<<< HEAD
-      "value": "http://localhost:8080/api"
-=======
-      "value": "http://localhost:8080/tourbooking-api/api"
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
+      "value": "http://localhost:3000/api"
     },
     {
       "key": "adminToken",

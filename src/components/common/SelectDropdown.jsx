@@ -2,11 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import './SelectDropdown.css';
 
-<<<<<<< HEAD
 const SelectDropdown = ({ id, label, value, options, onChange, className = '' }) => {
-=======
-const SelectDropdown = ({ id, label, value, options, onChange }) => {
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef(null);
@@ -83,11 +79,7 @@ const SelectDropdown = ({ id, label, value, options, onChange }) => {
   };
 
   return (
-<<<<<<< HEAD
     <div className={`select-dropdown ${className}`.trim()} ref={rootRef}>
-=======
-    <div className="select-dropdown" ref={rootRef}>
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
       <button
         id={id}
         ref={triggerRef}
