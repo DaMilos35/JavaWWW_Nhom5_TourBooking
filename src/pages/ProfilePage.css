@@ -33,18 +33,18 @@
 }
 
 .profile-sidebar {
-  background: #1c2434;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 20px;
   padding: 32px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #e2e8f0;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08);
 }
 
 .avatar-placeholder {
   width: 90px;
   height: 90px;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  background: linear-gradient(135deg, #1f497d, #173a64);
   color: #ffffff;
   border-radius: 50%;
   display: flex;
@@ -53,35 +53,35 @@
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0 auto;
-  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 8px 16px rgba(31, 73, 125, 0.2);
 }
 
 .profile-sidebar h3 {
-  color: #ffffff;
+  color: #1f497d;
   margin-top: 16px;
   font-size: 1.25rem;
 }
 
 .profile-sidebar .text-muted {
-  color: #94a3b8 !important;
+  color: #6c757d !important;
 }
 
 .profile-main {
-  background: #1c2434;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 20px;
   padding: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08);
 }
 
 .profile-main h2 {
-  color: #ffffff;
+  color: #1f497d;
   font-size: 1.5rem;
   margin-bottom: 24px;
 }
 
 .profile-main h3 {
-  color: #ffffff;
+  color: #1f497d;
   font-size: 1.15rem;
   margin-bottom: 16px;
 }
@@ -93,7 +93,7 @@
 .profile-main .form-label {
   display: block;
   font-weight: 600;
-  color: #94a3b8;
+  color: #6c757d;
   margin-bottom: 6px;
   font-size: 0.9rem;
 }
@@ -101,16 +101,16 @@
 .profile-main .form-control {
   width: 100%;
   padding: 10px 14px;
-  background: #0b0f19;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #f7f9fc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  color: #ffffff;
+  color: #1f497d;
   font-size: 0.95rem;
   box-sizing: border-box;
 }
 
 .profile-main .form-control:focus {
-  border-color: #0ea5e9;
+  border-color: #1f497d;
   outline: none;
 }
 

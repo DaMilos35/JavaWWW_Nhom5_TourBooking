@@ -11,11 +11,11 @@
 
 .checkout-page .checkout-form-section,
 .checkout-page .checkout-sidebar {
-  background: #1c2434;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 20px;
   padding: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08);
 }
 
 .checkout-page .checkout-sidebar {
@@ -24,17 +24,17 @@
 }
 
 .checkout-page h2 {
-  color: #ffffff;
+  color: #1f497d;
   font-weight: 800;
   letter-spacing: -0.5px;
 }
 
 .checkout-page h3 {
   font-size: 1.25rem;
-  color: #ffffff;
+  color: #1f497d;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .checkout-page .form-group {
@@ -44,7 +44,7 @@
 .checkout-page .form-label {
   display: block;
   font-weight: 600;
-  color: #94a3b8;
+  color: #6c757d;
   margin-bottom: 6px;
   font-size: 0.9rem;
 }
@@ -52,16 +52,16 @@
 .checkout-page .form-control {
   width: 100%;
   padding: 10px 14px;
-  background: #0b0f19;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #f7f9fc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  color: #ffffff;
+  color: #1f497d;
   font-size: 0.95rem;
   box-sizing: border-box;
 }
 
 .checkout-page .form-control:focus {
-  border-color: #0ea5e9;
+  border-color: #1f497d;
   outline: none;
 }
 
@@ -71,22 +71,22 @@
   gap: 6px;
   margin: 4px 0 24px;
   padding: 14px 16px;
-  border: 1px solid rgba(14, 165, 233, 0.3);
-  border-left: 3px solid #0ea5e9;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #1f497d;
   border-radius: 8px;
-  background: rgba(14, 165, 233, 0.08);
-  color: #cbd5e1;
+  background: #f7f9fc;
+  color: #6c757d;
   font-size: 0.9rem;
   line-height: 1.55;
 }
 
 .checkout-notice strong {
-  color: #f8fafc;
+  color: #1f497d;
 }
 
 .checkout-total-note {
   margin: 12px 0 0;
-  color: #94a3b8;
+  color: #6c757d;
   font-size: 0.85rem;
   line-height: 1.5;
 }
@@ -103,7 +103,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .summary-item:last-child {
@@ -111,25 +111,25 @@
 }
 
 .item-info strong {
-  color: #ffffff;
+  color: #1f497d;
   font-size: 0.95rem;
   display: block;
   margin-bottom: 4px;
 }
 
 .item-info .text-muted {
-  color: #94a3b8;
+  color: #6c757d;
   font-size: 0.85rem;
 }
 
 .item-total-price {
   font-weight: 700;
-  color: #38bdf8;
+  color: #ff5722;
   font-size: 1rem;
 }
 
 .summary-total {
-  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  border-top: 1px dashed #e2e8f0;
   padding-top: 18px;
 }
 
@@ -139,12 +139,12 @@
   align-items: center;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #1f497d;
 }
 
 .total-row-checkout .price {
   font-size: 1.5rem;
-  color: #38bdf8;
+  color: #ff5722;
   font-weight: 800;
 }
 

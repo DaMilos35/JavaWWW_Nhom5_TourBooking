@@ -4,6 +4,7 @@ import { FaSearch, FaFilter, FaRedo } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import SelectDropdown from '../components/common/SelectDropdown';
 import './TourListPage.css';
 
 const TourListPage = () => {
@@ -217,16 +218,18 @@ const TourListPage = () => {
                 </button>
               </form>
               
-              <select 
-                className="form-control sort-select" 
-                aria-label="Sắp xếp danh sách tour"
-                value={sortBy} 
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="newest">Sắp xếp: Mới nhất</option>
-                <option value="price_asc">Sắp xếp: Giá tăng dần</option>
-                <option value="price_desc">Sắp xếp: Giá giảm dần</option>
-              </select>
+              <SelectDropdown
+                id="tour-sort"
+                className="sort-select-dropdown"
+                label="Sắp xếp danh sách tour"
+                value={sortBy}
+                onChange={setSortBy}
+                options={[
+                  { value: 'newest', label: 'Sắp xếp: Mới nhất' },
+                  { value: 'price_asc', label: 'Sắp xếp: Giá tăng dần' },
+                  { value: 'price_desc', label: 'Sắp xếp: Giá giảm dần' },
+                ]}
+              />
             </div>
 
             {loadError && (

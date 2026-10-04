@@ -62,7 +62,7 @@
 .td-save-btn:hover,
 .td-save-btn.is-saved {
   border-color: var(--accent-blue);
-  color: #7dd3fc;
+  color: #ff5722;
 }
 
 .td-meta {
@@ -80,7 +80,7 @@
 }
 
 .badge-cat {
-  background: rgba(14, 165, 233, 0.15);
+  background: #f7f9fc;
   color: var(--accent-blue);
   padding: 4px 12px;
   border-radius: var(--radius-pill);
@@ -190,7 +190,7 @@
   padding: 16px 18px;
   border-left: 3px solid var(--accent-blue);
   border-radius: 6px;
-  background: rgba(14, 165, 233, 0.08);
+  background: #f7f9fc;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -290,7 +290,7 @@
 }
 
 .qty-controls button:hover {
-  background: rgba(255,255,255,0.05);
+  background: #f7f9fc;
 }
 
 .qty-controls button:disabled {

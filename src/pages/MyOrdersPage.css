@@ -3,22 +3,22 @@
 }
 
 .my-orders-page h2 {
-  color: #ffffff;
+  color: #1f497d;
   font-weight: 800;
   letter-spacing: -0.5px;
 }
 
 .order-card {
-  background: #1c2434;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08);
   transition: border-color 0.2s ease;
 }
 
 .order-card:hover {
-  border-color: rgba(14, 165, 233, 0.3);
+  border-color: #1f497d;
 }
 
 .order-header {
@@ -27,7 +27,7 @@
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.02);
+  background: #f7f9fc;
 }
 
 .oh-info {
@@ -38,7 +38,7 @@
 }
 
 .oh-info strong {
-  color: #ffffff;
+  color: #1f497d;
   font-size: 1.05rem;
 }
 
@@ -52,13 +52,13 @@
 .order-total {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: #ff5722;
 }
 
 .order-details {
   padding: 20px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #182030;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
 }
 
 .order-items-list {
@@ -72,42 +72,42 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #94a3b8;
+  border-bottom: 1px solid #e2e8f0;
+  color: #6c757d;
   font-size: 0.95rem;
 }
 
 .oi-name {
-  color: #ffffff;
+  color: #1f497d;
   font-weight: 600;
   flex: 1;
 }
 
 .oi-qty {
   margin: 0 20px;
-  color: #94a3b8;
+  color: #6c757d;
 }
 
 .oi-price {
   font-weight: 700;
-  color: #38bdf8;
+  color: #ff5722;
 }
 
 .order-contact-box {
-  background: #0b0f19;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #f7f9fc;
+  border: 1px solid #e2e8f0;
   padding: 16px;
   border-radius: 10px;
 }
 
 .order-contact-box p {
   margin-bottom: 6px;
-  color: #94a3b8;
+  color: #6c757d;
   font-size: 0.9rem;
 }
 
 .order-contact-box p strong {
-  color: #e2e8f0;
+  color: #1f497d;
 }
 
 @media (max-width: 768px) {

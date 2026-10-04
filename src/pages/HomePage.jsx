@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaSearch, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaArrowRight } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaSearch, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaArrowRight, FaRegCompass } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -65,12 +65,36 @@ const HomePage = () => {
   return (
     <div className="homepage">
       <section className="hero-section">
-        <div className="hero-overlay"></div>
         <div className="hero-content">
-          <h1 className="hero-title">Tìm tour phù hợp<br />cho chuyến đi sắp tới</h1>
-          <p className="hero-subtitle">So sánh điểm đến, lịch trình và giá trước khi đặt tour.</p>
-          
-          <form className="search-widget-wrapper" onSubmit={handleSearch}>
+          <p className="hero-kicker"><FaRegCompass aria-hidden="true" /> DU LỊCH VIỆT · ĐI THEO CÁCH CỦA BẠN</p>
+          <h1 className="hero-title">Đi xa hơn.<br /><em>Chạm sâu hơn.</em></h1>
+          <p className="hero-subtitle">Không chỉ là nơi bạn đến. Là những câu chuyện bạn mang về.</p>
+          <Link to="/tours" className="hero-discover-link">
+            Tìm chuyến đi tiếp theo <FaArrowRight aria-hidden="true" />
+          </Link>
+        </div>
+        <div className="hero-visual">
+          <FallbackImage
+            src="https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=85"
+            alt="Vịnh Hạ Long với những dãy núi đá vôi và thuyền du lịch"
+            className="hero-image"
+          />
+          <div className="hero-image-caption">
+            <span>VIỆT NAM · MIỀN BẮC</span>
+            <span>Hạ Long, Quảng Ninh</span>
+          </div>
+          <div className="hero-stamp" aria-hidden="true">
+            <span>ĐI</span><FaRegCompass /><span>ĐỂ NHỚ</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="search-dock container" aria-label="Tìm kiếm tour">
+        <div className="search-intro">
+          <span className="search-overline">BẮT ĐẦU HÀNH TRÌNH</span>
+          <h2>Tìm một chuyến đi</h2>
+        </div>
+        <form className="search-widget-wrapper" onSubmit={handleSearch}>
             <div className="search-field">
               <FaMapMarkerAlt className="search-icon" aria-hidden="true" />
               <div className="search-input-group">
@@ -124,10 +148,9 @@ const HomePage = () => {
             </div>
 
             <button type="submit" className="btn-search-massive">
-              <FaSearch aria-hidden="true" /> Tìm Kiếm
+              <FaSearch aria-hidden="true" /> Tìm tour
             </button>
-          </form>
-        </div>
+        </form>
       </section>
 
       {loadError && (
@@ -142,8 +165,9 @@ const HomePage = () => {
       <section className="categories-section container">
         <div className="section-header">
           <div>
-            <h2 className="section-title">Tour theo danh mục</h2>
-            <p className="section-subtitle">Chọn nhóm tour bạn muốn khám phá</p>
+            <span className="section-kicker">CHỌN NHỊP ĐIỆU CỦA BẠN</span>
+            <h2 className="section-title">Mỗi người, một cách đi.</h2>
+            <p className="section-subtitle">Từ ngày rong ruổi giữa thiên nhiên đến những kỳ nghỉ thật chậm.</p>
           </div>
         </div>
         
@@ -166,6 +190,10 @@ const HomePage = () => {
       </section>
 
       <section className="features-section container">
+        <div className="features-heading">
+          <span className="section-kicker">AN TÂM LÊN ĐƯỜNG</span>
+          <h2>Chuyến đi vui bắt đầu từ lựa chọn rõ ràng.</h2>
+        </div>
         <div className="features-grid">
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaPlaneDeparture /></div>
@@ -190,14 +218,15 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="featured-tours-section container" style={{ marginBottom: '100px' }}>
+      <section className="featured-tours-section container">
         <div className="section-header">
           <div>
-            <h2 className="section-title">Tour đang mở bán</h2>
-            <p className="section-subtitle">Xem thông tin và giá của các tour hiện có</p>
+            <span className="section-kicker">ĐANG ĐƯỢC QUAN TÂM</span>
+            <h2 className="section-title">Những hành trình đáng thử.</h2>
+            <p className="section-subtitle">Xem lịch trình, giá và chỗ trống trước khi chọn.</p>
           </div>
           <Link to="/tours" className="btn btn-outline" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            Xem Tất Cả <FaArrowRight />
+            Tất cả hành trình <FaArrowRight />
           </Link>
         </div>
         

@@ -25,10 +25,10 @@
   gap: 7px;
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 18px;
-  background: rgba(11, 15, 25, 0.88);
-  color: #fff;
+  background: #ffffff;
+  color: #1f497d;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -36,19 +36,19 @@
 
 .tour-save-btn:hover,
 .tour-save-btn.is-saved {
-  border-color: #0ea5e9;
-  color: #7dd3fc;
+  border-color: #ff5722;
+  color: #ff5722;
 }
 
 .tour-save-btn:focus-visible {
-  outline: 2px solid #7dd3fc;
+  outline: 2px solid #ff5722;
   outline-offset: 2px;
 }
 
 .tour-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(14, 165, 233, 0.4);
-  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+  border-color: #1f497d;
+  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.12);
 }
 
 .tc-img-wrapper {
@@ -56,7 +56,7 @@
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background-color: #111827;
+  background-color: #f7f9fc;
 }
 
 .tc-img {
@@ -82,7 +82,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #6c757d;
   margin-bottom: 8px;
   font-weight: 500;
 }
@@ -102,7 +102,7 @@
 .tc-title {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #1f497d;
   margin-bottom: 10px;
   line-height: 1.4;
   display: -webkit-box;
@@ -116,7 +116,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  color: #94a3b8;
+  color: #6c757d;
   font-size: 0.82rem;
   margin-bottom: 16px;
 }
@@ -128,7 +128,7 @@
 }
 
 .tc-seats {
-  color: #38bdf8;
+  color: #1f497d;
   font-weight: 500;
 }
 
@@ -138,7 +138,7 @@
   justify-content: space-between;
   align-items: flex-end;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #e2e8f0;
 }
 
 .tc-price-wrap {
@@ -148,7 +148,7 @@
 
 .tc-price-label {
   font-size: 0.72rem;
-  color: #64748b;
+  color: #6c757d;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -156,11 +156,11 @@
 .tc-price {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: #ff5722;
 }
 
 .btn-book {
-  background: #0ea5e9;
+  background: #ff5722;
   color: #ffffff;
   padding: 6px 14px;
   border-radius: 6px;
@@ -171,5 +171,5 @@
 }
 
 .tour-card:hover .btn-book {
-  background: #0284c7;
+  background: #e64a19;
 }

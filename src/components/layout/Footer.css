@@ -1,8 +1,8 @@
 .footer {
-  background-color: #0b0f19;
-  color: #fff;
+  background-color: #ffffff;
+  color: #1f497d;
   padding: 60px 0 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #e2e8f0;
 }
 
 .footer-container {
@@ -23,7 +23,7 @@
 .footer-logo {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #1f497d;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -32,7 +32,7 @@
 }
 
 .footer-about {
-  color: #94a3b8;
+  color: #6c757d;
   line-height: 1.6;
   margin-bottom: 20px;
   font-size: 0.9rem;
@@ -47,29 +47,29 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #f7f9fc;
+  border: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: #6c757d;
   font-size: 14px;
   transition: all 0.2s ease;
   text-decoration: none;
 }
 
 .social-icon:hover {
-  background-color: #0ea5e9;
+  background-color: #ff5722;
   color: #ffffff;
   transform: translateY(-2px);
-  border-color: #0ea5e9;
+  border-color: #ff5722;
 }
 
 .footer-title {
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 20px;
-  color: #ffffff;
+  color: #1f497d;
   position: relative;
   padding-bottom: 8px;
 }
@@ -81,7 +81,7 @@
   bottom: 0;
   width: 32px;
   height: 2px;
-  background-color: #0ea5e9;
+  background-color: #ff5722;
   border-radius: 2px;
 }
 
@@ -96,7 +96,7 @@
 }
 
 .footer-links a {
-  color: #94a3b8;
+  color: #6c757d;
   text-decoration: none;
   transition: all 0.2s ease;
   display: flex;
@@ -106,13 +106,13 @@
 }
 
 .footer-links a:hover {
-  color: #0ea5e9;
+  color: #ff5722;
   transform: translateX(4px);
 }
 
 .link-icon {
   font-size: 0.7rem;
-  color: #0ea5e9;
+  color: #ff5722;
 }
 
 .contact-item {
@@ -120,12 +120,12 @@
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 14px;
-  color: #94a3b8;
+  color: #6c757d;
   font-size: 0.9rem;
 }
 
 .contact-icon {
-  color: #0ea5e9;
+  color: #ff5722;
   font-size: 16px;
   margin-top: 4px;
   flex-shrink: 0;
@@ -139,16 +139,16 @@
 .newsletter-input {
   flex: 1;
   padding: 10px 14px;
-  background: #1c2434;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px 0 0 8px;
-  color: #ffffff;
+  color: #1f497d;
   outline: none;
   font-size: 0.9rem;
 }
 
 .newsletter-btn {
-  background-color: #0ea5e9;
+  background-color: #ff5722;
   color: white;
   border: none;
   padding: 0 18px;
@@ -169,16 +169,16 @@
 }
 
 .newsletter-btn:hover {
-  background-color: #0284c7;
+  background-color: #e64a19;
 }
 
 .footer-bottom {
   max-width: 1280px;
   margin: 40px auto 0;
   padding: 20px 24px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #e2e8f0;
   text-align: center;
-  color: #64748b;
+  color: #6c757d;
   font-size: 0.85rem;
 }
 
