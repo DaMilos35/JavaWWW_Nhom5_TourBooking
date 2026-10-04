@@ -1,0 +1,8 @@
+# Copy this file to %USERPROFILE%\.tourbooking.properties on Windows.
+# Restart Tomcat after saving the local file.
+DB_URL=jdbc:mariadb://127.0.0.1:3306/TourBookingDB?useUnicode=true&characterEncoding=utf8
+DB_USERNAME=root
+DB_PASSWORD=replace-with-your-local-mariadb-password
+JWT_SECRET=replace-with-a-random-secret-of-at-least-32-characters
+CORS_ORIGIN=http://localhost:3000
+DB_DEBUG=true

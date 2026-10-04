@@ -26,19 +26,22 @@ const AdminDashboard = () => {
     recentOrders: []
   });
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  // Lấy dữ liệu báo cáo từ backend khi mở trang
+  const fetchStats = async () => {
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const res = await adminApi.getDashboard();
+      setStats(res.data);
+    } catch (error) {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await adminApi.getDashboard();
-        setStats(res.data);
-      } catch (error) {
-        console.error('Lỗi khi tải thống kê dashboard:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchStats();
   }, []);
 
@@ -51,6 +54,13 @@ const AdminDashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {loadError && (
+        <div role="alert" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '20px', padding: '16px', borderRadius: '8px', background: '#fff7ed', color: '#9a3412' }}>
+          <span>Chưa tải được số liệu tổng quan. Kiểm tra kết nối máy chủ rồi thử lại.</span>
+          <button type="button" className="btn btn-outline" onClick={fetchStats}>Thử lại</button>
+        </div>
+      )}
+
       {/* Tiêu đề & Lời chào */}
       <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         <div>

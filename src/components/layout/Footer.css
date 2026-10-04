@@ -159,6 +159,15 @@
   transition: background-color 0.2s;
 }
 
+.newsletter-form .newsletter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
 .newsletter-btn:hover {
   background-color: #0284c7;
 }

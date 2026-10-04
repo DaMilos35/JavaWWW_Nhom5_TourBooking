@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Ảnh tour chưa khả dụng">
+  <rect width="1200" height="800" fill="#111827"/>
+  <path d="M0 620 300 360l190 170 230-290 480 380v180H0z" fill="#1e293b"/>
+  <path d="M0 690 340 470l230 170 190-160 440 300v20H0z" fill="#0ea5e9" opacity=".3"/>
+  <circle cx="870" cy="220" r="72" fill="#38bdf8" opacity=".65"/>
+  <text x="600" y="735" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="34" text-anchor="middle">Du Lịch Việt</text>
+</svg>
