@@ -4,7 +4,10 @@ import { FaSearch, FaFilter, FaRedo } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+<<<<<<< HEAD
 import SelectDropdown from '../components/common/SelectDropdown';
+=======
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 import './TourListPage.css';
 
 const TourListPage = () => {
@@ -198,17 +201,36 @@ const TourListPage = () => {
               <form onSubmit={handleSearch} className="search-form-list">
                 <input 
                   type="search"
+<<<<<<< HEAD
                   className="form-control tour-search-input" 
+=======
+                  className="form-control" 
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
                   aria-label="Tìm theo điểm đến, tên tour hoặc thành phố khởi hành"
                   placeholder="Tìm kiếm điểm đến, tên tour hoặc thành phố khởi hành..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+<<<<<<< HEAD
                 />
                 <button type="submit" className="btn btn-primary" aria-label="Tìm tour">
+=======
+                  style={{
+                    flex: 1,
+                    background: '#0b0f19',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    outline: 'none'
+                  }}
+                />
+                <button type="submit" className="btn btn-primary" aria-label="Tìm tour" style={{ borderRadius: '8px', width: 'auto', padding: '10px 16px' }}>
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
                   <FaSearch />
                 </button>
               </form>
               
+<<<<<<< HEAD
               <SelectDropdown
                 id="tour-sort"
                 className="sort-select-dropdown"
@@ -221,6 +243,18 @@ const TourListPage = () => {
                   { value: 'price_desc', label: 'Sắp xếp: Giá giảm dần' },
                 ]}
               />
+=======
+              <select 
+                className="form-control sort-select" 
+                aria-label="Sắp xếp danh sách tour"
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="newest">Sắp xếp: Mới nhất</option>
+                <option value="price_asc">Sắp xếp: Giá tăng dần</option>
+                <option value="price_desc">Sắp xếp: Giá giảm dần</option>
+              </select>
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
             </div>
 
             {loadError && (

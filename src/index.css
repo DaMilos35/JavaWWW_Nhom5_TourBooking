@@ -1,4 +1,5 @@
 :root {
+<<<<<<< HEAD
   --bg-main: #ffffff;
   --bg-surface: #ffffff;
   --bg-surface-hover: #f7f9fc;
@@ -10,13 +11,30 @@
   --accent-blue-hover: #173a64;
   --accent-orange: #ff5722;
   --accent-orange-hover: #e64a19;
+=======
+  /* Premium Dark Theme (Traveloka x DoMixue Vibe) */
+  --bg-main: #0B0F19;           /* Nền chính - Đen ánh xanh sâu */
+  --bg-surface: #1C2434;        /* Nền Card/Nổi - Xám xanh thanh lịch */
+  --bg-surface-hover: #26334D;  
+  
+  --text-pure: #FFFFFF;         /* Trắng tinh tuyệt đối cho tiêu đề */
+  --text-muted: #94A3B8;        /* Xám sáng cho văn bản phụ (Tương phản cao) */
+  
+  --accent-blue: #0EA5E9;       /* Xanh dương tươi sáng (Nút bấm, điểm nhấn) */
+  --accent-blue-hover: #0284C7;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   
   --status-success: #10B981;
   --status-warning: #F59E0B;
   --status-danger: #EF4444;
 
+<<<<<<< HEAD
   --border-subtle: #e2e8f0;
   --shadow-float: 0 20px 40px rgba(31, 73, 125, 0.12);
+=======
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --shadow-float: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   
   --radius-md: 12px;
   --radius-lg: 20px;
@@ -27,12 +45,20 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+<<<<<<< HEAD
   font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+=======
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 body {
   background-color: var(--bg-main);
+<<<<<<< HEAD
   color: var(--text-muted);
+=======
+  color: var(--text-pure);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
@@ -45,12 +71,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 p, span, div {
+<<<<<<< HEAD
   color: var(--text-muted);
+=======
+  color: var(--text-muted); /* Chữ mặc định là xám sáng, dễ đọc trên nền tối */
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 /* Override text colors for emphasis */
 .text-pure { color: var(--text-pure) !important; }
+<<<<<<< HEAD
 .text-accent { color: var(--accent-orange) !important; }
+=======
+.text-accent { color: var(--accent-blue) !important; }
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 
 /* Buttons */
 .btn {
@@ -64,6 +98,7 @@ p, span, div {
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
+<<<<<<< HEAD
   color: var(--text-pure);
 }
 
@@ -77,17 +112,39 @@ p, span, div {
   background: var(--accent-orange-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(255, 87, 34, 0.28);
+=======
+  color: var(--text-pure) !important; /* Luôn đảm bảo chữ trên nút là trắng */
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--accent-blue-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .btn-outline {
   background: transparent;
   border: 1px solid var(--border-subtle);
+<<<<<<< HEAD
   color: var(--text-pure) !important;
 }
 
 .btn-outline:hover {
   border-color: var(--accent-blue);
   background: var(--bg-surface-hover);
+=======
+}
+
+.btn-outline:hover {
+  border-color: var(--text-pure);
+  background: rgba(255, 255, 255, 0.05);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 /* Utility Containers */
@@ -102,5 +159,9 @@ p, span, div {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
+<<<<<<< HEAD
   color: var(--text-pure);
+=======
+  color: var(--text-pure); /* Mọi text trong card ưu tiên màu trắng */
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }

@@ -38,6 +38,7 @@ const TourCard = ({ tour }) => {
             <span><FaMapMarkerAlt /> {tour.departureLocation || 'Việt Nam'}</span>
             <span aria-hidden="true">·</span>
             <span><FaClock /> {tour.duration || 3} ngày</span>
+<<<<<<< HEAD
           </div>
 
           {hasSeatCount && (
@@ -48,6 +49,18 @@ const TourCard = ({ tour }) => {
             </div>
           )}
 
+=======
+            {hasSeatCount && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="tc-seats">
+                  {tour.availableSeats > 0 ? `Còn ${tour.availableSeats} chỗ` : 'Hết chỗ'}
+                </span>
+              </>
+            )}
+          </div>
+
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
           <div className="tc-footer">
             <div className="tc-price-wrap">
               <span className="tc-price-label">Giá trọn gói từ</span>

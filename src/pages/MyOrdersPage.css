@@ -3,22 +3,38 @@
 }
 
 .my-orders-page h2 {
+<<<<<<< HEAD
   color: #1f497d;
+=======
+  color: #ffffff;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-weight: 800;
   letter-spacing: -0.5px;
 }
 
 .order-card {
+<<<<<<< HEAD
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08);
+=======
+  background: #1c2434;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   transition: border-color 0.2s ease;
 }
 
 .order-card:hover {
+<<<<<<< HEAD
   border-color: #1f497d;
+=======
+  border-color: rgba(14, 165, 233, 0.3);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .order-header {
@@ -27,7 +43,11 @@
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+<<<<<<< HEAD
   background: #f7f9fc;
+=======
+  background: rgba(255, 255, 255, 0.02);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .oh-info {
@@ -38,7 +58,11 @@
 }
 
 .oh-info strong {
+<<<<<<< HEAD
   color: #1f497d;
+=======
+  color: #ffffff;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 1.05rem;
 }
 
@@ -52,13 +76,22 @@
 .order-total {
   font-size: 1.15rem;
   font-weight: 800;
+<<<<<<< HEAD
   color: #ff5722;
+=======
+  color: #38bdf8;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .order-details {
   padding: 20px 24px;
+<<<<<<< HEAD
   border-top: 1px solid #e2e8f0;
   background: #ffffff;
+=======
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #182030;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .order-items-list {
@@ -72,42 +105,72 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
+<<<<<<< HEAD
   border-bottom: 1px solid #e2e8f0;
   color: #6c757d;
+=======
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 0.95rem;
 }
 
 .oi-name {
+<<<<<<< HEAD
   color: #1f497d;
+=======
+  color: #ffffff;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-weight: 600;
   flex: 1;
 }
 
 .oi-qty {
   margin: 0 20px;
+<<<<<<< HEAD
   color: #6c757d;
+=======
+  color: #94a3b8;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .oi-price {
   font-weight: 700;
+<<<<<<< HEAD
   color: #ff5722;
 }
 
 .order-contact-box {
   background: #f7f9fc;
   border: 1px solid #e2e8f0;
+=======
+  color: #38bdf8;
+}
+
+.order-contact-box {
+  background: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   padding: 16px;
   border-radius: 10px;
 }
 
 .order-contact-box p {
   margin-bottom: 6px;
+<<<<<<< HEAD
   color: #6c757d;
+=======
+  color: #94a3b8;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 0.9rem;
 }
 
 .order-contact-box p strong {
+<<<<<<< HEAD
   color: #1f497d;
+=======
+  color: #e2e8f0;
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 @media (max-width: 768px) {

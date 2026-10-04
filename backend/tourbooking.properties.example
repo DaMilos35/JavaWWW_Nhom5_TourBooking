@@ -4,5 +4,9 @@ DB_URL=jdbc:mariadb://127.0.0.1:3306/TourBookingDB?useUnicode=true&characterEnco
 DB_USERNAME=root
 DB_PASSWORD=replace-with-your-local-mariadb-password
 JWT_SECRET=replace-with-a-random-secret-of-at-least-32-characters
+<<<<<<< HEAD
 CORS_ORIGIN=http://localhost:8080
+=======
+CORS_ORIGIN=http://localhost:3000
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 DB_DEBUG=true

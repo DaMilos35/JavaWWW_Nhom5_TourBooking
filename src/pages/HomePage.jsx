@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
 import { FaMapMarkerAlt, FaSearch, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaArrowRight, FaRegCompass } from 'react-icons/fa';
+=======
+import { FaMapMarkerAlt, FaSearch, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaArrowRight } from 'react-icons/fa';
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -65,6 +69,7 @@ const HomePage = () => {
   return (
     <div className="homepage">
       <section className="hero-section">
+<<<<<<< HEAD
         <div className="hero-content">
           <p className="hero-kicker"><FaRegCompass aria-hidden="true" /> DU LỊCH VIỆT · ĐI THEO CÁCH CỦA BẠN</p>
           <h1 className="hero-title">Đi xa hơn.<br /><em>Chạm sâu hơn.</em></h1>
@@ -95,6 +100,14 @@ const HomePage = () => {
           <h2>Tìm một chuyến đi</h2>
         </div>
         <form className="search-widget-wrapper" onSubmit={handleSearch}>
+=======
+        <div className="hero-overlay"></div>
+        <div className="hero-content">
+          <h1 className="hero-title">Tìm tour phù hợp<br />cho chuyến đi sắp tới</h1>
+          <p className="hero-subtitle">So sánh điểm đến, lịch trình và giá trước khi đặt tour.</p>
+          
+          <form className="search-widget-wrapper" onSubmit={handleSearch}>
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
             <div className="search-field">
               <FaMapMarkerAlt className="search-icon" aria-hidden="true" />
               <div className="search-input-group">
@@ -148,9 +161,16 @@ const HomePage = () => {
             </div>
 
             <button type="submit" className="btn-search-massive">
+<<<<<<< HEAD
               <FaSearch aria-hidden="true" /> Tìm tour
             </button>
         </form>
+=======
+              <FaSearch aria-hidden="true" /> Tìm Kiếm
+            </button>
+          </form>
+        </div>
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
       </section>
 
       {loadError && (
@@ -165,9 +185,14 @@ const HomePage = () => {
       <section className="categories-section container">
         <div className="section-header">
           <div>
+<<<<<<< HEAD
             <span className="section-kicker">CHỌN NHỊP ĐIỆU CỦA BẠN</span>
             <h2 className="section-title">Mỗi người, một cách đi.</h2>
             <p className="section-subtitle">Từ ngày rong ruổi giữa thiên nhiên đến những kỳ nghỉ thật chậm.</p>
+=======
+            <h2 className="section-title">Tour theo danh mục</h2>
+            <p className="section-subtitle">Chọn nhóm tour bạn muốn khám phá</p>
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
           </div>
         </div>
         
@@ -190,10 +215,13 @@ const HomePage = () => {
       </section>
 
       <section className="features-section container">
+<<<<<<< HEAD
         <div className="features-heading">
           <span className="section-kicker">AN TÂM LÊN ĐƯỜNG</span>
           <h2>Chuyến đi vui bắt đầu từ lựa chọn rõ ràng.</h2>
         </div>
+=======
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
         <div className="features-grid">
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaPlaneDeparture /></div>
@@ -218,6 +246,7 @@ const HomePage = () => {
         </div>
       </section>
 
+<<<<<<< HEAD
       <section className="featured-tours-section container">
         <div className="section-header">
           <div>
@@ -227,6 +256,16 @@ const HomePage = () => {
           </div>
           <Link to="/tours" className="btn btn-outline" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             Tất cả hành trình <FaArrowRight />
+=======
+      <section className="featured-tours-section container" style={{ marginBottom: '100px' }}>
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">Tour đang mở bán</h2>
+            <p className="section-subtitle">Xem thông tin và giá của các tour hiện có</p>
+          </div>
+          <Link to="/tours" className="btn btn-outline" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            Xem Tất Cả <FaArrowRight />
+>>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
           </Link>
         </div>
         
