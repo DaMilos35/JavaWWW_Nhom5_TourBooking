@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { adminApi, categoryApi, tourApi } from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import FallbackImage from '../../components/common/FallbackImage';
 
 const AdminTourForm = () => {
   const { id } = useParams();
@@ -41,7 +42,7 @@ const AdminTourForm = () => {
         setFormData(prev => ({ ...prev, categoryId: res.data[0].id || res.data[0].categoryId }));
       }
     } catch (error) {
-      console.error(error);
+      toast.error('Không thể tải danh mục tour');
     }
   };
 
@@ -220,7 +221,7 @@ const AdminTourForm = () => {
                 />
                 {formData.imageUrl && (
                   <div style={{ marginTop: '10px', borderRadius: '8px', overflow: 'hidden', height: '140px', border: '1px solid #e2e8f0' }}>
-                    <img src={formData.imageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <FallbackImage src={formData.imageUrl} alt="Xem trước ảnh tour" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 )}
                 {/* Gợi ý ảnh nhanh chất lượng cao cho admin */}

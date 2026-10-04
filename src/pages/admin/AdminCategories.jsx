@@ -3,6 +3,7 @@ import { FaEdit, FaTrash, FaPlus, FaTimes, FaSearch, FaLayerGroup } from 'react-
 import { adminApi, categoryApi } from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import FallbackImage from '../../components/common/FallbackImage';
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -143,8 +144,8 @@ const AdminCategories = () => {
                   <tr key={cat.id || cat.categoryId} style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b' }}>#{cat.id || cat.categoryId}</td>
                     <td style={{ padding: '14px 16px' }}>
-                      <img 
-                        src={cat.imageUrl || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=100&q=80'} 
+                      <FallbackImage
+                        src={cat.imageUrl}
                         alt="cat" 
                         style={{ width: '64px', height: '44px', objectFit: 'cover', borderRadius: '6px' }}
                       />

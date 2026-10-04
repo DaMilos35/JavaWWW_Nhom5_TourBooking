@@ -4,6 +4,7 @@ import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaToggleOn, FaToggl
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import FallbackImage from '../../components/common/FallbackImage';
 
 const AdminTours = () => {
   const [tours, setTours] = useState([]);
@@ -181,8 +182,8 @@ const AdminTours = () => {
                     <tr key={tour.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b' }}>#{tour.id}</td>
                       <td style={{ padding: '14px 16px' }}>
-                        <img 
-                          src={tour.imageUrl || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=100&q=80'} 
+                        <FallbackImage
+                          src={tour.imageUrl}
                           alt={tour.name} 
                           style={{ width: '64px', height: '46px', objectFit: 'cover', borderRadius: '6px' }} 
                         />

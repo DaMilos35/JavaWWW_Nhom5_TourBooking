@@ -1,3 +1,8 @@
+.tour-card-wrap {
+  position: relative;
+  min-width: 0;
+}
+
 .tour-card {
   background: var(--bg-surface);
   border-radius: var(--radius-md);
@@ -8,6 +13,36 @@
   flex-direction: column;
   position: relative;
   text-decoration: none;
+}
+
+.tour-save-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(11, 15, 25, 0.88);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tour-save-btn:hover,
+.tour-save-btn.is-saved {
+  border-color: #0ea5e9;
+  color: #7dd3fc;
+}
+
+.tour-save-btn:focus-visible {
+  outline: 2px solid #7dd3fc;
+  outline-offset: 2px;
 }
 
 .tour-card:hover {
