@@ -9,6 +9,35 @@ Giao diện có danh sách tour đã lưu (lưu cục bộ theo trình duyệt),
 - Frontend: React 18, Vite, React Router, Axios.
 - Backend: Java 17+, Jakarta Servlet 6, Apache Tomcat 10.1+, Maven WAR.
 - Cơ sở dữ liệu: MariaDB / MySQL.
+
+## Chạy nhanh trên máy mới bằng Docker
+
+Đây là cách khuyến nghị trên Windows, macOS và Linux. Chỉ cần Git và Docker Desktop (có Docker Compose v2); không cần cài riêng Java, Maven, Tomcat, Node.js hoặc MariaDB.
+
+> Nhánh Java/Tomcat đang dùng là `feature/java-tomcat-ux`. Nhớ clone đúng nhánh này; nhánh `main` hiện không phải bản Java/Tomcat.
+
+```powershell
+git clone --single-branch --branch feature/java-tomcat-ux https://github.com/DaMilos35/JavaWWW_Nhom5_TourBooking.git
+cd JavaWWW_Nhom5_TourBooking
+docker compose up --build -d
+docker compose ps
+```
+
+Chờ các dịch vụ `db`, `api` và `web` báo `healthy`/`running`, sau đó mở:
+
+- Website: `http://localhost:3000`
+- API cho Postman: `http://localhost:8080/tourbooking-api/api`
+- MariaDB trên máy host (nếu cần dùng HeidiSQL): `127.0.0.1:3307`
+
+Postman collection: `postman/TourBooking.postman_collection.json`. Tài khoản dữ liệu mẫu: `admin` / `123456` và `customer1` / `123456`.
+
+Compose tự build WAR Java, deploy vào Tomcat, tạo MariaDB và nạp `database/schema.sql` khi khởi tạo database lần đầu. Cơ sở dữ liệu được giữ trong volume khi dừng bằng `docker compose down`; **không dùng** `docker compose down -v` trừ khi muốn xóa database và toàn bộ đơn hàng để tạo lại dữ liệu mẫu.
+
+Các mật khẩu mặc định trong Compose chỉ dành cho chạy local/demo. Trước khi chia sẻ máy chủ ra ngoài, tạo file `.env` từ `.env.example`, đổi mật khẩu và đặt `JWT_SECRET` ngẫu nhiên dài ít nhất 32 ký tự. Có thể đổi các cổng `WEB_PORT`, `API_PORT`, `DB_PORT` trong `.env` nếu cổng mặc định đang được chương trình khác sử dụng.
+
+Nếu service không khởi động, xem log bằng `docker compose logs --tail=100 db api web`. Để dừng các service mà vẫn giữ dữ liệu, chạy `docker compose down`.
+
+## Chuẩn bị cơ sở dữ liệu
 - Xác thực: JWT Bearer token; mật khẩu được băm bằng BCrypt.
 
 ## Chuẩn bị cơ sở dữ liệu
@@ -62,10 +91,10 @@ http://localhost:8080/tourbooking-api/api
 
 ## Chạy giao diện React
 
-Từ thư mục gốc, cài dependencies và chạy Vite:
+Chỉ cần cách này khi phát triển giao diện trực tiếp trên máy host thay vì chạy Compose. Yêu cầu Node.js 20+; dùng `npm ci` để cài đúng các phiên bản đã khóa trong `package-lock.json`:
 
 ```powershell
-npm install
+npm ci
 npm run dev
 ```
 

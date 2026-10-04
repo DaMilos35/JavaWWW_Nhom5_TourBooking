@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+node_modules
+dist
+build
+backend/target
+.env
+.env.*
+!.env.example
+.tourbooking.properties
+*.log

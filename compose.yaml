@@ -1,0 +1,57 @@
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-tourbooking-root-local-only}
+      MARIADB_DATABASE: TourBookingDB
+      MARIADB_USER: tourbooking
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-tourbooking-local-only}
+    ports:
+      - "127.0.0.1:${DB_PORT:-3307}:3306"
+    volumes:
+      - database_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mariadb://db:3306/TourBookingDB?useUnicode=true&characterEncoding=utf8
+      DB_USERNAME: tourbooking
+      DB_PASSWORD: ${MARIADB_PASSWORD:-tourbooking-local-only}
+      JWT_SECRET: ${JWT_SECRET:-local-development-only-secret-32-chars-minimum-change-for-deployment}
+      CORS_ORIGIN: http://localhost:${WEB_PORT:-3000},http://127.0.0.1:${WEB_PORT:-3000}
+    ports:
+      - "127.0.0.1:${API_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:8080/tourbooking-api/api/tours >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 45s
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  database_data:
