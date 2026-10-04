@@ -2,20 +2,12 @@
 .auth-page {
   display: flex;
   min-height: 100vh;
-<<<<<<< HEAD
-  background-color: #f7f9fc;
-=======
   background-color: #f3f4f6;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .auth-left {
   flex: 1;
-<<<<<<< HEAD
-  background: linear-gradient(135deg, rgba(31, 73, 125, 0.9), rgba(23, 58, 100, 0.9)), url('https://images.unsplash.com/photo-1528127269322-539801943592') center/cover;
-=======
   background: linear-gradient(135deg, rgba(232, 64, 12, 0.9), rgba(196, 51, 8, 0.9)), url('https://images.unsplash.com/photo-1528127269322-539801943592') center/cover;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -58,11 +50,7 @@
 
 .auth-card h2 {
   font-size: 2rem;
-<<<<<<< HEAD
-  color: #1f497d;
-=======
   color: #1e3a8a;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   margin-bottom: 10px;
   text-align: center;
 }
@@ -109,17 +97,10 @@
 }
 
 .input-icon-wrapper input:focus {
-<<<<<<< HEAD
-  border-color: #ff5722;
-  background-color: #fff;
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.12);
-=======
   border-color: #e8400c;
   background-color: #fff;
   outline: none;
   box-shadow: 0 0 0 4px rgba(232, 64, 12, 0.1);
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .btn-block {
@@ -141,11 +122,7 @@
 }
 
 .auth-link {
-<<<<<<< HEAD
-  color: #ff5722;
-=======
   color: #e8400c;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-weight: 600;
   text-decoration: none;
   margin-left: 5px;
@@ -153,11 +130,7 @@
 }
 
 .auth-link:hover {
-<<<<<<< HEAD
-  color: #e64a19;
-=======
   color: #c43308;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   text-decoration: underline;
 }
 

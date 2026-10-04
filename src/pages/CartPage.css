@@ -7,37 +7,21 @@
 
 .cart-main, .checkout-form-section { 
   flex: 2; 
-<<<<<<< HEAD
-  background: #ffffff; 
-  padding: 30px; 
-  border-radius: 16px; 
-  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08); 
-  border: 1px solid #e2e8f0;
-=======
   background: #1c2434; 
   padding: 30px; 
   border-radius: 16px; 
   box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
   border: 1px solid rgba(255,255,255,0.08);
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .cart-sidebar, .checkout-summary-section { 
   flex: 1; 
   min-width: 340px; 
-<<<<<<< HEAD
-  background: #ffffff; 
-  padding: 30px; 
-  border-radius: 16px; 
-  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08); 
-  border: 1px solid #e2e8f0;
-=======
   background: #1c2434; 
   padding: 30px; 
   border-radius: 16px; 
   box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
   border: 1px solid rgba(255,255,255,0.08);
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   position: sticky; 
   top: 90px; 
 }
@@ -49,30 +33,18 @@
 }
 
 .cart-table th { 
-<<<<<<< HEAD
-  color: #6c757d; 
-=======
   color: #94a3b8; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-weight: 600; 
   text-transform: uppercase; 
   font-size: 0.82rem; 
   padding-bottom: 12px; 
-<<<<<<< HEAD
-  border-bottom: 1px solid #e2e8f0; 
-=======
   border-bottom: 1px solid rgba(255,255,255,0.08); 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   text-align: left;
 }
 
 .cart-table td { 
   padding: 16px 0; 
-<<<<<<< HEAD
-  border-bottom: 1px solid #e2e8f0; 
-=======
   border-bottom: 1px solid rgba(255,255,255,0.05); 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   vertical-align: middle; 
 }
 
@@ -91,22 +63,14 @@
 
 .tour-name { 
   font-weight: 600; 
-<<<<<<< HEAD
-  color: #1f497d; 
-=======
   color: #ffffff; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 1rem; 
   text-decoration: none; 
   display: block;
 }
 
 .tour-name:hover { 
-<<<<<<< HEAD
-  color: #ff5722; 
-=======
   color: #0ea5e9; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .cart-expired-note,
@@ -129,11 +93,7 @@
 }
 
 .item-total { 
-<<<<<<< HEAD
-  color: #ff5722; 
-=======
   color: #38bdf8; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-weight: 700;
 }
 
@@ -160,50 +120,29 @@
   font-size: 1.25rem; 
   margin-bottom: 20px; 
   padding-bottom: 12px; 
-<<<<<<< HEAD
-  border-bottom: 1px solid #e2e8f0; 
-  color: #1f497d;
-=======
   border-bottom: 1px solid rgba(255,255,255,0.08); 
   color: #ffffff;
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .summary-row { 
   display: flex; 
   justify-content: space-between; 
   margin-bottom: 14px; 
-<<<<<<< HEAD
-  color: #6c757d; 
-=======
   color: #94a3b8; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 0.95rem; 
 }
 
 .total-row { 
-<<<<<<< HEAD
-  border-top: 1px dashed #e2e8f0; 
-=======
   border-top: 1px dashed rgba(255,255,255,0.15); 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   padding-top: 16px; 
   margin-top: 16px; 
   font-weight: 700; 
   font-size: 1.15rem; 
-<<<<<<< HEAD
-  color: #1f497d; 
-}
-
-.total-row .total-price { 
-  color: #ff5722; 
-=======
   color: #ffffff; 
 }
 
 .total-row .total-price { 
   color: #38bdf8; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 1.45rem; 
 }
 
@@ -215,22 +154,14 @@
 }
 
 .continue-shopping { 
-<<<<<<< HEAD
-  color: #6c757d; 
-=======
   color: #94a3b8; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-weight: 500; 
   text-decoration: none;
   transition: 0.2s; 
 }
 
 .continue-shopping:hover { 
-<<<<<<< HEAD
-  color: #ff5722; 
-=======
   color: #0ea5e9; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .empty-cart { 
@@ -242,39 +173,23 @@
   justify-content: space-between; 
   margin-bottom: 14px; 
   padding-bottom: 14px; 
-<<<<<<< HEAD
-  border-bottom: 1px solid #e2e8f0; 
-=======
   border-bottom: 1px solid rgba(255,255,255,0.06); 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 .checkout-item-name { 
   font-weight: 600; 
-<<<<<<< HEAD
-  color: #1f497d; 
-=======
   color: #ffffff; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   margin-bottom: 4px; 
 }
 
 .checkout-item-qty { 
-<<<<<<< HEAD
-  color: #6c757d; 
-=======
   color: #94a3b8; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
   font-size: 0.85rem; 
 }
 
 .checkout-item-price { 
   font-weight: 700; 
-<<<<<<< HEAD
-  color: #ff5722; 
-=======
   color: #38bdf8; 
->>>>>>> f5336671cc11f1aebc2e9c0739f311fc33c89bde
 }
 
 @media (max-width: 900px) { 
