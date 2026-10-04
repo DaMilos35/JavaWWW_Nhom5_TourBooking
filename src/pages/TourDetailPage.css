@@ -61,8 +61,8 @@
 
 .td-save-btn:hover,
 .td-save-btn.is-saved {
-  border-color: var(--accent-blue);
-  color: #7dd3fc;
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
 }
 
 .td-meta {
@@ -80,11 +80,11 @@
 }
 
 .badge-cat {
-  background: rgba(14, 165, 233, 0.15);
-  color: var(--accent-blue);
+  background: rgba(255, 87, 34, 0.12);
+  color: var(--accent-orange);
   padding: 4px 12px;
   border-radius: var(--radius-pill);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
 }
 

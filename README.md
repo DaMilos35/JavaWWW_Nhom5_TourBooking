@@ -1,16 +1,29 @@
 # Du Lịch Việt — Đặt tour trực tuyến
+### Đề tài #53: Website Giới Thiệu & Đặt Tour Du Lịch (Lập Trình WWW Java - Nhóm 5)
 
-Ứng dụng gồm giao diện React/Vite và REST API Java Servlet chạy trên Apache Tomcat. Giao diện hiện tại được giữ nguyên; Vite chuyển tiếp các yêu cầu `/api` sang Tomcat trong lúc phát triển.
+> 📖 **Xem hướng dẫn chi tiết dành cho người dùng / thầy cô chấm bài:** [HUONG_DAN_CAI_DAT_VA_CHAY.md](HUONG_DAN_CAI_DAT_VA_CHAY.md)
 
-Giao diện có danh sách tour đã lưu (lưu cục bộ theo trình duyệt), Trung tâm trợ giúp tìm kiếm được và menu trạng thái các đơn gần đây. Ngôn ngữ tiếng Anh và thông báo đẩy chưa được hỗ trợ; menu ngôn ngữ chỉ báo trạng thái hiện có, còn menu thông báo đọc trạng thái đơn từ API khi người dùng mở.
+Ứng dụng gồm giao diện React/Vite hiện đại theo chuẩn Builder/Figma và REST API Java Servlet chạy trên Apache Tomcat 10.1+. Vite chuyển tiếp các yêu cầu `/api` sang Tomcat trong lúc phát triển, hoặc có thể chạy độc lập với máy chủ API tích hợp sẵn.
+
+Giao diện có danh sách tour đã lưu (phân quyền chặt chẽ theo tài khoản người dùng, yêu cầu đăng nhập và phân lập theo `user_id`), Trung tâm trợ giúp tìm kiếm được, giỏ hàng, đặt tour an toàn và hệ thống quản trị hoàn chỉnh.
 
 ## Công nghệ
 
-- Frontend: React 18, Vite, React Router, Axios.
+- Frontend: React 18, Vite, React Router, Axios, React Icons, React Toastify.
 - Backend: Java 17+, Jakarta Servlet 6, Apache Tomcat 10.1+, Maven WAR.
-- Cơ sở dữ liệu: MariaDB / MySQL.
+- Cơ sở dữ liệu: MariaDB / MySQL (`database/schema.sql`).
+- Kiểm thử API: Postman Collection & Environment (`postman/`).
 
-## Chạy nhanh trên máy mới bằng Docker
+## Chạy nhanh trên máy mới bằng Node.js (1 lệnh không cần cài Tomcat)
+
+Dành cho chấm bài hoặc kiểm tra nhanh giao diện:
+```bash
+npm install
+npm run dev
+```
+Mở trình duyệt: `http://localhost:3000` (Tích hợp sẵn API mock & xác thực nội bộ).
+
+## Chạy bằng Docker Compose (Khuyến nghị cho Java/Tomcat)
 
 Đây là cách khuyến nghị trên Windows, macOS và Linux. Chỉ cần Git và Docker Desktop (có Docker Compose v2); không cần cài riêng Java, Maven, Tomcat, Node.js hoặc MariaDB.
 

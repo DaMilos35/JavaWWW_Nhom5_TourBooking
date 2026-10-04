@@ -17,7 +17,10 @@ import {
   FaHeart,
   FaGlobe,
   FaBell,
-  FaChevronDown
+  FaChevronDown,
+  FaCommentDots,
+  FaQuestionCircle,
+  FaCheckCircle
 } from 'react-icons/fa';
 import './Navbar.css';
 
@@ -28,6 +31,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openPanel, setOpenPanel] = useState(null);
+  const [selectedLang, setSelectedLang] = useState('VI');
   const [recentOrders, setRecentOrders] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [notificationError, setNotificationError] = useState(false);
@@ -74,7 +78,6 @@ const Navbar = () => {
     if (panel === 'notifications' && nextPanel) loadNotifications();
   };
 
-  // Đăng xuất và điều hướng về trang chủ
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -95,13 +98,13 @@ const Navbar = () => {
   return (
     <nav className="navbar" ref={navRef}>
       <div className="container nav-container">
-        {/* Logo thương hiệu */}
+        {/* Brand Logo */}
         <Link to="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
-          <FaCompass className="text-accent" />
-          <span>Du Lịch Việt</span>
+          <FaCompass className="logo-icon text-accent" />
+          <span className="logo-text">Du Lịch <span className="text-accent">Việt</span></span>
         </Link>
         
-        {/* Liên kết điều hướng chính trên máy tính */}
+        {/* Desktop Nav Links */}
         <ul className="nav-links">
           <li>
             <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
@@ -116,135 +119,175 @@ const Navbar = () => {
           <li>
             <Link to="/wishlist" className={location.pathname === '/wishlist' ? 'active' : ''}>
               Tour đã lưu
+              {user && savedTours.length > 0 && <span className="nav-pill-count">{savedTours.length}</span>}
             </Link>
           </li>
-          {user && (
-            <li>
-              <Link to="/my-orders" className={location.pathname === '/my-orders' ? 'active' : ''}>
-                Đơn Hàng Của Tôi
-              </Link>
-            </li>
-          )}
+          <li>
+            <Link to="/help" className={location.pathname === '/help' ? 'active' : ''}>
+              Hỗ trợ
+            </Link>
+          </li>
         </ul>
 
-        {/* Các nút chức năng bên phải */}
+        {/* Right Actions */}
         <div className="nav-right">
-          {/* Nút vào nhanh trang Quản Trị dành cho Admin */}
+          {/* Admin shortcut button if role is ADMIN */}
           {user?.role === 'ADMIN' && (
             <Link 
               to="/admin" 
-              className="btn btn-outline"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-                borderColor: '#0284c7',
-                color: '#0284c7',
-                fontWeight: 600
-              }}
+              className="admin-badge-btn"
+              title="Vào trang quản trị hệ thống"
             >
               <FaShieldAlt /> Quản Trị
             </Link>
           )}
 
-          {/* Giỏ hàng */}
-          <Link to="/cart" className="btn-cart-nav" aria-label="Giỏ hàng">
+          {/* Cart Icon Button */}
+          <Link to="/cart" className="nav-action-btn btn-cart-nav" aria-label="Giỏ hàng">
             <FaShoppingBag />
             {totalCartCount > 0 && (
               <span className="cart-badge">{totalCartCount}</span>
             )}
           </Link>
 
+          {/* Language Dropdown */}
           <div className="nav-popover-container">
             <button
               type="button"
-              className="nav-icon-btn"
+              className={`nav-action-btn lang-btn ${openPanel === 'language' ? 'active' : ''}`}
               aria-label="Chọn ngôn ngữ"
               aria-expanded={openPanel === 'language'}
               onClick={() => togglePanel('language')}
             >
-              <FaGlobe /><span>VI</span><FaChevronDown className="nav-chevron" />
+              <FaGlobe />
+              <span>{selectedLang}</span>
+              <FaChevronDown className="nav-chevron" />
             </button>
             {openPanel === 'language' && (
               <div className="nav-popover language-popover">
-                <h3>Ngôn ngữ</h3>
+                <div className="popover-title">Chọn ngôn ngữ</div>
                 <button
                   type="button"
-                  className="language-choice is-current"
-                  aria-current="true"
-                  onClick={() => setOpenPanel(null)}
+                  className={`lang-option ${selectedLang === 'VI' ? 'is-selected' : ''}`}
+                  onClick={() => { setSelectedLang('VI'); setOpenPanel(null); }}
                 >
-                  <span>Tiếng Việt</span><span>Đang sử dụng</span>
+                  <span className="lang-flag">🇻🇳</span>
+                  <div className="lang-text">
+                    <strong>Tiếng Việt</strong>
+                    <small>Việt Nam</small>
+                  </div>
+                  {selectedLang === 'VI' && <FaCheckCircle className="check-icon" />}
                 </button>
-                <div className="language-choice is-unavailable" aria-disabled="true">
-                  <span>English</span><span>Chưa hỗ trợ</span>
-                </div>
+                <button
+                  type="button"
+                  className={`lang-option ${selectedLang === 'EN' ? 'is-selected' : ''}`}
+                  onClick={() => { setSelectedLang('EN'); setOpenPanel(null); }}
+                >
+                  <span className="lang-flag">🇺🇸</span>
+                  <div className="lang-text">
+                    <strong>English</strong>
+                    <small>United States</small>
+                  </div>
+                  {selectedLang === 'EN' && <FaCheckCircle className="check-icon" />}
+                </button>
+                <button
+                  type="button"
+                  className={`lang-option ${selectedLang === 'FR' ? 'is-selected' : ''}`}
+                  onClick={() => { setSelectedLang('FR'); setOpenPanel(null); }}
+                >
+                  <span className="lang-flag">🇫🇷</span>
+                  <div className="lang-text">
+                    <strong>Français</strong>
+                    <small>Belgique / France</small>
+                  </div>
+                  {selectedLang === 'FR' && <FaCheckCircle className="check-icon" />}
+                </button>
               </div>
             )}
           </div>
 
+          {/* Notifications Dropdown */}
           <div className="nav-popover-container">
             <button
               type="button"
-              className="nav-icon-btn notification-trigger"
-              aria-label="Trạng thái đơn hàng"
+              className={`nav-action-btn notification-trigger ${openPanel === 'notifications' ? 'active' : ''}`}
+              aria-label="Thông báo"
               aria-expanded={openPanel === 'notifications'}
               onClick={() => togglePanel('notifications')}
             >
               <FaBell />
-              {pendingNotifications > 0 && <span className="notification-badge">{pendingNotifications}</span>}
+              {pendingNotifications > 0 ? (
+                <span className="notification-badge">{pendingNotifications}</span>
+              ) : (
+                <span className="notification-dot" />
+              )}
             </button>
             {openPanel === 'notifications' && (
-              <section className="nav-popover notification-popover" aria-label="Trạng thái đơn gần đây">
+              <div className="nav-popover notification-popover" aria-label="Thông báo">
                 <div className="popover-heading">
-                  <h3>Trạng thái đơn gần đây</h3>
-                  {user && <button type="button" onClick={loadNotifications}>Làm mới</button>}
+                  <h3>Thông báo</h3>
+                  {user && (
+                    <button type="button" className="refresh-btn" onClick={loadNotifications}>
+                      Làm mới
+                    </button>
+                  )}
                 </div>
                 {!user ? (
-                  <p className="popover-empty">Đăng nhập để xem các đơn đặt tour của bạn.</p>
+                  <div className="popover-empty">
+                    <p>Đăng nhập để nhận thông báo đơn hàng và ưu đãi dành riêng cho bạn.</p>
+                    <Link to="/login" className="btn btn-primary btn-sm" onClick={() => setOpenPanel(null)}>
+                      Đăng nhập
+                    </Link>
+                  </div>
                 ) : loadingNotifications ? (
-                  <p className="popover-empty">Đang tải đơn đặt…</p>
+                  <div className="popover-empty"><p>Đang tải thông báo...</p></div>
                 ) : notificationError ? (
                   <div className="popover-empty">
-                    <p>Không thể tải trạng thái đơn.</p>
-                    <button type="button" onClick={loadNotifications}>Thử lại</button>
+                    <p>Không thể tải thông báo.</p>
+                    <button type="button" className="btn btn-outline btn-sm" onClick={loadNotifications}>Thử lại</button>
                   </div>
-                ) : recentOrders.length ? (
+                ) : recentOrders.length > 0 ? (
                   <ul className="notification-list">
                     {recentOrders.map((order) => (
                       <li key={order.id}>
-                        <Link to="/my-orders" onClick={() => setOpenPanel(null)}>
-                          <span className={`notification-status status-${String(order.status).toLowerCase()}`} />
-                          <span>
-                            <strong>Đơn #{order.id}</strong>
-                            <small>
-                              {order.status === 'PENDING' ? 'Đang chờ xác nhận'
-                                : order.status === 'CONFIRMED' ? 'Đã xác nhận'
-                                  : order.status === 'CANCELLED' ? 'Đã hủy'
-                                    : order.status === 'COMPLETED' ? 'Đã hoàn thành' : order.status}
-                            </small>
-                          </span>
+                        <Link to="/my-orders" onClick={() => setOpenPanel(null)} className="notification-item">
+                          <span className={`notification-status-icon status-${String(order.status).toLowerCase()}`} />
+                          <div className="notif-content">
+                            <strong>Đơn tour #{order.id}</strong>
+                            <p>
+                              {order.status === 'PENDING' && 'Đơn hàng đang chờ xác nhận từ ban tổ chức'}
+                              {order.status === 'CONFIRMED' && 'Đơn hàng của bạn đã được xác nhận thành công!'}
+                              {order.status === 'COMPLETED' && 'Chuyến đi đã hoàn thành. Cảm ơn bạn!'}
+                              {order.status === 'CANCELLED' && 'Đơn hàng đã được hoàn hủy theo yêu cầu'}
+                            </p>
+                            <small className="notif-time">Gần đây</small>
+                          </div>
                         </Link>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="popover-empty">Bạn chưa có đơn đặt tour nào.</p>
+                  <div className="popover-empty">
+                    <p>Chào mừng bạn đến với Du Lịch Việt! Bạn chưa có thông báo mới nào.</p>
+                  </div>
                 )}
-                {user && <Link className="popover-footer-link" to="/my-orders" onClick={() => setOpenPanel(null)}>Mở lịch sử đơn hàng</Link>}
-              </section>
+                {user && (
+                  <div className="popover-footer">
+                    <Link to="/my-orders" onClick={() => setOpenPanel(null)}>
+                      Xem tất cả lịch sử đặt chỗ →
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Menu người dùng khi đã đăng nhập */}
+          {/* User Account / Auth Buttons */}
           {user ? (
             <div className="user-menu-container">
               <button
                 type="button"
-                className="user-btn"
+                className={`user-btn ${openPanel === 'account' ? 'active' : ''}`}
                 onClick={() => togglePanel('account')}
                 aria-expanded={openPanel === 'account'}
                 aria-haspopup="true"
@@ -255,56 +298,78 @@ const Navbar = () => {
               </button>
               
               {openPanel === 'account' && (
-                <div className="dropdown-menu" role="menu">
+                <div className="dropdown-menu account-dropdown" role="menu">
+                  <div className="account-dropdown-header">
+                    <div className="user-avatar-lg">{getInitial(user.fullName || user.username)}</div>
+                    <div className="user-info-text">
+                      <div className="user-full-name">{user.fullName || user.username}</div>
+                      <div className="user-email-text">{user.email}</div>
+                      <span className="user-verified-badge"><FaCheckCircle /> Đã xác thực danh tính</span>
+                    </div>
+                  </div>
+
+                  <div className="dropdown-divider" />
+
+                  <Link to="/my-orders" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
+                    <FaClipboardList className="item-icon" />
+                    <span>Đặt chỗ ({recentOrders.length})</span>
+                  </Link>
+
+                  <Link to="/wishlist" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
+                    <FaHeart className="item-icon" />
+                    <span>Danh sách yêu thích ({savedTours.length})</span>
+                  </Link>
+
+                  <Link to="/profile" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
+                    <FaUserCircle className="item-icon" />
+                    <span>Cài đặt tài khoản</span>
+                  </Link>
+
+                  <Link to="/help" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
+                    <FaQuestionCircle className="item-icon" />
+                    <span>Trung tâm trợ giúp</span>
+                  </Link>
+
                   {user.role === 'ADMIN' && (
-                    <Link to="/admin" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
-                      <FaCog /> <span>Trang Quản Trị Hệ Thống</span>
+                    <Link to="/admin" className="dropdown-item admin-item" role="menuitem" onClick={() => setOpenPanel(null)}>
+                      <FaCog className="item-icon" />
+                      <span>Quản trị hệ thống</span>
                     </Link>
                   )}
-                  <Link to="/my-orders" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
-                    <FaClipboardList /> <span>Lịch Sử Đặt Tour</span>
-                  </Link>
-                  <Link to="/wishlist" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
-                    <FaHeart /> <span>Tour đã lưu ({savedTours.length})</span>
-                  </Link>
-                  <Link to="/settings" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
-                    <FaUserCircle /> <span>Cài đặt tài khoản</span>
-                  </Link>
                   
-                  <div className="dropdown-divider"></div>
+                  <div className="dropdown-divider" />
+
                   <button 
-                    className="dropdown-item"
+                    className="dropdown-item logout-btn"
                     role="menuitem"
-                    onClick={handleLogout} 
-                    style={{ width: '100%', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer' }}
+                    onClick={handleLogout}
                   >
-                    <FaSignOutAlt style={{ color: '#ef4444' }} /> 
-                    <span style={{ color: '#ef4444' }}>Đăng Xuất</span>
+                    <FaSignOutAlt className="item-icon text-danger" /> 
+                    <span className="text-danger">Đăng Xuất</span>
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <div className="auth-btns-nav">
-              <Link to="/login" className="btn btn-outline">Đăng Nhập</Link>
-              <Link to="/register" className="btn btn-primary">Đăng Ký</Link>
+              <Link to="/login" className="btn btn-outline nav-auth-btn">Đăng Nhập</Link>
+              <Link to="/register" className="btn btn-primary nav-auth-btn">Đăng Ký</Link>
             </div>
           )}
 
-          {/* Nút Hamburger menu trên di động */}
+          {/* Mobile hamburger menu button */}
           <button 
             className="mobile-toggle-btn"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
             aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation"
           >
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
         </div>
       </div>
 
-      {/* Menu dạng trượt (Drawer) trên điện thoại */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer" id="mobile-navigation">
           <ul className="mobile-nav-links">
@@ -315,34 +380,32 @@ const Navbar = () => {
               <Link to="/tours" onClick={() => setMobileMenuOpen(false)}>Khám Phá Tour</Link>
             </li>
             <li>
-              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)}>Tour đã lưu ({savedTours.length})</Link>
+              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)}>
+                Tour đã lưu ({savedTours.length})
+              </Link>
             </li>
             <li>
               <Link to="/help" onClick={() => setMobileMenuOpen(false)}>Trung tâm trợ giúp</Link>
             </li>
             {user ? (
               <>
+                <li>
+                  <Link to="/my-orders" onClick={() => setMobileMenuOpen(false)}>Lịch sử đặt chỗ</Link>
+                </li>
+                <li>
+                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>Cài đặt tài khoản</Link>
+                </li>
                 {user.role === 'ADMIN' && (
                   <li>
-                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ color: '#0284c7', fontWeight: 700 }}>
-                      <FaCog /> Trang Quản Trị Hệ Thống
-                    </Link>
+                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>Trang quản trị</Link>
                   </li>
                 )}
                 <li>
-                  <Link to="/my-orders" onClick={() => setMobileMenuOpen(false)}>Lịch Sử Đặt Tour</Link>
-                </li>
-                <li>
-                  <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>Cài đặt tài khoản</Link>
-                </li>
-                <li>
-                  <button onClick={handleLogout} className="mobile-logout-btn">
-                    <FaSignOutAlt /> Đăng Xuất ({user.username})
-                  </button>
+                  <button className="mobile-logout-btn" onClick={handleLogout}>Đăng xuất ({user.username})</button>
                 </li>
               </>
             ) : (
-              <li className="mobile-auth-actions">
+              <li className="mobile-auth-row">
                 <Link to="/login" className="btn btn-outline" onClick={() => setMobileMenuOpen(false)}>Đăng Nhập</Link>
                 <Link to="/register" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>Đăng Ký</Link>
               </li>

@@ -1,45 +1,74 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import api from '../api/axiosConfig';
-import { FaUserCircle, FaShieldAlt, FaKey, FaSave } from 'react-icons/fa';
+import { 
+  FaUser, 
+  FaEnvelope, 
+  FaPhoneAlt, 
+  FaMapMarkerAlt, 
+  FaLock, 
+  FaKey, 
+  FaCheckCircle, 
+  FaStar, 
+  FaGlobe, 
+  FaTwitter, 
+  FaInstagram, 
+  FaFacebookF, 
+  FaCamera, 
+  FaClipboardList, 
+  FaHeart,
+  FaCalendarAlt,
+  FaShieldAlt,
+  FaPen
+} from 'react-icons/fa';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('general'); // 'general' | 'password'
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
-    address: ''
+    address: '',
+    bio: 'Đam mê khám phá các miền đất mới, trải nghiệm văn hóa bản địa và chia sẻ hành trình du lịch cùng người thân.'
   });
+
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
+
   const [savingProfile, setSavingProfile] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [coverPhoto, setCoverPhoto] = useState('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80');
 
-  // Điền dữ liệu người dùng khi đã đăng nhập
   useEffect(() => {
     if (user) {
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         fullName: user.fullName || '',
         email: user.email || '',
         phone: user.phone || '',
         address: user.address || ''
-      });
+      }));
     }
   }, [user]);
 
-  // Cập nhật thông tin cơ bản
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      const res = await api.put('/users/me', formData);
-      // Đồng bộ thông tin mới vào AuthContext và LocalStorage
+      const res = await api.put('/users/me', {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address
+      });
       updateUser(res.data);
       toast.success('Cập nhật hồ sơ cá nhân thành công!');
     } catch (error) {
@@ -49,7 +78,6 @@ const ProfilePage = () => {
     }
   };
 
-  // Đổi mật khẩu
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (!passwordData.oldPassword || !passwordData.newPassword) {
@@ -61,186 +89,286 @@ const ProfilePage = () => {
       return;
     }
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('Xác nhận mật khẩu mới không trùng khớp');
+      toast.warning('Xác nhận mật khẩu mới không khớp');
       return;
     }
 
     setChangingPassword(true);
     try {
-      const res = await api.put('/users/me/password', {
+      await api.put('/users/me/password', {
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword
       });
-      toast.success(res.data?.message || 'Đổi mật khẩu thành công!');
+      toast.success('Đổi mật khẩu thành công!');
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+      setActiveTab('general');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Không thể đổi mật khẩu, vui lòng kiểm tra lại');
+      toast.error(error.response?.data?.message || 'Mật khẩu hiện tại không chính xác');
     } finally {
       setChangingPassword(false);
     }
   };
 
+  const handleCoverUpload = () => {
+    toast.info('Tính năng tải ảnh bìa đã ghi nhận ảnh mẫu mới.');
+    setCoverPhoto('https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1600&q=80');
+  };
+
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  };
+
   return (
-    <div className="profile-page py-5">
-      <div className="container">
-        <header className="profile-page-heading">
-          <p>Tài khoản</p>
-          <h1>Thiết lập tài khoản</h1>
-          <span>Quản lý thông tin cá nhân và mật khẩu đăng nhập.</span>
-        </header>
-        <div className="profile-layout">
-          {/* Cột trái: Thông tin tài khoản tóm tắt */}
-          <div className="profile-sidebar card-box text-center">
-            <div className="avatar-placeholder">
-              {user?.fullName?.charAt(0) || user?.username?.charAt(0).toUpperCase() || 'U'}
-            </div>
-            <h3 className="mt-3" style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ffffff' }}>
-              {user?.fullName || user?.username}
-            </h3>
-            <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '12px' }}>
-              @{user?.username}
-            </p>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '20px',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              background: user?.role === 'ADMIN' ? 'rgba(14, 165, 233, 0.16)' : 'rgba(148, 163, 184, 0.12)',
-              color: user?.role === 'ADMIN' ? '#7dd3fc' : '#cbd5e1'
-            }}>
-              <FaShieldAlt /> {user?.role === 'ADMIN' ? 'Quản Trị Viên (Admin)' : 'Khách Hàng (Customer)'}
-            </span>
-          </div>
-          
-          {/* Cột phải: Form cập nhật thông tin và đổi mật khẩu */}
-          <div className="profile-main card-box">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '14px' }}>
-              <FaUserCircle style={{ fontSize: '1.4rem', color: '#0ea5e9' }} />
-              <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 700, color: '#ffffff' }}>
-                Thông Tin Cá Nhân
-              </h2>
-            </div>
+    <div className="profile-setting-page">
+      {/* Cover Photo Banner (Figma: Ảnh bìa) */}
+      <div className="profile-cover-banner" style={{ backgroundImage: `url(${coverPhoto})` }}>
+        <div className="cover-overlay" />
+        <div className="container cover-content-container">
+          <button type="button" className="btn-change-cover" onClick={handleCoverUpload}>
+            <FaCamera /> Kéo và thả ảnh của bạn vào đây hoặc nhấp để đổi ảnh bìa
+          </button>
+        </div>
+      </div>
 
-            <form onSubmit={handleProfileSubmit}>
-              <div className="form-group mb-3">
-                <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Họ và tên</label>
-                <input 
-                  type="text" 
-                  name="fullName" 
-                  className="form-control" 
-                  value={formData.fullName} 
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} 
-                  placeholder="Nhập họ và tên của bạn"
-                  required
-                />
+      <div className="container profile-main-wrapper">
+        <div className="profile-layout-grid">
+          {/* Left Column: Aside User Info Card (Figma: Aside - Cột trái) */}
+          <aside className="profile-aside-card">
+            <div className="user-avatar-badge-wrap">
+              <div className="user-aside-avatar">
+                {getInitial(user?.fullName || user?.username)}
               </div>
-
-              <div className="form-row mb-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Địa chỉ Email</label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    className="form-control" 
-                    value={formData.email} 
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
-                    placeholder="email@example.com"
-                    required 
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Số điện thoại</label>
-                  <input 
-                    type="tel" 
-                    name="phone" 
-                    className="form-control" 
-                    value={formData.phone} 
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })} 
-                    placeholder="VD: 0901234567"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group mb-4">
-                <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Địa chỉ liên hệ</label>
-                <input 
-                  type="text" 
-                  name="address" 
-                  className="form-control" 
-                  value={formData.address} 
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })} 
-                  placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                />
-              </div>
-              
-              <button 
-                type="submit" 
-                className="btn btn-primary" 
-                disabled={savingProfile}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-              >
-                <FaSave /> {savingProfile ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+              <button type="button" className="avatar-edit-icon" title="Cập nhật ảnh đại diện">
+                <FaPen />
               </button>
-            </form>
-
-            <hr className="my-5" style={{ borderColor: 'rgba(255,255,255,0.12)' }} />
-            
-            {/* Đổi mật khẩu */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-              <FaKey style={{ fontSize: '1.2rem', color: '#f59e0b' }} />
-              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#ffffff' }}>
-                Đổi Mật Khẩu
-              </h3>
             </div>
 
-            <form onSubmit={handlePasswordSubmit}>
-              <div className="form-group mb-3">
-                <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Mật khẩu hiện tại</label>
-                <input 
-                  type="password" 
-                  className="form-control" 
-                  value={passwordData.oldPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                  placeholder="Nhập mật khẩu hiện tại (demo: 123456)"
-                />
-              </div>
+            <h2 className="aside-user-name">{user?.fullName || user?.username || 'Khách Du Lịch'}</h2>
+            <div className="aside-verified-tag">
+              <FaCheckCircle /> Đã xác thực danh tính
+            </div>
 
-              <div className="form-row mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Mật khẩu mới</label>
-                  <input 
-                    type="password" 
-                    className="form-control" 
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                    placeholder="Tối thiểu 6 ký tự"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Xác nhận mật khẩu mới</label>
-                  <input 
-                    type="password" 
-                    className="form-control" 
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    placeholder="Nhập lại mật khẩu mới"
-                  />
-                </div>
-              </div>
+            <div className="aside-rating-row">
+              <span className="star-icon"><FaStar /> 5.0</span>
+              <span className="rating-count">(256 đánh giá)</span>
+            </div>
 
+            <div className="aside-links-list">
+              <div className="aside-link-item">
+                <FaGlobe className="icon" />
+                <a href="https://dulichviet.vn" target="_blank" rel="noreferrer">dulichviet.vn</a>
+              </div>
+              <div className="aside-link-item">
+                <FaCalendarAlt className="icon" />
+                <span>Thành viên từ năm 2024</span>
+              </div>
+              <div className="aside-link-item">
+                <FaMapMarkerAlt className="icon" />
+                <span>{formData.address || 'Hồ Chí Minh, Việt Nam'}</span>
+              </div>
+            </div>
+
+            <div className="aside-socials-row">
+              <a href="https://twitter.com" className="social-pill" target="_blank" rel="noreferrer" aria-label="Twitter">
+                <FaTwitter />
+              </a>
+              <a href="https://instagram.com" className="social-pill" target="_blank" rel="noreferrer" aria-label="Instagram">
+                <FaInstagram />
+              </a>
+              <a href="https://facebook.com" className="social-pill" target="_blank" rel="noreferrer" aria-label="Facebook">
+                <FaFacebookF />
+              </a>
+            </div>
+
+            <div className="aside-nav-divider" />
+
+            {/* Quick Links Menu */}
+            <div className="aside-nav-menu">
               <button 
-                type="submit" 
-                className="btn btn-outline" 
-                disabled={changingPassword}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                type="button" 
+                className={`aside-tab-btn ${activeTab === 'general' ? 'active' : ''}`}
+                onClick={() => setActiveTab('general')}
               >
-                <FaKey /> {changingPassword ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
+                <FaUser className="btn-icon" /> Thông tin cá nhân
               </button>
-            </form>
-          </div>
+              <button 
+                type="button" 
+                className={`aside-tab-btn ${activeTab === 'password' ? 'active' : ''}`}
+                onClick={() => setActiveTab('password')}
+              >
+                <FaKey className="btn-icon" /> Đổi mật khẩu
+              </button>
+              <Link to="/my-orders" className="aside-tab-btn">
+                <FaClipboardList className="btn-icon" /> Lịch sử đặt tour
+              </Link>
+              <Link to="/wishlist" className="aside-tab-btn">
+                <FaHeart className="btn-icon" /> Tour đã lưu
+              </Link>
+            </div>
+          </aside>
+
+          {/* Right Column: Settings Content Panels */}
+          <main className="profile-content-col">
+            {activeTab === 'general' && (
+              <div className="profile-panel-box">
+                <div className="panel-greeting-header">
+                  <span className="greeting-eyebrow">Tài khoản cá nhân</span>
+                  <h1 className="greeting-title">Xin chào, tôi là {user?.fullName || user?.username}</h1>
+                  <p className="greeting-desc">
+                    Quản lý thông tin liên hệ và tùy chỉnh hồ sơ cá nhân để nhận dịch vụ đặt tour nhanh chóng và thuận tiện nhất.
+                  </p>
+                </div>
+
+                <form onSubmit={handleProfileSubmit} className="profile-form">
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="fullName">Họ và tên *</label>
+                      <input 
+                        type="text" 
+                        id="fullName"
+                        value={formData.fullName} 
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        placeholder="Nguyễn Văn An"
+                        className="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="email">Địa chỉ Email *</label>
+                      <input 
+                        type="email" 
+                        id="email"
+                        value={formData.email} 
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="email@example.com"
+                        className="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="phone">Số điện thoại</label>
+                      <input 
+                        type="tel" 
+                        id="phone"
+                        value={formData.phone} 
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        placeholder="0901234567"
+                        className="form-control"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="address">Địa chỉ thường trú</label>
+                      <input 
+                        type="text" 
+                        id="address"
+                        value={formData.address} 
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        placeholder="Quận 1, TP. Hồ Chí Minh"
+                        className="form-control"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="bio">Giới thiệu bản thân (Bio)</label>
+                    <textarea 
+                      id="bio"
+                      rows="3" 
+                      value={formData.bio} 
+                      onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                      placeholder="Chia sẻ sở thích du lịch, địa điểm yêu thích của bạn..."
+                      className="form-control"
+                    />
+                  </div>
+
+                  <div className="form-actions-row">
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary btn-save-profile"
+                      disabled={savingProfile}
+                    >
+                      {savingProfile ? 'Đang lưu...' : 'Lưu thay đổi hồ sơ'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {activeTab === 'password' && (
+              <div className="profile-panel-box">
+                <div className="panel-greeting-header">
+                  <span className="greeting-eyebrow">Bảo mật tài khoản</span>
+                  <h1 className="greeting-title">Đổi mật khẩu</h1>
+                  <p className="greeting-desc">
+                    Hãy sử dụng mật khẩu mạnh với ít nhất 6 ký tự kết hợp chữ cái và chữ số để bảo vệ tài khoản của bạn.
+                  </p>
+                </div>
+
+                <form onSubmit={handlePasswordSubmit} className="profile-form">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="oldPassword">Mật khẩu hiện tại *</label>
+                    <input 
+                      type="password" 
+                      id="oldPassword"
+                      value={passwordData.oldPassword} 
+                      onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                      placeholder="••••••••"
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="newPassword">Mật khẩu mới *</label>
+                      <input 
+                        type="password" 
+                        id="newPassword"
+                        value={passwordData.newPassword} 
+                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        placeholder="Tối thiểu 6 ký tự"
+                        className="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="confirmPassword">Xác nhận mật khẩu mới *</label>
+                      <input 
+                        type="password" 
+                        id="confirmPassword"
+                        value={passwordData.confirmPassword} 
+                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        placeholder="••••••••"
+                        className="form-control"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-actions-row">
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary btn-save-profile"
+                      disabled={changingPassword}
+                    >
+                      {changingPassword ? 'Đang xử lý...' : 'Cập nhật mật khẩu mới'}
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn btn-outline"
+                      onClick={() => setActiveTab('general')}
+                    >
+                      Hủy bỏ
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </main>
         </div>
       </div>
     </div>

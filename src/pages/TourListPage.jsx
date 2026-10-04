@@ -204,9 +204,9 @@ const TourListPage = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{
                     flex: 1,
-                    background: '#0b0f19',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    color: '#1f497d',
                     padding: '10px 16px',
                     borderRadius: '8px',
                     outline: 'none'

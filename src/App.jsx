@@ -58,12 +58,12 @@ function App() {
             <Route path="/tours" element={<UserLayout><TourListPage /></UserLayout>} />
             <Route path="/tours/:id" element={<UserLayout><TourDetailPage /></UserLayout>} />
             <Route path="/cart" element={<UserLayout><CartPage /></UserLayout>} />
-            <Route path="/wishlist" element={<UserLayout><WishlistPage /></UserLayout>} />
             <Route path="/help" element={<UserLayout><HelpCenterPage /></UserLayout>} />
             <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />
             <Route path="/register" element={<UserLayout><RegisterPage /></UserLayout>} />
 
             {/* Private User Routes */}
+            <Route path="/wishlist" element={<PrivateRoute><UserLayout><WishlistPage /></UserLayout></PrivateRoute>} />
             <Route path="/checkout" element={<PrivateRoute><UserLayout><CheckoutPage /></UserLayout></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
