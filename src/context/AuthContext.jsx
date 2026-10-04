@@ -40,7 +40,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', newToken);
       return { success: true, user: newUser };
     } catch (error) {
-      const message = error.response?.data || error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+      const message = error.response?.data?.message || 
+        (typeof error.response?.data === 'string' ? error.response.data : 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
       return { success: false, error: message };
     }
   };

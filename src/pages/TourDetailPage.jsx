@@ -74,7 +74,12 @@ const TourDetailPage = () => {
               type="button"
               className={`td-save-btn${isSaved(tour) ? ' is-saved' : ''}`}
               aria-pressed={isSaved(tour)}
-              onClick={() => toggleSaved(tour)}
+              onClick={() => {
+                const ok = toggleSaved(tour);
+                if (!ok) {
+                  navigate('/login', { state: { from: location } });
+                }
+              }}
             >
               <FaHeart aria-hidden="true" />
               {isSaved(tour) ? 'Đã lưu' : 'Lưu tour'}
@@ -87,7 +92,7 @@ const TourDetailPage = () => {
               </span>
             )}
             <span className="location" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#94a3b8' }}>
-              <FaMapMarkerAlt /> Khởi hành từ: <b style={{ color: '#fff' }}>{tour.departureLocation}</b>
+              <FaMapMarkerAlt /> Khởi hành từ: <b style={{ color: 'var(--text-pure)' }}>{tour.departureLocation}</b>
             </span>
           </div>
         </div>
@@ -134,16 +139,16 @@ const TourDetailPage = () => {
             </div>
 
             {/* Navigation Tabs */}
-            <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-subtle)', marginBottom: '24px' }}>
               <button 
                 onClick={() => setActiveTab('itinerary')}
                 style={{
                   padding: '12px 20px',
                   background: 'transparent',
                   border: 'none',
-                  borderBottom: activeTab === 'itinerary' ? '2px solid #0ea5e9' : '2px solid transparent',
-                  color: activeTab === 'itinerary' ? '#0ea5e9' : '#94a3b8',
-                  fontWeight: 600,
+                  borderBottom: activeTab === 'itinerary' ? '2px solid #ff5722' : '2px solid transparent',
+                  color: activeTab === 'itinerary' ? '#ff5722' : 'var(--text-muted)',
+                  fontWeight: 700,
                   fontSize: '1rem',
                   cursor: 'pointer'
                 }}
@@ -156,9 +161,9 @@ const TourDetailPage = () => {
                   padding: '12px 20px',
                   background: 'transparent',
                   border: 'none',
-                  borderBottom: activeTab === 'services' ? '2px solid #0ea5e9' : '2px solid transparent',
-                  color: activeTab === 'services' ? '#0ea5e9' : '#94a3b8',
-                  fontWeight: 600,
+                  borderBottom: activeTab === 'services' ? '2px solid #ff5722' : '2px solid transparent',
+                  color: activeTab === 'services' ? '#ff5722' : 'var(--text-muted)',
+                  fontWeight: 700,
                   fontSize: '1rem',
                   cursor: 'pointer'
                 }}
@@ -171,9 +176,9 @@ const TourDetailPage = () => {
                   padding: '12px 20px',
                   background: 'transparent',
                   border: 'none',
-                  borderBottom: activeTab === 'policy' ? '2px solid #0ea5e9' : '2px solid transparent',
-                  color: activeTab === 'policy' ? '#0ea5e9' : '#94a3b8',
-                  fontWeight: 600,
+                  borderBottom: activeTab === 'policy' ? '2px solid #ff5722' : '2px solid transparent',
+                  color: activeTab === 'policy' ? '#ff5722' : 'var(--text-muted)',
+                  fontWeight: 700,
                   fontSize: '1rem',
                   cursor: 'pointer'
                 }}
@@ -186,14 +191,14 @@ const TourDetailPage = () => {
             {activeTab === 'itinerary' && (
               <div>
                 <div className="td-section mb-4">
-                  <h3 style={{ color: '#fff', fontSize: '1.25rem', marginBottom: '12px' }}>Thông tin hành trình</h3>
-                  <p style={{ color: '#cbd5e1', lineHeight: 1.7, fontSize: '1rem' }}>
+                  <h3 style={{ color: 'var(--text-pure)', fontSize: '1.25rem', marginBottom: '12px' }}>Thông tin hành trình</h3>
+                  <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, fontSize: '1rem' }}>
                     {tour.description || 'Chưa có mô tả chi tiết cho tour này.'}
                   </p>
                 </div>
 
                 <div className="td-section">
-                  <h3 style={{ color: '#fff', fontSize: '1.25rem', marginBottom: '12px' }}>Lịch trình chi tiết</h3>
+                  <h3 style={{ color: 'var(--text-pure)', fontSize: '1.25rem', marginBottom: '12px' }}>Lịch trình chi tiết</h3>
                   <p className="td-data-note">
                     Lịch trình theo từng ngày chưa được cập nhật. Vui lòng ghi câu hỏi trong phần ghi chú khi gửi yêu cầu đặt tour.
                   </p>
