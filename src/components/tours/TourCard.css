@@ -1,0 +1,185 @@
+.tour-card-wrap {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.tour-card {
+  width: 100%;
+  flex: 1;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  text-decoration: none;
+}
+
+.tour-save-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 18px;
+  background: #ffffff;
+  color: #1f497d;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tour-save-btn:hover,
+.tour-save-btn.is-saved {
+  border-color: #ff5722;
+  color: #ff5722;
+}
+
+.tour-save-btn:focus-visible {
+  outline: 2px solid #ff5722;
+  outline-offset: 2px;
+}
+
+.tour-card:hover {
+  transform: translateY(-4px);
+  border-color: #1f497d;
+  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.12);
+}
+
+.tc-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background-color: #f7f9fc;
+}
+
+.tc-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.tour-card:hover .tc-img {
+  transform: scale(1.05);
+}
+
+.tc-content {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tc-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.tc-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.star-icon {
+  font-size: 0.8rem;
+}
+
+.tc-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f497d;
+  margin-bottom: 10px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tc-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #6c757d;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+}
+
+.tc-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tc-seats {
+  color: #1f497d;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tc-seats-row {
+  min-height: 21px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+}
+
+.tc-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.tc-price-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.tc-price-label {
+  font-size: 0.72rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tc-price {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ff5722;
+}
+
+.btn-book {
+  background: #ff5722;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.tour-card:hover .btn-book {
+  background: #e64a19;
+}

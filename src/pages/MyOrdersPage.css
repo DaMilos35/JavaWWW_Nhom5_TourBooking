@@ -1,0 +1,131 @@
+.my-orders-page {
+  padding: 40px 0 80px;
+}
+
+.my-orders-page h2 {
+  color: #1f497d;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.order-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(31, 73, 125, 0.08);
+  transition: border-color 0.2s ease;
+}
+
+.order-card:hover {
+  border-color: #1f497d;
+}
+
+.order-header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: #f7f9fc;
+}
+
+.oh-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.oh-info strong {
+  color: #1f497d;
+  font-size: 1.05rem;
+}
+
+.oh-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.order-total {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ff5722;
+}
+
+.order-details {
+  padding: 20px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.order-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 20px;
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.oi-name {
+  color: #1f497d;
+  font-weight: 600;
+  flex: 1;
+}
+
+.oi-qty {
+  margin: 0 20px;
+  color: #6c757d;
+}
+
+.oi-price {
+  font-weight: 700;
+  color: #ff5722;
+}
+
+.order-contact-box {
+  background: #f7f9fc;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.order-contact-box p {
+  margin-bottom: 6px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.order-contact-box p strong {
+  color: #1f497d;
+}
+
+@media (max-width: 768px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .oh-status {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .order-item-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .oi-qty {
+    margin: 0;
+  }
+}

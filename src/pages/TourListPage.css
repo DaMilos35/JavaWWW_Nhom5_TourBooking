@@ -1,0 +1,215 @@
+.tour-list-page {
+  padding: 40px 0 80px;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+}
+
+/* Sidebar Filtering */
+.sidebar {
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.filter-card {
+  padding: 24px;
+}
+
+.filter-title {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+}
+
+.filter-group {
+  margin-bottom: 24px;
+}
+
+.filter-group h4 {
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  color: var(--text-pure);
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+.radio-label:hover {
+  color: var(--text-pure);
+}
+
+.radio-label input[type="radio"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-subtle);
+  border-radius: 50%;
+  outline: none;
+  background: var(--bg-main);
+  position: relative;
+}
+
+.radio-label input[type="radio"]:checked {
+  border-color: var(--accent-blue);
+}
+
+.radio-label input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: var(--accent-blue);
+  border-radius: 50%;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+/* Main Content */
+.search-bar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  margin-bottom: 32px;
+}
+
+.search-form-list {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+}
+
+.search-form-list .form-control {
+  border-radius: var(--radius-pill);
+}
+
+.tour-search-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-pure);
+}
+
+.tour-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-form-list .btn {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.search-bar-top > .sort-select-dropdown {
+  width: 220px;
+  flex: 0 0 220px;
+}
+
+.sort-select-dropdown .search-select-trigger {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.sort-select-dropdown .search-select-trigger:focus-visible {
+  outline-offset: 2px;
+}
+
+.tours-grid-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-state h3 {
+  color: var(--text-pure);
+  margin-bottom: 12px;
+}
+
+.filter-error {
+  display: grid;
+  gap: 8px;
+  color: #b42318;
+  font-size: 0.85rem;
+}
+
+.filter-error button {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ff5722;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.load-error {
+  margin-bottom: 24px;
+  color: #b42318;
+}
+
+.load-error p {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 992px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: relative;
+    top: 0;
+  }
+  .search-bar-top {
+    flex-direction: column;
+  }
+  .sort-select-dropdown {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+  .tours-grid-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .tours-grid-list {
+    grid-template-columns: 1fr;
+  }
+}
