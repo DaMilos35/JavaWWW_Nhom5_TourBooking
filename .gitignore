@@ -9,6 +9,7 @@ bun.lockb
 dist/
 build/
 target/
+.gradle/
 
 # Environment files
 .env

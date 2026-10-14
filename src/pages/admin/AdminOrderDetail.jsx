@@ -19,7 +19,7 @@ const AdminOrderDetail = () => {
 
   const fetchOrder = async () => {
     try {
-      const res = await orderApi.getOrderById(id);
+      const res = await adminApi.getOrderById(id);
       setOrder(res.data);
     } catch (error) {
       toast.error('Lỗi khi tải chi tiết đơn hàng');

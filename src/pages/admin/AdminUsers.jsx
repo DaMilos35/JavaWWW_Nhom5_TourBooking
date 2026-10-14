@@ -246,16 +246,16 @@ const AdminUsers = () => {
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                         <button 
                           style={{
-                            background: isCurrent ? '#f1f5f9' : '#fee2e2',
-                            color: isCurrent ? '#94a3b8' : '#b91c1c',
+                            background: isCurrent || orderCount > 0 ? '#f1f5f9' : '#fee2e2',
+                            color: isCurrent || orderCount > 0 ? '#94a3b8' : '#b91c1c',
                             border: 'none',
                             padding: '6px 12px',
                             borderRadius: '6px',
-                            cursor: isCurrent ? 'not-allowed' : 'pointer'
+                            cursor: isCurrent || orderCount > 0 ? 'not-allowed' : 'pointer'
                           }}
                           onClick={() => handleDelete(u.id)}
-                          disabled={isCurrent}
-                          title={isCurrent ? 'Không thể tự xóa tài khoản của bạn' : 'Xóa tài khoản người dùng'}
+                          disabled={isCurrent || orderCount > 0}
+                          title={isCurrent ? 'Không thể tự xóa tài khoản của bạn' : orderCount > 0 ? 'Không thể xóa khách hàng đã có đơn đặt tour (Vui lòng chọn Tạm khóa)' : 'Xóa tài khoản người dùng'}
                         >
                           <FaTrash />
                         </button>

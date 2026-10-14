@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaSearch, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaArrowRight } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaSearch, FaPlaneDeparture, FaHandHoldingUsd, FaShieldAlt, FaHeadset, FaArrowRight, FaRobot } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -16,6 +16,7 @@ const HomePage = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchCategory, setSearchCategory] = useState('');
   const [priceRange, setPriceRange] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
   const navigate = useNavigate();
 
   const fetchData = async () => {
@@ -28,6 +29,16 @@ const HomePage = () => {
       ]);
       setTours(toursRes.data);
       setCategories(catsRes.data);
+
+      // Tải gợi ý cá nhân hóa
+      try {
+        const recRes = await tourApi.getRecommendations('', 4);
+        if (recRes.data && Array.isArray(recRes.data)) {
+          setRecommendations(recRes.data);
+        }
+      } catch (err) {
+        console.debug('Không tải được gợi ý homepage:', err);
+      }
     } catch (error) {
       setLoadError(true);
     } finally {
@@ -168,27 +179,47 @@ const HomePage = () => {
       <section className="features-section container">
         <div className="features-grid">
           <div className="feature-box">
+            <div className="feature-icon-wrapper" style={{ background: 'linear-gradient(135deg, #0284c7, #7c3aed)', color: '#fff' }}><FaRobot /></div>
+            <h3>Trợ lý AI Thông Minh</h3>
+            <p>Tư vấn chọn tour 24/7 và lên lịch trình tự động theo đúng ngân sách của bạn.</p>
+          </div>
+          <div className="feature-box">
             <div className="feature-icon-wrapper"><FaPlaneDeparture /></div>
             <h3>Nhiều lựa chọn</h3>
-            <p>Xem các hành trình trong nước, quốc tế và nghỉ dưỡng tại một nơi.</p>
+            <p>Hành trình trong nước, quốc tế và nghỉ dưỡng đa dạng tuyến điểm.</p>
           </div>
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaHandHoldingUsd /></div>
-            <h3>Giá rõ ràng</h3>
-            <p>Xem giá tour và số chỗ còn lại trước khi thêm vào giỏ hàng.</p>
+            <h3>Giá minh bạch</h3>
+            <p>Cập nhật số chỗ còn lại và giá vé chuẩn xác trước khi giữ chỗ.</p>
           </div>
           <div className="feature-box">
             <div className="feature-icon-wrapper"><FaShieldAlt /></div>
             <h3>Theo dõi đơn hàng</h3>
-            <p>Đăng nhập để xem trạng thái và thông tin các đơn đã đặt.</p>
-          </div>
-          <div className="feature-box">
-            <div className="feature-icon-wrapper"><FaHeadset /></div>
-            <h3>Thông tin liên hệ</h3>
-            <p>Liên hệ đội ngũ hỗ trợ qua số điện thoại hoặc email ở cuối trang.</p>
+            <p>Quản lý trạng thái, hóa đơn điện tử và lịch sử đặt tour trực tuyến dễ dàng.</p>
           </div>
         </div>
       </section>
+
+      {/* Personalized Recommendations based on User Activity */}
+      {recommendations && recommendations.length > 0 && (
+        <section className="featured-tours-section container" style={{ marginBottom: '60px' }}>
+          <div className="section-header">
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(2, 132, 199, 0.15)', color: '#38bdf8', padding: '4px 12px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600, marginBottom: '8px' }}>
+                <span>✨</span> CÁ NHÂN HÓA DÀNH CHO BẠN
+              </div>
+              <h2 className="section-title">Gợi ý tour phù hợp nhất</h2>
+              <p className="section-subtitle">Dựa trên lịch sử tìm kiếm, danh mục ưa thích và hành vi trải nghiệm của bạn</p>
+            </div>
+          </div>
+          <div className="tour-grid">
+            {recommendations.map(tour => (
+              <TourCard key={`rec-${tour.id || tour.tourId}`} tour={tour} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="featured-tours-section container" style={{ marginBottom: '100px' }}>
         <div className="section-header">

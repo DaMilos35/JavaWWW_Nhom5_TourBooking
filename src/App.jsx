@@ -34,6 +34,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 
 // Guards
 import { PrivateRoute, AdminRoute } from './components/common/PrivateRoute';
+import AiChatWidget from './components/common/AiChatWidget';
 
 import './App.css';
 
@@ -42,6 +43,7 @@ const UserLayout = ({ children }) => (
     <Navbar />
     <main style={{ minHeight: '80vh' }}>{children}</main>
     <Footer />
+    <AiChatWidget />
   </>
 );
 

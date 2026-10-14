@@ -139,6 +139,7 @@
   align-items: flex-end;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 10px;
 }
 
 .tc-price-wrap {
@@ -159,17 +160,91 @@
   color: #38bdf8;
 }
 
+.tc-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .btn-book {
-  background: #0ea5e9;
-  color: #ffffff;
-  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  padding: 6px 10px;
   border-radius: 6px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: all 0.2s;
   display: inline-block;
 }
 
 .tour-card:hover .btn-book {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.btn-quick-add {
   background: #0284c7;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.btn-quick-add:hover:not(:disabled) {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.btn-quick-add:disabled {
+  background: #475569;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Badges on tour image */
+.tc-badge-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2;
+}
+
+.tc-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.badge-available {
+  background: rgba(22, 163, 74, 0.9);
+  color: #ffffff;
+}
+
+.badge-warning {
+  background: rgba(234, 88, 12, 0.9);
+  color: #ffffff;
+}
+
+.badge-full {
+  background: rgba(100, 116, 139, 0.9);
+  color: #ffffff;
+}
+
+.badge-duration {
+  background: rgba(15, 23, 42, 0.85);
+  color: #7dd3fc;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
