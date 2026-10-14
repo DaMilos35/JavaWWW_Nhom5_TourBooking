@@ -22,7 +22,7 @@
 * **Học phần**: Lập Trình WWW (Java)
 * **Đề tài**: **Đề tài số 49 — Website giới thiệu tour du lịch và cho phép đăng ký tour trực tuyến**
 * **Đơn vị đào tạo**: Khoa Công nghệ Thông tin — Trường Đại học Công nghiệp TP. Hồ Chí Minh (IUH)
-* **Giảng viên hướng dẫn**: **ThS. Đặng Thị Thu Hà**
+* **Giảng viên hướng dẫn**: **ThS. Nguyễn Vũ Lâm**
 * **Nhóm thực hiện**: **Nhóm 5 (Lớp DHKTPM19ATT)**
 * **Tài liệu báo cáo chi tiết**: [`docs/Nhom5_Detai49_BaoCaoCuoiKy.docx`](docs/Nhom5_Detai49_BaoCaoCuoiKy.docx) (Chuẩn format Khóa luận tốt nghiệp IUH)
 
@@ -304,10 +304,10 @@ Tất cả tài khoản demo đều được thiết lập mật khẩu đồng 
 
 | STT | Họ và Tên | Mã Số Sinh Viên | Phân Công Trách Nhiệm |
 | :-: | :--- | :-: | :--- |
-| 1 | **Vũ Minh Quân** | 23637711 | Trưởng nhóm, Thiết kế CSDL, Xử lý Backend Spring Boot, Bảo mật Spring Security & Safe Delete |
-| 2 | **Nguyễn Văn Hiếu** | 23640271 | Lập trình Frontend React SPA, Tối ưu giao diện PC/Laptop, Giỏ hàng Session & Đặt tour B2B |
-| 3 | **Nguyễn Hoàng Huy** | 23639891 | Tích hợp Trợ lý AI Google Gemini, Xây dựng Module gợi ý cá nhân hóa & API Controllers |
-| 4 | **Trần Đình Khoa** | 23638121 | Kiểm thử hệ thống (Test Cases), Viết báo cáo chuẩn Khóa luận tốt nghiệp & Slide thuyết trình |
+| 1 | **Vũ Trần Đức Nghĩa** | 23637711 | **Nhóm trưởng**: Thiết kế kiến trúc 3 tầng, Xây dựng Backend Spring Boot 3.5.6 (OrderService, Safe Delete, B2B Tiered Discount, Tích hợp Trợ lý AI Gemini 1.5) |
+| 2 | **Nguyễn Đình Phi** | 23633271 | **Thành viên**: Lập trình Frontend React 18 SPA trên PC/Laptop, Trang chi tiết tour (Timeline, Gallery ảnh lớn, huy hiệu chỗ trống), Gợi ý tour cá nhân hóa |
+| 3 | **Lê Viết Cao Sơn** | 23637311 | **Thành viên**: Thiết kế CSDL MariaDB chuẩn 3NF, Cấu hình Spring Security 6, Cookie CSRF Protection, Chuẩn bị dữ liệu mẫu data.sql & seed_vi.sql |
+| 4 | **Trần Hoàng Nam** | 23639071 | **Thành viên**: Xây dựng Admin Dashboard & CRUD Tour/Danh mục/Người dùng, Cập nhật số lượng khách trong đơn hàng, Kiểm thử hệ thống & Viết báo cáo |
 
 ---
 
