@@ -15,6 +15,7 @@ USE TourBookingDB;
 -- XÓA BẢNG CŨ (nếu có) theo thứ tự phụ thuộc
 -- ============================================================
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS user_activity_history;
 DROP TABLE IF EXISTS OrderDetails;
 DROP TABLE IF EXISTS Orders;
 DROP TABLE IF EXISTS Tours;
@@ -32,7 +33,7 @@ CREATE TABLE Users (
     email       VARCHAR(100)    NOT NULL UNIQUE,
     full_name   VARCHAR(150)    NULL,
     role        VARCHAR(20)     NOT NULL DEFAULT 'CUSTOMER'
-                                CHECK (role IN ('ADMIN', 'CUSTOMER')),
+                                CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER', 'ROLE_ADMIN', 'ROLE_CUSTOMER', 'ROLE_PROVIDER')),
     phone       VARCHAR(15)     NULL,
     address     VARCHAR(255)    NULL,
     is_active   TINYINT(1)       NOT NULL DEFAULT 1,
@@ -55,6 +56,7 @@ CREATE TABLE Categories (
 CREATE TABLE Tours (
     tour_id             INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     category_id         INT             NOT NULL,
+    provider_id         INT             NULL,
     tour_name           VARCHAR(300)    NOT NULL,
     description         LONGTEXT        NULL,
     price               DECIMAL(18,2)   NOT NULL CHECK (price > 0),
@@ -71,7 +73,9 @@ CREATE TABLE Tours (
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT FK_Tours_Categories FOREIGN KEY (category_id)
-        REFERENCES Categories(category_id)
+        REFERENCES Categories(category_id),
+    CONSTRAINT FK_Tours_Provider FOREIGN KEY (provider_id)
+        REFERENCES Users(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
@@ -83,7 +87,7 @@ CREATE TABLE Orders (
     order_date      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_amount    DECIMAL(18,2)   NOT NULL DEFAULT 0,
     status          VARCHAR(20)     NOT NULL DEFAULT 'PENDING'
-                                    CHECK (status IN ('PENDING','CONFIRMED','CANCELLED','COMPLETED')),
+                                    CHECK (status IN ('PENDING','CONFIRMED','CANCELLED','COMPLETED','PAID')),
     contact_name    VARCHAR(150)    NOT NULL,
     contact_phone   VARCHAR(15)     NOT NULL,
     contact_email   VARCHAR(100)    NOT NULL,
@@ -107,6 +111,37 @@ CREATE TABLE OrderDetails (
         REFERENCES Orders(order_id),
     CONSTRAINT FK_OrderDetails_Tours FOREIGN KEY (tour_id)
         REFERENCES Tours(tour_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TẠO BẢNG USER ACTIVITY HISTORY (Recommendation Tracking)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS user_activity_history (
+    id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT NULL,
+    session_id      VARCHAR(100) NULL,
+    tour_id         INT NOT NULL,
+    activity_type   VARCHAR(50) NOT NULL, -- VIEW, ADD_TO_CART, BOOK
+    score           INT NOT NULL DEFAULT 1,
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_activity_user (user_id),
+    INDEX idx_activity_session (session_id),
+    INDEX idx_activity_tour (tour_id),
+    INDEX idx_activity_created (created_at),
+
+    CONSTRAINT FK_Activity_Users FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    CONSTRAINT FK_Activity_Tours FOREIGN KEY (tour_id) REFERENCES Tours(tour_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TẠO BẢNG PERSISTENT LOGINS (Spring Security Remember-Me)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS persistent_logins (
+    username    VARCHAR(64) NOT NULL,
+    series      VARCHAR(64) PRIMARY KEY,
+    token       VARCHAR(64) NOT NULL,
+    last_used   TIMESTAMP NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================

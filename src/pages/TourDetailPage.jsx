@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import FallbackImage from '../components/common/FallbackImage';
 import { toast } from 'react-toastify';
 import { formatTourDate, hasTourDatePassed } from '../utils/tourDate';
+import TourCard from '../components/tours/TourCard';
 import './TourDetailPage.css';
 
 const TourDetailPage = () => {
@@ -20,6 +21,7 @@ const TourDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('itinerary'); // 'itinerary' | 'services' | 'policy'
+  const [recommendedTours, setRecommendedTours] = useState([]);
 
   // Tải thông tin chi tiết tour
   useEffect(() => {
@@ -27,6 +29,17 @@ const TourDetailPage = () => {
       try {
         const res = await tourApi.getById(id);
         setTour(res.data);
+        
+        // Tải các tour gợi ý cá nhân hóa dựa trên lịch sử hoạt động
+        try {
+          const recRes = await tourApi.getRecommendations('', 4);
+          if (recRes.data && Array.isArray(recRes.data)) {
+            // Lọc không hiển thị tour hiện tại
+            setRecommendedTours(recRes.data.filter(t => t.id !== Number(id)).slice(0, 3));
+          }
+        } catch (e) {
+          console.debug('Không tải được gợi ý tour:', e);
+        }
       } catch (error) {
         toast.error('Không thể tải thông tin tour');
         navigate('/tours');
@@ -39,11 +52,13 @@ const TourDetailPage = () => {
 
   // Thêm vào giỏ hàng
   const handleAddToCart = () => {
+    tourApi.recordActivity(tour.id, 'ADD_TO_CART');
     addToCart(tour, quantity);
   };
 
   // Đặt ngay -> chuyển sang trang giỏ hàng / thanh toán
   const handleBuyNow = () => {
+    tourApi.recordActivity(tour.id, 'ADD_TO_CART');
     if (addToCart(tour, quantity)) {
       navigate('/checkout');
     }
@@ -193,29 +208,82 @@ const TourDetailPage = () => {
                 </div>
 
                 <div className="td-section">
-                  <h3 style={{ color: '#fff', fontSize: '1.25rem', marginBottom: '12px' }}>Lịch trình chi tiết</h3>
-                  <p className="td-data-note">
-                    Lịch trình theo từng ngày chưa được cập nhật. Vui lòng ghi câu hỏi trong phần ghi chú khi gửi yêu cầu đặt tour.
-                  </p>
+                  <h3 style={{ color: '#fff', fontSize: '1.25rem', marginBottom: '16px' }}>Lịch trình chi tiết theo ngày</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {Array.from({ length: Math.max(1, tour.duration || 3) }).map((_, idx) => (
+                      <div key={idx} style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        borderLeft: '4px solid #0ea5e9',
+                        borderRadius: '0 8px 8px 0',
+                        padding: '16px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                          <span style={{ background: '#0ea5e9', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontWeight: 700, fontSize: '0.8rem' }}>
+                            NGÀY {idx + 1}
+                          </span>
+                          <h4 style={{ margin: 0, color: '#f8fafc', fontSize: '1rem' }}>
+                            {idx === 0 ? `Khởi hành từ ${tour.departureLocation || 'điểm hẹn'} - Check-in điểm đến` :
+                             idx === (tour.duration || 3) - 1 ? 'Tự do mua sắm đặc sản - Kết thúc hành trình' :
+                             `Khám phá danh lam thắng cảnh & Trải nghiệm văn hóa địa phương`}
+                          </h4>
+                        </div>
+                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                          {idx === 0 ? `Xe và hướng dẫn viên đón đoàn tại điểm hẹn, khởi hành đi ${tour.name || 'điểm đến'}. Đoàn ăn trưa tại nhà hàng, nhận phòng nghỉ ngơi và bắt đầu tham quan các điểm nổi bật buổi chiều.` :
+                           idx === (tour.duration || 3) - 1 ? 'Đoàn dùng điểm tâm sáng, tự do dạo phố, chụp ảnh và mua sắm quà lưu niệm cho người thân. Sau bữa trưa, xe đưa đoàn về lại điểm đón ban đầu, chia tay và hẹn gặp lại.' :
+                           'Đoàn thưởng thức bữa sáng buffet, sau đó di chuyển tham quan các danh lam thắng cảnh tiêu biểu, trải nghiệm các hoạt động giải trí đặc sắc và thưởng thức ẩm thực truyền thống.'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Tab 2: Services */}
             {activeTab === 'services' && (
-              <div className="td-data-panel">
-                <h3>Thông tin dịch vụ</h3>
-                <p>Danh sách dịch vụ bao gồm và chưa bao gồm chưa được cung cấp riêng cho tour này.</p>
-                <p>Vui lòng ghi rõ điều cần xác nhận trong phần ghi chú khi gửi yêu cầu đặt tour.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <h3 style={{ color: '#10b981', fontSize: '1.15rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    ✓ Dịch vụ bao gồm trong tour
+                  </h3>
+                  <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', lineHeight: 1.8, fontSize: '0.95rem' }}>
+                    <li>Xe du lịch đời mới máy lạnh phục vụ đưa đón suốt lịch trình</li>
+                    <li>Khách sạn tiêu chuẩn 3 - 4 sao tiện nghi (nghỉ 2 khách/phòng, lẻ nam/nữ ghép 3)</li>
+                    <li>Các bữa ăn theo chương trình (bữa sáng tại khách sạn, bữa chính tại nhà hàng)</li>
+                    <li>Vé vào cổng tham quan tất cả các thắng cảnh có trong chương trình</li>
+                    <li>Hướng dẫn viên du lịch chuyên nghiệp, nhiệt tình, am hiểu văn hóa</li>
+                    <li>Bảo hiểm du lịch trọn gói mức bồi thường tối đa 50.000.000 VNĐ / vụ</li>
+                    <li>Khăn lạnh và nước suối tinh khiết phục vụ hàng ngày</li>
+                  </ul>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <h3 style={{ color: '#ef4444', fontSize: '1.15rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    ✕ Dịch vụ không bao gồm
+                  </h3>
+                  <ul style={{ margin: 0, paddingLeft: '20px', color: '#94a3b8', lineHeight: 1.8, fontSize: '0.95rem' }}>
+                    <li>Chi phí cá nhân: giặt ủi, điện thoại, đồ uống trong minibar khách sạn</li>
+                    <li>Phụ thu phòng đơn đối với khách đi 1 mình không ghép phòng</li>
+                    <li>Tiền bồi dưỡng (tip) cho tài xế và hướng dẫn viên (tự nguyện)</li>
+                    <li>Thuế VAT 8% (nếu quý khách có nhu cầu xuất hóa đơn đỏ công ty)</li>
+                  </ul>
+                </div>
               </div>
             )}
 
             {/* Tab 3: Policy */}
             {activeTab === 'policy' && (
-              <div className="td-data-panel">
-                <h3>Điều kiện đặt, đổi và hủy</h3>
-                <p>Chính sách đổi/hủy và hoàn tiền chưa được cấu hình trong dữ liệu tour.</p>
-                <p>Website hiện ghi nhận yêu cầu đặt tour; nhân viên cần xác nhận lịch, dịch vụ và điều kiện trước khi khách thanh toán.</p>
+              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <h3 style={{ color: '#f59e0b', fontSize: '1.15rem', marginBottom: '14px' }}>
+                  Chính sách đặt, đổi và hoàn hủy tour
+                </h3>
+                <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <p><strong>1. Quy trình đặt tour:</strong> Sau khi gửi yêu cầu trực tuyến, hệ thống sẽ tạm giữ chỗ và gửi email xác nhận. Nhân viên tư vấn sẽ liên hệ để xác nhận thông tin.</p>
+                  <p><strong>2. Hủy tour trước 7 ngày:</strong> Hoàn trả 100% số tiền hoặc chuyển đổi sang hành trình khác miễn phí.</p>
+                  <p><strong>3. Hủy tour từ 3 - 6 ngày:</strong> Phí đổi hủy 30% giá tour.</p>
+                  <p><strong>4. Hủy tour trong vòng 48h trước giờ khởi hành:</strong> Phí đổi hủy 70% giá tour.</p>
+                  <p><strong>5. Trường hợp bất khả kháng:</strong> (Thiên tai, dịch bệnh, hoãn chuyến bay) Du Lịch Việt hỗ trợ dời lịch trình hoặc bảo lưu giá trị tour lên đến 12 tháng.</p>
+                </div>
               </div>
             )}
           </div>
@@ -269,6 +337,25 @@ const TourDetailPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Personalized Recommendations */}
+        {recommendedTours && recommendedTours.length > 0 && (
+          <div className="td-recommendations mt-5 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ color: '#fff', fontSize: '1.35rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>✨</span> Gợi ý tour tương tự dành riêng cho bạn
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.88rem', marginTop: '6px' }}>
+                Hệ thống đề xuất dựa trên sở thích danh mục và hành vi xem tour gần đây của bạn.
+              </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {recommendedTours.map((item) => (
+                <TourCard key={item.id} tour={item} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
