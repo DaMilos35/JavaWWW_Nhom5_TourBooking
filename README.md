@@ -13,6 +13,7 @@
   <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/React-18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 18" /></a>
   <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
   <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/Google_Gemini-AI-8E75B2?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini AI" /></a>
+  <a href="https://github.com/affaan-m/ECC"><img src="https://img.shields.io/badge/ECC-Agent_Harness-blueviolet?style=for-the-badge&logo=anthropic&logoColor=white" alt="ECC Harness" /></a>
   <a href="#-giấy-phép"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT License" /></a>
 </p>
 
@@ -38,7 +39,8 @@
 - [7. Danh Sách Tài Khoản Trải Nghiệm (Demo Accounts)](#-7-danh-sách-tài-khoản-trải-nghiệm-demo-accounts)
 - [8. Danh Mục REST API Cốt Lõi](#-8-danh-mục-rest-api-cốt-lõi)
 - [9. Kịch Bản Kiểm Thử & Kiểm Soát Ràng Buộc (Safe Delete)](#-9-kịch-bản-kiểm-thử--kiểm-soát-ràng-buộc-safe-delete)
-- [10. Thành Viên Nhóm Thực Hiện](#-10-thành-viên-nhóm-thực-hiện)
+- [10. Nâng Cấp Hệ Thống & Kiểm Thử TDD Theo Chuẩn ECC](#-10-nâng-cấp-hệ-thống--kiểm-thử-tdd-theo-chuẩn-ecc)
+- [11. Thành Viên Nhóm Thực Hiện](#-11-thành-viên-nhóm-thực-hiện)
 
 ---
 
@@ -300,7 +302,30 @@ Tất cả tài khoản demo đều được thiết lập mật khẩu đồng 
 
 ---
 
-## 👨‍💻 10. Thành Viên Nhóm Thực Hiện
+## 🚀 10. Nâng Cấp Hệ Thống & Kiểm Thử TDD Theo Chuẩn ECC
+
+Dự án đã áp dụng toàn diện hệ thống tiêu chuẩn kỹ nghệ phần mềm và bộ công cụ tác nhân thông minh từ **[affaan-m/ECC (The Agent Harness System)](https://github.com/affaan-m/ecc)** để nâng cấp kiến trúc, bảo mật và chất lượng mã nguồn:
+
+### 🧩 Các Module Kỹ Năng (ECC Skills) Đã Tích Hợp
+* **`skill:springboot-patterns` (Tối ưu hóa Truy vấn & Bộ nhớ đệm)**:
+  * Loại bỏ hoàn toàn lỗi truy vấn N+1 tại `CategoryService.findAll()` bằng truy vấn gom nhóm `countToursGroupedByCategory()`.
+  * Tích hợp **Spring Cache** (`@EnableCaching`, `@Cacheable`, `@CacheEvict`) cho Danh mục và Chi tiết Tour, giảm thiểu thời gian truy vấn CSDL xuống mức mili-giây.
+  * Chuẩn hóa `GlobalExceptionHandler` bắt và chuyển đổi toàn bộ `IllegalStateException`, `IllegalArgumentException`, `AccessDeniedException` thành JSON lỗi chuẩn RESTful.
+* **`skill:springboot-security` (Phòng thủ Đa tầng & Giới hạn Tần suất)**:
+  * Bổ sung bộ lọc **`RateLimitingFilter.java`** với cơ chế Sliding Window chống tấn công dò mật khẩu (Brute-Force) tại `/api/auth/login` (tối đa 15 req/phút) và chống lạm dụng tài nguyên LLM tại `/api/ai/chat` (tối đa 30 req/phút).
+* **`skill:springboot-tdd` & `skill:springboot-verification` (Kiểm thử Hướng kiểm thử)**:
+  * Xây dựng bộ kiểm thử tự động **15 bài kiểm thử Unit & Integration Test (100% Passed)** với JUnit 5 và Mockito:
+    1. `OrderServiceTest`: Kiểm thử tính toán chiết khấu B2B bậc thang (0%, 5%, 10%), cơ chế khóa chống đặt quá số chỗ, và hoàn trả số chỗ khi hủy đơn.
+    2. `TourServiceTest`: Kiểm thử cơ chế **Safe Delete** (chặn xóa khi có đơn hàng, xóa thành công và dọn dẹp lịch sử khi không có đơn) cùng phân quyền Provider Isolation.
+    3. `CategoryServiceTest`: Kiểm thử ánh xạ số lượng tour tối ưu và chặn xóa danh mục có ràng buộc.
+    4. `RecommendationServiceTest`: Kiểm thử thuật toán tính trọng số hành vi (VIEW=1, ADD_TO_CART=3, BOOK=5) và độ chính xác của gợi ý cá nhân hóa.
+* **`skill:vite-patterns` (Tối ưu hóa Phân phối Gói Frontend)**:
+  * Cấu hình Reverse Proxy `/api` tự động chuyển tiếp tới Spring Boot cổng 8080.
+  * Áp dụng kỹ thuật phân tách gói (`manualChunks`) chia nhỏ bundle thành các chunk chuyên biệt `vendor.js` (React/Axios) và `icons.js`, tối ưu tốc độ tải trang lần đầu trên trình duyệt PC/Laptop.
+
+---
+
+## 👨‍💻 11. Thành Viên Nhóm Thực Hiện
 
 | STT | Họ và Tên | Mã Số Sinh Viên | Phân Công Trách Nhiệm |
 | :-: | :--- | :-: | :--- |

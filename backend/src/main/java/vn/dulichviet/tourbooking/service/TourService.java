@@ -9,6 +9,9 @@ import vn.dulichviet.tourbooking.exception.ApiException;
 import vn.dulichviet.tourbooking.repository.CategoryRepository;
 import vn.dulichviet.tourbooking.repository.TourRepository;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +39,7 @@ public class TourService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "tour", key = "#id")
     public TourDto findById(Integer id) {
         return tourRepository.findById(id)
                 .map(TourDto::from)
@@ -74,10 +78,12 @@ public class TourService {
         return TourDto.from(saved);
     }
 
+    @CacheEvict(value = "tour", key = "#id")
     public TourDto update(Integer id, TourRequest request) {
         return update(id, request, null);
     }
 
+    @CacheEvict(value = "tour", key = "#id")
     public TourDto update(Integer id, TourRequest request, vn.dulichviet.tourbooking.entity.User currentUser) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy tour"));
@@ -99,10 +105,12 @@ public class TourService {
         return TourDto.from(saved);
     }
 
+    @CacheEvict(value = "tour", key = "#id")
     public void delete(Integer id) {
         delete(id, null);
     }
 
+    @CacheEvict(value = "tour", key = "#id")
     public void delete(Integer id, vn.dulichviet.tourbooking.entity.User currentUser) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy tour"));

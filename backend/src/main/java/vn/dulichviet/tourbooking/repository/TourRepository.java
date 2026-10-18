@@ -21,6 +21,9 @@ public interface TourRepository extends JpaRepository<Tour, Integer>, JpaSpecifi
     long countByCategoryIdAndStatus(Integer categoryId, String status);
     long countByProviderId(Integer providerId);
 
+    @Query("SELECT t.category.id, COUNT(t) FROM Tour t GROUP BY t.category.id")
+    List<Object[]> countToursGroupedByCategory();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM Tour t WHERE t.id = :id")
     Optional<Tour> findByIdForUpdate(@Param("id") Integer id);
