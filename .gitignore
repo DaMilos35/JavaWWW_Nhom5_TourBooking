@@ -33,3 +33,7 @@ yarn-error.log*
 *.sw?
 .DS_Store
 Thumbs.db
+
+# Agent & Dev Tooling
+.agents/
+
