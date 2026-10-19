@@ -11,6 +11,7 @@ import vn.dulichviet.tourbooking.repository.TourRepository;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -58,10 +59,12 @@ public class TourService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     public TourDto create(TourRequest request) {
         return create(request, null);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     public TourDto create(TourRequest request, vn.dulichviet.tourbooking.entity.User currentUser) {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy danh mục"));
@@ -78,12 +81,18 @@ public class TourService {
         return TourDto.from(saved);
     }
 
-    @CacheEvict(value = "tour", key = "#id")
+    @Caching(evict = {
+        @CacheEvict(value = "tour", key = "#id"),
+        @CacheEvict(value = "categories", allEntries = true)
+    })
     public TourDto update(Integer id, TourRequest request) {
         return update(id, request, null);
     }
 
-    @CacheEvict(value = "tour", key = "#id")
+    @Caching(evict = {
+        @CacheEvict(value = "tour", key = "#id"),
+        @CacheEvict(value = "categories", allEntries = true)
+    })
     public TourDto update(Integer id, TourRequest request, vn.dulichviet.tourbooking.entity.User currentUser) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy tour"));
@@ -105,12 +114,18 @@ public class TourService {
         return TourDto.from(saved);
     }
 
-    @CacheEvict(value = "tour", key = "#id")
+    @Caching(evict = {
+        @CacheEvict(value = "tour", key = "#id"),
+        @CacheEvict(value = "categories", allEntries = true)
+    })
     public void delete(Integer id) {
         delete(id, null);
     }
 
-    @CacheEvict(value = "tour", key = "#id")
+    @Caching(evict = {
+        @CacheEvict(value = "tour", key = "#id"),
+        @CacheEvict(value = "categories", allEntries = true)
+    })
     public void delete(Integer id, vn.dulichviet.tourbooking.entity.User currentUser) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy tour"));

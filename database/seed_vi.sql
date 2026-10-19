@@ -1,7 +1,7 @@
 -- =================================================================================
 -- TourBookingDB - BỘ DỮ LIỆU ĐẦY ĐỦ VÀ CHUẨN MỰC (data.sql)
 -- Đề tài số 49: Website giới thiệu tour du lịch và cho phép đăng ký tour trực tuyến
--- Nhóm 5 - Lớp DHKTPM19ATT - GVHD: ThS. Đặng Thị Thu Hà
+-- Nhóm 5 - Lớp DHKTPM19ATT - GVHD: ThS. Nguyễn Vũ Lâm
 -- Hệ thống: Sàn thương mại điện tử du lịch (Multi-vendor) + Đặt tour Doanh nghiệp (B2B)
 -- 8 Danh mục, 16 Tour đa dạng, 10 Tài khoản (Mật khẩu: 123456), 9 Đơn hàng, 12 Lịch sử hoạt động
 -- =================================================================================

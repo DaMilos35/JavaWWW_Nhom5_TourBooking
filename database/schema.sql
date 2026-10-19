@@ -1,7 +1,7 @@
 -- ============================================================
 -- TourBookingDB - MariaDB / MySQL Schema + Seed Data
--- Đề tài #53: Website giới thiệu tour du lịch
--- Nhóm 5 - Lập Trình WWW Java
+-- Đề tài số 49: Website giới thiệu tour du lịch và cho phép đăng ký tour trực tuyến
+-- Nhóm 5 - Lớp DHKTPM19ATT - GVHD: ThS. Nguyễn Vũ Lâm
 -- ============================================================
 
 -- Chạy script này trên MariaDB/MySQL. Script xóa và tạo lại các bảng dữ liệu.
