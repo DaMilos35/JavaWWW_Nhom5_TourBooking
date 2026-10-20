@@ -24,15 +24,26 @@ public class TourService {
     private final CategoryRepository categoryRepository;
     private final vn.dulichviet.tourbooking.repository.OrderDetailRepository orderDetailRepository;
     private final vn.dulichviet.tourbooking.repository.UserActivityHistoryRepository userActivityHistoryRepository;
+    private final TourVectorIndexer tourVectorIndexer;
 
     public TourService(TourRepository tourRepository,
                        CategoryRepository categoryRepository,
                        vn.dulichviet.tourbooking.repository.OrderDetailRepository orderDetailRepository,
                        vn.dulichviet.tourbooking.repository.UserActivityHistoryRepository userActivityHistoryRepository) {
+        this(tourRepository, categoryRepository, orderDetailRepository, userActivityHistoryRepository, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public TourService(TourRepository tourRepository,
+                       CategoryRepository categoryRepository,
+                       vn.dulichviet.tourbooking.repository.OrderDetailRepository orderDetailRepository,
+                       vn.dulichviet.tourbooking.repository.UserActivityHistoryRepository userActivityHistoryRepository,
+                       TourVectorIndexer tourVectorIndexer) {
         this.tourRepository = tourRepository;
         this.categoryRepository = categoryRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.userActivityHistoryRepository = userActivityHistoryRepository;
+        this.tourVectorIndexer = tourVectorIndexer;
     }
 
     public List<TourDto> findAll() {
@@ -81,6 +92,9 @@ public class TourService {
         tour.setCreatedAt(LocalDateTime.now());
         
         Tour saved = tourRepository.save(tour);
+        if (tourVectorIndexer != null) {
+            tourVectorIndexer.indexTour(saved);
+        }
         return TourDto.from(saved);
     }
 
@@ -116,6 +130,9 @@ public class TourService {
         tour.setCategory(category);
         
         Tour saved = tourRepository.save(tour);
+        if (tourVectorIndexer != null) {
+            tourVectorIndexer.indexTour(saved);
+        }
         return TourDto.from(saved);
     }
 
@@ -149,6 +166,9 @@ public class TourService {
         }
         userActivityHistoryRepository.deleteByTourId(id);
         tourRepository.delete(tour);
+        if (tourVectorIndexer != null) {
+            tourVectorIndexer.removeTour(id);
+        }
     }
 
     private void mapToEntity(TourRequest request, Tour tour) {

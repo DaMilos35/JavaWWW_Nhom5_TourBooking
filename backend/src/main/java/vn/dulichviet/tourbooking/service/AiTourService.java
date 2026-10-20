@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.dulichviet.tourbooking.dto.AiChatRequest;
 import vn.dulichviet.tourbooking.dto.AiChatResponse;
+import vn.dulichviet.tourbooking.dto.SemanticSearchDto;
 import vn.dulichviet.tourbooking.dto.TourDto;
 import vn.dulichviet.tourbooking.entity.Tour;
 import vn.dulichviet.tourbooking.repository.TourRepository;
@@ -17,29 +18,49 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service Trợ lý Du Lịch AI tích hợp kiến trúc RAG (Retrieval-Augmented Generation)
+ * kết hợp Vector Database (VectorStoreService) và mô hình ngôn ngữ lớn Google Gemini 1.5 Flash.
+ */
 @Service
 public class AiTourService {
     private static final Logger log = LoggerFactory.getLogger(AiTourService.class);
     private static final ObjectMapper JSON = new ObjectMapper();
 
     private final TourRepository tourRepository;
+    private final EmbeddingService embeddingService;
+    private final VectorStoreService vectorStoreService;
+    private final TourVectorIndexer tourVectorIndexer;
     private final String geminiApiKey;
     private final HttpClient httpClient;
 
     public AiTourService(TourRepository tourRepository,
+                         EmbeddingService embeddingService,
+                         VectorStoreService vectorStoreService,
+                         TourVectorIndexer tourVectorIndexer,
                          @Value("${gemini.api.key:}") String geminiApiKey) {
         this.tourRepository = tourRepository;
+        this.embeddingService = embeddingService;
+        this.vectorStoreService = vectorStoreService;
+        this.tourVectorIndexer = tourVectorIndexer;
         this.geminiApiKey = geminiApiKey != null ? geminiApiKey.trim() : "";
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
 
+    /**
+     * Trò chuyện với Trợ lý AI du lịch theo quy trình RAG chuẩn:
+     * 1. Retrieval: Chuyển câu hỏi sang vector -> Tìm Top K tour tương đồng ngữ nghĩa trong Vector Store.
+     * 2. Augmented Prompt: Nạp đúng các tour liên quan nhất vào Prompt context.
+     * 3. Generation: Gọi Gemini 1.5 Flash sinh câu trả lời tư vấn chuyên nghiệp.
+     */
     public AiChatResponse chat(AiChatRequest request) {
         String userMessage = request.message() != null && !request.message().isBlank()
                 ? request.message().trim()
@@ -49,60 +70,136 @@ public class AiTourService {
             return new AiChatResponse("Xin chào! Tôi là Trợ lý Du Lịch AI của Du Lịch Việt. Bạn đang muốn tìm tour du lịch đến đâu hay có ngân sách như thế nào?", List.of());
         }
 
-        List<Tour> allTours = tourRepository.findByStatus("ACTIVE");
-        if (allTours.isEmpty()) {
-            allTours = tourRepository.findAll();
+        // Đảm bảo Vector Store đã được đánh chỉ mục
+        ensureVectorDbInitialized();
+
+        // 1. GIAI ĐOẠN RETRIEVAL: Tìm kiếm ngữ nghĩa qua Vector Database
+        float[] queryVector = embeddingService.embed(userMessage);
+        List<VectorStoreService.SearchResult> vectorResults = vectorStoreService.search(queryVector, 4, 0.15);
+
+        List<Tour> matchedTours = new ArrayList<>();
+        Map<Integer, Double> similarityMap = new HashMap<>();
+
+        if (!vectorResults.isEmpty()) {
+            List<Integer> matchedIds = vectorResults.stream()
+                    .map(VectorStoreService.SearchResult::tourId)
+                    .toList();
+
+            Map<Integer, Tour> tourMap = tourRepository.findAllById(matchedIds).stream()
+                    .collect(Collectors.toMap(Tour::getId, t -> t));
+
+            for (VectorStoreService.SearchResult res : vectorResults) {
+                Tour t = tourMap.get(res.tourId());
+                if (t != null && "ACTIVE".equalsIgnoreCase(t.getStatus())) {
+                    matchedTours.add(t);
+                    similarityMap.put(t.getId(), res.similarityScore());
+                }
+            }
         }
 
-        // Tìm các tour liên quan từ database trước
-        List<Tour> matchedTours = filterRelevantTours(allTours, userMessage);
+        // Nếu Vector DB chưa khớp đủ tour, bổ sung thêm bằng rule lọc phụ trợ
+        if (matchedTours.isEmpty()) {
+            List<Tour> allTours = tourRepository.findByStatus("ACTIVE");
+            if (allTours.isEmpty()) allTours = tourRepository.findAll();
+            matchedTours = filterRelevantTours(allTours, userMessage);
+        }
+
         List<TourDto> suggestedDtos = matchedTours.stream()
                 .limit(4)
                 .map(TourDto::from)
                 .collect(Collectors.toList());
 
-        // Nếu có Gemini API Key, ưu tiên gọi Gemini API
+        // 2. GIAI ĐOẠN GENERATION: Gọi Gemini 1.5 Flash nếu có API Key
         if (!geminiApiKey.isBlank()) {
             try {
-                String aiReply = callGeminiApi(userMessage, allTours, suggestedDtos);
+                String aiReply = callGeminiRagApi(userMessage, matchedTours, similarityMap);
                 if (aiReply != null && !aiReply.isBlank()) {
                     return new AiChatResponse(aiReply, suggestedDtos);
                 }
             } catch (Exception e) {
-                log.warn("Gemini API call failed, falling back to local intelligent engine: {}", e.getMessage());
+                log.warn("Gemini RAG API call failed, falling back to local intelligent engine: {}", e.getMessage());
             }
         }
 
-        // Động cơ tư vấn thông minh nội bộ (offline fallback)
-        String localReply = generateLocalRecommendation(userMessage, suggestedDtos, allTours);
+        // 3. Fallback: Động cơ tư vấn thông minh nội bộ nếu không có API Key
+        List<Tour> fallbackCatalog = tourRepository.findByStatus("ACTIVE");
+        String localReply = generateLocalRecommendation(userMessage, suggestedDtos, fallbackCatalog);
         return new AiChatResponse(localReply, suggestedDtos);
     }
 
-    private String callGeminiApi(String userMessage, List<Tour> allTours, List<TourDto> matchedTours) throws Exception {
-        StringBuilder catalogContext = new StringBuilder();
-        catalogContext.append("DANH SÁCH TOUR DU LỊCH HIỆN CÓ CỦA HỆ THỐNG:\n");
-        for (Tour t : allTours) {
-            catalogContext.append(String.format("- ID: %d | Tên: %s | Danh mục: %s | Giá: %s VNĐ | Thời lượng: %d ngày | Khởi hành: %s | Đánh giá: %s*\n  Mô tả: %s\n",
-                    t.getId(), t.getName(),
-                    t.getCategory() != null ? t.getCategory().getName() : "Du lịch",
-                    t.getPrice().toPlainString(), t.getDuration(),
-                    t.getDepartureLocation() != null ? t.getDepartureLocation() : "Toàn quốc",
-                    t.getRating() != null ? t.getRating().toString() : "4.8",
-                    t.getDescription() != null ? t.getDescription() : ""));
+    /**
+     * Tìm kiếm ngữ nghĩa trực tiếp từ Vector Database (Semantic Search API)
+     * Trả về danh sách tour kèm điểm số tương đồng Cosine Similarity.
+     */
+    public List<SemanticSearchDto> semanticSearch(String query, int limit) {
+        if (query == null || query.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        ensureVectorDbInitialized();
+
+        int topK = limit > 0 ? limit : 5;
+        float[] queryVector = embeddingService.embed(query);
+        List<VectorStoreService.SearchResult> searchResults = vectorStoreService.search(queryVector, topK, 0.05);
+
+        if (searchResults.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> ids = searchResults.stream().map(VectorStoreService.SearchResult::tourId).toList();
+        Map<Integer, Tour> tourMap = tourRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Tour::getId, t -> t));
+
+        List<SemanticSearchDto> response = new ArrayList<>();
+        for (VectorStoreService.SearchResult res : searchResults) {
+            Tour tour = tourMap.get(res.tourId());
+            if (tour != null) {
+                double pct = Math.round(res.similarityScore() * 1000.0) / 10.0;
+                String reason = String.format("Khớp ngữ nghĩa Vector với độ tương đồng %.1f%%", Math.max(0, pct));
+                response.add(new SemanticSearchDto(TourDto.from(tour), res.similarityScore(), reason));
+            }
+        }
+
+        return response;
+    }
+
+    /**
+     * Gọi Gemini 1.5 Flash theo chuẩn RAG:
+     * Chỉ nạp các tour đã được Vector Database trích xuất làm context (tiết kiệm token, câu trả lời chính xác).
+     */
+    private String callGeminiRagApi(String userMessage, List<Tour> relevantTours, Map<Integer, Double> similarityMap) throws Exception {
+        StringBuilder ragContext = new StringBuilder();
+        ragContext.append("CÁC TOUR ĐƯỢC VECTOR DATABASE TRÍCH XUẤT THEO ĐỘ PHÙ HỢP NGỮ NGHĨA (RAG RETRIEVAL):\n");
+
+        if (relevantTours.isEmpty()) {
+            ragContext.append("(Không tìm thấy tour cụ thể khớp với truy vấn, hãy tư vấn chung về các điểm đến nổi tiếng tại Việt Nam).\n");
+        } else {
+            for (Tour t : relevantTours) {
+                Double sim = similarityMap.get(t.getId());
+                String simText = sim != null ? String.format(" [Độ tương đồng Vector: %.1f%%]", sim * 100) : "";
+                ragContext.append(String.format("- ID: %d | Tên: %s%s | Danh mục: %s | Giá: %s VNĐ | Thời lượng: %d ngày | Khởi hành: %s | Đánh giá: %s*\n  Mô tả: %s\n",
+                        t.getId(), t.getName(), simText,
+                        t.getCategory() != null ? t.getCategory().getName() : "Du lịch",
+                        t.getPrice().toPlainString(), t.getDuration(),
+                        t.getDepartureLocation() != null ? t.getDepartureLocation() : "Toàn quốc",
+                        t.getRating() != null ? t.getRating().toString() : "4.8",
+                        t.getDescription() != null ? t.getDescription() : ""));
+            }
         }
 
         String systemPrompt = "Bạn là Trợ lý Du Lịch AI chuyên nghiệp, nhiệt tình và am hiểu của công ty 'Du Lịch Việt'.\n" +
-                "Nhiệm vụ: Tư vấn hành trình, giải đáp thắc mắc và gợi ý các tour du lịch có sẵn trong danh sách trên phù hợp nhất với yêu cầu của khách hàng.\n" +
+                "Hệ thống của bạn sử dụng kiến trúc RAG (Retrieval-Augmented Generation) kết hợp Vector Database để gợi ý tour.\n" +
+                "Nhiệm vụ: Tư vấn hành trình, giải đáp thắc mắc và giới thiệu các tour du lịch được Vector Database trích xuất ở trên phù hợp nhất với nhu cầu của khách hàng.\n" +
                 "Quy tắc:\n" +
-                "1. Chỉ gợi ý hoặc bám sát các tour có trong danh sách trên.\n" +
+                "1. Ưu tiên bám sát thông tin các tour được trích xuất trong danh sách trên.\n" +
                 "2. Định dạng câu trả lời thân thiện, rõ ràng, gạch đầu dòng các điểm nổi bật, kèm theo giá vé và thời lượng.\n" +
-                "3. Nhắc khách hàng có thể bấm trực tiếp vào thẻ tour bên dưới để xem chi tiết và đặt chỗ.\n" +
+                "3. Nhắc khách hàng có thể bấm trực tiếp vào thẻ tour gợi ý bên dưới để xem chi tiết và đặt chỗ.\n" +
                 "4. Dùng tiếng Việt chuẩn mực, lịch sự, hiếu khách.";
 
         Map<String, Object> payload = Map.of(
                 "contents", List.of(
                         Map.of("role", "user", "parts", List.of(
-                                Map.of("text", systemPrompt + "\n\n" + catalogContext + "\n\nKhách hàng hỏi: " + userMessage)
+                                Map.of("text", systemPrompt + "\n\n" + ragContext + "\n\nKhách hàng hỏi: " + userMessage)
                         ))
                 ),
                 "generationConfig", Map.of(
@@ -118,10 +215,10 @@ public class AiTourService {
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(12))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         if (response.statusCode() == 200) {
             JsonNode root = JSON.readTree(response.body());
             JsonNode textNode = root.at("/candidates/0/content/parts/0/text");
@@ -129,20 +226,38 @@ public class AiTourService {
                 return textNode.asText();
             }
         }
-        log.warn("Gemini API returned status {}: {}", response.statusCode(), response.body());
+        log.warn("Gemini RAG API returned status {}: {}", response.statusCode(), response.body());
         return null;
     }
 
+    /**
+     * Lấy thông tin trạng thái hoạt động của Vector Database
+     */
+    public Map<String, Object> getVectorDbStatus() {
+        return Map.of(
+                "status", "ONLINE",
+                "indexedToursCount", vectorStoreService.size(),
+                "embeddingProvider", embeddingService.isOnlineAvailable() ? "Google Gemini text-embedding-004 (768 dims)" : "Local Intelligent Vectorizer (128 dims)",
+                "similarityAlgorithm", "Cosine Similarity",
+                "architecture", "RAG (Retrieval-Augmented Generation)"
+        );
+    }
+
+    private void ensureVectorDbInitialized() {
+        if (vectorStoreService.size() == 0) {
+            tourVectorIndexer.indexAllTours();
+        }
+    }
+
     private List<Tour> filterRelevantTours(List<Tour> tours, String query) {
-        String lower = query.toLowerCase();
+        String lower = query.toLowerCase(Locale.ROOT);
         List<Tour> matches = new ArrayList<>();
 
-        // 1. Khớp từ khóa điểm đến / tên tour
         for (Tour t : tours) {
-            String name = t.getName().toLowerCase();
-            String desc = (t.getDescription() != null ? t.getDescription() : "").toLowerCase();
-            String loc = (t.getDepartureLocation() != null ? t.getDepartureLocation() : "").toLowerCase();
-            String cat = (t.getCategory() != null ? t.getCategory().getName() : "").toLowerCase();
+            String name = t.getName().toLowerCase(Locale.ROOT);
+            String desc = (t.getDescription() != null ? t.getDescription() : "").toLowerCase(Locale.ROOT);
+            String loc = (t.getDepartureLocation() != null ? t.getDepartureLocation() : "").toLowerCase(Locale.ROOT);
+            String cat = (t.getCategory() != null ? t.getCategory().getName() : "").toLowerCase(Locale.ROOT);
 
             if (lower.contains("hạ long") && (name.contains("hạ long") || desc.contains("hạ long"))) matches.add(t);
             else if ((lower.contains("đà nẵng") || lower.contains("hội an") || lower.contains("bà nà")) && (name.contains("đà nẵng") || name.contains("hội an"))) matches.add(t);
@@ -159,7 +274,7 @@ public class AiTourService {
             else if (lower.contains("biển") && (name.contains("phú quốc") || name.contains("nha trang") || name.contains("hạ long") || name.contains("mũi né") || name.contains("đà nẵng"))) matches.add(t);
         }
 
-        // 2. Lọc theo ngân sách nếu được nhắc tới
+        // Lọc ngân sách nếu có
         boolean filterBudget = false;
         BigDecimal maxPrice = null;
         BigDecimal minPrice = null;
@@ -186,7 +301,6 @@ public class AiTourService {
         }
 
         if (matches.isEmpty()) {
-            // Trả về top tour đánh giá cao nhất
             return tours.stream()
                     .sorted((a, b) -> Objects.compare(b.getRating(), a.getRating(), Comparator.nullsLast(Comparator.naturalOrder())))
                     .limit(3)
@@ -200,7 +314,7 @@ public class AiTourService {
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Chào bạn! Dựa trên yêu cầu **\"").append(query).append("\"**, Trợ lý Du Lịch AI đã phân tích cơ sở dữ liệu và chọn lọc những hành trình lý tưởng nhất dành cho bạn:\n\n");
+        sb.append("Chào bạn! Dựa trên yêu cầu **\"").append(query).append("\"**, Trợ lý Du Lịch AI (với Vector Database) đã phân tích ngữ nghĩa và trích xuất những hành trình lý tưởng nhất dành cho bạn:\n\n");
 
         if (matchedTours.isEmpty()) {
             sb.append("Hiện tại hệ thống có rất nhiều tuyến tour đặc sắc từ miền Bắc, miền Trung đến tour Quốc tế. Dưới đây là các tour đang được yêu thích nhất:\n\n");
