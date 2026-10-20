@@ -1,6 +1,9 @@
 package vn.dulichviet.tourbooking.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.dulichviet.tourbooking.dto.CategoryDto;
 import vn.dulichviet.tourbooking.dto.CategoryRequest;
 import vn.dulichviet.tourbooking.entity.Category;
@@ -8,14 +11,12 @@ import vn.dulichviet.tourbooking.exception.ApiException;
 import vn.dulichviet.tourbooking.repository.CategoryRepository;
 import vn.dulichviet.tourbooking.repository.TourRepository;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final TourRepository tourRepository;
@@ -30,9 +31,9 @@ public class CategoryService {
         Map<Integer, Long> countMap = tourRepository.countToursGroupedByCategory().stream()
                 .filter(row -> row[0] != null)
                 .collect(Collectors.toMap(
-                        row -> (Integer) row[0],
-                        row -> ((Number) row[1]).longValue(),
-                        (existing, replacement) -> existing
+                    row -> (Integer) row[0],
+                    row -> ((Number) row[1]).longValue(),
+                    (existing, replacement) -> existing
                 ));
 
         return categoryRepository.findAll().stream()
@@ -46,6 +47,7 @@ public class CategoryService {
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy danh mục"));
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public CategoryDto create(CategoryRequest request) {
         Category category = new Category();
@@ -56,6 +58,7 @@ public class CategoryService {
         return CategoryDto.from(saved, 0L);
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public CategoryDto update(Integer id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
@@ -67,6 +70,7 @@ public class CategoryService {
         return CategoryDto.from(saved, tourRepository.countByCategoryId(id));
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public void delete(Integer id) {
         if (!categoryRepository.existsById(id)) {

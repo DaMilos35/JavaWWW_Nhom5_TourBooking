@@ -1,6 +1,10 @@
 package vn.dulichviet.tourbooking.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.dulichviet.tourbooking.dto.TourDto;
 import vn.dulichviet.tourbooking.dto.TourRequest;
 import vn.dulichviet.tourbooking.entity.Category;
@@ -9,15 +13,12 @@ import vn.dulichviet.tourbooking.exception.ApiException;
 import vn.dulichviet.tourbooking.repository.CategoryRepository;
 import vn.dulichviet.tourbooking.repository.TourRepository;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class TourService {
     private final TourRepository tourRepository;
     private final CategoryRepository categoryRepository;
@@ -59,11 +60,13 @@ public class TourService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public TourDto create(TourRequest request) {
         return create(request, null);
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public TourDto create(TourRequest request, vn.dulichviet.tourbooking.entity.User currentUser) {
         Category category = categoryRepository.findById(request.categoryId())
@@ -81,6 +84,7 @@ public class TourService {
         return TourDto.from(saved);
     }
 
+    @Transactional
     @Caching(evict = {
         @CacheEvict(value = "tour", key = "#id"),
         @CacheEvict(value = "categories", allEntries = true)
@@ -89,6 +93,7 @@ public class TourService {
         return update(id, request, null);
     }
 
+    @Transactional
     @Caching(evict = {
         @CacheEvict(value = "tour", key = "#id"),
         @CacheEvict(value = "categories", allEntries = true)
@@ -114,6 +119,7 @@ public class TourService {
         return TourDto.from(saved);
     }
 
+    @Transactional
     @Caching(evict = {
         @CacheEvict(value = "tour", key = "#id"),
         @CacheEvict(value = "categories", allEntries = true)
@@ -122,6 +128,7 @@ public class TourService {
         delete(id, null);
     }
 
+    @Transactional
     @Caching(evict = {
         @CacheEvict(value = "tour", key = "#id"),
         @CacheEvict(value = "categories", allEntries = true)
