@@ -46,6 +46,7 @@ public class TourVectorIndexer {
      *
      * @return Số lượng tour đã được đánh chỉ mục
      */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public synchronized int indexAllTours() {
         long start = System.currentTimeMillis();
         List<Tour> tours = tourRepository.findAll();

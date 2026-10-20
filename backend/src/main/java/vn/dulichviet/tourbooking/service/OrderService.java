@@ -60,6 +60,7 @@ public class OrderService {
 
     /** Tạo đơn hàng mới */
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
     public OrderDto createOrder(CreateOrderRequest request, Integer userId) {
         if (request.items() == null || request.items().isEmpty()) {
             throw new ApiException(400, "Đơn hàng phải có ít nhất 1 tour");
@@ -173,6 +174,7 @@ public class OrderService {
 
     /** Huỷ đơn (chỉ khi status = PENDING) */
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
     public OrderDto cancelOrder(Integer orderId, Integer userId) {
         TourOrder order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));

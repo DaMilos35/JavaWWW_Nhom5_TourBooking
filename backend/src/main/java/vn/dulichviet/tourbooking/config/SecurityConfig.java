@@ -49,7 +49,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/ai/**", "/api/activity/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/tours/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/tours/**/activity", "/api/activity/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/activity/**").permitAll()
                 .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "PROVIDER")
                 .anyRequest().authenticated())
