@@ -1,0 +1,7 @@
+{
+  "name": "Du Lịch Việt - Website Đặt Tour Số 1",
+  "description": "Du Lịch Việt - Nền tảng đặt tour du lịch uy tín hàng đầu Việt Nam",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

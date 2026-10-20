@@ -1,0 +1,131 @@
+.my-orders-page {
+  padding: 40px 0 80px;
+}
+
+.my-orders-page h2 {
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.order-card {
+  background: #1c2434;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s ease;
+}
+
+.order-card:hover {
+  border-color: rgba(14, 165, 233, 0.3);
+}
+
+.order-header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.oh-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.oh-info strong {
+  color: #ffffff;
+  font-size: 1.05rem;
+}
+
+.oh-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.order-total {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.order-details {
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #182030;
+}
+
+.order-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 20px;
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.oi-name {
+  color: #ffffff;
+  font-weight: 600;
+  flex: 1;
+}
+
+.oi-qty {
+  margin: 0 20px;
+  color: #94a3b8;
+}
+
+.oi-price {
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.order-contact-box {
+  background: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.order-contact-box p {
+  margin-bottom: 6px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.order-contact-box p strong {
+  color: #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .oh-status {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .order-item-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .oi-qty {
+    margin: 0;
+  }
+}
