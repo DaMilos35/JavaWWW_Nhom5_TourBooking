@@ -1,0 +1,20 @@
+plugins {
+    id 'base'
+}
+
+allprojects {
+    group = 'vn.dulichviet'
+    version = '1.0.0'
+}
+
+tasks.register('test', GradleBuild) {
+    tasks = [':backend:test']
+}
+
+tasks.register('buildBackend', GradleBuild) {
+    tasks = [':backend:build']
+}
+
+tasks.register('bootRun', GradleBuild) {
+    tasks = [':backend:bootRun']
+}
