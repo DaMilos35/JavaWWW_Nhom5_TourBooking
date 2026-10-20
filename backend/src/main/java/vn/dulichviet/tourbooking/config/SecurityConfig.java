@@ -43,13 +43,13 @@ public class SecurityConfig {
                     "/api/auth/login", "/api/auth/register",
                     "/api/tours/**", "/api/categories/**",
                     "/api/orders/**", "/api/users/**", "/api/admin/**",
-                    "/api/ai/**"))
+                    "/api/ai/**", "/api/activity/**"))
             .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/ai/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/ai/**", "/api/activity/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/tours/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/tours/**/activity").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/tours/**/activity", "/api/activity/**").permitAll()
                 .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "PROVIDER")
                 .anyRequest().authenticated())

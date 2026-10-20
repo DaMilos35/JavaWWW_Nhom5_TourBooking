@@ -18,8 +18,6 @@ import vn.dulichviet.tourbooking.repository.UserActivityHistoryRepository;
 import vn.dulichviet.tourbooking.repository.UserRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +28,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Bộ kiểm thử TDD cho RecommendationService theo tiêu chuẩn ECC springboot-tdd.
- * Kiểm tra: Thuật toán chấm điểm theo trọng số hành vi (VIEW=1, ADD_TO_CART=3, BOOK=5) và gợi ý danh mục liên quan.
+ * Khớp hoàn toàn với Bảng 5.1 trong Báo cáo đề tài (REC-TC01 đến REC-TC03).
  */
 @ExtendWith(MockitoExtension.class)
 class RecommendationServiceTest {
@@ -80,23 +78,34 @@ class RecommendationServiceTest {
     }
 
     @Test
-    @DisplayName("Ghi nhận hành vi người dùng: Tính đúng điểm trọng số theo loại sự kiện")
-    void testRecordActivity_WeightsCalculation() {
+    @DisplayName("[REC-TC01] Ghi nhận sự kiện xem tour: Cộng đúng 1 điểm trọng số quan tâm")
+    void testRecordActivity_ViewEvent_Adds1Point() {
         when(tourRepository.findById(10)).thenReturn(Optional.of(tourBeach1));
         when(userRepository.findById(1)).thenReturn(Optional.of(sampleUser));
 
         recommendationService.recordActivity(1, null, 10, "VIEW");
-        verify(activityRepository).save(argThat(history -> history.getScore() == 1));
 
-        recommendationService.recordActivity(1, null, 10, "ADD_TO_CART");
-        verify(activityRepository).save(argThat(history -> history.getScore() == 3));
-
-        recommendationService.recordActivity(1, null, 10, "BOOK");
-        verify(activityRepository).save(argThat(history -> history.getScore() == 5));
+        verify(activityRepository).save(argThat(history ->
+                history.getScore() == 1 && "VIEW".equals(history.getActivityType())));
     }
 
     @Test
-    @DisplayName("Gợi ý thông minh: Ưu tiên tour có cùng danh mục người dùng tương tác nhiều nhất")
+    @DisplayName("[REC-TC02] Ghi nhận thêm giỏ và đặt tour: Cộng lần lượt 3 điểm và 5 điểm trọng số")
+    void testRecordActivity_CartAndBookEvents_Adds3And5Points() {
+        when(tourRepository.findById(10)).thenReturn(Optional.of(tourBeach1));
+        when(userRepository.findById(1)).thenReturn(Optional.of(sampleUser));
+
+        recommendationService.recordActivity(1, null, 10, "ADD_TO_CART");
+        verify(activityRepository).save(argThat(history ->
+                history.getScore() == 3 && "ADD_TO_CART".equals(history.getActivityType())));
+
+        recommendationService.recordActivity(1, null, 10, "BOOK");
+        verify(activityRepository).save(argThat(history ->
+                history.getScore() == 5 && "BOOK".equals(history.getActivityType())));
+    }
+
+    @Test
+    @DisplayName("[REC-TC03] Gợi ý thông minh: Ưu tiên tour thuộc danh mục có điểm tương tác cao nhất")
     void testGetRecommendations_PrioritizesMostEngagedCategory() {
         when(activityRepository.findTopCategoryIdsByUserId(eq(1), any(PageRequest.class)))
                 .thenReturn(List.of(1)); // Danh mục 1 (Biển Đảo) được tương tác nhiều nhất
@@ -111,7 +120,7 @@ class RecommendationServiceTest {
 
         assertNotNull(recommendations);
         assertFalse(recommendations.isEmpty());
-        // TourBeach1 đã xem nên loại trừ, TourBeach2 cùng danh mục sẽ được gợi ý đầu tiên
+        // TourBeach1 đã đặt nên loại trừ, TourBeach2 cùng danh mục sẽ được gợi ý đầu tiên
         assertEquals("Nha Trang", recommendations.get(0).name());
     }
 }

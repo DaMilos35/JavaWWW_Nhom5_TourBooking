@@ -77,8 +77,25 @@ public class OrderService {
         order.setContactEmail(request.contactEmail());
         order.setNotes(request.notes());
 
+        // Tạo mã đơn hàng nghiệp vụ chuẩn Báo cáo đề tài (VD: ORD-20261020-1234)
+        String datePart = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String orderCode = "ORD-" + datePart + "-" + String.format("%04d", (int)(Math.random() * 10000));
+        order.setOrderCode(orderCode);
+
+        boolean isCorporate = Boolean.TRUE.equals(request.isB2b())
+                || (request.companyName() != null && !request.companyName().isBlank());
+        order.setIsB2b(isCorporate);
+
         StringBuilder corporateNotes = new StringBuilder();
+        if (request.companyName() != null && !request.companyName().isBlank()) {
+            String b2bTag = String.format("[Doanh nghiệp: %s%s]",
+                    request.companyName().trim(),
+                    request.taxId() != null && !request.taxId().isBlank() ? " | MST: " + request.taxId().trim() : "");
+            corporateNotes.append(b2bTag);
+        }
+
         BigDecimal total = BigDecimal.ZERO;
+        int maxDiscountRatePercent = 0;
 
         for (CreateOrderRequest.Item item : request.items()) {
             if (item.quantity() == null || item.quantity() <= 0) {
@@ -108,8 +125,10 @@ public class OrderService {
             BigDecimal discountRate = BigDecimal.ZERO;
             if (item.quantity() >= 20) {
                 discountRate = new BigDecimal("0.10");
+                maxDiscountRatePercent = Math.max(maxDiscountRatePercent, 10);
             } else if (item.quantity() >= 10) {
                 discountRate = new BigDecimal("0.05");
+                maxDiscountRatePercent = Math.max(maxDiscountRatePercent, 5);
             }
             BigDecimal unitPrice = originalPrice.multiply(BigDecimal.ONE.subtract(discountRate));
 
@@ -130,6 +149,7 @@ public class OrderService {
             }
         }
 
+        order.setDiscountPercent(maxDiscountRatePercent);
         if (corporateNotes.length() > 0) {
             String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
             order.setNotes((corporateNotes + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());

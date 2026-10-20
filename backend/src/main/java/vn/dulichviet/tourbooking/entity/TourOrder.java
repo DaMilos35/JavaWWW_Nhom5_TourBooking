@@ -51,6 +51,15 @@ public class TourOrder {
     @Column(name = "contact_email", nullable = false)
     private String contactEmail;
 
+    @Column(name = "order_code", length = 30)
+    private String orderCode;
+
+    @Column(name = "is_b2b")
+    private Boolean isB2b = false;
+
+    @Column(name = "discount_percent")
+    private Integer discountPercent = 0;
+
     @Column(name = "notes")
     private String notes;
 

@@ -51,7 +51,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("Lấy danh mục kết hợp số lượng tour qua 1 truy vấn GROUP BY duy nhất (Tránh lỗi N+1)")
+    @DisplayName("[CAT-TC01] Đếm tour theo danh mục: Khắc phục triệt để lỗi N+1 Query qua 1 truy vấn GROUP BY duy nhất")
     void testFindAll_OptimizedGroupCount() {
         when(categoryRepository.findAll()).thenReturn(List.of(cat1, cat2));
 
@@ -68,7 +68,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("Safe Delete: Chặn xóa danh mục khi vẫn còn tour trực thuộc")
+    @DisplayName("[CAT-TC02] Safe Delete: Chặn xóa danh mục khi vẫn còn tour trực thuộc")
     void testDelete_ThrowsException_WhenToursExist() {
         when(categoryRepository.existsById(1)).thenReturn(true);
         when(tourRepository.countByCategoryId(1)).thenReturn(3L);
@@ -81,7 +81,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("Safe Delete: Xóa thành công danh mục rỗng (không chứa tour nào)")
+    @DisplayName("[CAT-TC03] Safe Delete: Xóa thành công danh mục rỗng và Evict cache")
     void testDelete_Success_WhenNoTours() {
         when(categoryRepository.existsById(2)).thenReturn(true);
         when(tourRepository.countByCategoryId(2)).thenReturn(0L);

@@ -76,7 +76,7 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Đặt tour dưới 10 người: Không áp dụng chiết khấu đoàn (0%)")
+    @DisplayName("[ORD-TC01] Đặt tour cá nhân dưới 10 khách: Không áp dụng chiết khấu đoàn (0%)")
     void testCreateOrder_NoDiscount_Under10People() {
         when(userRepository.findById(1)).thenReturn(Optional.of(sampleUser));
         when(tourRepository.findByIdForUpdate(101)).thenReturn(Optional.of(sampleTour));
@@ -100,7 +100,7 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Đặt tour B2B từ 10-19 người: Tự động chiết khấu đoàn 5%")
+    @DisplayName("[ORD-TC02] Đặt đoàn B2B từ 10-19 khách: Tự động chiết khấu đoàn 5%")
     void testCreateOrder_TieredDiscount_5Percent() {
         when(userRepository.findById(1)).thenReturn(Optional.of(sampleUser));
         when(tourRepository.findByIdForUpdate(101)).thenReturn(Optional.of(sampleTour));
@@ -124,7 +124,7 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Đặt tour B2B từ 20 người trở lên: Tự động chiết khấu đoàn 10%")
+    @DisplayName("[ORD-TC03] Đặt đoàn B2B từ 20 khách trở lên: Tự động chiết khấu đoàn 10%")
     void testCreateOrder_TieredDiscount_10Percent() {
         when(userRepository.findById(1)).thenReturn(Optional.of(sampleUser));
         when(tourRepository.findByIdForUpdate(101)).thenReturn(Optional.of(sampleTour));
@@ -148,7 +148,7 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Đặt tour thất bại khi số lượng yêu cầu vượt quá số chỗ còn lại")
+    @DisplayName("[ORD-TC04] Đặt vượt quá số chỗ trống khả dụng: Ném ApiException chặn đơn")
     void testCreateOrder_ThrowsApiException_WhenInsufficientSeats() {
         sampleTour.setAvailableSeats(3);
         when(userRepository.findById(1)).thenReturn(Optional.of(sampleUser));
@@ -166,7 +166,7 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Hủy đơn hàng thành công: Hoàn trả lại số chỗ cho Tour")
+    @DisplayName("[ORD-TC05] Hủy đơn hàng thành công: Tự động hoàn trả lại số chỗ cho Tour")
     void testCancelOrder_RestoresAvailableSeats() {
         sampleTour.setAvailableSeats(20);
 

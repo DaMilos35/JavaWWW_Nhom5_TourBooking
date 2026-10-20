@@ -53,7 +53,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                 writeTooManyRequests(response, "Bạn đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau 1 phút.");
                 return;
             }
-        } else if (uri.startsWith("/api/ai/chat") && "POST".equalsIgnoreCase(request.getMethod())) {
+        } else if ((uri.startsWith("/api/ai/chat") || uri.startsWith("/api/ai/ask")) && "POST".equalsIgnoreCase(request.getMethod())) {
             if (isRateLimited(aiCounters, clientIp, MAX_AI_REQUESTS_PER_MINUTE, now)) {
                 writeTooManyRequests(response, "Bạn đã gửi quá nhiều câu hỏi tới Trợ lý AI. Vui lòng đợi trong giây lát.");
                 return;

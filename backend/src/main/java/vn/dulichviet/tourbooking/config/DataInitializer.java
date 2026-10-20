@@ -57,20 +57,40 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         try {
-            if (userRepository.count() == 0) {
-                User admin = new User();
-                admin.setUsername("admin");
-                admin.setPassword(passwordEncoder.encode("admin123"));
-                admin.setEmail("admin@tourbooking.com");
-                admin.setFullName("Quản trị viên");
-                admin.setRole("ADMIN");
-                admin.setActive(true);
-                admin.setCreatedAt(LocalDateTime.now());
-                userRepository.save(admin);
-                log.info("Tạo tài khoản admin mặc định: admin / admin123");
-            }
+            // Đảm bảo các cột order_code, is_b2b, discount_percent tồn tại trong bảng orders
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_code VARCHAR(30) NULL");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS is_b2b TINYINT(1) DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_percent INT DEFAULT 0");
         } catch (Exception e) {
-            log.warn("Bỏ qua khởi tạo dữ liệu mẫu (đã có dữ liệu hoặc DB chưa sẵn sàng): {}", e.getMessage());
+            log.debug("Các cột nghiệp vụ orders đã sẵn sàng: {}", e.getMessage());
+        }
+
+        try {
+            // Khởi tạo các tài khoản demo chuẩn theo Bảng 5.3 trong Báo cáo (Mật khẩu đồng nhất: 123456)
+            seedUserIfNotExists("admin", "admin@tourbooking.com", "123456", "Quản Trị Viên Hệ Thống", "ADMIN", "0909999999");
+            seedUserIfNotExists("saigontourist", "saigontourist@tourbooking.com", "123456", "Saigontourist Travel", "PROVIDER", "19001808");
+            seedUserIfNotExists("vietravel", "vietravel@tourbooking.com", "123456", "Vietravel Corporation", "PROVIDER", "19001839");
+            seedUserIfNotExists("fpt_corp", "fpt_corp@fpt.com", "123456", "Tập đoàn FPT Software", "CUSTOMER", "0987654321");
+            seedUserIfNotExists("customer", "customer@tourbooking.com", "123456", "Khách Hàng Cá Nhân", "CUSTOMER", "0919999999");
+            seedUserIfNotExists("nguyenvanan", "nguyenvanan@gmail.com", "123456", "Nguyễn Văn An (Khách hàng có đơn)", "CUSTOMER", "0912345678");
+        } catch (Exception e) {
+            log.warn("Bỏ qua khởi tạo tài khoản demo (đã có dữ liệu hoặc DB chưa sẵn sàng): {}", e.getMessage());
+        }
+    }
+
+    private void seedUserIfNotExists(String username, String email, String rawPassword, String fullName, String role, String phone) {
+        if (!userRepository.existsByUsername(username)) {
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            user.setEmail(email);
+            user.setFullName(fullName);
+            user.setRole(role);
+            user.setPhone(phone);
+            user.setActive(true);
+            user.setCreatedAt(LocalDateTime.now());
+            userRepository.save(user);
+            log.info("Tạo tài khoản demo thành công: {} / {} ({})", username, rawPassword, role);
         }
     }
 }

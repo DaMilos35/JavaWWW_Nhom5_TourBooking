@@ -18,8 +18,8 @@ public class AiTourController {
         this.aiTourService = aiTourService;
     }
 
-    /** Trò chuyện trực tiếp với Trợ lý Du Lịch AI */
-    @PostMapping("/chat")
+    /** Trò chuyện trực tiếp với Trợ lý Du Lịch AI (hỗ trợ cả /api/ai/chat và /api/ai/ask như trong Báo cáo) */
+    @PostMapping({"/chat", "/ask"})
     public ResponseEntity<AiChatResponse> chat(@RequestBody AiChatRequest request) {
         return ResponseEntity.ok(aiTourService.chat(request));
     }

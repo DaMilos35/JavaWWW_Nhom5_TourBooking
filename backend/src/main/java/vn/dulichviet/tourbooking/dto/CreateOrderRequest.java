@@ -23,10 +23,17 @@ public record CreateOrderRequest(
         String contactEmail,
 
         String notes,
+        Boolean isB2b,
+        String companyName,
+        String taxId,
 
         @NotEmpty(message = "Đơn hàng phải chứa ít nhất 1 tour du lịch")
         @Valid
         List<Item> items) {
+
+    public CreateOrderRequest(String contactName, String contactPhone, String contactEmail, String notes, List<Item> items) {
+        this(contactName, contactPhone, contactEmail, notes, false, null, null, items);
+    }
 
     public record Item(
             @NotNull(message = "Mã tour không được để trống")

@@ -232,17 +232,17 @@ NGÀY 2: ĐẠP XE LÀNG CỔ VIỆT HẢI – ĐẢO CÁT BÀ – BRUNCH TRÊN 
 -- 4. BẢNG ORDERS & ORDER_DETAILS (9 ĐƠN HÀNG - SẮP XẾP THEO NGÀY MUA GIẢM DẦN)
 -- Bao gồm Đơn 1009 là đơn Khách đoàn Doanh nghiệp (25 người - tự động giảm 10%)
 -- =================================================================================
-INSERT INTO Orders (order_id, user_id, contact_name, contact_phone, contact_email, notes, total_amount, status, order_date) VALUES
-(1001, 3, 'Nguyễn Minh Thư', '0918273645', 'minhthu.nguyen@gmail.com', 'Gia đình có 1 người lớn tuổi, nhờ xếp phòng tầng thấp gần biển.', 10980000.00, 'PAID', '2026-09-25 09:15:00'),
-(1002, 4, 'Trần Quốc Bảo', '0987654321', 'quocbao.tran99@gmail.com', 'Xuất hóa đơn VAT công ty TNHH Công Nghệ Sao Việt.', 31560000.00, 'PAID', '2026-09-28 14:20:00'),
-(1003, 5, 'Lê Thanh Hà', '0933445566', 'lethanhha.travel@gmail.com', 'Đoàn có 2 bé nhỏ, chuẩn bị ghế trẻ em trên xe giúp mình.', 11560000.00, 'PAID', '2026-10-02 10:05:00'),
-(1004, 6, 'Võ Anh Khoa', '0944556677', 'voanhkhoa.dev@gmail.com', 'Mình ăn chay trường 1 suất trong suốt hành trình.', 9380000.00, 'CONFIRMED', '2026-10-05 16:45:00'),
-(1005, 3, 'Nguyễn Minh Thư', '0918273645', 'minhthu.nguyen@gmail.com', 'Đặt thêm chuyến đi Đà Nẵng - Hội An cùng nhóm bạn đại học.', 25000000.00, 'CONFIRMED', '2026-10-08 11:30:00'),
-(1006, 4, 'Trần Quốc Bảo', '0987654321', 'quocbao.tran99@gmail.com', 'Đón đoàn tại Nhà hát lớn Hà Nội đúng 6h00 sáng.', 7350000.00, 'CONFIRMED', '2026-10-10 20:10:00'),
-(1007, 5, 'Lê Thanh Hà', '0933445566', 'lethanhha.travel@gmail.com', 'Mong muốn phòng khách sạn view trực diện biển Nha Trang.', 16480000.00, 'PENDING', '2026-10-13 15:00:00'),
-(1008, 6, 'Võ Anh Khoa', '0944556677', 'voanhkhoa.dev@gmail.com', 'Liên hệ xác nhận qua số điện thoại vào giờ hành chính.', 10160000.00, 'PENDING', '2026-10-14 08:00:00'),
-(1009, 4, 'Công ty TNHH Phần Mềm FPT (Đại diện: Trần Quốc Bảo)', '0987654321', 'quocbao.tran99@gmail.com', '[Ưu đãi đoàn: Giảm 10% cho 25 khách tour Đà Lạt] - Đặt đoàn 25 nhân sự đi Team Building, xuất hóa đơn VAT và băng rôn chụp ảnh đoàn.', 65025000.00, 'CONFIRMED', '2026-10-14 09:00:00'),
-(1010, 16, 'Nguyễn Văn An', '0912345678', 'nguyenvanan@gmail.com', 'Đơn hàng mẫu để thử nghiệm tính năng Safe Delete người dùng.', 5490000.00, 'CONFIRMED', '2026-10-14 10:00:00');
+INSERT INTO Orders (order_id, user_id, contact_name, contact_phone, contact_email, notes, total_amount, status, order_date, order_code, is_b2b, discount_percent) VALUES
+(1001, 3, 'Nguyễn Minh Thư', '0918273645', 'minhthu.nguyen@gmail.com', 'Gia đình có 1 người lớn tuổi, nhờ xếp phòng tầng thấp gần biển.', 10980000.00, 'PAID', '2026-09-25 09:15:00', 'ORD-20260925-1001', 0, 0),
+(1002, 4, 'Trần Quốc Bảo', '0987654321', 'quocbao.tran99@gmail.com', 'Xuất hóa đơn VAT công ty TNHH Công Nghệ Sao Việt.', 31560000.00, 'PAID', '2026-09-28 14:20:00', 'ORD-20260928-1002', 0, 0),
+(1003, 5, 'Lê Thanh Hà', '0933445566', 'lethanhha.travel@gmail.com', 'Đoàn có 2 bé nhỏ, chuẩn bị ghế trẻ em trên xe giúp mình.', 11560000.00, 'PAID', '2026-10-02 10:05:00', 'ORD-20261002-1003', 0, 0),
+(1004, 6, 'Võ Anh Khoa', '0944556677', 'voanhkhoa.dev@gmail.com', 'Mình ăn chay trường 1 suất trong suốt hành trình.', 9380000.00, 'CONFIRMED', '2026-10-05 16:45:00', 'ORD-20261005-1004', 0, 0),
+(1005, 3, 'Nguyễn Minh Thư', '0918273645', 'minhthu.nguyen@gmail.com', 'Đặt thêm chuyến đi Đà Nẵng - Hội An cùng nhóm bạn đại học.', 25000000.00, 'CONFIRMED', '2026-10-08 11:30:00', 'ORD-20261008-1005', 0, 0),
+(1006, 4, 'Trần Quốc Bảo', '0987654321', 'quocbao.tran99@gmail.com', 'Đón đoàn tại Nhà hát lớn Hà Nội đúng 6h00 sáng.', 7350000.00, 'CONFIRMED', '2026-10-10 20:10:00', 'ORD-20261010-1006', 0, 0),
+(1007, 5, 'Lê Thanh Hà', '0933445566', 'lethanhha.travel@gmail.com', 'Mong muốn phòng khách sạn view trực diện biển Nha Trang.', 16480000.00, 'PENDING', '2026-10-13 15:00:00', 'ORD-20261013-1007', 0, 0),
+(1008, 6, 'Võ Anh Khoa', '0944556677', 'voanhkhoa.dev@gmail.com', 'Liên hệ xác nhận qua số điện thoại vào giờ hành chính.', 10160000.00, 'PENDING', '2026-10-14 08:00:00', 'ORD-20261014-1008', 0, 0),
+(1009, 4, 'Công ty TNHH Phần Mềm FPT (Đại diện: Trần Quốc Bảo)', '0987654321', 'quocbao.tran99@gmail.com', '[Ưu đãi đoàn: Giảm 10% cho 25 khách tour Đà Lạt] - Đặt đoàn 25 nhân sự đi Team Building, xuất hóa đơn VAT và băng rôn chụp ảnh đoàn.', 65025000.00, 'CONFIRMED', '2026-10-14 09:00:00', 'ORD-20261014-1009', 1, 10),
+(1010, 16, 'Nguyễn Văn An', '0912345678', 'nguyenvanan@gmail.com', 'Đơn hàng mẫu để thử nghiệm tính năng Safe Delete người dùng.', 5490000.00, 'CONFIRMED', '2026-10-14 10:00:00', 'ORD-20261014-1010', 0, 0);
 
 -- 12 Chi tiết đơn hàng (Dùng để Admin/Provider test sửa số lượng người tham gia trong đơn)
 INSERT INTO OrderDetails (order_detail_id, order_id, tour_id, quantity, unit_price) VALUES

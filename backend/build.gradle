@@ -33,6 +33,14 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.fork = false
+}
+
 tasks.named('test') {
     useJUnitPlatform()
+    maxParallelForks = 1
+    forkEvery = 0
+    maxHeapSize = '192m'
+    jvmArgs(['-XX:+EnableDynamicAgentLoading', '-XX:+UseSerialGC', '-Xms64m', '-Xmx192m'])
 }
