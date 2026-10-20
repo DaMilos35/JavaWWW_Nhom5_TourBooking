@@ -105,6 +105,18 @@ public class TourVectorIndexer {
         if (tour.getPrice() != null) {
             sb.append("Giá: ").append(tour.getPrice().toPlainString()).append(" VNĐ. ");
         }
+        if (tour.getVehicle() != null && !tour.getVehicle().isBlank()) {
+            sb.append("Phương tiện: ").append(tour.getVehicle()).append(". ");
+        }
+        if (tour.getHotelStar() != null) {
+            sb.append("Khách sạn: ").append(tour.getHotelStar()).append(" sao. ");
+        }
+        if (tour.getBadge() != null && !tour.getBadge().isBlank()) {
+            sb.append("Đặc điểm: ").append(tour.getBadge()).append(". ");
+        }
+        if (tour.getHighlights() != null && !tour.getHighlights().isBlank()) {
+            sb.append("Điểm nhấn: ").append(tour.getHighlights()).append(". ");
+        }
         if (tour.getDescription() != null && !tour.getDescription().isBlank()) {
             sb.append("Mô tả: ").append(tour.getDescription());
         }

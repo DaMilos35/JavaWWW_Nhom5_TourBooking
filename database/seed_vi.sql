@@ -289,3 +289,124 @@ INSERT INTO user_activity_history (id, user_id, session_id, tour_id, activity_ty
 (14, 12, 'sess_customer_02', 2, 'VIEW', 1, '2026-10-12 20:10:00'),
 (15, 12, 'sess_customer_02', 3, 'VIEW', 1, '2026-10-13 21:05:00'),
 (16, 12, 'sess_customer_02', 4, 'ADD_TO_CART', 3, '2026-10-14 07:30:00');
+
+
+-- =================================================================================
+-- 6. CẬP NHẬT THÔNG TIN PHONG PHÚ CHUẨN TRAVELOKA CHO CÁC TOUR (RICH DETAILS)
+-- Gồm: Giá gốc gạch ngang (original_price), Phương tiện (vehicle), Khách sạn (hotel_star),
+-- Badge nổi bật (badge), Điểm nhấn (highlights), Lịch trình (itinerary), Dịch vụ (inclusions/exclusions)
+-- =================================================================================
+-- Cập nhật Tour 1: Hạ Long
+UPDATE tours SET 
+  original_price = 5500000.00,
+  vehicle = 'Du thuyền 5 sao & Limousine VIP',
+  hotel_star = 5,
+  badge = 'BÁN CHẠY NHẤT',
+  highlights = '• Nghỉ đêm trên du thuyền 5 sao sang trọng giữa lòng Vịnh Hạ Long\\n• Chèo kayak khám phá Hang Luồn và bơi lội tại bãi biển đảo Ti Tốp\\n• Thưởng thức đại tiệc buffet hải sản và Sunset Party trên boong tàu\\n• Check-in ngắm toàn cảnh kỳ quan thiên nhiên thế giới 360 độ',
+  itinerary = 'Ngày 1: Hà Nội - Tuần Châu - Vịnh Hạ Long - Hang Sửng Sốt\\n08:00: Xe Limousine đón khách tại phố cổ Hà Nội khởi hành đi Hạ Long.\\n12:00: Check-in du thuyền 5 sao, thưởng thức buffet trưa hải sản tươi sống.\\n14:30: Khám phá Hang Sửng Sốt - hang động đẹp và rộng lớn nhất vịnh.\\n17:30: Tiệc trà hoàng hôn Sunset Party và lớp học nấu ăn nem rán truyền thống.\\n19:00: Tiệc tối hải sản sang trọng và tham gia câu mực đêm cùng thủy thủ đoàn.\\n\\nNgày 2: Hang Luồn - Đảo Ti Tốp - Chèo Kayak\\n06:30: Tập Thái Cực Quyền đón bình minh trên sundeck boong tàu.\\n08:00: Chèo thuyền kayak hoặc ngồi đò nan khám phá Hang Luồn kỳ thú.\\n10:30: Tắm biển và leo đỉnh núi Ti Tốp ngắm vịnh toàn cảnh.\\n14:00: Tham quan làng nuôi cấy ngọc trai truyền thống.\\n19:00: Tiệc nướng BBQ ngoài trời trên sundeck lộng gió.\\n\\nNgày 3: Vịnh Bái Tử Long - Tuần Châu - Hà Nội\\n07:30: Ngắm cảnh sớm trên vịnh Bái Tử Long, dùng bữa sáng buffet.\\n11:00: Tàu cập bến Tuần Châu, dùng bữa trưa nhẹ tại nhà hàng.\\n16:30: Xe đưa đoàn về lại điểm đón ban đầu tại Hà Nội.',
+  inclusions = '✓ Xe Limousine khứ hồi Hà Nội - Hạ Long đưa đón tận nơi\\n✓ 02 đêm du thuyền 5 sao chuẩn quốc tế (ban công riêng hướng vịnh)\\n✓ Toàn bộ các bữa ăn theo lịch trình: 2 bữa sáng, 3 bữa trưa, 2 bữa tối hải sản\\n✓ Vé tham quan các điểm, phí chèo thuyền kayak và tắm biển\\n✓ Hướng dẫn viên song ngữ tận tâm suốt hành trình\\n✓ Bảo hiểm du lịch nội địa mức bồi thường 100.000.000 VNĐ',
+  exclusions = '✕ Thuế VAT (nếu có nhu cầu xuất hóa đơn đỏ)\\n✕ Đồ uống gọi thêm ngoài chương trình, dịch vụ spa trên tàu\\n✕ Tiền tip cho tài xế và thủy thủ đoàn (tùy tâm)'
+WHERE tour_id = 1;
+
+-- Cập nhật Tour 2: Đà Nẵng - Hội An
+UPDATE tours SET 
+  original_price = 6500000.00,
+  vehicle = 'Vé máy bay khứ hồi & Xe du lịch cao cấp',
+  hotel_star = 4,
+  badge = 'TOUR CAO CẤP',
+  highlights = '• Trải nghiệm cáp treo Bà Nà Hills đạt 4 kỷ lục thế giới, check-in Cầu Vàng huyền thoại\\n• Tản bộ ngắm phố cổ Hội An lung linh đèn lồng, xem show Ký Ức Hội An\\n• Tắm biển Mỹ Khê - một trong 6 bãi biển quyến rũ nhất hành tinh\\n• Thưởng thức ẩm thực miền Trung: mì Quảng, bánh tráng cuốn thịt heo, cao lầu',
+  itinerary = 'Ngày 1: Đón khách Đà Nẵng - Bán đảo Sơn Trà - Biển Mỹ Khê\\n10:00: Đón đoàn tại sân bay Đà Nẵng, nhận phòng khách sạn 4 sao ven biển.\\n14:30: Viếng chùa Linh Ứng Bãi Bụt, chiêm bái tượng Phật Bà 67m.\\n18:30: Ăn tối đặc sản bánh tráng thịt heo hai đầu da, ngắm Cầu Rồng phun lửa.\\n\\nNgày 2: Chinh phục Bà Nà Hills - Cầu Vàng - Fantasy Park\\n08:00: Khởi hành lên Bà Nà Hills bằng cáp treo.\\n09:30: Check-in Cầu Vàng (Golden Bridge) trứ danh thế giới, hầm rượu Debay.\\n12:00: Buffet quốc tế hơn 100 món tại nhà hàng La Lavande.\\n14:00: Thỏa sức vui chơi tại công viên trong nhà Fantasy Park.\\n18:30: Về lại Đà Nẵng, tự do khám phá chợ đêm Sơn Trà.\\n\\nNgày 3: Rừng dừa Bảy Mẫu - Phố cổ Hội An\\n09:00: Ngồi thuyền thúng chèo xuyên rừng dừa Bảy Mẫu, xem múa thúng giật gân.\\n12:00: Ăn trưa cơm gà Hội An trứ danh.\\n15:00: Tản bộ phố cổ Hội An: Chùa Cầu, nhà cổ Phùng Hưng, hội quán Phúc Kiến.\\n18:00: Thả hoa đăng cầu bình an trên sông Hoài thơ mộng.\\n\\nNgày 4: Mua sắm chợ Hàn - Tiễn sân bay\\n08:30: Mua sắm đặc sản chả bò, hải sản khô tại chợ Hàn.\\n11:30: Trả phòng, xe tiễn đoàn ra sân bay Đà Nẵng. Kết thúc hành trình.',
+  inclusions = '✓ Vé máy bay khứ hồi (đã bao gồm 7kg xách tay + 20kg ký gửi)\\n✓ Khách sạn 4 sao sát biển Mỹ Khê (2 khách/phòng)\\n✓ Vé cáp treo Bà Nà Hills và buffet trưa cao cấp\\n✓ Vé tham quan phố cổ Hội An và thuyền thúng rừng dừa\\n✓ Xe ô tô du lịch máy lạnh đưa đón theo lịch trình\\n✓ Bảo hiểm du lịch 100.000.000 VNĐ/người',
+  exclusions = '✕ Vé xem show diễn Ký Ức Hội An (tùy chọn)\\n✕ Chi phí cá nhân, nước uống minibar trong khách sạn\\n✕ Phụ thu phòng đơn'
+WHERE tour_id = 2;
+
+-- Cập nhật Tour 3: Phú Quốc
+UPDATE tours SET 
+  original_price = 7200000.00,
+  vehicle = 'Vé máy bay khứ hồi & Cano siêu tốc 4 đảo',
+  hotel_star = 4,
+  badge = 'HOT DEAL',
+  highlights = '• Du ngoạn 4 đảo thiên đường bằng cano cao tốc, lặn ngắm công viên san hô\\n• Chụp ảnh SUP flycam miễn phí tại hòn Móng Tay và hòn Mây Rút\\n• Khám phá thành phố không ngủ Grand World Venice và show Tinh Hoa Việt Nam\\n• Thưởng thức tiệc hải sản tươi sống và ngắm hoàng hôn Sunset Sanato',
+  itinerary = 'Ngày 1: Đón sân bay Phú Quốc - Grand World Venice\\n10:30: Đón đoàn tại sân bay Phú Quốc, ăn trưa bún quậy Kiến Xây.\\n14:00: Nhận phòng resort 4 sao ven biển, nghỉ ngơi.\\n16:30: Khám phá Grand World: đi thuyền Gondola kênh Venice, check-in công trình tre.\\n20:15: Thưởng thức show diễn nhạc nước triệu đô Sắc Màu Venice.\\n\\nNgày 2: Tour Cano 4 đảo - Công viên san hô - Cáp treo Hòn Thơm\\n08:30: Cano cao tốc đón đoàn tại cảng An Thới.\\n10:00: Ghé Hòn Móng Tay tắm biển, chụp ảnh flycam chuyên nghiệp.\\n11:30: Lặn ngắm san hô tự nhiên tại Hòn Gầm Ghì.\\n12:30: Dùng bữa trưa hải sản trên đảo Hòn Mây Rút.\\n15:00: Trải nghiệm cáp treo 3 dây vượt biển Hòn Thơm dài nhất thế giới.\\n17:30: Check-in ngắm hoàng hôn tuyệt đẹp tại Sunset Sanato.\\n\\nNgày 3: Chợ Dương Đông - Dinh Cậu - Tiễn bay\\n08:00: Ăn sáng buffet, tự do tắm hồ bơi vô cực resort.\\n10:00: Tham quan Dinh Cậu, mua ngọc trai và nước mắm truyền thống.\\n12:30: Trả phòng, xe tiễn đoàn ra sân bay Phú Quốc.',
+  inclusions = '✓ Vé máy bay khứ hồi Vietnam Airlines / Vietjet Air\\n✓ Resort 4 sao có bãi biển riêng và hồ bơi vô cực\\n✓ Tour cano 4 đảo cao tốc kèm quay phim chụp ảnh flycam miễn phí\\n✓ Vé cáp treo Hòn Thơm và công viên nước Aquatopia\\n✓ Toàn bộ bữa ăn theo chương trình và bảo hiểm du lịch',
+  exclusions = '✕ Dịch vụ đi bộ dưới đáy biển Seawalker (tự túc)\\n✕ Chi phí cá nhân và đồ uống phát sinh\\n✕ Tiền tip hướng dẫn viên'
+WHERE tour_id = 3;
+
+-- Cập nhật Tour 4: Sapa
+UPDATE tours SET 
+  original_price = 3500000.00,
+  vehicle = 'Xe giường nằm Cabin đôi cao cấp',
+  hotel_star = 3,
+  badge = 'TIẾT KIỆM',
+  highlights = '• Chinh phục đỉnh Fansipan 3.143m nóc nhà Đông Dương bằng cáp treo\\n• Check-in thung lũng Mường Hoa trên tàu hỏa leo núi ngắm ruộng bậc thang\\n• Khám phá bản Cát Cát mộng mơ, khoác trang phục dân tộc H''Mông\\n• Thưởng thức ẩm thực xứ lạnh: lẩu cá hồi, cá tầm, thịt trâu gác bếp',
+  itinerary = 'Ngày 1: Hà Nội - Sapa - Bản Cát Cát\\n06:30: Đón khách bằng xe Cabin đôi cao cấp chạy cao tốc Nội Bài - Lào Cai.\\n12:30: Đến thị trấn Sapa mờ sương, ăn trưa với đặc sản lẩu cá hồi.\\n14:30: Tham quan bản Cát Cát, thác Tiên Sa, cầu Mây, xem biểu diễn múa xòe.\\n18:30: Ăn tối đồ nướng Sapa, dạo chợ đêm phố cổ và Nhà thờ Đá.\\n\\nNgày 2: Chinh phục đỉnh Fansipan - Hà Nội\\n07:30: Đi tàu hỏa leo núi Mường Hoa đến ga cáp treo Fansipan.\\n09:00: Chạm tay vào cột mốc Fansipan 3.143m, chiêm bái Đại Tượng Phật.\\n12:30: Trả phòng, dùng bữa trưa tại nhà hàng trung tâm.\\n14:00: Xe cabin đón đoàn trở về Hà Nội. 19:30 Về đến nơi.',
+  inclusions = '✓ Xe Cabin giường nằm đôi khứ hồi Hà Nội - Sapa\\n✓ Khách sạn 3 sao view núi Fansipan\\n✓ Vé cáp treo Fansipan và vé tàu hỏa Mường Hoa\\n✓ 03 bữa ăn chính và 01 bữa sáng buffet\\n✓ Vé tham quan bản Cát Cát',
+  exclusions = '✕ Vé tàu hỏa đỉnh Fansipan (chiều lên)\\n✕ Thuê trang phục dân tộc chụp ảnh\\n✕ Chi phí cá nhân'
+WHERE tour_id = 4;
+
+-- Cập nhật Tour 5: Nha Trang
+UPDATE tours SET 
+  original_price = 8000000.00,
+  vehicle = 'Vé máy bay khứ hồi & Xe du lịch đời mới',
+  hotel_star = 4,
+  badge = 'BÁN CHẠY NHẤT',
+  highlights = '• Trọn gói vé vui chơi giải trí không giới hạn tại VinWonders Nha Trang\\n• Thư giãn tắm bùn khoáng nóng thiên nhiên Tháp Bà phục hồi sức khỏe\\n• Du ngoạn cano vịnh Nha Trang lặn biển ngắm san hô đảo Hòn Mun\\n• Thưởng thức tiệc tôm hùm và hải sản tươi sống đánh bắt tại bè',
+  itinerary = 'Ngày 1: Đón sân bay Cam Ranh - Tắm biển Nha Trang\\n10:30: Xe đón tại sân bay Cam Ranh, ăn trưa nem nướng Ninh Hòa.\\n14:00: Check-in khách sạn 4 sao sát biển Trần Phú.\\n16:00: Tự do tắm biển và dạo công viên bờ biển.\\n18:30: Ăn tối tiệc hải sản tươi sống.\\n\\nNgày 2: Thiên đường giải trí VinWonders Nha Trang\\n08:30: Đi cáp treo vượt biển sang đảo Hòn Tre.\\n09:30: Thỏa sức trải nghiệm trò chơi cảm giác mạnh, công viên nước, vịnh phao nổi.\\n12:00: Dùng bữa trưa buffet tại nhà hàng VinWonders.\\n16:00: Tham quan đồi Vạn Hoa, thủy cung Sea World với hàng ngàn sinh vật biển.\\n19:00: Thưởng thức Tata Show hoành tráng triệu đô.\\n\\nNgày 3: Du ngoạn Vịnh Nha Trang - Lặn san hô Hòn Mun\\n08:30: Cano đón tại cảng Vĩnh Trường đi đảo Hòn Mun.\\n10:00: Lặn ngắm san hô bằng ống thở (snorkeling) hoặc đi thuyền đáy kính.\\n12:30: Ăn trưa tại Làng Chài với tôm hùm, cá nướng, mực hấp.\\n15:00: Trải nghiệm tắm bùn khoáng I-Resort / Tháp Bà.\\n\\nNgày 4: Tháp Bà Ponagar - Chùa Long Sơn\\n08:30: Thăm quần thể di tích Chăm Pa Tháp Bà Ponagar linh thiêng.\\n10:30: Viếng tượng Phật Trắng tại chùa Long Sơn.\\n12:30: Tự do khám phá ẩm thực chợ Đầm.\\n\\nNgày 5: Mua sắm - Tiễn sân bay Cam Ranh\\n08:30: Mua sắm đặc sản yến sào, mực rim me.\\n11:00: Trả phòng, xe đưa đoàn ra sân bay Cam Ranh.',
+  inclusions = '✓ Vé máy bay khứ hồi (7kg xách tay + 20kg ký gửi)\\n✓ Khách sạn 4 sao đường Trần Phú sát biển\\n✓ Vé trọn gói VinWonders bao gồm cáp treo khứ hồi\\n✓ Vé tắm bùn khoáng nóng cao cấp\\n✓ Cano lặn ngắm san hô vịnh Nha Trang\\n✓ Toàn bộ bữa ăn theo lịch trình',
+  exclusions = '✕ Lặn bình khí dưỡng khí Scuba Diving (tự túc)\\n✕ Chi phí cá nhân, giặt ủi\\n✕ Tip lái xe'
+WHERE tour_id = 5;
+
+-- Cập nhật Tour 6: Thái Lan
+UPDATE tours SET 
+  original_price = 14500000.00,
+  vehicle = 'Vé máy bay quốc tế & Xe du lịch VIP Thái Lan',
+  hotel_star = 4,
+  badge = 'TOUR QUỐC TẾ',
+  highlights = '• Tặng vé buffet 5 sao tầng 86 tòa nhà chọc trời Baiyoke Sky Bangkok\\n• Thưởng thức show diễn nghệ thuật chuyển giới Alcazar Show lộng lẫy\\n• Chiêm bái chùa Phật Vàng Wat Traimit và quần thể Grand Palace\\n• Mua sắm thỏa thích tại thiên đường mua sắm Iconsiam, Big C, Chatuchak',
+  inclusions = '✓ Vé máy bay khứ hồi quốc tế (đầy đủ hành lý)\\n✓ Khách sạn 4 sao tiêu chuẩn Thái Lan tại Bangkok & Pattaya\\n✓ Vé xem show Alcazar Pattaya\\n✓ Bữa trưa buffet tầng 86 Baiyoke Sky\\n✓ Vé tham quan các điểm theo chương trình\\n✓ Bảo hiểm du lịch quốc tế mức 200.000.000 VNĐ',
+  exclusions = '✕ Tiền tip bắt buộc cho HDV và lái xe Thái Lan (5 USD/ngày/khách)\\n✕ Hộ chiếu còn hạn dưới 6 tháng\\n✕ Chi phí cá nhân mua sắm'
+WHERE tour_id = 6;
+
+-- Cập nhật Tour 7: Singapore - Malaysia
+UPDATE tours SET 
+  original_price = 21500000.00,
+  vehicle = 'Vé máy bay quốc tế & Xe du lịch liên tuyến',
+  hotel_star = 4,
+  badge = 'TOUR CAO CẤP',
+  highlights = '• Một hành trình khám phá 2 quốc gia thịnh vượng bậc nhất Đông Nam Á\\n• Check-in công viên Gardens by the Bay, thác nước Jewel Changi, đảo Sentosa\\n• Chụp ảnh tháp đôi Petronas biểu tượng Kuala Lumpur, động Batu linh thiêng\\n• Trải nghiệm cáp treo cao nguyên Genting và thử vận may tại Casino đẳng cấp',
+  inclusions = '✓ Vé máy bay khứ hồi quốc tế 2 chặng\\n✓ Khách sạn 4 sao trung tâm Singapore & Malaysia\\n✓ Vé tham quan Flower Dome & Cloud Forest Gardens by the Bay\\n✓ Cáp treo cao nguyên Genting\\n✓ Toàn bộ các bữa ăn đặc sản: lẩu cua ớt Chilli Crab, Bak Kut Teh\\n✓ Bảo hiểm du lịch quốc tế 200.000.000 VNĐ',
+  exclusions = '✕ Tiền tip cho HDV và tài xế (5 USD/khách/ngày)\\n✕ Vé Universal Studios Singapore (tùy chọn)\\n✕ Chi phí cá nhân'
+WHERE tour_id = 7;
+
+-- Cập nhật Tour 8: Nhật Bản
+UPDATE tours SET 
+  original_price = 28900000.00,
+  vehicle = 'Hàng không 5 sao Vietnam Airlines & Tàu Shinkansen',
+  hotel_star = 4,
+  badge = 'TOUR CAO CẤP',
+  highlights = '• Trải nghiệm cung đường vàng huyền thoại: Tokyo hiện đại - Núi Phú Sĩ - Kyoto cổ kính - Osaka sôi động\\n• Đi tàu siêu tốc Shinkansen tốc độ 300km/h biểu tượng công nghệ Nhật Bản\\n• Tắm suối khoáng nóng Onsen truyền thống và thưởng thức bò Kobe thượng hạng\\n• Chiêm bái chùa Vàng Kinkaku-ji, cổng trời Fushimi Inari ngàn cổng Torii',
+  inclusions = '✓ Vé máy bay khứ hồi Vietnam Airlines bao gồm 46kg hành lý ký gửi\\n✓ Visa nhập cảnh Nhật Bản trọn gói\\n✓ Khách sạn 3-4 sao chuẩn Nhật (01 đêm trải nghiệm Ryokan Onsen)\\n✓ Trải nghiệm 1 chặng tàu siêu tốc Shinkansen\\n✓ Bữa ăn thịt bò Kobe nướng hảo hạng\\n✓ Hướng dẫn viên suốt tuyến từ Việt Nam',
+  exclusions = '✕ Tiền tip cho HDV và tài xế Nhật Bản (7 USD/ngày/khách)\\n✕ Chi phí cá nhân, mua sắm đồ điện tử'
+WHERE tour_id = 8;
+
+-- Cập nhật Tour 9: Mũi Né
+UPDATE tours SET 
+  original_price = 5200000.00,
+  vehicle = 'Xe Limousine VIP đưa đón tận nơi',
+  hotel_star = 5,
+  badge = 'NGHỈ DƯỠNG VIP',
+  highlights = '• Nghỉ dưỡng tại resort 5 sao bên bờ biển Mũi Né thơ mộng\\n• Lái xe mô tô địa hình trên đồi cát trắng và ngắm hoàng hôn lãng mạn\\n• Lội suối Tiên mát lạnh ngắm hẻm núi đất đỏ kỳ vĩ tựa chốn bồng lai\\n• Thưởng thức hải sản làng chài tươi rói và lẩu thả Phan Thiết',
+  inclusions = '✓ Xe Limousine đưa đón khứ hồi TP.HCM - Mũi Né\\n✓ Resort 5 sao phòng Deluxe hướng biển có hồ bơi tràn bờ\\n✓ Xe jeep tham quan đồi cát trắng ngắm bình minh/hoàng hôn\\n✓ Toàn bộ bữa ăn theo set menu hải sản cao cấp\\n✓ Bảo hiểm du lịch 100.000.000 VNĐ',
+  exclusions = '✕ Thuê mô tô địa hình ATV chạy trên cát\\n✕ Chi phí đồ uống ngoài thực đơn\\n✕ Thuế VAT'
+WHERE tour_id = 9;
+
+-- Cập nhật Tour 10: Đà Lạt
+UPDATE tours SET 
+  original_price = 4900000.00,
+  vehicle = 'Xe Limousine phòng nằm cao cấp',
+  hotel_star = 4,
+  badge = 'LÃNG MẠN',
+  highlights = '• Săn mây đón bình minh tại đồi chè Cầu Đất và thưởng thức cà phê view thung lũng\\n• Chinh phục đỉnh Langbiang huyền thoại bằng xe jeep địa hình\\n• Check-in thung lũng Tình Yêu, đường hầm Đất Sét, vườn hoa cẩm tú cầu\\n• Tự do thưởng thức lẩu gà lá é, bánh tráng nướng chợ đêm Đà Lạt sương mù',
+  inclusions = '✓ Xe Limousine phòng nằm đơn/đôi khứ hồi TP.HCM - Đà Lạt\\n✓ Khách sạn 4 sao phong cách Pháp cổ kính gần Hồ Xuân Hương\\n✓ Xe jeep địa hình lên đỉnh Langbiang\\n✓ Vé tham quan toàn bộ các điểm du lịch theo lịch trình\\n✓ Các bữa ăn đặc sản Đà Lạt: lẩu gà lá é, lẩu tả pí lù\\n✓ Bảo hiểm du lịch 100.000.000 VNĐ',
+  exclusions = '✕ Trò chơi máng trượt thác Datanla (tùy chọn)\\n✕ Thuê xe máy tự do buổi tối\\n✕ Chi phí cá nhân'
+WHERE tour_id = 10;

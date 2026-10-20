@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaClock, FaCalendarAlt, FaUserFriends, FaShoppingCart, FaBolt, FaHeart } from 'react-icons/fa';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import {
+  FaMapMarkerAlt,
+  FaClock,
+  FaCalendarAlt,
+  FaUserFriends,
+  FaShoppingCart,
+  FaBolt,
+  FaHeart,
+  FaPlane,
+  FaBus,
+  FaShip,
+  FaHotel,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaShieldAlt,
+  FaStar,
+  FaFire,
+  FaPercent,
+  FaInfoCircle
+} from 'react-icons/fa';
 import { tourApi } from '../api/axiosConfig';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -50,13 +69,11 @@ const TourDetailPage = () => {
     fetchTour();
   }, [id, navigate]);
 
-  // Thêm vào giỏ hàng
   const handleAddToCart = () => {
     tourApi.recordActivity(tour.id, 'ADD_TO_CART');
     addToCart(tour, quantity);
   };
 
-  // Đặt ngay -> chuyển sang trang giỏ hàng / thanh toán
   const handleBuyNow = () => {
     tourApi.recordActivity(tour.id, 'ADD_TO_CART');
     if (addToCart(tour, quantity)) {
@@ -68,10 +85,110 @@ const TourDetailPage = () => {
   if (!tour) return null;
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
   };
+
   const departureHasPassed = hasTourDatePassed(tour.startDate || tour.endDate);
   const availableSeats = Number(tour.availableSeats) || 0;
+  const price = Number(tour.price || 0);
+  const originalPrice = Number(tour.originalPrice || tour.original_price || 0);
+  const hasDiscount = originalPrice > price;
+  const discountPercent = hasDiscount ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  const badge = tour.badge || (hasDiscount ? 'HOT DEAL' : null);
+  const hotelStar = tour.hotelStar || tour.hotel_star || 4;
+  const vehicle = tour.vehicle || 'Xe du lịch cao cấp';
+
+  // Group / B2B discount: from 10 guests
+  const isB2bEligible = quantity >= 10;
+  const b2bDiscountRate = isB2bEligible ? 0.05 : 0;
+  const subtotal = price * quantity;
+  const discountAmount = subtotal * b2bDiscountRate;
+  const finalTotal = subtotal - discountAmount;
+
+  const getVehicleIcon = (v) => {
+    if (!v) return <FaBus />;
+    const lower = v.toLowerCase();
+    if (lower.includes('bay') || lower.includes('vietjet') || lower.includes('airlines')) return <FaPlane />;
+    if (lower.includes('tàu') || lower.includes('du thuyền') || lower.includes('cano')) return <FaShip />;
+    return <FaBus />;
+  };
+
+  // Helper parsing highlights
+  const parseHighlights = (text) => {
+    if (!text || !text.trim()) {
+      return [
+        `Khám phá trọn vẹn điểm đến ${tour.name || 'nổi tiếng'}`,
+        `Phương tiện: ${vehicle}`,
+        `Tiêu chuẩn lưu trú: Khách sạn ${hotelStar} sao sang trọng`,
+        'Bảo hiểm du lịch trọn gói mức trách nhiệm 100.000.000đ/vụ'
+      ];
+    }
+    return text.split('\n').map(s => s.trim().replace(/^[-*•✓]\s*/, '')).filter(Boolean);
+  };
+
+  // Helper parsing itinerary
+  const parseItinerary = (itineraryText) => {
+    if (!itineraryText || !itineraryText.trim()) {
+      return Array.from({ length: Math.max(1, tour.duration || 3) }).map((_, idx) => ({
+        day: idx + 1,
+        title: idx === 0 ? `Khởi hành từ ${tour.departureLocation || 'điểm hẹn'} – Nhận phòng nghỉ ngơi` :
+               idx === (tour.duration || 3) - 1 ? 'Tự do mua sắm đặc sản – Kết thúc hành trình' :
+               'Khám phá danh lam thắng cảnh & Trải nghiệm văn hóa địa phương',
+        content: idx === 0 ? `Xe và hướng dẫn viên đón đoàn tại điểm hẹn, khởi hành đi ${tour.name || 'điểm đến'}. Đoàn dùng bữa trưa tại nhà hàng, nhận phòng khách sạn và bắt đầu tham quan các điểm nổi bật buổi chiều.` :
+                 idx === (tour.duration || 3) - 1 ? 'Đoàn dùng điểm tâm sáng buffet, tự do dạo phố, chụp ảnh và mua sắm quà lưu niệm cho người thân. Sau bữa trưa, xe đưa đoàn về lại điểm đón ban đầu, chia tay và hẹn gặp lại.' :
+                 'Đoàn thưởng thức bữa sáng buffet, sau đó di chuyển tham quan các danh lam thắng cảnh tiêu biểu, trải nghiệm các hoạt động giải trí đặc sắc và thưởng thức ẩm thực truyền thống.'
+      }));
+    }
+
+    const rawDays = itineraryText.split(/(?=(?:NGÀY|Ngày)\s*\d+[:\s-])/g).filter(Boolean);
+    if (rawDays.length > 0) {
+      return rawDays.map((block, idx) => {
+        const firstLineEnd = block.indexOf('\n');
+        const titleLine = firstLineEnd !== -1 ? block.substring(0, firstLineEnd).trim() : block.trim();
+        const body = firstLineEnd !== -1 ? block.substring(firstLineEnd).trim() : '';
+        return {
+          day: idx + 1,
+          title: titleLine.replace(/^(?:NGÀY|Ngày)\s*\d+[:\s-]*/i, '').trim() || `Khám phá ngày ${idx + 1}`,
+          content: body || titleLine
+        };
+      });
+    }
+
+    return [{
+      day: 1,
+      title: 'Lịch trình chi tiết chương trình',
+      content: itineraryText
+    }];
+  };
+
+  // Helper parsing inclusions / exclusions
+  const defaultInclusions = [
+    'Xe du lịch đời mới máy lạnh phục vụ đưa đón suốt lịch trình',
+    `Khách sạn tiêu chuẩn ${hotelStar} sao tiện nghi (nghỉ 2 khách/phòng, lẻ nam/nữ ghép 3)`,
+    'Các bữa ăn theo chương trình (bữa sáng tại khách sạn, bữa chính tại nhà hàng đặc sản)',
+    'Vé vào cổng tham quan tất cả các thắng cảnh có trong chương trình',
+    'Hướng dẫn viên du lịch chuyên nghiệp, nhiệt tình, am hiểu văn hóa địa phương',
+    'Bảo hiểm du lịch trọn gói mức bồi thường tối đa 100.000.000 VNĐ / vụ',
+    'Khăn lạnh và nước suối tinh khiết phục vụ hàng ngày'
+  ];
+
+  const defaultExclusions = [
+    'Chi phí cá nhân ngoài chương trình: giặt ủi, điện thoại, minibar khách sạn',
+    'Phụ thu phòng đơn đối với khách đi 1 mình không ghép phòng',
+    'Tiền tip bồi dưỡng cho tài xế và hướng dẫn viên (tự nguyện)',
+    'Thuế VAT 8% (nếu quý khách có nhu cầu xuất hóa đơn đỏ công ty)'
+  ];
+
+  const inclusions = tour.inclusions && tour.inclusions.trim()
+    ? tour.inclusions.split('\n').map(s => s.trim().replace(/^[-*•✓]\s*/, '')).filter(Boolean)
+    : defaultInclusions;
+
+  const exclusions = tour.exclusions && tour.exclusions.trim()
+    ? tour.exclusions.split('\n').map(s => s.trim().replace(/^[-*•✕x]\s*/, '')).filter(Boolean)
+    : defaultExclusions;
+
+  const itineraryDays = parseItinerary(tour.itinerary);
+  const highlights = parseHighlights(tour.highlights);
 
   return (
     <div className="tour-detail-page">
@@ -81,10 +198,25 @@ const TourDetailPage = () => {
           <div className="breadcrumb">
             <span onClick={() => navigate('/')}>Trang chủ</span> {'>'}{' '}
             <span onClick={() => navigate('/tours')}>Khám phá tour</span> {'>'}{' '}
+            {tour.category && (
+              <>
+                <span onClick={() => navigate(`/tours?category=${tour.category.id || tour.category.categoryId}`)}>
+                  {tour.category.name || tour.category.categoryName}
+                </span> {'>'}{' '}
+              </>
+            )}
             <span className="active">{tour.name || tour.tourName}</span>
           </div>
+
           <div className="td-title-row">
-            <h1 className="td-title">{tour.name || tour.tourName}</h1>
+            <div>
+              {badge && (
+                <div className="td-badge-pill">
+                  <FaFire /> {badge}
+                </div>
+              )}
+              <h1 className="td-title">{tour.name || tour.tourName}</h1>
+            </div>
             <button
               type="button"
               className={`td-save-btn${isSaved(tour) ? ' is-saved' : ''}`}
@@ -95,143 +227,141 @@ const TourDetailPage = () => {
               {isSaved(tour) ? 'Đã lưu' : 'Lưu tour'}
             </button>
           </div>
-          <div className="td-meta" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+
+          <div className="td-meta-bar">
             {tour.category && (
-              <span className="badge-cat" style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem' }}>
+              <span className="badge-cat">
                 {tour.category.name || tour.category.categoryName}
               </span>
             )}
-            <span className="location" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#94a3b8' }}>
-              <FaMapMarkerAlt /> Khởi hành từ: <b style={{ color: '#fff' }}>{tour.departureLocation}</b>
+            <span className="td-meta-rating">
+              <FaStar className="star-icon" /> {tour.rating || 4.8} / 5 (Đánh giá tuyệt hảo)
             </span>
+            <span className="location">
+              <FaMapMarkerAlt /> Khởi hành: <b>{tour.departureLocation || 'TP. Hồ Chí Minh'}</b>
+            </span>
+            {tour.provider && (
+              <span className="td-provider-tag">
+                Đối tác: <b>{tour.provider.fullName || tour.provider.username}</b>
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Hero Image */}
+        {/* Hero Image Showcase */}
         <div className="td-gallery mb-4">
           <FallbackImage
             src={tour.imageUrl}
             alt={tour.name || tour.tourName} 
             className="main-img" 
           />
+          <div className="gallery-overlay-badge">
+            <span>Mã tour: #{tour.id || tour.tourId}</span>
+          </div>
         </div>
 
-        {/* Content Layout */}
+        {/* Quick Traveloka Highlights Strip */}
+        <div className="td-highlights mb-4">
+          <div className="hl-item">
+            <FaClock className="hl-icon" /> 
+            <div className="hl-text">
+              <span>Thời lượng</span>
+              <b>{tour.duration} Ngày {Math.max(1, tour.duration - 1)} Đêm</b>
+            </div>
+          </div>
+          <div className="hl-item">
+            <span className="hl-icon-vehicle">{getVehicleIcon(vehicle)}</span>
+            <div className="hl-text">
+              <span>Phương tiện</span>
+              <b>{vehicle}</b>
+            </div>
+          </div>
+          <div className="hl-item">
+            <FaHotel className="hl-icon" /> 
+            <div className="hl-text">
+              <span>Khách sạn</span>
+              <b>{hotelStar} Sao Cao Cấp</b>
+            </div>
+          </div>
+          <div className="hl-item">
+            <FaUserFriends className="hl-icon" /> 
+            <div className="hl-text">
+              <span>Số chỗ còn lại</span>
+              <b style={{ color: availableSeats <= 5 ? '#f97316' : '#10b981' }}>
+                {availableSeats > 0 ? `${availableSeats} chỗ` : 'Đã hết chỗ'}
+              </b>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Layout: 2 Columns */}
         <div className="td-layout">
-          {/* Main Info */}
+          {/* Main Info Left Column */}
           <div className="td-main">
-            {/* Quick Highlights Bar */}
-            <div className="td-highlights mb-4">
-              <div className="hl-item">
-                <FaClock className="hl-icon" /> 
-                <div className="hl-text">
-                  <span>Thời lượng</span>
-                  <b>{tour.duration} Ngày {Math.max(1, tour.duration - 1)} Đêm</b>
-                </div>
-              </div>
-              <div className="hl-item">
-                <FaCalendarAlt className="hl-icon" /> 
-                <div className="hl-text">
-                  <span>Lịch khởi hành</span>
-                  <b>
-                    {formatTourDate(tour.startDate) || 'Chưa cập nhật'}
-                    {formatTourDate(tour.endDate) && ` – ${formatTourDate(tour.endDate)}`}
-                  </b>
-                </div>
-              </div>
-              <div className="hl-item">
-                <FaUserFriends className="hl-icon" /> 
-                <div className="hl-text">
-                  <span>Chỗ còn trống</span>
-                  <b>{availableSeats} chỗ</b>
-                </div>
+            {/* Highlights Box */}
+            <div className="td-features-highlight mb-4">
+              <h3 className="sub-title">✨ Điểm nhấn đặc sắc của hành trình</h3>
+              <div className="highlight-points-grid">
+                {highlights.map((item, idx) => (
+                  <div key={idx} className="highlight-point">
+                    <FaCheckCircle className="hl-point-icon" />
+                    <span>{item}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
             {/* Navigation Tabs */}
-            <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '24px' }}>
+            <div className="td-nav-tabs">
               <button 
+                type="button"
+                className={`td-nav-tab-btn ${activeTab === 'itinerary' ? 'active' : ''}`}
                 onClick={() => setActiveTab('itinerary')}
-                style={{
-                  padding: '12px 20px',
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottom: activeTab === 'itinerary' ? '2px solid #0ea5e9' : '2px solid transparent',
-                  color: activeTab === 'itinerary' ? '#0ea5e9' : '#94a3b8',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  cursor: 'pointer'
-                }}
               >
-                Thông tin tour
+                Lịch trình chi tiết
               </button>
               <button 
+                type="button"
+                className={`td-nav-tab-btn ${activeTab === 'services' ? 'active' : ''}`}
                 onClick={() => setActiveTab('services')}
-                style={{
-                  padding: '12px 20px',
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottom: activeTab === 'services' ? '2px solid #0ea5e9' : '2px solid transparent',
-                  color: activeTab === 'services' ? '#0ea5e9' : '#94a3b8',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  cursor: 'pointer'
-                }}
               >
-                Dịch vụ
+                Dịch vụ bao gồm & loại trừ
               </button>
               <button 
+                type="button"
+                className={`td-nav-tab-btn ${activeTab === 'policy' ? 'active' : ''}`}
                 onClick={() => setActiveTab('policy')}
-                style={{
-                  padding: '12px 20px',
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottom: activeTab === 'policy' ? '2px solid #0ea5e9' : '2px solid transparent',
-                  color: activeTab === 'policy' ? '#0ea5e9' : '#94a3b8',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  cursor: 'pointer'
-                }}
               >
-                Đổi / hủy
+                Chính sách đổi trả & B2B
               </button>
             </div>
 
-            {/* Tab 1: Itinerary */}
+            {/* Tab 1: Itinerary Accordion Timeline */}
             {activeTab === 'itinerary' && (
-              <div>
+              <div className="tab-pane-content">
                 <div className="td-section mb-4">
-                  <h3 style={{ color: '#fff', fontSize: '1.25rem', marginBottom: '12px' }}>Thông tin hành trình</h3>
-                  <p style={{ color: '#cbd5e1', lineHeight: 1.7, fontSize: '1rem' }}>
-                    {tour.description || 'Chưa có mô tả chi tiết cho tour này.'}
+                  <h3 className="section-tab-heading">Giới thiệu tổng quan chuyến đi</h3>
+                  <p className="td-overview-desc">
+                    {tour.description || 'Hành trình được thiết kế chuẩn mực bởi đội ngũ lữ hành chuyên nghiệp, mang đến trải nghiệm trọn vẹn và an tâm tuyệt đối.'}
                   </p>
                 </div>
 
                 <div className="td-section">
-                  <h3 style={{ color: '#fff', fontSize: '1.25rem', marginBottom: '16px' }}>Lịch trình chi tiết theo ngày</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {Array.from({ length: Math.max(1, tour.duration || 3) }).map((_, idx) => (
-                      <div key={idx} style={{
-                        background: 'rgba(255,255,255,0.04)',
-                        borderLeft: '4px solid #0ea5e9',
-                        borderRadius: '0 8px 8px 0',
-                        padding: '16px'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                          <span style={{ background: '#0ea5e9', color: '#fff', padding: '2px 10px', borderRadius: '12px', fontWeight: 700, fontSize: '0.8rem' }}>
-                            NGÀY {idx + 1}
-                          </span>
-                          <h4 style={{ margin: 0, color: '#f8fafc', fontSize: '1rem' }}>
-                            {idx === 0 ? `Khởi hành từ ${tour.departureLocation || 'điểm hẹn'} - Check-in điểm đến` :
-                             idx === (tour.duration || 3) - 1 ? 'Tự do mua sắm đặc sản - Kết thúc hành trình' :
-                             `Khám phá danh lam thắng cảnh & Trải nghiệm văn hóa địa phương`}
-                          </h4>
+                  <h3 className="section-tab-heading">Lịch trình chi tiết từng ngày</h3>
+                  <div className="itinerary-timeline">
+                    {itineraryDays.map((item) => (
+                      <div key={item.day} className="itinerary-day-card">
+                        <div className="itinerary-day-badge">
+                          NGÀY {item.day}
                         </div>
-                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                          {idx === 0 ? `Xe và hướng dẫn viên đón đoàn tại điểm hẹn, khởi hành đi ${tour.name || 'điểm đến'}. Đoàn ăn trưa tại nhà hàng, nhận phòng nghỉ ngơi và bắt đầu tham quan các điểm nổi bật buổi chiều.` :
-                           idx === (tour.duration || 3) - 1 ? 'Đoàn dùng điểm tâm sáng, tự do dạo phố, chụp ảnh và mua sắm quà lưu niệm cho người thân. Sau bữa trưa, xe đưa đoàn về lại điểm đón ban đầu, chia tay và hẹn gặp lại.' :
-                           'Đoàn thưởng thức bữa sáng buffet, sau đó di chuyển tham quan các danh lam thắng cảnh tiêu biểu, trải nghiệm các hoạt động giải trí đặc sắc và thưởng thức ẩm thực truyền thống.'}
-                        </p>
+                        <div className="itinerary-day-body">
+                          <h4 className="itinerary-day-title">{item.title}</h4>
+                          <div className="itinerary-day-text">
+                            {item.content.split('\n').map((line, lIdx) => (
+                              <p key={lIdx} style={{ margin: '0 0 6px 0' }}>{line}</p>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -239,61 +369,66 @@ const TourDetailPage = () => {
               </div>
             )}
 
-            {/* Tab 2: Services */}
+            {/* Tab 2: Services 2-Column Standard */}
             {activeTab === 'services' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h3 style={{ color: '#10b981', fontSize: '1.15rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    ✓ Dịch vụ bao gồm trong tour
-                  </h3>
-                  <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', lineHeight: 1.8, fontSize: '0.95rem' }}>
-                    <li>Xe du lịch đời mới máy lạnh phục vụ đưa đón suốt lịch trình</li>
-                    <li>Khách sạn tiêu chuẩn 3 - 4 sao tiện nghi (nghỉ 2 khách/phòng, lẻ nam/nữ ghép 3)</li>
-                    <li>Các bữa ăn theo chương trình (bữa sáng tại khách sạn, bữa chính tại nhà hàng)</li>
-                    <li>Vé vào cổng tham quan tất cả các thắng cảnh có trong chương trình</li>
-                    <li>Hướng dẫn viên du lịch chuyên nghiệp, nhiệt tình, am hiểu văn hóa</li>
-                    <li>Bảo hiểm du lịch trọn gói mức bồi thường tối đa 50.000.000 VNĐ / vụ</li>
-                    <li>Khăn lạnh và nước suối tinh khiết phục vụ hàng ngày</li>
-                  </ul>
-                </div>
+              <div className="tab-pane-content">
+                <div className="services-two-cols">
+                  <div className="service-col-box included-box">
+                    <h3 className="service-box-title title-inclusions">
+                      <FaCheckCircle /> Dịch vụ bao gồm trọn gói
+                    </h3>
+                    <ul className="service-list">
+                      {inclusions.map((item, idx) => (
+                        <li key={idx}><FaCheckCircle className="li-icon inc-icon" /> {item}</li>
+                      ))}
+                    </ul>
+                  </div>
 
-                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h3 style={{ color: '#ef4444', fontSize: '1.15rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    ✕ Dịch vụ không bao gồm
-                  </h3>
-                  <ul style={{ margin: 0, paddingLeft: '20px', color: '#94a3b8', lineHeight: 1.8, fontSize: '0.95rem' }}>
-                    <li>Chi phí cá nhân: giặt ủi, điện thoại, đồ uống trong minibar khách sạn</li>
-                    <li>Phụ thu phòng đơn đối với khách đi 1 mình không ghép phòng</li>
-                    <li>Tiền bồi dưỡng (tip) cho tài xế và hướng dẫn viên (tự nguyện)</li>
-                    <li>Thuế VAT 8% (nếu quý khách có nhu cầu xuất hóa đơn đỏ công ty)</li>
-                  </ul>
+                  <div className="service-col-box excluded-box">
+                    <h3 className="service-box-title title-exclusions">
+                      <FaTimesCircle /> Dịch vụ không bao gồm
+                    </h3>
+                    <ul className="service-list">
+                      {exclusions.map((item, idx) => (
+                        <li key={idx}><FaTimesCircle className="li-icon exc-icon" /> {item}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Tab 3: Policy */}
+            {/* Tab 3: Policy & B2B Rules */}
             {activeTab === 'policy' && (
-              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <h3 style={{ color: '#f59e0b', fontSize: '1.15rem', marginBottom: '14px' }}>
-                  Chính sách đặt, đổi và hoàn hủy tour
-                </h3>
-                <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <p><strong>1. Quy trình đặt tour:</strong> Sau khi gửi yêu cầu trực tuyến, hệ thống sẽ tạm giữ chỗ và gửi email xác nhận. Nhân viên tư vấn sẽ liên hệ để xác nhận thông tin.</p>
-                  <p><strong>2. Hủy tour trước 7 ngày:</strong> Hoàn trả 100% số tiền hoặc chuyển đổi sang hành trình khác miễn phí.</p>
-                  <p><strong>3. Hủy tour từ 3 - 6 ngày:</strong> Phí đổi hủy 30% giá tour.</p>
-                  <p><strong>4. Hủy tour trong vòng 48h trước giờ khởi hành:</strong> Phí đổi hủy 70% giá tour.</p>
-                  <p><strong>5. Trường hợp bất khả kháng:</strong> (Thiên tai, dịch bệnh, hoãn chuyến bay) Du Lịch Việt hỗ trợ dời lịch trình hoặc bảo lưu giá trị tour lên đến 12 tháng.</p>
+              <div className="tab-pane-content">
+                <div className="policy-box">
+                  <h3 className="policy-heading"><FaShieldAlt /> Điều kiện đổi hủy & Hoàn tiền</h3>
+                  <div className="policy-list">
+                    <p><strong>1. Quy trình giữ chỗ:</strong> Đơn đặt chỗ sẽ được hệ thống tạm giữ trong vòng 24h và gửi mã xác nhận qua email. Chuyên viên lữ hành sẽ liên hệ tư vấn chi tiết trước khi hoàn tất.</p>
+                    <p><strong>2. Hủy trước 7 ngày:</strong> Hoàn trả 100% chi phí tour hoặc hỗ trợ bảo lưu giá trị chuyến đi sang thời gian khác miễn phí.</p>
+                    <p><strong>3. Hủy từ 3 - 6 ngày trước ngày khởi hành:</strong> Phí đổi hủy 30% giá trị hợp đồng dịch vụ.</p>
+                    <p><strong>4. Hủy trong vòng 48h trước giờ bay/khởi hành:</strong> Phí đổi hủy 70% giá trị tour.</p>
+                    <p><strong>5. Ưu đãi Doanh nghiệp & Đoàn B2B:</strong> Các đoàn thể, công ty từ 10 khách trở lên được hưởng chiết khấu trực tiếp 5%, nâng cấp bữa ăn VIP và hỗ trợ thiết kế banner teambuilding riêng.</p>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Sticky Booking Sidebar */}
+          {/* Sticky Booking Sidebar Right Column */}
           <div className="td-sidebar">
             <div className="booking-card">
               <div className="price-box">
-                <span className="price">{formatPrice(tour.price)}</span>
-                <span className="price-unit">/ 1 vé người lớn</span>
+                {hasDiscount && (
+                  <div className="sidebar-original-row">
+                    <span className="sidebar-original-price">{formatPrice(originalPrice)}</span>
+                    <span className="sidebar-discount-pill">-{discountPercent}% TIẾT KIỆM</span>
+                  </div>
+                )}
+                <div className="sidebar-price-row">
+                  <span className="price">{formatPrice(price)}</span>
+                  <span className="price-unit">/ 1 vé người lớn</span>
+                </div>
               </div>
               
               <div className="quantity-box">
@@ -308,31 +443,52 @@ const TourDetailPage = () => {
                     onClick={() => setQuantity(q => Math.min(availableSeats, q + 1))}
                   >+</button>
                 </div>
-                <small style={{ color: '#94a3b8', marginTop: '6px', display: 'block' }}>
+                <small className="seats-indicator-text">
                   {departureHasPassed
                     ? 'Ngày khởi hành đã qua; cần cập nhật lịch trước khi đặt'
                     : availableSeats > 0
-                      ? `Còn ${availableSeats} chỗ theo dữ liệu hiện tại`
+                      ? `Còn lại ${availableSeats} chỗ theo thời gian thực`
                       : 'Hiện không còn chỗ'}
                 </small>
               </div>
 
+              {/* B2B Group discount alert */}
+              {isB2bEligible && (
+                <div className="b2b-discount-alert">
+                  <FaPercent /> <b>Ưu đãi B2B:</b> Đã giảm 5% ({formatPrice(discountAmount)}) cho đoàn từ 10 khách!
+                </div>
+              )}
+
               <div className="total-box">
-                <span>Tổng tạm tính:</span>
-                <span className="total-price">{formatPrice(tour.price * quantity)}</span>
+                <span>Tổng cộng tạm tính:</span>
+                <span className="total-price">{formatPrice(finalTotal)}</span>
               </div>
 
               <div className="action-btns" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <button className="btn btn-primary btn-full" disabled={!availableSeats || departureHasPassed} onClick={handleBuyNow} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                  <FaBolt /> {departureHasPassed ? 'Lịch khởi hành đã qua' : availableSeats ? 'Gửi yêu cầu đặt tour' : 'Hiện hết chỗ'}
+                <button
+                  type="button"
+                  className="btn btn-primary btn-full btn-buy-now"
+                  disabled={!availableSeats || departureHasPassed}
+                  onClick={handleBuyNow}
+                >
+                  <FaBolt /> {departureHasPassed ? 'Lịch khởi hành đã qua' : availableSeats ? 'Đặt Giữ Chỗ Tức Thì' : 'Hiện hết chỗ'}
                 </button>
-                <button className="btn btn-outline btn-full" disabled={!availableSeats || departureHasPassed} onClick={handleAddToCart} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                  <FaShoppingCart /> {departureHasPassed ? 'Lịch khởi hành đã qua' : availableSeats ? 'Thêm vào giỏ hàng' : 'Hiện hết chỗ'}
+                <button
+                  type="button"
+                  className="btn btn-outline btn-full btn-add-cart"
+                  disabled={!availableSeats || departureHasPassed}
+                  onClick={handleAddToCart}
+                >
+                  <FaShoppingCart /> Thêm Vào Giỏ Hàng
                 </button>
               </div>
               
-              <div className="support-info mt-4" style={{ textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
-                <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.85rem' }}>Đơn sẽ ở trạng thái chờ xử lý cho đến khi được xác nhận.</p>
+              <div className="support-info mt-4">
+                <div className="trust-bullets">
+                  <span>✓ Miễn phí giữ chỗ trong 24 giờ</span>
+                  <span>✓ Bảo mật thanh toán trực tuyến</span>
+                  <span>✓ Hỗ trợ tư vấn đoàn B2B 24/7</span>
+                </div>
               </div>
             </div>
           </div>
@@ -340,16 +496,16 @@ const TourDetailPage = () => {
 
         {/* Personalized Recommendations */}
         {recommendedTours && recommendedTours.length > 0 && (
-          <div className="td-recommendations mt-5 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.35rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="td-recommendations mt-5 pt-4">
+            <div className="rec-header">
+              <h3 className="rec-title">
                 <span>✨</span> Gợi ý tour tương tự dành riêng cho bạn
               </h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.88rem', marginTop: '6px' }}>
+              <p className="rec-subtitle">
                 Hệ thống đề xuất dựa trên sở thích danh mục và hành vi xem tour gần đây của bạn.
               </p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            <div className="tour-grid">
               {recommendedTours.map((item) => (
                 <TourCard key={item.id} tour={item} />
               ))}
