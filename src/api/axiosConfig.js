@@ -102,6 +102,7 @@ export const orderApi = {
   getMyOrderById: (id) => api.get('/orders/my/' + id),
   getOrderById: (id) => api.get('/admin/orders/' + id),
   cancelOrder: (id) => api.post('/orders/my/' + id + '/cancel'),
+  payOrder: (id, data) => api.post('/orders/my/' + id + '/pay', data),
 };
 
 // ========= USER PROFILE =========

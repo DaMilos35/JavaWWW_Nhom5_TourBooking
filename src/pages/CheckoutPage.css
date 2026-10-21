@@ -1,170 +1,1345 @@
+/* ==========================================================================
+   CHECKOUT PAGE - TRAVELOKA & TOP-TIER OTA UX/UI DESIGN SYSTEM
+   Tone màu chủ đạo: Traveloka Blue (#0194f3, #0264c8), Deep Navy (#0f172a, #1e293b),
+   Accent: Sunset Tangerine (#ff5e1f, #ff7e36), Emerald Green (#10b981)
+   ========================================================================== */
+
 .checkout-page {
-  padding: 40px 0 80px;
+  background-color: #f8fafc;
+  min-height: 90vh;
+  color: #1e293b;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-.checkout-page .checkout-layout {
+/* ---------------- STEPPER 3 BƯỚC THÔNG MINH ---------------- */
+.checkout-stepper-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  padding: 20px 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.stepper-node {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.stepper-node.active {
+  opacity: 1;
+}
+
+.stepper-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  border: 2px solid #cbd5e1;
+  transition: all 0.3s ease;
+}
+
+.stepper-node.active .stepper-circle {
+  background: #0194f3;
+  color: #ffffff;
+  border-color: #0194f3;
+  box-shadow: 0 0 0 4px rgba(1, 148, 243, 0.2);
+}
+
+.stepper-node.completed .stepper-circle {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.stepper-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepper-label .step-num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0194f3;
+  letter-spacing: 0.5px;
+}
+
+.stepper-label .step-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.stepper-line {
+  flex: 1;
+  max-width: 120px;
+  height: 3px;
+  background: #e2e8f0;
+  margin: 0 20px;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.stepper-line.active {
+  background: #0194f3;
+}
+
+/* ---------------- BANNER ĐẾM NGƯỢC GIỮ CHỖ 15 PHÚT ---------------- */
+.booking-countdown-bar {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #0194f3;
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 2px 10px rgba(1, 148, 243, 0.06);
+}
+
+.countdown-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #1e3a8a;
+  font-size: 0.92rem;
+}
+
+.timer-icon {
+  font-size: 1.3rem;
+  color: #0194f3;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.timer-badge {
+  background: #ff5e1f;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-family: monospace;
+  font-size: 1rem;
+}
+
+.countdown-progress-bar {
+  height: 4px;
+  background: #dbeafe;
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.countdown-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0194f3, #ff5e1f);
+  transition: width 1s linear;
+}
+
+/* ---------------- LAYOUT CHÍNH ---------------- */
+.checkout-layout {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 1.65fr 1fr;
   gap: 32px;
   align-items: start;
 }
 
-.checkout-page .checkout-form-section,
-.checkout-page .checkout-sidebar {
-  background: #1c2434;
-  border-radius: 16px;
-  padding: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+@media (max-width: 992px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
-.checkout-page .checkout-sidebar {
+/* ---------------- CARD BƯỚC FORM ---------------- */
+.checkout-step-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.05);
+  padding: 32px;
+}
+
+.card-header-styled {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.step-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: #e0f2fe;
+  color: #0284c7;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.card-header-styled h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+/* ---------------- PROFILE BANNER THÔNG MINH ---------------- */
+.smart-profile-banner {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 20px;
+}
+
+.profile-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0194f3 0%, #0064d2 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 10px rgba(1, 148, 243, 0.3);
+}
+
+.user-info-text {
+  flex: 1;
+}
+
+.user-name-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.user-name-title strong {
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.vip-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.user-sub {
+  display: block;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.profile-toggle-row {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.switch-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+  user-select: none;
+}
+
+.switch-toggle-label input {
+  width: 18px;
+  height: 18px;
+  accent-color: #0194f3;
+  cursor: pointer;
+}
+
+/* ---------------- FORM CONTROLS ---------------- */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.input-icon {
+  color: #0194f3;
+  font-size: 0.85rem;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 11px 14px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: #0194f3;
+  box-shadow: 0 0 0 3px rgba(1, 148, 243, 0.15);
+}
+
+.form-input:disabled {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+.form-input-sm {
+  padding: 8px 10px;
+  font-size: 0.88rem;
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+/* ---------------- B2B INVOICE CHECKBOX ---------------- */
+.b2b-invoice-section {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.checkbox-custom-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-custom-label input {
+  width: 18px;
+  height: 18px;
+  accent-color: #0194f3;
+}
+
+.invoice-fields-box {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 14px;
+}
+
+/* ---------------- DANH SÁCH HÀNH KHÁCH (ROSTER) ---------------- */
+.passengers-roster-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.roster-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+}
+
+.roster-sub {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.passenger-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.passenger-row-item {
+  display: grid;
+  grid-template-columns: 80px 2fr 1fr 1.5fr;
+  gap: 10px;
+  align-items: center;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+@media (max-width: 600px) {
+  .passenger-row-item {
+    grid-template-columns: 1fr;
+  }
+}
+
+.passenger-index {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0194f3;
+}
+
+/* ---------------- NÚT THỰC THI CHÍNH ---------------- */
+.form-action-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-proceed,
+.btn-submit-order {
+  background: linear-gradient(135deg, #ff5e1f 0%, #ff7e36 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 14px 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(255, 94, 31, 0.35);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-proceed:hover,
+.btn-submit-order:hover {
+  background: linear-gradient(135deg, #e04f14 0%, #ff5e1f 100%);
+  box-shadow: 0 6px 20px rgba(255, 94, 31, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-proceed:disabled,
+.btn-submit-order:disabled {
+  background: #cbd5e1;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ssl-lock-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.btn-link-simple {
+  background: none;
+  border: none;
+  color: #0194f3;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-link-simple:hover {
+  text-decoration: underline;
+}
+
+/* ---------------- PHƯƠNG THỨC THANH TOÁN (BƯỚC 2) ---------------- */
+.payment-options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.payment-option-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.payment-option-card:hover {
+  border-color: #93c5fd;
+  background: #f8fafc;
+}
+
+.payment-option-card.selected {
+  border-color: #0194f3;
+  background: #eff6ff;
+  box-shadow: 0 4px 15px rgba(1, 148, 243, 0.12);
+}
+
+.option-radio-col input {
+  width: 20px;
+  height: 20px;
+  accent-color: #0194f3;
+}
+
+.option-info-col {
+  flex: 1;
+}
+
+.option-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.option-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.badge-recommend {
+  background: #10b981;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.3px;
+}
+
+.badge-pill-soft {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.option-desc {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 3px 0 0;
+}
+
+.option-logo-col {
+  display: flex;
+  align-items: center;
+  font-size: 1.6rem;
+}
+
+.brand-pill-vnpay {
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #005baa;
+  letter-spacing: -0.5px;
+  background: #e0f2fe;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.brand-pill-momo {
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #a50064;
+  background: #fce7f3;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* ---------------- VIETQR BOX CHI TIẾT ---------------- */
+.vietqr-details-box {
+  background: #ffffff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: -4px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 14px rgba(1, 148, 243, 0.08);
+}
+
+.vietqr-row {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+@media (max-width: 650px) {
+  .vietqr-row {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.vietqr-image-wrapper {
+  text-align: center;
+}
+
+.vietqr-img {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 4px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.qr-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.vietqr-info-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  border-bottom: 1px dashed #f1f5f9;
+  padding-bottom: 6px;
+}
+
+.info-item .lbl {
+  color: #64748b;
+}
+
+.info-item .val {
+  color: #0f172a;
+}
+
+.val-with-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-copy {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #0194f3;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-copy:hover {
+  background: #0194f3;
+  color: #ffffff;
+  border-color: #0194f3;
+}
+
+/* ---------------- CREDIT CARD FORM BOX ---------------- */
+.credit-card-form-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: -4px;
+  margin-bottom: 8px;
+}
+
+/* ---------------- ĐIỀU KHOẢN DỊCH VỤ ---------------- */
+.terms-agreement-box {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* ---------------- CỘT PHẢI: TÓM TẮT ĐƠN HÀNG (SIDEBAR) ---------------- */
+.checkout-summary-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.05);
+  padding: 24px;
   position: sticky;
   top: 90px;
 }
 
-.checkout-page h2 {
-  color: #ffffff;
+.summary-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.summary-card-header h3 {
+  font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  color: #0f172a;
+  margin: 0;
 }
 
-.checkout-page h3 {
-  font-size: 1.25rem;
-  color: #ffffff;
-  margin-bottom: 20px;
+.travelers-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #eff6ff;
+  color: #0194f3;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-tours-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 16px 0;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.summary-tour-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.checkout-page .form-group {
+.summary-tour-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.tour-mini-thumb img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.tour-mini-info {
+  flex: 1;
+}
+
+.tour-mini-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+.tour-mini-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.tour-mini-price {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0194f3;
+  margin-top: 4px;
+}
+
+/* ---------------- VOUCHER SECTION ---------------- */
+.voucher-section-box {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 14px;
   margin-bottom: 18px;
 }
 
-.checkout-page .form-label {
-  display: block;
-  font-weight: 600;
-  color: #94a3b8;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
+.voucher-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.checkout-page .form-control {
-  width: 100%;
-  padding: 10px 14px;
-  background: #0b0f19;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+.voucher-input-wrap {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-apply-voucher {
+  background: #0194f3;
   color: #ffffff;
-  font-size: 0.95rem;
-  box-sizing: border-box;
+  border: none;
+  font-weight: 700;
+  padding: 0 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.checkout-page .form-control:focus {
-  border-color: #0ea5e9;
-  outline: none;
+.voucher-suggestions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.checkout-notice {
+.suggest-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.voucher-pill {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.voucher-pill:hover {
+  background: #0194f3;
+  color: #ffffff;
+}
+
+.applied-voucher-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.voucher-applied-info {
+  display: flex;
+  align-items: center;
+}
+
+.voucher-applied-info strong {
+  color: #15803d;
+  font-size: 0.88rem;
+}
+
+.btn-remove-voucher {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------------- BẢNG KÊ CHI TIẾT GIÁ ---------------- */
+.price-breakdown-table {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 4px 0 24px;
-  padding: 14px 16px;
-  border: 1px solid rgba(14, 165, 233, 0.3);
-  border-left: 3px solid #0ea5e9;
-  border-radius: 8px;
-  background: rgba(14, 165, 233, 0.08);
-  color: #cbd5e1;
+  gap: 10px;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
   font-size: 0.9rem;
-  line-height: 1.55;
+  color: #64748b;
 }
 
-.checkout-notice strong {
-  color: #f8fafc;
+.breakdown-row.discount-row {
+  color: #10b981;
 }
 
-.checkout-total-note {
-  margin: 12px 0 0;
-  color: #94a3b8;
-  font-size: 0.85rem;
-  line-height: 1.5;
+.breakdown-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 6px 0;
 }
 
-.order-items {
-  margin-bottom: 24px;
-  max-height: 360px;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-.summary-item {
+.breakdown-total-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  align-items: flex-end;
 }
 
-.summary-item:last-child {
-  border-bottom: none;
-}
-
-.item-info strong {
-  color: #ffffff;
-  font-size: 0.95rem;
+.total-title {
   display: block;
-  margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0f172a;
 }
 
-.item-info .text-muted {
-  color: #94a3b8;
-  font-size: 0.85rem;
+.final-price-text {
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #ff5e1f;
+  letter-spacing: -0.5px;
 }
 
-.item-total-price {
-  font-weight: 700;
-  color: #38bdf8;
+/* ---------------- TRUST BADGES ---------------- */
+.trust-badges-list {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.trust-ico {
+  color: #10b981;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   VÉ ĐIỆN TỬ E-TICKET (BƯỚC 3: TRAVELOKA / BOARDING PASS STYLE)
+   ========================================================================== */
+
+.checkout-success-banner {
+  margin-bottom: 24px;
+}
+
+.success-icon-wrap {
+  width: 76px;
+  height: 76px;
+  background: #dcfce7;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.success-icon {
+  font-size: 3rem;
+  color: #16a34a;
+}
+
+.success-title {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.success-subtitle {
   font-size: 1rem;
+  color: #64748b;
 }
 
-.summary-total {
-  border-top: 1px dashed rgba(255, 255, 255, 0.15);
-  padding-top: 18px;
+.highlight-code {
+  color: #0194f3;
+  font-family: monospace;
+  font-size: 1.15rem;
 }
 
-.total-row-checkout {
+.badge-paid-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  vertical-align: middle;
+}
+
+/* CARD VÉ */
+.eticket-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.eticket-header {
+  background: linear-gradient(135deg, #0194f3 0%, #0064d2 100%);
+  color: #ffffff;
+  padding: 22px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #ffffff;
 }
 
-.total-row-checkout .price {
-  font-size: 1.5rem;
-  color: #38bdf8;
+.brand-logo-text {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.brand-tag {
+  font-size: 0.78rem;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+}
+
+.eticket-status-badge {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.eticket-body {
+  padding: 28px;
+}
+
+.eticket-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 650px) {
+  .eticket-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.eticket-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.eticket-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.eticket-value {
+  font-size: 1.05rem;
+  color: #0f172a;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.eticket-value.code-accent {
+  color: #0194f3;
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.eticket-value.name-bold {
   font-weight: 800;
 }
 
-.checkout-page .btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
+.eticket-divider-dashed {
+  height: 1px;
+  border-bottom: 2px dashed #cbd5e1;
+  margin: 20px 0;
+  position: relative;
 }
 
-@media (max-width: 900px) {
-  .checkout-page .checkout-layout {
-    grid-template-columns: 1fr;
-  }
-  .checkout-page .checkout-sidebar {
-    position: static;
-  }
+/* TOUR TRONG VÉ */
+.eticket-tour-item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: #f8fafc;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 10px;
+}
+
+.tour-thumb-box img {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.tour-info-box {
+  flex: 1;
+}
+
+.tour-info-box .tour-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.tour-meta-row {
+  display: flex;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: #475569;
+  flex-wrap: wrap;
+}
+
+.price-tag {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ff5e1f;
+}
+
+/* FOOTER VÉ VÀ QR CODE */
+.eticket-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
 }
 
 @media (max-width: 600px) {
-  .checkout-page .checkout-form-section,
-  .checkout-page .checkout-sidebar {
-    padding: 18px;
+  .eticket-footer-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.barcode-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.qr-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  padding: 2px;
+}
+
+.barcode-caption span {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.barcode-caption strong {
+  display: block;
+  font-size: 1.05rem;
+  color: #0f172a;
+  font-family: monospace;
+}
+
+.final-amount-box .final-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.final-amount-box .final-val {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ff5e1f;
+  line-height: 1.1;
+}
+
+.tax-included-note {
+  display: block;
+  font-size: 0.75rem;
+  color: #10b981;
+  margin-top: 2px;
+}
+
+.eticket-notice {
+  background: #eff6ff;
+  border-top: 1px solid #bfdbfe;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: #1e40af;
+}
+
+.notice-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  color: #0194f3;
+}
+
+/* CÁC NÚT HÀNH ĐỘNG SAU ĐẶT VÉ */
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action.btn-primary {
+  background: #0194f3;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(1, 148, 243, 0.3);
+}
+
+.btn-action.btn-primary:hover {
+  background: #0076c7;
+}
+
+.btn-action.btn-outline-primary {
+  background: #ffffff;
+  color: #0194f3;
+  border: 1.5px solid #0194f3;
+}
+
+.btn-action.btn-outline-primary:hover {
+  background: #eff6ff;
+}
+
+.btn-action.btn-ghost {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-action.btn-ghost:hover {
+  background: #e2e8f0;
+}
+
+/* ---------------- ANIMATION UTILITIES ---------------- */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------- IN ẤN VÉ (PRINT MEDIA) ---------------- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #e-ticket-print, #e-ticket-print * {
+    visibility: visible;
+  }
+  #e-ticket-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none;
+    border: none;
+  }
+  .success-actions,
+  .checkout-stepper-wrap,
+  .booking-countdown-bar {
+    display: none !important;
   }
 }

@@ -198,6 +198,31 @@ public class OrderService {
         return OrderDto.from(orderRepository.save(order));
     }
 
+    /** Khách hàng hoàn tất thanh toán (Xác nhận chuyển khoản / cổng thanh toán) */
+    @Transactional
+    public OrderDto payOrder(Integer orderId, Integer userId, String paymentMethod, String transactionCode) {
+        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
+        if (!order.getUser().getId().equals(userId)) {
+            throw new ApiException(403, "Bạn không có quyền thao tác trên đơn hàng này");
+        }
+        if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
+            throw new ApiException(400, "Đơn hàng đã được xử lý (trạng thái: " + order.getStatus() + ")");
+        }
+
+        String method = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim() : "Chuyển khoản VietQR";
+        String tx = (transactionCode != null && !transactionCode.isBlank()) ? transactionCode.trim() : ("TXN" + System.currentTimeMillis());
+
+        order.setStatus("CONFIRMED");
+        String paymentTag = String.format("[Đã thanh toán qua %s - Mã GD: %s]", method, tx);
+        String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
+        order.setNotes((paymentTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
+
+        TourOrder saved = orderRepository.save(order);
+        emailService.sendOrderConfirmation(saved);
+        return OrderDto.from(saved);
+    }
+
     // ============ ADMIN & PROVIDER ============
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
