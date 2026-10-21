@@ -50,7 +50,8 @@
 
 .auth-card h2 {
   font-size: 2rem;
-  color: #1e3a8a;
+  color: #0f172a;
+  font-weight: 800;
   margin-bottom: 10px;
   text-align: center;
 }
@@ -87,6 +88,8 @@
 }
 
 .input-icon-wrapper input {
+  color: #0f172a;
+  font-weight: 500;
   width: 100%;
   padding: 14px 15px 14px 45px;
   border: 1px solid #d1d5db;

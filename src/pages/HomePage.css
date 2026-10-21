@@ -110,8 +110,8 @@
 }
 
 .search-tab-btn.active {
-  background: var(--bg-surface, #1e293b);
-  color: #ffffff;
+  background: #ffffff;
+  color: #0194f3; border-bottom: 2px solid #0194f3;
   border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -511,7 +511,7 @@
 .flash-title {
   font-size: 1.45rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #0f172a;
   margin: 0;
 }
 
@@ -558,7 +558,7 @@
 .section-title {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #0f172a;
   margin: 0;
   letter-spacing: -0.3px;
 }
