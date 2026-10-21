@@ -6,6 +6,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import vn.dulichviet.tourbooking.entity.Tour;
 import vn.dulichviet.tourbooking.repository.TourRepository;
 
@@ -43,13 +44,14 @@ public class TourVectorIndexer {
 
     /**
      * Quét toàn bộ danh mục Tour từ cơ sở dữ liệu và nạp vector vào Vector Store.
+     * Sử dụng findAllWithCategoryAndProvider() để nạp eager fetch không bị LazyInitializationException.
      *
      * @return Số lượng tour đã được đánh chỉ mục
      */
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public synchronized int indexAllTours() {
         long start = System.currentTimeMillis();
-        List<Tour> tours = tourRepository.findAll();
+        List<Tour> tours = tourRepository.findAllWithCategoryAndProvider();
         int count = 0;
 
         for (Tour tour : tours) {
@@ -94,8 +96,12 @@ public class TourVectorIndexer {
     public static String buildTourDocument(Tour tour) {
         StringBuilder sb = new StringBuilder();
         sb.append("Tour: ").append(tour.getName() != null ? tour.getName() : "").append(". ");
-        if (tour.getCategory() != null && tour.getCategory().getName() != null) {
-            sb.append("Danh mục: ").append(tour.getCategory().getName()).append(". ");
+        try {
+            if (tour.getCategory() != null && tour.getCategory().getName() != null) {
+                sb.append("Danh mục: ").append(tour.getCategory().getName()).append(". ");
+            }
+        } catch (Exception ignored) {
+            // Lazy proxy fallback
         }
         if (tour.getDepartureLocation() != null) {
             sb.append("Khởi hành từ: ").append(tour.getDepartureLocation()).append(". ");

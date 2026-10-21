@@ -1,291 +1,693 @@
 -- =================================================================================
--- TourBookingDB - BỘ DỮ LIỆU ĐẦY ĐỦ VÀ CHUẨN MỰC (data.sql)
--- Đề tài số 49: Website giới thiệu tour du lịch và cho phép đăng ký tour trực tuyến
--- Nhóm 5 - Lớp DHKTPM19ATT - GVHD: ThS. Nguyễn Vũ Lâm
--- Hệ thống: Sàn thương mại điện tử du lịch (Multi-vendor) + Đặt tour Doanh nghiệp (B2B)
--- 8 Danh mục, 16 Tour đa dạng, 10 Tài khoản (Mật khẩu: 123456), 9 Đơn hàng, 12 Lịch sử hoạt động
+-- TourBookingDB - BỘ DỮ LIỆU CHUẨN SCALE SẢN XUẤT (Production-Grade)
+-- Đề tài số 49: Website Đặt Tour Du Lịch - Du Lịch Việt - Nhóm 5 (DHKTPM19ATT)
+-- GVHD: ThS. Nguyễn Vũ Lâm
+-- Sẵn sàng demo phục vụ trên 1.000 người truy cập liên tục (12.550 chỗ khả dụng)
+-- Đủ data thực tế KHÔNG RÁC cho 10.591 người có chuyến đi trong ngày (SUM(quantity) >= 10,000)
+-- Mật khẩu tất cả tài khoản: 123456 (BCrypt chuẩn)
 -- =================================================================================
 
 USE TourBookingDB;
 
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS order_details;
 TRUNCATE TABLE user_activity_history;
-TRUNCATE TABLE OrderDetails;
-TRUNCATE TABLE Orders;
-TRUNCATE TABLE Tours;
-TRUNCATE TABLE Categories;
-TRUNCATE TABLE Users;
+TRUNCATE TABLE orderdetails;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE tours;
+TRUNCATE TABLE categories;
+TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =================================================================================
--- 1. BẢNG CATEGORIES (8 DANH MỤC LOẠI TOUR)
--- Bao gồm 6 danh mục có tour và 2 danh mục trống (7, 8) để test Safe Delete
+-- 1. BẢNG CATEGORIES (8 DANH MỤC DU LỊCH ĐẲNG CẤP)
 -- =================================================================================
 INSERT INTO Categories (category_id, category_name, description, image_url) VALUES
-(1, 'Du lịch Biển Đảo & Nghỉ Dưỡng', 'Trải nghiệm nghỉ dưỡng resort 4-5 sao, lặn ngắm san hô và khám phá các hòn đảo thiên đường tại Phú Quốc, Nha Trang, Quy Nhơn, Côn Đảo.', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80'),
-(2, 'Khám Phá Miền Bắc & Vùng Cao', 'Hành trình chinh phục đỉnh Fansipan, săn mây Tà Xùa, ngắm mùa vàng Tây Bắc và du thuyền di sản Vịnh Hạ Long - Ninh Bình.', 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80'),
-(3, 'Con Đường Di Sản Miền Trung', 'Hành trình kết nối Đà Nẵng - Phố cổ Hội An - Cố đô Huế - Động Phong Nha với ẩm thực cung đình và văn hóa đặc sắc.', 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80'),
-(4, 'Cao Nguyên Xanh & Đà Lạt', 'Tận hưởng không khí se lạnh tại Đà Lạt ngàn hoa, Măng Đen đại ngàn, săn mây đồi chè và giao lưu văn hóa cồng chiêng Tây Nguyên.', 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&q=80'),
-(5, 'Sinh Thái Miền Tây Sông Nước', 'Xuôi dòng Mekong khám phá chợ nổi Cái Răng, rừng tràm Trà Sư, miệt vườn trái cây Cái Mơn và Đất Mũi Cà Mau.', 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80'),
-(6, 'Tour Mạo Hiểm & Trekking Rừng Quốc Gia', 'Thám hiểm hang động Quảng Bình, trekking Tà Năng - Phan Dũng và cắm trại giữa thiên nhiên hoang sơ.', 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80'),
-(7, 'Du Lịch Du Thuyền 5 Sao (Trống - Demo Xóa)', 'Hải trình du thuyền 5 sao quốc tế khám phá vịnh biển Việt Nam. Danh mục này chưa có tour nào để test chức năng Admin xóa loại tour.', 'https://images.unsplash.com/photo-1548574505-5e239809ee19?w=800&q=80'),
-(8, 'Du Lịch Hành Hương & Tâm Linh (Trống - Demo Xóa)', 'Các tuyến điểm du lịch lễ chùa đầu năm và hành hương tâm linh. Danh mục trống dùng để test xóa thành công.', 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800&q=80');
+(1, 'Biển Đảo & Nghỉ Dưỡng', 'Khám phá các thiên đường biển đảo hàng đầu Việt Nam: Phú Quốc, Nha Trang, Côn Đảo, Quy Nhơn.', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800'),
+(2, 'Miền Bắc & Tây Bắc Mùa Vàng', 'Chinh phục nóc nhà Đông Dương Fansipan, ruộng bậc thang Mù Cang Chải, thung lũng Mộc Châu hoa mận nở rộ.', 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800'),
+(3, 'Di Sản & Văn Hóa Miền Trung', 'Con đường di sản Cố đô Huế, Phố cổ Hội An đèn lồng lung linh, Cầu Vàng Bà Nà Hills và Động Thiên Đường kỳ vĩ.', 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800'),
+(4, 'Cao Nguyên & Đà Lạt Ngàn Hoa', 'Không khí se lạnh lãng mạn xứ sương mù Đà Lạt, đồi chè Cầu Đất bát ngát, văn hóa cồng chiêng đại ngàn Tây Nguyên.', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800'),
+(5, 'Sông Nước & Miệt Vườn Miền Tây', 'Trải nghiệm Chợ nổi Cái Răng tấp nập, chèo xuồng ba lá rừng tràm Trà Sư, thưởng thức trái cây miệt vườn trĩu quả.', 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'),
+(6, 'Du Thuyền Hạng Sang 5 Sao', 'Nghỉ dưỡng đẳng cấp thượng lưu trên Vịnh Hạ Long, Vịnh Lan Hạ và du ngoạn ngắm hoàng hôn sông Sài Gòn rực rỡ.', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800'),
+(7, 'Trekking & Thám Hiểm Thiên Nhiên', 'Chinh phục Hang Én Quảng Bình, Thác K50 huyền thoại, đỉnh Lảo Thẩn, Tà Xùa săn mây cho tín đồ đam mê phiêu lưu.', 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800'),
+(8, 'Tour Quốc Tế Chọn Lọc', 'Hành trình khám phá xứ chùa Vàng Bangkok - Pattaya, Singapore - Malaysia, Tokyo ngắm hoa anh đào, Seoul Hàn Quốc.', 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800');
 
 -- =================================================================================
--- 2. BẢNG USERS (10 TÀI KHOẢN: 2 ADMIN, 2 PROVIDER, 4 KHÁCH ĐÃ ĐẶT, 2 KHÁCH CHƯA ĐẶT)
--- Mật khẩu chung: 123456 (BCrypt: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy)
+-- 2. BẢNG USERS (26 TÀI KHOẢN: ADMIN, 3 PROVIDERS, 12 DOANH NGHIỆP B2B, 10 KHÁCH CÁ NHÂN)
+-- Mật khẩu chung: 123456 (BCrypt: $2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm)
 -- =================================================================================
-INSERT INTO Users (user_id, username, email, password, full_name, phone, role, is_active, created_at) VALUES
-(1, 'admin_nghia', 'nghia.admin@iuh.edu.vn', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Vũ Trần Đức Nghĩa (Admin)', '0901234567', 'ADMIN', 1, '2026-09-01 08:00:00'),
-(2, 'admin_phi', 'phi.admin@iuh.edu.vn', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Nguyễn Đình Phi (Quản trị viên)', '0902345678', 'ADMIN', 1, '2026-09-01 08:00:00'),
-(3, 'minhthu_nguyen', 'minhthu.nguyen@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Nguyễn Minh Thư', '0918273645', 'CUSTOMER', 1, '2026-09-10 10:00:00'),
-(4, 'quocbao_tran', 'quocbao.tran99@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Trần Quốc Bảo (FPT Software)', '0987654321', 'CUSTOMER', 1, '2026-09-15 14:00:00'),
-(5, 'thanhha_le', 'lethanhha.travel@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Lê Thanh Hà', '0933445566', 'CUSTOMER', 1, '2026-09-20 09:30:00'),
-(6, 'anhkhoa_vo', 'voanhkhoa.dev@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Võ Anh Khoa', '0944556677', 'CUSTOMER', 1, '2026-09-22 16:15:00'),
-(7, 'hoangnam_new', 'hoangnam.neverbooked@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Trần Hoàng Nam (Chưa đặt tour - Demo Xóa)', '0977889900', 'CUSTOMER', 1, '2026-10-01 11:00:00'),
-(8, 'caoson_guest', 'caoson.newuser@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Lê Viết Cao Sơn (Chưa đặt tour - Demo Xóa)', '0966778899', 'CUSTOMER', 1, '2026-10-02 15:45:00'),
-(9, 'provider_vietravel', 'partner@vietravel.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Công ty Lữ hành Vietravel (Đối tác Provider)', '19001839', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(10, 'provider_saigontourist', 'booking@saigontourist.net', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Lữ hành Saigontourist (Đối tác Provider)', '19001808', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(11, 'admin', 'admin@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Ban Quản Trị Hệ Thống (Admin)', '0909999999', 'ADMIN', 1, '2026-09-01 08:00:00'),
-(12, 'customer', 'customer@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Trần Thị Bích (Customer)', '0919999999', 'CUSTOMER', 1, '2026-09-10 10:00:00'),
-(13, 'saigontourist', 'saigontourist@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Saigontourist Travel (Đối tác Provider)', '19001808', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(14, 'vietravel', 'vietravel@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Vietravel Corporation (Đối tác Provider)', '19001839', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(15, 'fpt_corp', 'fpt_corp@fpt.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Tập đoàn FPT Software (Khách đoàn B2B)', '0987654321', 'CUSTOMER', 1, '2026-09-15 14:00:00'),
-(16, 'nguyenvanan', 'nguyenvanan@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Nguyễn Văn An (Có đơn hàng - Demo Safe Delete)', '0912345678', 'CUSTOMER', 1, '2026-09-20 09:00:00');
-
--- =================================================================================
--- 3. BẢNG TOURS (16 TOUR THỰC TẾ KHẮP 3 MIỀN)
--- Phân bổ: Tour 1-8 do Vietravel (provider_id=9) quản lý, Tour 9-16 do Saigontourist (provider_id=10) quản lý
--- Tour 13: còn 2 chỗ (Demo giới hạn chỗ); Tour 14: 0 chỗ (Demo Hết chỗ); Tour 15, 16: chưa có đơn (Demo Xóa Tour)
--- =================================================================================
-INSERT INTO Tours (tour_id, category_id, provider_id, tour_name, description, price, duration, departure_location, image_url, available_seats, start_date, end_date, status, rating) VALUES
--- Nhóm 1: Biển Đảo (category_id = 1) - Provider: Vietravel (id=9)
-(1, 1, 9, 'Phú Quốc 3N2Đ: Thị Trấn Hoàng Hôn - Cáp Treo Hòn Thơm - Cano 3 Đảo', 
-'Dịch vụ: Vé máy bay khứ hồi Vietjet Air (7kg xách tay + 20kg ký gửi) | Khách sạn 4 sao sát biển | Cano 3 đảo + Cáp treo Hòn Thơm khứ hồi | 02 bữa sáng Buffet + 04 bữa chính hải sản | Xe đưa đón + HDV suốt tuyến | Bảo hiểm 100.000.000đ.
-Lịch trình:
-NGÀY 1: TP.HCM – ĐẢO NGỌC PHÚ QUỐC – GRAND WORLD (Ăn Trưa, Tối)
-- 07h00: Đón khách tại Tân Sơn Nhất bay đi Phú Quốc. Ăn trưa Gỏi cá trích đặc sản. Chiều tham quan Dinh Cậu, tối dạo Grand World xem nhạc nước Venice.
-NGÀY 2: CANO 3 ĐẢO – CÁP TREO HÒN THƠM – CẦU HÔN (Ăn Sáng, Trưa, Tối)
-- 08h00: Lên cano khám phá Hòn Móng Tay, Hòn Gầm Ghì (lặn ngắm san hô), Hòn Mây Rút. Tặng bộ ảnh Flycam & SUP. Chiều trải nghiệm cáp treo Hòn Thơm và check-in Cầu Hôn.
-NGÀY 3: ĐẶC SẢN PHÚ QUỐC – TIỄN SÂN BAY (Ăn Sáng, Trưa)
-- 08h00: Tham quan Vườn tiêu, cơ sở nước mắm truyền thống, ngọc trai Phú Quốc. Ăn trưa và bay về TP.HCM.',
-5490000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1540202404-a2f29016b523?w=1000&q=80', 18, DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 32 DAY), 'ACTIVE', 4.9),
-
-(2, 1, 9, 'Nha Trang 3N2Đ: VinWonders Hòn Tre - Đảo Hoa Lan - Tắm Bùn I-Resort',
-'Dịch vụ: Xe Limousine giường phòng cao cấp khứ hồi | Khách sạn 4 sao đường Trần Phú đối diện biển | Tàu tham quan Đảo Hoa Lan + Vé tắm bùn I-Resort | Ăn uống trọn gói + Bảo hiểm du lịch.
-Lịch trình:
-NGÀY 1: TP.HCM – NHA TRANG – THÁP BÀ PONAGAR (Ăn Sáng, Trưa, Tối)
-- Sáng: Khởi hành đi Nha Trang qua cao tốc Cam Lâm. Chiều tham quan Tháp Bà Ponagar, Chùa Long Sơn. Tối dạo chợ đêm Nha Trang.
-NGÀY 2: ĐẢO HOA LAN – VINWONDERS – TATA SHOW (Ăn Sáng, Trưa, Tối)
-- Sáng: Đi tàu ra Đảo Hoa Lan tắm biển An Bình. Chiều sang đảo Hòn Tre vui chơi VinWonders và xem biểu diễn Tata Show thực cảnh.
-NGÀY 3: TẮM BÙN I-RESORT – VƯỜN NHO PHAN RANG – TP.HCM (Ăn Sáng, Trưa)
-- Sáng: Ngâm bùn khoáng nóng I-Resort, mua đặc sản Yến sào. Trưa ghé Vườn nho Phan Rang và về lại TP.HCM.',
-3950000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=1000&q=80', 15, DATE_ADD(CURRENT_DATE, INTERVAL 25 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 27 DAY), 'ACTIVE', 4.8),
-
-(3, 1, 9, 'Quy Nhơn - Phú Yên 3N2Đ: Kỳ Co - Eo Gió - Gành Đá Đĩa - Tháp Nghinh Phong',
-'Dịch vụ: Vé máy bay khứ hồi | Khách sạn 4 sao sát biển Quy Nhơn | Cano cao tốc đảo Kỳ Co + Lặn ngắm san hô Bãi Dứa | Vé Eo Gió, Gành Đá Đĩa, Bãi Xép | 05 bữa ăn chính hải sản tươi sống (Cá ngừ đại dương Phú Yên).
-Lịch trình:
-NGÀY 1: TP.HCM – QUY NHƠN – GHỀNH RÁNG TIÊN SA (Ăn Trưa, Tối)
-- Sáng: Đáp chuyến bay đến Quy Nhơn, tham quan KDL Ghềnh Ráng Tiên Sa, viếng mộ Hàn Mặc Tử, Bãi tắm Hoàng Hậu.
-NGÀY 2: ĐẢO KỲ CO – EO GIÓ – LÀNG CHÀI NHƠN LÝ (Ăn Sáng, Trưa, Tối)
-- Sáng: Đi cano ra Kỳ Co tắm biển làn nước 2 màu tuyệt đẹp. Chiều ngắm hoàng hôn rực rỡ tại Eo Gió.
-NGÀY 3: PHÚ YÊN – GÀNH ĐÁ ĐĨA – THÁP NGHINH PHONG – TP.HCM (Ăn Sáng, Trưa)
-- Sáng: Tham quan Nhà thờ Mằng Lăng, danh thắng Gành Đá Đĩa và Tháp Nghinh Phong biểu tượng. Chiều bay về TP.HCM.',
-4290000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1000&q=80', 22, DATE_ADD(CURRENT_DATE, INTERVAL 20 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 22 DAY), 'ACTIVE', 4.8),
-
-(4, 1, 9, 'Côn Đảo Tâm Linh & Nghỉ Dưỡng 2N1Đ: Tàu Cao Tốc - Cano Vịnh Côn Sơn',
-'Dịch vụ: Xe đưa đón TP.HCM - Trần Đề + Vé tàu cao tốc Superdong khứ hồi | Resort 3-4 sao sát biển Côn Đảo | Xe điện tham quan di tích lịch sử | Ăn uống trọn gói đặc sản Côn Đảo.
-Lịch trình:
-NGÀY 1: TP.HCM – TRẦN ĐỀ – CÔN ĐẢO – NGHĨA TRANG HÀNG DƯƠNG (Ăn Sáng, Trưa, Tối)
-- Sáng: Đi tàu cao tốc ra Côn Đảo. Tham quan Dinh Chúa Đảo, Trại giam Phú Hải, Chuồng Cọp Pháp - Mỹ. Tối viếng Nghĩa trang Hàng Dương và mộ Liệt sĩ Võ Thị Sáu.
-NGÀY 2: CHÙA NÚI MỘT – BÃI ĐẦM TRẦU – VỀ TP.HCM (Ăn Sáng, Trưa)
-- Sáng: Viếng Vân Sơn Tự (Chùa Núi Một), tắm biển Bãi Đầm Trầu ngắm máy bay hạ cánh sát mặt biển. Chiều lên tàu về đất liền.',
-3490000.00, 2, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=1000&q=80', 10, DATE_ADD(CURRENT_DATE, INTERVAL 15 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 16 DAY), 'ACTIVE', 4.7),
-
--- Nhóm 2: Miền Bắc & Vùng Cao (category_id = 2) - Provider: Vietravel (id=9)
-(5, 2, 9, 'Hà Nội - Sapa - Bản Cát Cát - Đỉnh Fansipan - Vịnh Hạ Long 4N3Đ',
-'Dịch vụ: Vé máy bay khứ hồi TP.HCM - Hà Nội | Khách sạn 4 sao Sapa & Hạ Long | Vé cáp treo Fansipan khứ hồi + Vé bản Cát Cát | Du thuyền tham quan Vịnh Hạ Long 4 tiếng | Buffet 5 sao + 07 bữa chính đặc sản vùng cao.
-Lịch trình:
-NGÀY 1: TP.HCM – HÀ NỘI – SAPA – BẢN CÁT CÁT (Ăn Trưa, Tối)
-- Bay đến Nội Bài, lên xe đi Sapa thăm Bản Cát Cát, thác Thủy Điện. Tối thưởng thức Lẩu cá tầm Sapa.
-NGÀY 2: CHINH PHỤC ĐỈNH FANSIPAN – ĐÈO Ô QUY HỒ – HÀ NỘI (Ăn Sáng, Trưa, Tối)
-- Cáp treo lên Nóc nhà Đông Dương Fansipan (3.143m), check-in đèo Ô Quy Hồ. Chiều về Hà Nội dạo 36 phố phường.
-NGÀY 3: VIẾNG LĂNG BÁC – DU THUYỀN VỊNH HẠ LONG (Ăn Sáng, Trưa, Tối)
-- Viếng Lăng Bác, Văn Miếu. Chiều lên du thuyền khám phá Động Thiên Cung, Hòn Trống Mái trên Vịnh Hạ Long.
-NGÀY 4: BẢO TÀNG QUẢNG NINH – NỘI BÀI – TP.HCM (Ăn Sáng, Trưa)
-- Check-in Bảo tàng Quảng Ninh, mua đặc sản chả mực Hạ Long và ra sân bay bay về TP.HCM.',
-7890000.00, 4, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=1000&q=80', 12, DATE_ADD(CURRENT_DATE, INTERVAL 35 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 38 DAY), 'ACTIVE', 4.9),
-
-(6, 2, 9, 'Hà Giang - Cao Nguyên Đá Đồng Văn - Đèo Mã Pí Lèng - Sông Nho Quế 3N2Đ',
-'Dịch vụ: Xe Limousine chuyên tuyến đèo núi | Khách sạn 3 sao Đồng Văn & Yên Minh | Vé thuyền sông Nho Quế - Hẻm Tu Sản + Vé Dinh Vua Mèo, Cột cờ Lũng Cú | 06 bữa chính đặc sản (Lẩu gà đen, Thắng cố).
-Lịch trình:
-NGÀY 1: HÀ NỘI – KM0 HÀ GIANG – CỔNG TRỜI QUẢN BẠ – YÊN MINH (Ăn Trưa, Tối)
-- Đón khách tại Hà Nội. Chinh phục Dốc Bắc Sum, Cổng trời Quản Bạ, ngắm Núi Đôi Cô Tiên.
-NGÀY 2: DINH VUA MÈO – CỘT CỜ LŨNG CÚ – ĐÈO MÃ PÍ LÈNG – SÔNG NHO QUẾ (Ăn Sáng, Trưa, Tối)
-- Thăm Dinh thự Họ Vương, Cột cờ cực Bắc Lũng Cú, chinh phục đệ nhất đèo Mã Pí Lèng và chèo thuyền sông Nho Quế xuyên Hẻm Tu Sản.
-NGÀY 3: CHỢ PHIÊN ĐỒNG VĂN – HÀ NỘI (Ăn Sáng, Trưa)
-- Khám phá chợ phiên Đồng Văn vùng cao rực rỡ sắc màu, ăn bánh cuốn trứng nóng và trở về Hà Nội.',
-4690000.00, 3, 'Hà Nội', 'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1000&q=80', 9, DATE_ADD(CURRENT_DATE, INTERVAL 18 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 20 DAY), 'ACTIVE', 4.8),
-
-(7, 2, 9, 'Ninh Bình - Tràng An - Bái Đính - Tuyệt Tình Cốc - Hang Múa 2N1Đ',
-'Dịch vụ: Xe Limousine đưa đón từ Hà Nội | Resort 4 sao giữa thung lũng Tam Cốc | Vé xe điện Bái Đính + Thuyền đò Tràng An + Vé Hang Múa | Đặc sản Dê núi Ninh Bình & Cơm cháy.
-Lịch trình:
-NGÀY 1: HÀ NỘI – CHÙA BÁI ĐÍNH – DANH THẮNG TRÀNG AN (Ăn Trưa, Tối)
-- Sáng: Khởi hành đi Ninh Bình, chiêm bái Chùa Bái Đính ngôi chùa lớn nhất Việt Nam. Trưa ăn đặc sản dê núi. Chiều ngồi đò chèo tay khám phá thủy động Tràng An và phim trường Kong Skull Island.
-NGÀY 2: TUYỆT TÌNH CỐC – ĐỈNH HANG MÚA – HÀ NỘI (Ăn Sáng, Trưa)
-- Sáng: Thăm Động Am Tiên (Tuyệt Tình Cốc), chinh phục 500 bậc đá Hang Múa ngắm toàn cảnh sông Ngô Đồng Tam Cốc từ trên cao. Chiều về lại Hà Nội.',
-2450000.00, 2, 'Hà Nội', 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1000&q=80', 20, DATE_ADD(CURRENT_DATE, INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 11 DAY), 'ACTIVE', 4.7),
-
-(8, 3, 9, 'Đà Nẵng - Hội An - Bà Nà Hills - Rừng Dừa Bảy Mẫu - Cố Đô Huế 4N3Đ',
-'Dịch vụ: Vé máy bay khứ hồi | Khách sạn 4 sao biển Mỹ Khê & Huế | Vé cáp treo Bà Nà Hills + Buffet trưa 5 sao Arapang | Thuyền thúng Rừng Dừa Bảy Mẫu + Vé Đại Nội Huế | Xe đời mới + HDV chuyên nghiệp.
-Lịch trình:
-NGÀY 1: TP.HCM – ĐÀ NẴNG – RỪNG DỪA BẢY MẪU – PHỐ CỔ HỘI AN (Ăn Trưa, Tối)
-- Đáp máy bay đến Đà Nẵng, viếng Chùa Linh Ứng Bãi Bụt. Đi thuyền thúng Rừng Dừa Bảy Mẫu xem múa thúng. Tối dạo phố đèn lồng Hội An.
-NGÀY 2: KDL BÀ NÀ HILLS – CẦU VÀNG – BIỂN MỸ KHÊ (Ăn Sáng, Trưa Buffet, Tối)
-- Đi cáp treo Bà Nà Hills, check-in Cầu Vàng bàn tay khổng lồ, vui chơi Fantasy Park, ăn Buffet trưa. Chiều tắm biển Mỹ Khê.
-NGÀY 3: ĐÈO HẢI VÂN – ĐẠI NỘI HUẾ – CA HUẾ SÔNG HƯƠNG (Ăn Sáng, Trưa, Tối)
-- Vượt đèo Hải Vân ra Cố đô Huế, tham quan Hoàng Thành Đại Nội, Chùa Thiên Mụ. Tối nghe Ca Huế và thả hoa đăng sông Hương.
-NGÀY 4: LĂNG KHẢI ĐỊNH – LÀNG HƯƠNG THỦY XUÂN – TIỄN BAY (Ăn Sáng, Trưa)
-- Tham quan Lăng Khải Định kiến trúc tinh xảo và chụp ảnh Làng hương Thủy Xuân trước khi ra sân bay về lại TP.HCM.',
-6250000.00, 4, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1000&q=80', 25, DATE_ADD(CURRENT_DATE, INTERVAL 28 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 31 DAY), 'ACTIVE', 4.9),
-
--- Nhóm 3, 4, 5, 6 - Provider: Saigontourist (id=10)
-(9, 3, 10, 'Quảng Bình - Động Phong Nha - Động Thiên Đường - Suối Nước Moọc 3N2Đ',
-'Dịch vụ: Xe du lịch từ Đà Nẵng/Huế | Khách sạn 4 sao ven sông Nhật Lệ (Đồng Hới) | Thuyền rồng sông Son + Xe điện Động Thiên Đường + Vé Zipline Suối Moọc | Ăn uống trọn gói đặc sản Quảng Bình.
-Lịch trình:
-NGÀY 1: ĐÀ NẴNG – CẦU HIỀN LƯƠNG – BIỂN NHẬT LỆ (Ăn Trưa, Tối)
-- Khởi hành dọc quốc lộ 1A qua vĩ tuyến 17 Sông Bến Hải - Cầu Hiền Lương, đến TP. Đồng Hới tắm biển Nhật Lệ.
-NGÀY 2: ĐỘNG THIÊN ĐƯỜNG – SUỐI NƯỚC MOỌC (Ăn Sáng, Trưa, Tối)
-- Khám phá Động Thiên Đường hoàng cung trong lòng đất. Trưa ăn mẹt gà nướng chấm muối cheo và tắm suối Nước Moọc chèo kayak.
-NGÀY 3: ĐỘNG PHONG NHA – ĐỒI CÁT QUANG PHÚ – VỀ LẠI ĐÀ NẴNG (Ăn Sáng, Trưa)
-- Trượt cát tại đồi cát Quang Phú, ngược dòng sông Son vào Động Phong Nha chiêm ngưỡng thạch nhũ huyền ảo trước khi về Đà Nẵng.',
-4850000.00, 3, 'Đà Nẵng', 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1000&q=80', 14, DATE_ADD(CURRENT_DATE, INTERVAL 22 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 24 DAY), 'ACTIVE', 4.8),
-
-(10, 4, 10, 'Đà Lạt 3N2Đ: Săn Mây Cầu Đất - Puppy Farm - Làng Cổ Tích - Giao Lưu Cồng Chiêng',
-'Dịch vụ: Xe Limousine khứ hồi TP.HCM - Đà Lạt | Khách sạn 4 sao gần Hồ Xuân Hương | Vé tham quan trọn gói + Vé giao lưu Cồng Chiêng Tây Nguyên | 03 bữa sáng + 05 bữa chính (Buffet Rau Leguda & Lẩu gà lá é).
-Lịch trình:
-NGÀY 1: TP.HCM – CAO TỐC DẦU GIÂY – ĐÀ LẠT – QUẢNG TRƯỜNG LÂM VIÊN (Ăn Sáng, Trưa, Tối)
-- Lên Đà Lạt ngắm rừng thông, trượt máng Thác Datanla, chụp ảnh Nụ hoa Atiso Quảng trường Lâm Viên. Tối ăn Lẩu gà lá é Tao Ngộ.
-NGÀY 2: SĂN MÂY CẦU ĐẤT – PUPPY FARM – CỒNG CHIÊNG LANGBIANG (Ăn Sáng, Trưa, Tối)
-- 05h00 săn mây Đồi chè Cầu Đất, thăm nông trại cún Puppy Farm & trượt phao khô 7 màu. Tối giao lưu cồng chiêng lửa trại ăn thịt nướng rượu cần.
-NGÀY 3: THIỀN VIỆN TRÚC LÂM – CHỢ ĐÀ LẠT – TP.HCM (Ăn Sáng, Trưa)
-- Viếng Thiền Viện Trúc Lâm ngắm Hồ Tuyền Lâm, mua dâu tây mứt đặc sản Chợ Đà Lạt và khởi hành về lại TP.HCM.',
-2890000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1000&q=80', 30, DATE_ADD(CURRENT_DATE, INTERVAL 12 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 14 DAY), 'ACTIVE', 4.9),
-
-(11, 4, 10, 'Măng Đen - Kon Tum - Pleiku - Biển Hồ Chè - Thủy Điện Yaly 3N2Đ',
-'Dịch vụ: Xe giường nằm cao cấp khứ hồi | Khách sạn 3 sao Măng Đen & Pleiku | Vé Thác Pa Sỹ, Hồ Đắk Ke, Biển Hồ T''Nưng | Đặc sản Gà nướng cơm lam Măng Đen & Phở khô 2 tô Gia Lai.
-Lịch trình:
-NGÀY 1: TP.HCM – KON TUM – NHÀ THỜ GỖ – CẦU TREO KONKLOR – MĂNG ĐEN (Ăn Sáng, Trưa, Tối)
-- Thăm Nhà thờ Gỗ Kon Tum 110 năm tuổi, Nhà Rông Kon Klor lớn nhất Tây Nguyên, chiều lên Măng Đen ngắm rừng thông đại ngàn.
-NGÀY 2: TƯỢNG ĐỨC MẸ MĂNG ĐEN – THÁC PA SỸ – BIỂN HỒ PLEIKU (Ăn Sáng, Trưa, Tối)
-- Viếng Tượng Đức Mẹ Măng Đen linh thiêng, dạo hồ Đắk Ke, thác Pa Sỹ hoang sơ. Chiều về Pleiku thưởng thức bò một nắng muối kiến vàng.
-NGÀY 3: HÀNG THÔNG TRĂM TUỔI – CHÙA MINH THÀNH – TP.HCM (Ăn Sáng, Trưa)
-- Check-in Biển Hồ Chè, hàng thông cổ thụ trăm tuổi, Chùa Minh Thành kiến trúc Nhật Bản và lên đường về TP.HCM.',
-3390000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1000&q=80', 16, DATE_ADD(CURRENT_DATE, INTERVAL 16 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 18 DAY), 'ACTIVE', 4.7),
-
-(12, 5, 10, 'Mỹ Tho - Bến Tre - Cần Thơ - Chợ Nổi Cái Răng - Nhà Cổ Bình Thủy 2N1Đ',
-'Dịch vụ: Xe du lịch đời mới đưa đón từ TP.HCM | Khách sạn 4 sao Bến Ninh Kiều (Cần Thơ) | Tàu sông Tiền + Xuồng ba lá rạch dừa nước + Tàu Chợ nổi Cái Răng | Ăn trưa Cá tai tượng chiên xù + Tối Du thuyền sông Hậu.
-Lịch trình:
-NGÀY 1: TP.HCM – MỸ THO – CỒN THỚI SƠN – CẦN THƠ (Ăn Sáng, Trưa, Tối)
-- Viếng Chùa Vĩnh Tràng cổ kính. Lên thuyền du ngoạn sông Tiền, đi xuồng ba lá len lỏi rạch dừa Bến Tre, thưởng thức đờn ca tài tử và kẹo dừa nóng. Tối ăn tối ngắm cảnh trên Du thuyền Cần Thơ.
-NGÀY 2: CHỢ NỔI CÁI RĂNG – NHÀ CỔ BÌNH THỦY – KDL MỸ KHÁNH – TP.HCM (Ăn Sáng, Trưa)
-- 05h30 đi tàu khám phá Chợ nổi Cái Răng, ăn hủ tiếu lắc và thưởng thức dứa nướng trên ghe. Thăm Nhà cổ Bình Thủy phim trường Người Tình và về TP.HCM.',
-1690000.00, 2, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1000&q=80', 28, DATE_ADD(CURRENT_DATE, INTERVAL 8 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 9 DAY), 'ACTIVE', 4.6),
-
-(13, 6, 10, 'Thám Hiểm Hệ Thống Hang Tú Làn - Cắm Trại Rừng Nguyên Sinh Quảng Bình 2N1Đ (Còn 2 chỗ - Demo Giới Hạn Chỗ)',
-'Dịch vụ: Trang thiết bị thám hiểm hang động chuẩn châu Âu (đèn đội đầu, mũ bảo hộ, áo phao, găng tay) | Porter mang hành lý & Đầu bếp riêng phục vụ tiệc nướng BBQ giữa rừng | Bảo hiểm mạo hiểm mức cao nhất 200.000.000đ.
-Lịch trình:
-NGÀY 1: PHONG NHA – TÂN HÓA – BƠI XUYÊN HANG CHUỘT – CẮM TRẠI TÚ LÀN (Ăn Trưa, Tối BBQ)
-- Trekking băng qua thung lũng ngô Tân Hóa, vượt sông Rào Nan, bơi vào cửa Hang Chuột và cắm trại bên thác nước Tú Làn nguyên sơ.
-NGÀY 2: HANG KIM – HANG ƯỚC – CHÈO SUP TRÊN SUỐI NGẦM (Ăn Sáng, Trưa)
-- Chinh phục hệ thống thạch nhũ triệu năm kỳ vĩ trong Hang Tú Làn khổng lồ, chèo SUP trên suối ngầm và kết thúc hành trình mạo hiểm.',
-6500000.00, 2, 'Đà Nẵng', 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=1000&q=80', 2, DATE_ADD(CURRENT_DATE, INTERVAL 14 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 15 DAY), 'ACTIVE', 4.9),
-
-(14, 5, 10, 'Châu Đốc - Rừng Tràm Trà Sư - Hà Tiên - Đảo Hải Tặc 3N2Đ (Hết chỗ - Demo Sold Out)',
-'Dịch vụ: Xe du lịch đưa đón + Tàu cao tốc ra Quần đảo Hải Tặc | Xuồng chèo len lỏi thảm bèo xanh Rừng tràm Trà Sư | Khách sạn 3 sao trung tâm Châu Đốc & Hà Tiên | Ăn uống hải sản trọn gói.
-Lịch trình:
-NGÀY 1: CẦN THƠ – CHÂU ĐỐC – MIẾU BÀ CHÚA XỨ – RỪNG TRÀM TRÀ SƯ (Ăn Trưa, Tối)
-- Chiêm bái Miếu Bà Chúa Xứ Núi Sam cầu tài lộc. Chiều ngồi tắc ráng lướt trên thảm bèo hoa dâu xanh mướt Rừng tràm Trà Sư.
-NGÀY 2: CHÂU ĐỐC – HÀ TIÊN – QUẦN ĐẢO HẢI TẶC (Ăn Sáng, Trưa, Tối)
-- Lên tàu cao tốc khám phá Quần đảo Hải Tặc hoang sơ, lặn ngắm san hô và bắt nhum biển. Tối ăn hải sản tại Hà Tiên.
-NGÀY 3: THẠCH ĐỘNG – MŨI NAI – CHỢ TỊNH BIÊN – CẦN THƠ (Ăn Sáng, Trưa)
-- Thăm di tích Thạch Động gắn với truyền thuyết Thạch Sanh, tắm biển Mũi Nai, mua thốt nốt Chợ Tịnh Biên và về lại Cần Thơ.',
-2990000.00, 3, 'Cần Thơ', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1000&q=80', 0, DATE_ADD(CURRENT_DATE, INTERVAL 5 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY), 'ACTIVE', 4.5),
-
-(15, 1, 9, 'Vũng Tàu - Hồ Tràm - Suối Khoáng Nóng Bình Châu 1 Ngày (Chưa có đơn - Demo Xóa Tour)',
-'Dịch vụ: Xe du lịch đời mới khứ hồi trong ngày | Vé cổng Minera Hot Springs Bình Châu + Ngâm chân khoáng nóng & Luộc trứng trường thọ | Ăn sáng bánh hỏi thịt nướng + Bữa trưa hải sản tươi sống tại bãi biển Hồ Tràm.
-Lịch trình:
-NGÀY 1: TP.HCM – ĐỒNG CỪU SUỐI NGHỆ – KHOÁNG NÓNG BÌNH CHÂU – CẦU HAMPTONS PIER HỒ TRÀM – TP.HCM
-- 06h00 khởi hành đi Bà Rịa, check-in Đồng cừu Suối Nghệ, ngâm chân khoáng nóng thiên nhiên Bình Châu, ăn trưa hải sản và dạo cầu ngắm biển dài nhất Đông Nam Á Hamptons Pier Hồ Tràm. Chiều 18h00 về đến TP.HCM.',
-790000.00, 1, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&q=80', 40, DATE_ADD(CURRENT_DATE, INTERVAL 45 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 45 DAY), 'ACTIVE', 4.6),
-
-(16, 2, 10, 'Du Thuyền 5 Sao Vịnh Lan Hạ - Đảo Cát Bà - Làng Chài Cổ Việt Hải 2N1Đ (Chưa có đơn - Demo Xóa Tour)',
-'Dịch vụ: Xe Limousine Dcar đưa đón Hà Nội - Cảng Tuần Châu | Phòng Suite có ban công riêng trên Du thuyền 5 sao | Chèo Kayak Vịnh Lan Hạ, đạp xe làng Việt Hải, lớp học Taichi & Câu mực đêm | 04 bữa ăn Fine Dining & Hải sản cao cấp.
-Lịch trình:
-NGÀY 1: HÀ NỘI – CẢNG TUẦN CHÂU – VỊNH LAN HẠ – CHÈO KAYAK HANG SÁNG TỐI – TIỆC HOÀNG HÔN (Ăn Trưa, Tối)
-- 11h30 lên du thuyền 5 sao nhận phòng Suite hướng vịnh. Thưởng thức bữa trưa hải sản cao cấp. Chiều chèo kayak qua Hang Sáng Tối, tắm biển Ba Trái Đào. Tối tham gia tiệc hoàng hôn trên Sundeck và câu mực đêm.
-NGÀY 2: ĐẠP XE LÀNG CỔ VIỆT HẢI – ĐẢO CÁT BÀ – BRUNCH TRÊN DU THUYỀN – HÀ NỘI (Ăn Sáng, Brunch)
-- 06h30 tập thái cực quyền đón bình minh. Đi tàu tender sang làng chài cổ Việt Hải đạp xe dưới bóng cây rừng nguyên sinh Cát Bà. 11h00 dùng bữa trưa sớm Buffet trên du thuyền và trở về bến tàu Tuần Châu về Hà Nội.',
-12990000.00, 2, 'Hà Nội', 'https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1000&q=80', 10, DATE_ADD(CURRENT_DATE, INTERVAL 50 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 51 DAY), 'ACTIVE', 5.0);
+INSERT INTO Users (user_id, username, password, email, full_name, role, phone, address, is_active, created_at) VALUES
+(1, 'admin', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'admin@dulichviet.vn', 'Quản Trị Viên Hệ Thống', 'ADMIN', '0901234567', 'Tòa nhà TourBooking, 180 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(2, 'vietravel', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'partner@vietravel.com', 'Công Ty Cổ Phần Du Lịch Vietravel', 'PROVIDER', '02838228898', '190 Pasteur, Phường Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(3, 'saigontourist', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'contact@saigontourist.net', 'Tổng Công Ty Du Lịch Sài Gòn (Saigontourist Group)', 'PROVIDER', '02838279279', '23 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(4, 'dulichviet', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'info@dulichviet.com.vn', 'Công Ty Cổ Phần Truyền Thông Du Lịch Việt', 'PROVIDER', '02873076579', '239 Ba Tháng Hai, Phường 10, Quận 10, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(5, 'fpt_corp', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'admin@fpt.com.vn', 'Tập Đoàn FPT - FPT Software', 'CUSTOMER', '02473007300', 'Tòa nhà FPT Cầu Giấy, 10 Phạm Văn Bạch, Cầu Giấy, Hà Nội', 1, '2026-10-21 07:52:31'),
+(6, 'vingroup', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'contact@vingroup.net', 'Tập Đoàn Vingroup - Khối Vận Hành', 'CUSTOMER', '02439749999', 'Số 7 Đường Bằng Lăng 1, Vinhomes Riverside, Long Biên, Hà Nội', 1, '2026-10-21 07:52:31'),
+(7, 'viettel', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'corp@viettel.com.vn', 'Tập Đoàn Công Nghiệp - Viễn Thông Quân Đội Viettel', 'CUSTOMER', '02462556789', 'Số 1 Trần Hữu Dực, Mỹ Đình 2, Nam Từ Liêm, Hà Nội', 1, '2026-10-21 07:52:31'),
+(8, 'vietcombank', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'congdoan@vietcombank.com.vn', 'Ngân Hàng TMCP Ngoại Thương Việt Nam (Vietcombank)', 'CUSTOMER', '02439343137', '198 Trần Quang Khải, Hoàn Kiếm, Hà Nội', 1, '2026-10-21 07:52:31'),
+(9, 'thegioididong', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'hr@mwg.vn', 'Công Ty Cổ Phần Đầu Tư Thế Giới Di Động (MWG)', 'CUSTOMER', '02838125960', 'Lô T2-1.2, Đường D1, Khu Công Nghệ Cao, TP. Thủ Đức, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(10, 'vinamilk', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'tradeunion@vinamilk.com.vn', 'Công Ty Cổ Phần Sữa Việt Nam (Vinamilk)', 'CUSTOMER', '02854155555', 'Số 10 Tân Trào, Phường Tân Phú, Quận 7, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(11, 'techcombank', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'internal@techcombank.com.vn', 'Ngân Hàng TMCP Kỹ Thương Việt Nam (Techcombank)', 'CUSTOMER', '02439446368', 'Số 6 Quang Trung, Trần Hưng Đạo, Hoàn Kiếm, Hà Nội', 1, '2026-10-21 07:52:31'),
+(12, 'shopee', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'people@shopee.vn', 'Công Ty TNHH Shopee Việt Nam (Sea Group)', 'CUSTOMER', '02873061221', 'Tầng 17, Saigon Centre Tower 2, 67 Lê Lợi, Quận 1, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(13, 'vnpt', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'contact@vnpt.vn', 'Tập Đoàn Bưu Chính Viễn Thông Việt Nam (VNPT)', 'CUSTOMER', '02437741091', 'Tòa nhà VNPT, 57 Huỳnh Thúc Kháng, Đống Đa, Hà Nội', 1, '2026-10-21 07:52:31'),
+(14, 'masan', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'admin@masangroup.com', 'Tập Đoàn Masan (Masan Consumer Corp)', 'CUSTOMER', '02862563862', 'Tầng 8, MPlaza Saigon, 39 Lê Duẩn, Quận 1, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(15, 'bidv', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'congdoan@bidv.com.vn', 'Ngân Hàng TMCP Đầu Tư Và Phát Triển Việt Nam (BIDV)', 'CUSTOMER', '02422200588', 'Tháp BIDV, 35 Hàng Vôi, Hoàn Kiếm, Hà Nội', 1, '2026-10-21 07:52:31'),
+(16, 'hoaphat', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'admin@hoaphat.com.vn', 'Tập Đoàn Hòa Phát (Hoa Phat Group)', 'CUSTOMER', '02462810999', '66 Nguyễn Du, Phường Nguyễn Du, Hai Bà Trưng, Hà Nội', 1, '2026-10-21 07:52:31'),
+(17, 'customer', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'customer@gmail.com', 'Nguyễn Văn Khách', 'CUSTOMER', '0912345678', '45 Nam Kỳ Khởi Nghĩa, Quận 1, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(18, 'nguyenvanan', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'an.nguyen@gmail.com', 'Nguyễn Văn An', 'CUSTOMER', '0987654321', '12 Lê Văn Sỹ, Phường 13, Quận 3, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(19, 'tranthibich', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'bich.tran@gmail.com', 'Trần Thị Bích Ngọc', 'CUSTOMER', '0934567890', '78 Hoàng Hoa Thám, Ba Đình, Hà Nội', 1, '2026-10-21 07:52:31'),
+(20, 'lehoangnam', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'nam.le@gmail.com', 'Lê Hoàng Nam', 'CUSTOMER', '0945678901', '24 Nguyễn Trãi, Thanh Xuân, Hà Nội', 1, '2026-10-21 07:52:31'),
+(21, 'phamminhtuan', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'tuan.pham@gmail.com', 'Phạm Minh Tuấn', 'CUSTOMER', '0967890123', '56 Trần Phú, Hải Châu, Đà Nẵng', 1, '2026-10-21 07:52:31'),
+(22, 'vuthithao', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'thao.vu@gmail.com', 'Vũ Thị Phương Thảo', 'CUSTOMER', '0978901234', '89 Nguyễn Đình Chiểu, Quận 3, TP. Hồ Chí Minh', 1, '2026-10-21 07:52:31'),
+(23, 'dangquocbao', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'bao.dang@gmail.com', 'Đặng Quốc Bảo', 'CUSTOMER', '0989012345', '102 Lê Hồng Phong, TP. Vũng Tàu', 1, '2026-10-21 07:52:31'),
+(24, 'hoangmailinh', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'linh.hoang@gmail.com', 'Hoàng Mai Linh', 'CUSTOMER', '0901122334', '15 Quang Trung, TP. Nha Trang', 1, '2026-10-21 07:52:31'),
+(25, 'doanthanhson', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'son.doan@gmail.com', 'Đoàn Thanh Sơn', 'CUSTOMER', '0912233445', '67 Hùng Vương, TP. Huế', 1, '2026-10-21 07:52:31'),
+(26, 'buitheanh', '$2a$10$FEsz/NdIq9YdNF2Phjj0ueyN7d/.mbaBt.GlQsmCLeqX/lOaGIGLm', 'anh.bui@gmail.com', 'Bùi Thế Anh', 'CUSTOMER', '0923344556', '34 Đại Lộ Hòa Bình, Ninh Kiều, Cần Thơ', 1, '2026-10-21 07:52:31');
 
 -- =================================================================================
--- 4. BẢNG ORDERS & ORDER_DETAILS (9 ĐƠN HÀNG - SẮP XẾP THEO NGÀY MUA GIẢM DẦN)
--- Bao gồm Đơn 1009 là đơn Khách đoàn Doanh nghiệp (25 người - tự động giảm 10%)
+-- 3. BẢNG TOURS (40 TOURS CHI TIẾT ĐẦY ĐỦ 8 TRƯỜNG TRAVELOKA)
+-- Tổng chỗ khả dụng: 12.550 chỗ (sẵn sàng cho hơn 1.000 người truy cập đặt tour)
 -- =================================================================================
-INSERT INTO Orders (order_id, user_id, contact_name, contact_phone, contact_email, notes, total_amount, status, order_date, order_code, is_b2b, discount_percent) VALUES
-(1001, 3, 'Nguyễn Minh Thư', '0918273645', 'minhthu.nguyen@gmail.com', 'Gia đình có 1 người lớn tuổi, nhờ xếp phòng tầng thấp gần biển.', 10980000.00, 'PAID', '2026-09-25 09:15:00', 'ORD-20260925-1001', 0, 0),
-(1002, 4, 'Trần Quốc Bảo', '0987654321', 'quocbao.tran99@gmail.com', 'Xuất hóa đơn VAT công ty TNHH Công Nghệ Sao Việt.', 31560000.00, 'PAID', '2026-09-28 14:20:00', 'ORD-20260928-1002', 0, 0),
-(1003, 5, 'Lê Thanh Hà', '0933445566', 'lethanhha.travel@gmail.com', 'Đoàn có 2 bé nhỏ, chuẩn bị ghế trẻ em trên xe giúp mình.', 11560000.00, 'PAID', '2026-10-02 10:05:00', 'ORD-20261002-1003', 0, 0),
-(1004, 6, 'Võ Anh Khoa', '0944556677', 'voanhkhoa.dev@gmail.com', 'Mình ăn chay trường 1 suất trong suốt hành trình.', 9380000.00, 'CONFIRMED', '2026-10-05 16:45:00', 'ORD-20261005-1004', 0, 0),
-(1005, 3, 'Nguyễn Minh Thư', '0918273645', 'minhthu.nguyen@gmail.com', 'Đặt thêm chuyến đi Đà Nẵng - Hội An cùng nhóm bạn đại học.', 25000000.00, 'CONFIRMED', '2026-10-08 11:30:00', 'ORD-20261008-1005', 0, 0),
-(1006, 4, 'Trần Quốc Bảo', '0987654321', 'quocbao.tran99@gmail.com', 'Đón đoàn tại Nhà hát lớn Hà Nội đúng 6h00 sáng.', 7350000.00, 'CONFIRMED', '2026-10-10 20:10:00', 'ORD-20261010-1006', 0, 0),
-(1007, 5, 'Lê Thanh Hà', '0933445566', 'lethanhha.travel@gmail.com', 'Mong muốn phòng khách sạn view trực diện biển Nha Trang.', 16480000.00, 'PENDING', '2026-10-13 15:00:00', 'ORD-20261013-1007', 0, 0),
-(1008, 6, 'Võ Anh Khoa', '0944556677', 'voanhkhoa.dev@gmail.com', 'Liên hệ xác nhận qua số điện thoại vào giờ hành chính.', 10160000.00, 'PENDING', '2026-10-14 08:00:00', 'ORD-20261014-1008', 0, 0),
-(1009, 4, 'Công ty TNHH Phần Mềm FPT (Đại diện: Trần Quốc Bảo)', '0987654321', 'quocbao.tran99@gmail.com', '[Ưu đãi đoàn: Giảm 10% cho 25 khách tour Đà Lạt] - Đặt đoàn 25 nhân sự đi Team Building, xuất hóa đơn VAT và băng rôn chụp ảnh đoàn.', 65025000.00, 'CONFIRMED', '2026-10-14 09:00:00', 'ORD-20261014-1009', 1, 10),
-(1010, 16, 'Nguyễn Văn An', '0912345678', 'nguyenvanan@gmail.com', 'Đơn hàng mẫu để thử nghiệm tính năng Safe Delete người dùng.', 5490000.00, 'CONFIRMED', '2026-10-14 10:00:00', 'ORD-20261014-1010', 0, 0);
+INSERT INTO Tours (
+    tour_id, category_id, provider_id, tour_name, description,
+    price, duration, departure_location, image_url, available_seats,
+    start_date, end_date, status, rating, original_price,
+    vehicle, hotel_star, badge, highlights, itinerary, inclusions, exclusions, created_at
+) VALUES
+(1, 1, 2, 'Đà Nẵng - Bán Đảo Sơn Trà - Phố Cổ Hội An - Bà Nà Hills 4N3Đ', 'Khám phá miền di sản tuyệt đẹp: ngắm toàn cảnh Đà Nẵng từ Sơn Trà, check-in Cầu Vàng nổi tiếng thế giới tại Sun World Ba Na Hills, và thả đèn hoa đăng lung linh trên sông Hoài Phố cổ Hội An.',
+ 4890000.00, 4, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800', 350,
+ '2026-10-21', '2026-10-25', 'ACTIVE', 4.9, '5890000.00',
+ 'Máy bay khứ hồi Vietnam Airlines & Xe Universe 45 chỗ đời mới', 4, 'BÁN CHẠY NHẤT', '["Check-in Cầu Vàng lừng danh thế giới trên đỉnh Bà Nà Hills", "Du ngoạn phố cổ Hội An về đêm ngắm đèn lồng và thả hoa đăng sông Hoài", "Tắm biển Mỹ Khê - một trong những bãi biển quyến rũ nhất hành tinh", "Thưởng thức đặc sản mì Quảng, bánh tráng cuốn thịt heo hai đầu da"]', '[{"day": 1, "title": "TP.HCM / Hà Nội - Đà Nẵng - Bán Đảo Sơn Trà", "content": "Đáp chuyến bay đến Đà Nẵng. Xe đón đoàn viếng Chùa Linh Ứng Bãi Bụt, chiêm ngưỡng tượng Phật Bà Quan Âm 67m cao nhất Việt Nam. Chiều tự do tắm biển Mỹ Khê."}, {"day": 2, "title": "KDL Sun World Ba Na Hills - Check-in Cầu Vàng", "content": "Trải nghiệm cáp treo đạt 4 kỷ lục thế giới. Check-in Cầu Vàng bàn tay khổng lồ, Làng Pháp cổ kính, Hầm rượu Debay, Vườn hoa Le Jardin D\'Amour và Fantasy Park."}, {"day": 3, "title": "Ngũ Hành Sơn - Làng Đá Non Nước - Đô Thị Cổ Hội An", "content": "Khám phá quần thể hang động Ngũ Hành Sơn. Chiều di chuyển về Phố Cổ Hội An: Chùa Cầu Nhật Bản, Nhà cổ Phùng Hưng, Hội quán Phúc Kiến. Ăn tối ẩm thực phố cổ."}, {"day": 4, "title": "Chợ Hàn Mua Sắm Đặc Sản - Tiễn Sân Bay", "content": "Ghé Chợ Hàn mua sắm chả bò Đà Nẵng, mực một nắng, bánh khô mè. Xe đưa đoàn ra sân bay Đà Nẵng đáp chuyến bay về lại điểm đón ban đầu."}]', '["Vé máy bay khứ hồi bao gồm 20kg hành lý ký gửi + 7kg xách tay", "Khách sạn 4 sao tiêu chuẩn quốc tế gần biển Mỹ Khê (2 khách/phòng)", "Xe du lịch đời mới Universe máy lạnh đón tiễn theo lịch trình", "Vé cáp treo và buffet trưa thượng hạng tại Bà Nà Hills", "Bảo hiểm du lịch nội địa mức bồi thường 100.000.000 VNĐ/khách"]', '["Chi phí cá nhân ngoài chương trình (giặt ủi, đồ uống minibar)", "Vé tham quan Bảo tàng Tượng sáp Bà Nà Hills", "Thuế VAT 8% (nếu xuất hóa đơn đỏ)", "Tiền bồi dưỡng cho Hướng dẫn viên và Tài xế"]', '2026-10-21 07:52:31'),
+(2, 1, 3, 'Phú Quốc - Thành Phố Không Ngủ Grand World - Safari - Sunset Town 3N2Đ', 'Trải nghiệm kỳ nghỉ đảo ngọc thượng lưu: dạo thuyền Gondola sông Venice tại Grand World, khám phá thế giới động vật bán hoang dã Vinpearl Safari, check-in Cầu Hôn Kiss Bridge trứ danh.',
+ 5650000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', 420,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 5.0, '6890000.00',
+ 'Máy bay khứ hồi Bamboo Airways & Xe du lịch cao cấp', 5, '5 SAO CAO CẤP', '["Khám phá Vinpearl Safari - công viên chăm sóc động vật bán hoang dã lớn nhất VN", "Thưởng lãm show diễn triệu đô \'Sắc Màu Venice\' và \'Tinh Hoa Việt Nam\'", "Check-in Thị trấn Hoàng Hôn Sunset Town và Cầu Hôn Kiss Bridge biểu tượng", "Thưởng thức hải sản tươi sống tại Làng chài Hàm Ninh và Chợ đêm Phú Quốc"]', '[{"day": 1, "title": "TP.HCM - Phú Quốc - Grand World - Show Sắc Màu Venice", "content": "Bay đến Phú Quốc. Nhận phòng resort 5 sao biển Bãi Dài. Khám phá thành phố không ngủ Grand World, du ngoạn kênh đào Venice, xem show nhạc nước ánh sáng đỉnh cao."}, {"day": 2, "title": "Vinpearl Safari - Sunset Town - Cầu Hôn Kiss Bridge", "content": "Sáng tham quan Vinpearl Safari bằng xe chuyên dụng. Chiều di chuyển về Nam đảo check-in Thị trấn Hoàng Hôn Sunset Town, ngắm hoàng hôn rực rỡ tại Cầu Hôn."}, {"day": 3, "title": "Cơ Sở Ngọc Trai - Nước Mắm Truyền Thống - Tiễn Sân Bay", "content": "Tham quan cơ sở nuôi cấy ngọc trai Phú Quốc và nhà thùng nước mắm truyền thống Khải Hoàn. Xe đưa đoàn ra sân bay Phú Quốc về lại TP.HCM."}]', '["Vé máy bay khứ hồi Phú Quốc có 20kg hành lý", "Resort 5 sao Vinpearl / Mövenpick bao gồm buffet sáng chuẩn quốc tế", "Vé vào cổng Vinpearl Safari và Grand World Phú Quốc", "Bữa tối hải sản ghẹ Hàm Ninh tươi ngon", "Hướng dẫn viên nhiệt tình suốt hành trình"]', '["Vé cáp treo Hòn Thơm Sun World", "Show diễn Tinh Hoa Việt Nam (ban đêm)", "Chi phí cá nhân ngoài chương trình", "Phụ thu phòng đơn nếu đi 1 mình"]', '2026-10-21 07:52:31'),
+(3, 1, 4, 'Nha Trang - VinWonders - Du Ngoạn 3 Đảo Vịnh San Hô - Tắm Khoáng 4N3Đ', 'Chiêm ngưỡng vịnh biển đẹp bậc nhất thế giới Nha Trang: vui chơi thỏa thích tại công viên giải trí VinWonders Hòn Tre, lặn ngắm san hô Vịnh San Hô, tắm bùn khoáng nóng I-Resort phục hồi sức khỏe.',
+ 3990000.00, 4, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 380,
+ '2026-10-21', '2026-10-25', 'ACTIVE', 4.8, '4890000.00',
+ 'Xe giường nằm VIP Limousine hoặc Máy bay', 4, 'ƯU ĐÃI ĐOÀN B2B', '["Vui chơi trọn ngày tại VinWonders Nha Trang với Tata Show hoành tráng", "Cano cao tốc lướt sóng tham quan 3 đảo: Hòn Mun, Bãi Tranh, Làng Chài", "Thư giãn tắm bùn khoáng nóng thiên nhiên I-Resort trị liệu sức khỏe", "Thưởng thức buffet hải sản tôm hùm, cá nướng và nem nướng Ninh Hòa"]', '[{"day": 1, "title": "Khởi Hành Đi Nha Trang - Nhận Phòng Khách Sạn 4 Sao", "content": "Xe đón đoàn di chuyển theo cao tốc Dầu Giây - Cam Lâm về phố biển Nha Trang. Tối tự do dạo phố biển Trần Phú và chợ đêm."}, {"day": 2, "title": "Thiên Đường Giải Trí VinWonders Nha Trang", "content": "Qua đảo Hòn Tre trải nghiệm vòng quay bánh xe bầu trời, thủy cung Sea World, vịnh phao nổi lớn nhất thế giới và thưởng thức Tata Show triệu đô."}, {"day": 3, "title": "Cano Du Ngoạn 3 Đảo - Bãi Tranh - Vịnh San Hô", "content": "Cano đưa quý khách lặn ngắm rạn san hô Bãi Tranh, dùng bữa trưa trên bè nổi hải sản Làng Chài. Chiều tắm bùn khoáng I-Resort."}, {"day": 4, "title": "Tháp Bà Ponagar - Chùa Long Sơn - Khởi Hành Về", "content": "Viếng Chùa Long Sơn tượng Phật Trắng, tham quan quần thể kiến trúc Chăm Pa Tháp Bà Ponagar. Khởi hành về điểm đón ban đầu."}]', '["Xe vận chuyển Universe / Limousine chất lượng cao suốt tuyến", "Khách sạn 4 sao sát biển mặt đường Trần Phú", "Vé cáp treo và trọn gói trò chơi VinWonders Hòn Tre", "Vé cano cao tốc và lặn ống thở ngắm san hô", "Bảo hiểm du lịch trọn tour"]', '["Dịch vụ lặn biển bằng bình dưỡng khí / dù bay cano", "Chi phí cá nhân minibar khách sạn", "Tiền tip tài xế và hướng dẫn viên"]', '2026-10-21 07:52:31'),
+(4, 1, 2, 'Quy Nhơn - Kỳ Co - Eo Gió - Hòn Khô - Tháp Đôi Huyền Bí 3N2Đ', 'Chiêm ngưỡng vẻ đẹp hoang sơ kỳ vĩ của \'Maldives phiên bản Việt\': lặn biển ngắm san hô Kỳ Co, ngắm hoàng hôn Eo Gió tuyệt sắc và khám phá ẩm thực đất võ Bình Định trứ danh.',
+ 4250000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800', 300,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.8, '5100000.00',
+ 'Máy bay khứ hồi & Xe du lịch đời mới', 4, 'GIÁ TỐT TRAVELOKA', '["Chinh phục con đường ven biển đẹp ngỡ ngàng tại Eo Gió", "Tắm biển và lặn ngắm san hô tự nhiên tại bãi Kỳ Co nước xanh màu ngọc bích", "Check-in cây cầu gỗ bắt ngang biển siêu ảo tại Hòn Khô", "Thưởng thức bánh hỏi lòng heo, nem Chợ Huyện và hải sản tươi sống"]', '[{"day": 1, "title": "Sân Bay Phù Cát - Tháp Đôi - Ghềnh Ráng Tiên Sa", "content": "Đón sân bay Phù Cát. Tham quan Ghềnh Ráng Tiên Sa, viếng mộ thi sĩ Hàn Mặc Tử, Bãi Trứng (Bãi tắm Hoàng Hậu). Check-in Tháp Đôi Chăm Pa."}, {"day": 2, "title": "Cano Đi Bãi Tắm Kỳ Co - Lặn San Hô - Eo Gió", "content": "Vượt Cầu Thị Nại sang bán đảo Phương Mai. Đi cano lướt sóng sang Kỳ Co tắm biển. Lặn ngắm san hô Hòn Sẹo. Chiều dạo bước ngắm hoàng hôn tuyệt đẹp tại Eo Gió."}, {"day": 3, "title": "Đảo Hòn Khô - Mua Sắm Đặc Sản - Tiễn Bay", "content": "Đi thuyền sang Đảo Hòn Khô chụp ảnh cầu gỗ ven biển. Trưa thưởng thức bánh xèo tôm nhảy rau mầm. Tiễn sân bay Phù Cát."}]', '["Vé máy bay khứ hồi có 20kg ký gửi", "Khách sạn 4 sao trung tâm TP Quy Nhơn view biển", "Cano cao tốc đưa đón Kỳ Co bao gồm áo phao, kính lặn", "Vé vào cổng Eo Gió và Ghềnh Ráng Tiên Sa"]', '["Chi phí cá nhân", "Đồ uống phát sinh ngoài thực đơn", "VAT"]', '2026-10-21 07:52:31'),
+(5, 1, 3, 'Côn Đảo Huyền Thoại - Viếng Mộ Cô Sáu - Nghỉ Dưỡng Biển Xanh 3N2Đ', 'Hành trình linh thiêng và thanh bình: dâng hương viếng Nghĩa trang Hàng Dương mộ nữ anh hùng Võ Thị Sáu vào ban đêm, khám phá hệ thống Nhà tù Côn Đảo và bãi biển Đầm Trầu hoang sơ.',
+ 7200000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', 250,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 5.0, '8500000.00',
+ 'Máy bay khứ hồi ATR72 / Embraer VASCO', 4, 'LINH THIÊNG', '["Lễ viếng mộ nữ anh hùng liệt sĩ Võ Thị Sáu linh thiêng tại Nghĩa trang Hàng Dương", "Tìm hiểu lịch sử hào hùng qua di tích Chuồng Cọp Pháp - Mỹ", "Tắm biển bãi Đầm Trầu ngắm máy bay hạ cánh sát bãi cát", "Hít thở không khí nguyên sinh trong lành của Vườn Quốc Gia Côn Đảo"]', '[{"day": 1, "title": "Bay Đến Côn Đảo - Bãi Nhát - Đỉnh Tình Yêu", "content": "Đáp máy bay xuống sân bay Cỏ Ống. Xe đưa đoàn về thị trấn, dừng chân ngắm cảnh Đỉnh Tình Yêu, Mũi Cá Mập. 23h00 tham gia lễ viếng mộ Cô Sáu tại Nghĩa Trang Hàng Dương."}, {"day": 2, "title": "Di Tích Lịch Sử Nhà Tù - Bãi Đầm Trầu", "content": "Tham quan Trại giam Phú Hải, Trại Phú Tường (Chuồng Cọp Pháp), Chuồng Cọp Mỹ. Chiều đến Bãi Đầm Trầu tắm biển và ngắm máy bay cất hạ cánh cự ly gần."}, {"day": 3, "title": "Chợ Côn Đảo Mua Hạt Bàng - Tiễn Sân Bay", "content": "Mua đặc sản mứt hạt bàng rang muối, cá thu một nắng. Xe tiễn đoàn ra sân bay Cỏ Ống đáp chuyến bay về TP.HCM."}]', '["Vé máy bay khứ hồi Sài Gòn - Côn Đảo", "Khách sạn 4 sao The Secret Con Dao hoặc Marina Hotel", "Xe đưa đón viếng mộ Cô Sáu ban đêm", "Lễ vật dâng hương nghĩa trang chuẩn bị chu đáo"]', '["Chi phí cá nhân", "Bia nước ngọt trong các bữa ăn", "Tiền tip tổ phục vụ"]', '2026-10-21 07:52:31'),
+(6, 2, 2, 'Sa Pa - Chinh Phục Đỉnh Fansipan Nóc Nhà Đông Dương - Bản Cát Cát 3N2Đ', 'Chiêm ngưỡng vẻ đẹp huyền ảo của thị trấn trong sương: cáp treo vượt biển mây chinh phục đỉnh Fansipan 3.143m, dạo bước bản Cát Cát của người H\'Mông và thưởng thức lẩu cá hồi Tây Bắc.',
+ 3650000.00, 3, 'Hà Nội', 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800', 350,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '4500000.00',
+ 'Xe Limousine giường nằm cao cấp khứ hồi Hà Nội - Sa Pa', 4, 'BÁN CHẠY NHẤT', '["Chinh phục đỉnh Fansipan 3.143m ngắm toàn cảnh dãy Hoàng Liên Sơn hùng vĩ", "Check-in Đại tượng Phật A Di Đà bằng đồng lớn nhất Đông Nam Á", "Dạo bước bản Cát Cát xem guồng nước, suối Hoa và cầu Si mộng mơ", "Thưởng thức mẹt lợn bản cắp nách, thắng cố và lẩu cá tầm Sa Pa"]', '[{"day": 1, "title": "Hà Nội - Cao Tốc Nội Bài Lào Cai - Sa Pa - Bản Cát Cát", "content": "Xe Limousine đón tại phố cổ Hà Nội chạy cao tốc lên Sa Pa. Nhận phòng khách sạn 4 sao. Chiều bách bộ khám phá Bản Cát Cát của người H\'Mông."}, {"day": 2, "title": "Chinh Phục Đỉnh Fansipan - Moana Sống Ảo", "content": "Trải nghiệm cáp treo Fansipan 3 dây vượt thung lũng Mường Hoa. Chạm tay vào cột mốc Fansipan 3.143m. Chiều check-in khu sinh thái Moana view núi non."}, {"day": 3, "title": "Nhà Thờ Đá Sa Pa - Chợ Sa Pa - Trở Về Hà Nội", "content": "Bách bộ chụp ảnh Nhà thờ Đá cổ thời Pháp, mua sắm thảo dược, thịt trâu gác bếp tại chợ Sa Pa. Chiều xe đưa đoàn về lại trung tâm Hà Nội."}]', '["Xe Limousine VIP khứ hồi Hà Nội - Sa Pa - Hà Nội", "Khách sạn 4 sao trung tâm có bể bơi nước ấm view núi Fansipan", "Vé cáp treo Sun World Fansipan Legend", "Vé tham quan Bản Cát Cát và Moana Sa Pa"]', '["Vé tàu hỏa leo núi Mường Hoa / đỉnh Fansipan", "Chi phí trang phục chụp ảnh dân tộc", "Chi phí cá nhân ngoài thực đơn"]', '2026-10-21 07:52:31'),
+(7, 2, 3, 'Hà Giang - Cao Nguyên Đá Đồng Văn - Đèo Mã Pí Lèng - Hẻm Tu Sản 4N3Đ', 'Hành trình nghẹt thở qua cung đường đèo đẹp nhất Việt Nam: chinh phục Mã Pí Lèng, ngồi thuyền xuôi dòng sông Nho Quế ngắm hẻm vực Tu Sản sâu nhất Đông Nam Á, ghé Dinh Vua Mèo cổ kính.',
+ 4450000.00, 4, 'Hà Nội', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', 280,
+ '2026-10-21', '2026-10-25', 'ACTIVE', 5.0, '5400000.00',
+ 'Xe du lịch Universe 29-45 chỗ tài xế chuyên nghiệp cung đường đèo', 3, 'HOT TUẦN NÀY', '["Đi thuyền trên dòng sông Nho Quế màu xanh ngọc bích qua Hẻm Tu Sản", "Chinh phục Đèo Mã Pí Lèng - một trong \'Tứ đại đỉnh đèo\' hùng vĩ của VN", "Check-in Cột cờ Lũng Cú - điểm cực Bắc địa đầu Tổ quốc thiêng liêng", "Thăm Dinh thự Vua Mèo Vương Chính Đức và Phố cổ Đồng Văn"]', '[{"day": 1, "title": "Hà Nội - TP. Hà Giang - Cổng Trời Quản Bạ - Núi Đôi Cô Tiên", "content": "Xe đón khởi hành từ Hà Nội. Dừng chân check-in Cột mốc Km0 Hà Giang. Vượt Dốc Bắc Sum lên Cổng Trời Quản Bạ ngắm Núi Đôi Cô Tiên. Nghỉ đêm tại Yên Minh."}, {"day": 2, "title": "Dốc Thẩm Mã - Làng Lũng Cẩm - Dinh Vua Mèo - Cột Cờ Lũng Cú", "content": "Vượt Dốc Thẩm Mã uốn lượn. Ghé thăm Làng Lũng Cẩm (bối cảnh phim Chuyện Của Pao). Thăm Dinh Thự Họ Vương. Chinh phục Cột cờ Quốc gia Lũng Cú."}, {"day": 3, "title": "Đèo Mã Pí Lèng - Du Thuyền Sông Nho Quế Hẻm Tu Sản - Mèo Vạc", "content": "Bách bộ trên Con đường Hạnh Phúc vượt Đèo Mã Pí Lèng. Xuống bến thuyền sông Nho Quế du ngoạn Hẻm Tu Sản kỳ vĩ. Nghỉ đêm tại Đồng Văn."}, {"day": 4, "title": "Chợ Phiên Đồng Văn - TP. Hà Giang - Trở Về Hà Nội", "content": "Trải nghiệm sắc màu chợ phiên vùng cao Đồng Văn buổi sáng. Ăn trưa tại TP Hà Giang. Khởi hành về đến Hà Nội lúc 20h00."}]', '["Xe vận chuyển chuyên cung đường đèo suốt hành trình", "Khách sạn / Homestay tiêu chuẩn sạch đẹp có điều hòa nóng lạnh", "Vé tham quan Cột cờ Lũng Cú, Dinh Vua Mèo, Làng Pao", "Thuyền tham quan sông Nho Quế và Hẻm Tu Sản"]', '["Chi phí cá nhân", "Đồ uống rượu ngô trong các bữa ăn", "Tip cho tổ phục vụ"]', '2026-10-21 07:52:31'),
+(8, 2, 4, 'Mù Cang Chải - Mùa Lúa Chín Vàng Mâm Xôi - Đèo Khau Phạ 3N2Đ', 'Chiêm ngưỡng kiệt tác ruộng bậc thang kỳ vĩ được công nhận Di tích quốc gia đặc biệt: đồi Mâm Xôi, đồi Móng Ngựa, ngắm dù lượn bay lượn trên đèo Khau Phạ bạt ngàn.',
+ 2950000.00, 3, 'Hà Nội', 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800', 250,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.8, '3700000.00',
+ 'Xe du lịch đời mới máy lạnh êm ái', 3, 'MÙA ĐẸP NHẤT', '["Check-in Đồi Mâm Xôi và Đồi Móng Ngựa vàng óng mùa lúa chín", "Chinh phục Đèo Khau Phạ - nơi diễn ra lễ hội dù lượn Bay Trên Mùa Vàng", "Tắm suối khoáng nóng tự nhiên Trạm Tấu phục hồi thể lực", "Thưởng thức xôi nếp Tú Lệ dẻo thơm nức tiếng"]', '[{"day": 1, "title": "Hà Nội - Nghĩa Lộ - Suối Khoáng Nóng Trạm Tấu", "content": "Khởi hành từ Hà Nội qua vùng chè Thanh Sơn Phú Thọ. Đến Nghĩa Lộ nhận phòng, tắm khoáng nóng thư giãn tại Trạm Tấu thiên đường."}, {"day": 2, "title": "Đèo Khau Phạ - Đồi Mâm Xôi - Thị Trấn Mù Cang Chải", "content": "Vượt Đèo Khau Phạ ngắm thung lũng Cao Phạ. Lên đồi Mâm Xôi La Pán Tẩn chụp ảnh ruộng bậc thang rực rỡ sắc vàng. Chiều săn hoàng hôn đồi Móng Ngựa."}, {"day": 3, "title": "Tú Lệ Mua Cốm Nếp - Hà Nội", "content": "Ghé thung lũng Tú Lệ mua cốm xanh nếp tan, gạo Séng Cù dẻo thơm. Khởi hành về lại Hà Nội kết thúc chuyến đi trọn vẹn."}]', '["Xe du lịch đưa đón suốt tuyến", "Vé vào cổng các điểm tham quan", "Các bữa ăn đặc sản Tây Bắc theo chương trình", "Bảo hiểm du lịch"]', '["Xe ôm lên Đồi Mâm Xôi và Móng Ngựa", "Vé tắm khoáng nóng Trạm Tấu", "Chi tiêu cá nhân"]', '2026-10-21 07:52:31'),
+(9, 2, 2, 'Mộc Châu - Đồi Chè Trái Tim - Thác Dải Yếm - Cầu Kính Bạch Long 2N1Đ', 'Trốn phố về với thảo nguyên xanh mát: hái mận thung lũng Nà Ka, chụp ảnh đồi chè Trái Tim xanh mướt, thử thách lòng dũng cảm trên Cầu kính Bạch Long dài nhất thế giới.',
+ 1850000.00, 2, 'Hà Nội', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', 320,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 4.7, '2400000.00',
+ 'Xe du lịch đời mới', 4, 'TOUR CUỐI TUẦN', '["Trải nghiệm Cầu kính Bạch Long đạt kỷ lục Guiness dài nhất thế giới", "Check-in Đồi chè Trái Tim biểu tượng tình yêu thảo nguyên Mộc Châu", "Chiêm ngưỡng Thác Dải Yếm hùng vĩ và Rừng thông Bản Áng lãng mạn", "Thưởng thức bê chao Mộc Châu, cá suối nướng và sữa bò tươi nguyên chất"]', '[{"day": 1, "title": "Hà Nội - Đèo Thung Khe - Thác Dải Yếm - Cầu Kính Bạch Long", "content": "Xe đón tại Hà Nội. Dừng chân check-in Đèo Thung Khe đá trắng ngỡ trời Âu. Đến Mộc Châu tham quan Thác Dải Yếm và Cầu Kính Bạch Long kỷ lục thế giới."}, {"day": 2, "title": "Đồi Chè Trái Tim - Rừng Thông Bản Áng - Về Hà Nội", "content": "Chụp ảnh tại Đồi chè Trái Tim, dạo hồ nước thông reo Bản Áng. Mua sữa chua nếp cẩm, mận sấy dẻo Mộc Châu. Khởi hành về lại Hà Nội."}]', '["Xe du lịch đưa đón đời mới", "Khách sạn 4 sao resort Mộc Châu Island hoặc Mường Thanh", "Bữa ăn đặc sản bê chao, lợn mán", "Bảo hiểm du lịch"]', '["Vé vào cổng Cầu kính Bạch Long", "Chi phí hái dâu tây, hái mận tại vườn", "Chi tiêu cá nhân"]', '2026-10-21 07:52:31'),
+(10, 2, 3, 'Ninh Bình - Quần Thể Danh Thắng Tràng An - Chùa Bái Đính - Hang Múa 2N1Đ', 'Khám phá di sản thế giới kép UNESCO: ngồi thuyền nan lướt nhẹ qua các hang động Tràng An kỳ ảo, chiêm bái đại tự Bái Đính giữ nhiều kỷ lục châu Á, leo đỉnh Ngọa Long ngắm Tam Cốc từ Hang Múa.',
+ 2200000.00, 2, 'Hà Nội', 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800', 380,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 4.9, '2800000.00',
+ 'Xe du lịch Universe Limousine máy lạnh', 4, 'DI SẢN UNESCO', '["Ngồi thuyền chèo tay len lỏi qua 9 hang động ngập nước tại Tràng An", "Leo 500 bậc đá đỉnh Hang Múa săn góc nhìn triệu like toàn cảnh Tam Cốc", "Chiêm bái Chùa Bái Đính - ngôi chùa quy mô lớn nhất Đông Nam Á", "Thưởng thức đặc sản cơm cháy Ninh Bình, thịt dê núi nướng tảng"]', '[{"day": 1, "title": "Hà Nội - Chùa Bái Đính - Tuyệt Tình Cốc - Đầm Vân Long", "content": "Khởi hành từ Hà Nội. Tham quan Bái Đính Cổ Tự và Bái Đính Mới với hành lang 500 vị La Hán. Chiều check-in Động Am Tiên (Tuyệt Tình Cốc) non xanh nước biếc."}, {"day": 2, "title": "Khu Du Lịch Sinh Thái Tràng An - Đỉnh Núi Hang Múa - Về Hà Nội", "content": "Đi thuyền nan 3 tiếng khám phá Hang Sáng, Hang Tối, Hang Nấu Rượu Tràng An. Leo đỉnh núi Ngọa Long tại Hang Múa. Chiều khởi hành về lại Hà Nội."}]', '["Xe vận chuyển du lịch đời mới", "Resort 4 sao Ninh Bình Hidden Charm / Emeralda", "Vé thuyền Tràng An và vé tham quan Hang Múa", "Xe điện khứ hồi Chùa Bái Đính"]', '["Chi phí cá nhân", "Đồ uống trong bữa ăn", "Thuế VAT"]', '2026-10-21 07:52:31'),
+(11, 3, 2, 'Huế - Đại Nội Cố Đô Triều Nguyễn - Lăng Tự Đức - Động Phong Nha 4N3Đ', 'Trở về miền hoài niệm dấu ấn vàng son phong kiến: thăm Đại Nội nguy nga, du thuyền rồng nghe ca Huế trên sông Hương thơ mộng, khám phá \'Đệ nhất kỳ quan\' Động Phong Nha Quảng Bình.',
+ 4100000.00, 4, 'Đà Nẵng', 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800', 320,
+ '2026-10-21', '2026-10-25', 'ACTIVE', 4.8, '5000000.00',
+ 'Xe Universe 45 chỗ máy lạnh êm ái', 4, 'DI SẢN VĂN HÓA', '["Tham quan Đại Nội Huế - Hoàng Thành và Tử Cấm Thành của 13 vị vua triều Nguyễn", "Ngồi thuyền rồng nghe Ca Huế trên sông Hương và thả hoa đăng cầu may", "Khám phá kiến trúc lăng tẩm lãng mạn bậc nhất: Lăng Khải Định & Lăng Tự Đức", "Đi thuyền vào lòng Động Phong Nha chiêm ngưỡng hệ thống thạch nhũ lung linh"]', '[{"day": 1, "title": "Đà Nẵng - Hầm Hải Vân - Cố Đô Huế - Thuyền Rồng Sông Hương", "content": "Xe đón tại Đà Nẵng vượt Hầm Hải Vân đến Huế. Chiều viếng Chùa Thiên Mụ cổ kính 400 năm tuổi. Tối ngồi thuyền rồng nghe ca Huế trên sông Hương."}, {"day": 2, "title": "Đại Nội Huế - Lăng Khải Định - Lăng Tự Đức", "content": "Sáng tham quan Cung Diên Thọ, Điện Thái Hòa, Thế Miếu trong Đại Nội. Chiều chiêm ngưỡng nghệ thuật ghép sành sứ độc nhất vô nhị tại Lăng Khải Định."}, {"day": 3, "title": "Huế - Thánh Địa La Vang - Vườn Quốc Gia Phong Nha Kẻ Bàng", "content": "Khởi hành đi Quảng Bình, ghé Thánh Địa La Vang. Đến Phong Nha, đi thuyền trên sông Son vào thám hiểm Động Phong Nha kỳ vĩ. Nghỉ đêm tại Đồng Hới."}, {"day": 4, "title": "Bãi Biển Nhật Lệ - Chợ Đông Ba Huế - Trở Về", "content": "Dạo bãi biển Nhật Lệ. Ghé Chợ Đông Ba mua mè xửng, nón bài thơ, tôm chua Huế. Xe đưa đoàn về lại điểm đón ban đầu."}]', '["Xe vận chuyển chất lượng cao suốt tuyến", "Khách sạn 4 sao cao cấp tại Huế và Đồng Hới", "Vé tham quan trọn gói Đại Nội, Lăng Tẩm, Động Phong Nha", "Thuyền rồng sông Hương và thuyền sông Son Phong Nha"]', '["Chi phí cá nhân", "Đồ uống minibar", "Tiền tip hướng dẫn viên"]', '2026-10-21 07:52:31'),
+(12, 3, 3, 'Đà Nẵng - Sun World Ba Na Hills - Du Thuyền Sông Hàn - Cầu Rồng Phun Lửa 3N2Đ', 'Tận hưởng không khí hiện đại và sôi động của thành phố đáng sống nhất Việt Nam: cáp treo Bà Nà Hills, du thuyền ngắm Cầu Rồng phun lửa, tắm biển Mỹ Khê cát trắng mịn màng.',
+ 4390000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', 360,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '5200000.00',
+ 'Máy bay khứ hồi Vietnam Airlines & Xe du lịch đời mới', 4, 'HOT TUẦN NÀY', '["Check-in Cầu Vàng Bà Nà Hills - Top 10 cây cầu đẹp nhất hành tinh", "Thưởng ngoạn du thuyền trên sông Hàn ngắm Cầu Rồng phun lửa và phun nước", "Vui chơi thỏa thích tại Fantasy Park công viên trò chơi trong nhà lớn nhất VN", "Thưởng thức tiệc buffet ẩm thực quốc tế hơn 100 món tại đỉnh Bà Nà"]', '[{"day": 1, "title": "TP.HCM - Đà Nẵng - Tắm Biển Mỹ Khê - Du Thuyền Sông Hàn", "content": "Bay đến Đà Nẵng. Nhận phòng khách sạn 4 sao mặt biển Võ Nguyên Giáp. Tối lên du thuyền sông Hàn ngắm cầu Trần Thị Lý, Cầu Quay và Cầu Rồng phun lửa."}, {"day": 2, "title": "Thiên Đường Cổ Tích Sun World Ba Na Hills", "content": "Cáp treo lên đỉnh núi Chúa. Dạo bước Cầu Vàng, khám phá Lâu đài Mặt Trăng, Quảng trường Nhật Thực. Thưởng thức buffet trưa cao cấp."}, {"day": 3, "title": "Bán Đảo Sơn Trà - Chợ Cồn - Tiễn Sân Bay", "content": "Viếng Chùa Linh Ứng Bãi Bụt. Ăn trưa bánh tráng thịt heo Đại Lộc. Mua sắm đặc sản chả bò tại Chợ Cồn. Xe tiễn sân bay Đà Nẵng."}]', '["Vé máy bay khứ hồi có 20kg hành lý ký gửi", "Khách sạn 4 sao biển Mỹ Khê", "Vé cáp treo Bà Nà Hills & buffet trưa quốc tế", "Vé du thuyền sông Hàn"]', '["Bảo tàng sáp Bà Nà", "Chi tiêu cá nhân"]', '2026-10-21 07:52:31'),
+(13, 3, 4, 'Quảng Bình - Động Thiên Đường - Suối Nước Moọc - Sông Chày Hang Tối 3N2Đ', 'Thám hiểm vương quốc hang động thế giới: chiêm ngưỡng hoàng cung trong lòng đất Động Thiên Đường dài 31km, chèo kayak tắm suối Moọc ngọc bích, zipline đu dây vào Hang Tối.',
+ 3850000.00, 3, 'Hà Nội', 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800', 280,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '4600000.00',
+ 'Tàu hỏa giường nằm cao cấp hoặc Máy bay khứ hồi', 4, 'MẠO HIỂM', '["Thám hiểm Động Thiên Đường - hang động khô dài nhất châu Á", "Đu Zipline trên không và tắm bùn tự nhiên phục hồi da tại Hang Tối", "Chèo thuyền Kayak trên dòng nước ngọc bích xanh mát của Suối Moọc", "Thưởng thức mẹt gà đồi nướng chấm muối cheo Quảng Bình cay nồng"]', '[{"day": 1, "title": "Đến Đồng Hới - Đồi Cát Quang Phú - Biển Nhật Lệ", "content": "Đến Đồng Hới nhận phòng khách sạn. Chiều trượt cát trên đồi cát trắng Quang Phú. Tắm biển Nhật Lệ và thưởng thức hải sản đẻn biển."}, {"day": 2, "title": "Hoàng Cung Trong Lòng Đất Động Thiên Đường - Suối Moọc", "content": "Xe điện đưa vào chân núi, bách bộ khám phá thạch nhũ kỳ ảo Động Thiên Đường. Chiều đắm mình trong làn nước trong vắt tại Suối Nước Moọc."}, {"day": 3, "title": "Zipline Sông Chày - Hang Tối - Tiễn Ga / Sân Bay", "content": "Trải nghiệm Zipline 400m vượt Sông Chày vào Hang Tối tắm bùn khoáng thiên nhiên. Chiều xe tiễn ga Đồng Hới về lại Hà Nội."}]', '["Xe vận chuyển máy lạnh đời mới", "Khách sạn 4 sao trung tâm TP Đồng Hới", "Vé vào cổng Động Thiên Đường, xe điện khứ hồi", "Vé trọn gói Zipline, kayak Sông Chày Hang Tối"]', '["Chi phí cá nhân", "Thuế VAT", "Tiền bồi dưỡng tài xế"]', '2026-10-21 07:52:31'),
+(14, 3, 2, 'Phú Yên - Xứ Sở Hoa Vàng Trên Cỏ Xanh - Gành Đá Đĩa - Mũi Điện 3N2Đ', 'Về xứ Nẫu hoang sơ say đắm lòng người: ngắm kiệt tác bazan núi lửa Gành Đá Đĩa độc nhất vô nhị, đón bình minh sớm nhất đất liền tại Mũi Điện, check-in Bãi Xép ngắm biển xanh ngắt.',
+ 3750000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 300,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.8, '4500000.00',
+ 'Máy bay khứ hồi Vietjet Air & Xe du lịch đời mới', 4, 'GIÁ TỐT TRAVELOKA', '["Chiêm ngưỡng Gành Đá Đĩa - tuyệt tác địa chất núi lửa bazan kỳ vĩ", "Chạm tay vào ngọn hải đăng Mũi Điện - điểm đón ánh bình minh đầu tiên", "Chụp ảnh tại Bãi Xép bối cảnh phim \'Tôi thấy hoa vàng trên cỏ xanh\'", "Thưởng thức mắt cá ngừ đại dương hầm thuốc bắc bổ dưỡng"]', '[{"day": 1, "title": "Tuy Hòa - Tháp Nhạn - Chùa Thanh Lương Bằng San Hô", "content": "Đáp máy bay sân bay Tuy Hòa. Tham quan Tháp Nhạn Chăm Pa cổ, viếng Chùa Thanh Lương làm từ san hô và gáo dừa độc đáo. Thưởng thức mắt cá ngừ đại dương."}, {"day": 2, "title": "Gành Đá Đĩa - Nhà Thờ Mằng Lăng - Bãi Xép Gành Ông", "content": "Khám phá Nhà thờ Mằng Lăng lưu giữ cuốn sách in chữ quốc ngữ đầu tiên. Check-in kỳ quan Gành Đá Đĩa. Chiều dạo thảo nguyên cỏ xanh Bãi Xép."}, {"day": 3, "title": "Hải Đăng Mũi Điện - Vịnh Vũng Rô Tàu Không Số - Tiễn Bay", "content": "Đón bình minh tại Hải đăng Mũi Đại Lãnh. Thăm di tích bến Tàu Không Số Vịnh Vũng Rô. Ăn trưa bè nổi hải sản. Tiễn sân bay Tuy Hòa."}]', '["Vé máy bay khứ hồi TP.HCM - Tuy Hòa có hành lý", "Khách sạn 4 sao Sala Tuy Hoa Beach hoặc tương đương", "Vé tham quan tất cả danh lam thắng cảnh", "Thực đơn hải sản tươi sống chất lượng cao"]', '["Chi phí cá nhân", "Thuế VAT"]', '2026-10-21 07:52:31'),
+(15, 3, 3, 'Quảng Nam - Thánh Địa Mỹ Sơn - Làng Rau Trà Quế - Rừng Dừa Bảy Mẫu 2N1Đ', 'Khám phá chiều sâu văn hóa Chăm Pa và sông nước xứ Quảng: thăm khu đền tháp Mỹ Sơn huyền bí, trải nghiệm múa thúng chai xoay tròn náo nhiệt tại Rừng Dừa Bảy Mẫu Cẩm Thanh.',
+ 2100000.00, 2, 'Đà Nẵng', 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800', 320,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 4.7, '2600000.00',
+ 'Xe du lịch đời mới', 4, 'VĂN HÓA DÂN GIAN', '["Khám phá Thánh Địa Mỹ Sơn - Di sản văn hóa thế giới đền tháp Chăm Pa", "Thưởng thức điệu múa Apsara uyển chuyển của các thiếu nữ Chăm", "Trải nghiệm chèo thuyền thúng xoay vòng náo nhiệt ở Rừng dừa Bảy Mẫu", "Tập làm nông dân tưới nước gánh rau tại Làng rau Trà Quế 300 năm tuổi"]', '[{"day": 1, "title": "Đà Nẵng - Thánh Địa Mỹ Sơn - Thưởng Thức Múa Chăm", "content": "Xe đón tại Đà Nẵng khởi hành đi thung lũng Mỹ Sơn. Bách bộ khám phá các cụm tháp Chăm nghìn năm tuổi, xem show diễn văn nghệ dân gian Chăm Pa."}, {"day": 2, "title": "Rừng Dừa Bảy Mẫu - Làng Rau Trà Quế - Trở Về", "content": "Đi thuyền thúng len lỏi trong rừng dừa nước Cẩm Thanh, xem ngư dân quăng chài và múa thúng biểu diễn. Chiều về làng rau Trà Quế ngâm chân thảo dược rồi trở về Đà Nẵng."}]', '["Xe vận chuyển chất lượng cao", "Khách sạn 4 sao Hội An", "Vé thuyền thúng Rừng dừa Bảy Mẫu", "Vé vào cổng Thánh địa Mỹ Sơn"]', '["Chi phí cá nhân ngoài chương trình", "Tiền tip tài xế"]', '2026-10-21 07:52:31'),
+(16, 4, 4, 'Đà Lạt - Samten Hills Đại Bảo Tháp Kinh Luân - Thác Datanla - Langbiang 3N3Đ', 'Hành trình tĩnh tâm và lãng mạn nơi thành phố ngàn hoa: chiêm bái Đại Bảo Tháp Kinh Luân lớn nhất thế giới dát vàng 24K tại Samten Hills, trượt máng Thác Datanla, chinh phục đỉnh Langbiang.',
+ 2890000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', 400,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '3600000.00',
+ 'Xe Limousine giường nằm VIP cung điện bay', 4, 'BÁN CHẠY NHẤT', '["Chiêm bái Đại bảo tháp Kinh Luân dát vàng 24K lớn nhất thế giới tại Samten Hills", "Trải nghiệm máng trượt uốn lượn xuyên rừng thông dài nhất châu Á tại Thác Datanla", "Check-in đỉnh núi Langbiang huyền thoại ngắm toàn cảnh suối Vàng suối Bạc", "Thưởng thức tiệc buffet rau không giới hạn Leguda trên đồi Robin"]', '[{"day": 1, "title": "TP.HCM - Đèo Prenn Mới - Không Gian Văn Hóa Tâm Linh Samten Hills", "content": "Đêm xe Limousine khởi hành từ TP.HCM lên Đà Lạt qua Đèo Prenn tuyệt đẹp. Sáng tham quan Samten Hills Dalat, xoay kinh luân cầu an may mắn. Chiều nhận phòng khách sạn 4 sao."}, {"day": 2, "title": "Thác Datanla - Đỉnh Núi Langbiang - Giao Lưu Cồng Chiêng", "content": "Trượt máng xuống Thác Datanla hùng vĩ. Chiều đi xe Jeep lên đỉnh Langbiang huyền thoại. Tối tham gia đêm hội rượu cần cồng chiêng Tây Nguyên rực lửa."}, {"day": 3, "title": "Quảng Trường Lâm Viên - Chợ Đà Lạt - Về Lại TP.HCM", "content": "Check-in Bông hoa dã quỳ và nụ hoa Atiso tại Quảng trường Lâm Viên. Mua dâu tây tươi, mứt hoa quả tại chợ Đà Lạt. Chiều xe đưa đoàn về lại TP.HCM."}]', '["Xe Limousine giường nằm cao cấp êm ái khứ hồi", "Khách sạn 4 sao gần Hồ Xuân Hương", "Vé vào cổng Samten Hills và Thác Datanla", "Vé đêm hội giao lưu cồng chiêng ăn thịt nướng uống rượu cần"]', '["Vé xe Jeep lên đỉnh Langbiang", "Vé máng trượt Datanla", "Chi phí cá nhân"]', '2026-10-21 07:52:31'),
+(17, 4, 2, 'Đà Lạt - Săn Mây Cầu Đất Đón Bình Minh - Vườn Cẩm Tú Cầu - Dinh Bảo Đại 3N2Đ', 'Bắt trọn khoảnh khắc huyền ảo nhất xứ sở ngàn hoa: săn mây trên thảm gỗ đồi chè Cầu Đất lúc bình minh, lạc bước giữa vườn hoa cẩm tú cầu rực rỡ và dinh thự vua Bảo Đại uy nghiêm.',
+ 2750000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800', 350,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.8, '3400000.00',
+ 'Xe Universe 45 chỗ đời mới', 3, 'SỐNG ẢO TRIỆU VIEW', '["Săn biển mây cuồn cuộn trên cầu gỗ đồi chè Cầu Đất ngắm cối xay gió", "Check-in cánh đồng hoa Cẩm Tú Cầu bạt ngàn góc chụp ảnh thần thánh", "Tham quan Dinh 1 Bảo Đại mang phong cách kiến trúc Pháp cổ kính sang trọng", "Thưởng thức lẩu gà lá é Tao Ngộ và bánh tráng nướng Đà Lạt nóng hổi"]', '[{"day": 1, "title": "TP.HCM - Đà Lạt - Quảng Trường Lâm Viên - Dạo Hồ Xuân Hương", "content": "Khởi hành từ TP.HCM đi Đà Lạt. Dừng chân ăn trưa tại Bảo Lộc. Chiều đến Đà Lạt check-in Quảng trường Lâm Viên, dạo quanh Hồ Xuân Hương ngắm hoàng hôn buông."}, {"day": 2, "title": "Săn Mây Cầu Đất - Vườn Cẩm Tú Cầu - Dinh 1 Bảo Đại", "content": "04h30 sáng xe đưa đoàn lên Đồi chè Cầu Đất săn biển mây đón ánh bình minh tuyệt diệu. Ghé Cánh đồng hoa Cẩm Tú Cầu. Chiều tham quan Dinh 1 vua Bảo Đại."}, {"day": 3, "title": "Thiền Viện Trúc Lâm - Hồ Tuyền Lâm - TP.HCM", "content": "Viếng Thiền Viện Trúc Lâm thanh tịnh soi bóng bên Hồ Tuyền Lâm. Mua đặc sản atiso, bơ 034. Khởi hành về lại TP.HCM lúc 20h00."}]', '["Xe du lịch đưa đón khứ hồi", "Khách sạn tiêu chuẩn 3 sao trung tâm", "Vé săn mây Cầu Đất và vườn hoa Cẩm Tú Cầu", "Ăn uống đầy đủ theo lịch trình"]', '["Chi phí cá nhân", "Cáp treo đồi Robin", "Nước uống tự gọi trong bữa ăn"]', '2026-10-21 07:52:31'),
+(18, 4, 3, 'Buôn Ma Thuột - Thác Dray Nur Hùng Vĩ - Buôn Đôn - Bảo Tàng Cà Phê 3N2Đ', 'Khám phá thủ phủ cà phê nức tiếng: chiêm ngưỡng thác nước Dray Nur hùng vĩ tuôn trào trắng xóa, trải nghiệm cầu treo Buôn Đôn bắc qua sông Serepôk và thưởng thức cà phê chồn thượng hạng.',
+ 3400000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800', 260,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.8, '4200000.00',
+ 'Máy bay khứ hồi hoặc Xe du lịch chất lượng cao', 4, 'ĐẠI NGÀN HUYỀN BÍ', '["Chiêm ngưỡng Thác Dray Nur - thác nước kỳ vĩ và thơ mộng nhất Tây Nguyên", "Đi cầu treo bằng tre bắc ngang dòng sông Sêrêpôk chảy ngược tại Buôn Đôn", "Check-in Bảo tàng Thế giới Cà phê với kiến trúc nhà dài cách điệu ấn tượng", "Thưởng thức cơm lam gà nướng chấm muối é và gỏi cà đắng cá khô"]', '[{"day": 1, "title": "Đến Buôn Ma Thuột - Bảo Tàng Cà Phê - Làng Cà Phê Trung Nguyên", "content": "Xe đón tại Buôn Ma Thuột. Thăm Bảo tàng Thế giới Cà phê, thưởng thức ly espresso đậm đà. Thăm Làng Cà phê Trung Nguyên rợp bóng cây cổ thụ."}, {"day": 2, "title": "Thác Dray Nur Hùng Vĩ - Buôn Đôn Cầu Treo Serepok", "content": "Khám phá Thác Dray Nur dòng nước trắng xóa mát lạnh. Chiều về Buôn Đôn nghe chuyện săn bắt thuần dưỡng voi rừng, đi cầu treo dài 500m bắc qua sông Sêrêpôk."}, {"day": 3, "title": "Chùa Sắc Tứ Khải Đoan - Mua Sắm Cà Phê Hạt - Trở Về", "content": "Viếng Chùa Sắc Tứ Khải Đoan - ngôi chùa gỗ lớn nhất Tây Nguyên do Nam Phương Hoàng Hậu chủ trì xây dựng. Mua cà phê Robusta đặc sản. Tiễn sân bay."}]', '["Xe vận chuyển máy lạnh đời mới", "Khách sạn 4 sao Mường Thanh / Elephants Hotel", "Vé vào cổng tất cả các điểm tham quan", "Thực đơn đặc sản Tây Nguyên phong phú"]', '["Chi phí cưỡi voi (nếu có)", "Chi tiêu cá nhân"]', '2026-10-21 07:52:31'),
+(19, 4, 4, 'Pleiku - Biển Hồ Tơ Nưng Mắt Ngọc Gia Lai - Núi Lửa Chư Đăng Ya 3N2Đ', 'Chạm vào vẻ đẹp nguyên sơ của cao nguyên Gia Lai: ngắm \'đôi mắt Pleiku\' Biển Hồ Tơ Nưng biếc xanh, chiêm ngưỡng miệng núi lửa Chư Đăng Ya rực rỡ hoa dã quỳ và Thác Phú Cường kỳ ảo.',
+ 3600000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800', 240,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.7, '4300000.00',
+ 'Máy bay khứ hồi Bamboo Airways & Xe du lịch', 4, 'THIÊN NHIÊN HOANG SƠ', '["Ngắm Biển Hồ Tơ Nưng - hồ nước ngọt tự nhiên trên miệng núi lửa cổ triệu năm", "Check-in Núi lửa Chư Đăng Ya chìm trong sắc vàng hoa dã quỳ mùa đông", "Chiêm ngưỡng hàng thông trăm tuổi và Biển Hồ Chè xanh ngút ngàn", "Thưởng thức phở hai tô (phở khô Gia Lai) và bò một nắng muối kiến vàng"]', '[{"day": 1, "title": "TP.HCM - Sân Bay Pleiku - Biển Hồ Tơ Nưng - Hàng Thông Trăm Tuổi", "content": "Bay đến Pleiku. Thăm Biển Hồ Tơ Nưng nước xanh phẳng lặng như gương. Dạo bước dưới Hàng thông trăm tuổi và đồi chè Biển Hồ thơ mộng."}, {"day": 2, "title": "Núi Lửa Chư Đăng Ya - Chùa Minh Thành Đẹp Tựa Xứ Phù Tang", "content": "Chinh phục đỉnh núi lửa Chư Đăng Ya ngắm đất đỏ bazan màu mỡ. Chiều viếng Chùa Minh Thành với kiến trúc tháp chuông tuyệt mỹ như Nhật Bản thu nhỏ."}, {"day": 3, "title": "Thác Phú Cường - Thưởng Thức Bò Một Nắng - Tiễn Bay", "content": "Khám phá Thác Phú Cường hùng vĩ tuôn trào trên nền nham thạch núi lửa cổ. Thưởng thức bò một nắng muối kiến vàng. Tiễn sân bay Pleiku."}]', '["Vé máy bay khứ hồi có 20kg hành lý", "Khách sạn 4 sao Pleiku trung tâm", "Xe vận chuyển chất lượng cao", "Vé tham quan các thắng cảnh"]', '["Chi phí cá nhân ngoài chương trình", "Đồ uống trong bữa ăn"]', '2026-10-21 07:52:31'),
+(20, 4, 2, 'Măng Đen - Nàng Thơ Kon Tum Khí Hậu Ôn Đới - Thác Pa Sỹ - Cầu Treo Kon Klor 3N2Đ', 'Lạc bước giữa \'Đà Lạt thứ hai\' thanh bình và nguyên sơ: hít thở không khí rừng thông Măng Đen mát lạnh 20 độ C quanh năm, ngắm Thác Pa Sỹ bọt tung trắng xóa, thăm Nhà thờ Gỗ Kon Tum trăm tuổi.',
+ 3950000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 260,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '4800000.00',
+ 'Máy bay khứ hồi & Xe du lịch đời mới', 4, 'KHUYẾN NGHỊ', '["Nghỉ dưỡng tại Măng Đen - \'Đà Lạt thứ hai\' thanh bình không khói bụi", "Chiêm ngưỡng Thác Pa Sỹ trong vắt bắt nguồn từ đại ngàn rừng già", "Viếng tượng Đức Mẹ Măng Đen linh thiêng giữa rừng thông cổ thụ", "Khám phá Nhà thờ Gỗ Kon Tum hơn 100 năm tuổi làm hoàn toàn bằng gỗ cà chít"]', '[{"day": 1, "title": "Pleiku - Kon Tum - Cầu Treo Kon Klor - Cao Nguyên Măng Đen", "content": "Xe đón tại sân bay Pleiku về Kon Tum. Thăm Nhà thờ Gỗ Kon Tum, Nhà rông Kon Klor và cầu treo Kon Klor bắc qua sông Đắk Bla. Chiều lên Măng Đen nhận resort."}, {"day": 2, "title": "Thác Pa Sỹ - Hồ Đắk Ke - Viếng Tượng Đức Mẹ Măng Đen", "content": "Khám phá Thác Pa Sỹ tung bọt trắng xóa. Chèo thuyền ngắm hoa nở bên Hồ Đắk Ke. Viếng Tượng Đức Mẹ Măng Đen. Tối đốt lửa trại nướng gà đồi cơm lam."}, {"day": 3, "title": "Vườn Nông Nghiệp Công Nghệ Cao - Tiễn Sân Bay", "content": "Hái dâu tây hữu cơ, mua sâm dây Ngọc Linh và mật ong rừng nguyên chất. Xe đưa đoàn về sân bay Pleiku đáp chuyến bay về TP.HCM."}]', '["Vé máy bay khứ hồi Sài Gòn - Pleiku", "Resort sinh thái nghỉ dưỡng tại Măng Đen", "Xe ô tô đời mới đưa đón suốt hành trình", "Các bữa ăn đặc sản địa phương gà nướng cơm lam"]', '["Chi phí cá nhân", "Đồ uống rượu sâm", "Thuế VAT"]', '2026-10-21 07:52:31'),
+(21, 5, 3, 'Cần Thơ - Chợ Nổi Cái Răng - Cồn Sơn Xem Cá Bú Bình - Miệt Vườn 2N1Đ', 'Trải nghiệm văn hóa sông nước miền Tây độc đáo: đi thuyền ngắm bình minh trên Chợ Nổi Cái Răng tấp nập, sang Cồn Sơn xem màn trình diễn độc lạ \'cá lóc bay\' và \'cá bú bình sữa\'.',
+ 1950000.00, 2, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800', 450,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 4.9, '2500000.00',
+ 'Xe du lịch Universe 45 chỗ máy lạnh êm ái', 4, 'BÁN CHẠY NHẤT', '["Trải nghiệm văn hóa Chợ Nổi Cái Răng - Di sản văn hóa phi vật thể quốc gia", "Thưởng thức tô hủ tiếu nóng hổi và ly cà phê sữa đá đậm đà trên thuyền nổi", "Sang Cồn Sơn xem màn biểu diễn \'cá lóc bay\' săn mồi và cá Koi bú bình sữa lạ mắt", "Thưởng thức bánh xèo miền Tây khổng lồ và trái cây miệt vườn hái tại cây"]', '[{"day": 1, "title": "TP.HCM - Mỹ Tho - Bến Tre - Cần Thơ - Du Thuyền Bến Ninh Kiều", "content": "Xe đón tại TP.HCM đi Tiền Giang, Bến Tre thưởng thức kẹo dừa, nghe đờn ca tài tử. Chiều về Cần Thơ nhận phòng khách sạn 4 sao. Tối lên du thuyền bến Ninh Kiều ăn tối."}, {"day": 2, "title": "Khám Phá Chợ Nổi Cái Răng - Làng Cá Bè Cồn Sơn - TP.HCM", "content": "05h30 sáng đi tàu ra Chợ Nổi Cái Răng ngắm thuyền ghe tấp nập chào hàng bằng cây \'bẹo\'. Sang Cồn Sơn xem cá lóc bay, học làm bánh dân gian. Khởi hành về TP.HCM."}]', '["Xe vận chuyển Universe máy lạnh chất lượng cao suốt tuyến", "Khách sạn 4 sao TTC Cần Thơ / Mường Thanh Luxury", "Tàu tham quan Chợ Nổi Cái Răng và vé đò sang Cồn Sơn", "Bữa tối du thuyền Ninh Kiều sang trọng"]', '["Chi phí cá nhân", "Đồ uống minibar", "Tiền tip tài xế"]', '2026-10-21 07:52:31'),
+(22, 5, 4, 'An Giang - Rừng Tràm Trà Sư Mùa Nước Nổi - Miếu Bà Chúa Xứ Núi Sam 2N1Đ', 'Hành trình tâm linh và sinh thái miền biên thùy: chèo xuồng ba lá lướt trên thảm bèo xanh mướt Rừng tràm Trà Sư, chiêm bái Miếu Bà Chúa Xứ Núi Sam linh ứng bậc nhất Nam Bộ.',
+ 1850000.00, 2, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', 380,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 4.8, '2400000.00',
+ 'Xe du lịch Universe đời mới', 4, 'TÂM LINH SINH THÁI', '["Chèo xuồng ba lá len lỏi giữa thảm bèo tấm xanh ngắt tại Rừng tràm Trà Sư", "Check-in cây cầu tre vạn bước xuyên rừng tràm dài nhất Việt Nam", "Viếng Miếu Bà Chúa Xứ Núi Sam Châu Đốc linh thiêng cầu bình an tài lộc", "Thưởng thức lẩu mắm Châu Đốc nức tiếng cùng hơn 20 loại rau đồng cỏ dại"]', '[{"day": 1, "title": "TP.HCM - Sa Đéc Làng Hoa - Châu Đốc - Viếng Miếu Bà Chúa Xứ", "content": "Khởi hành từ TP.HCM qua cầu Vàm Cống sang An Giang. Viếng Miếu Bà Chúa Xứ Núi Sam, Lăng Thoại Ngọc Hầu, Tây An Cổ Tự. Tối tự do khám phá chợ đêm Châu Đốc."}, {"day": 2, "title": "Khám Phá Rừng Tràm Trà Sư - Về Lại TP.HCM", "content": "Đi tắc ráng lướt sóng vào vùng lõi Rừng Tràm Trà Sư, ngồi xuồng chèo ngắm hàng ngàn cánh cò bay lượn trên thảm bèo xanh. Ăn trưa cá lóc nướng trui. Về lại TP.HCM."}]', '["Xe vận chuyển chất lượng cao khứ hồi", "Khách sạn 4 sao Châu Đốc Victoria hoặc tương đương", "Vé tắc ráng và xuồng chèo tay Rừng Tràm Trà Sư", "Bữa ăn đặc sản lẩu mắm, cá linh bông điên điển"]', '["Chi phí cá nhân", "Cáp treo Núi Sam", "Thuế VAT"]', '2026-10-21 07:52:31'),
+(23, 5, 2, 'Mỹ Tho - Bến Tre - Cù Lao Thới Sơn - Nghe Đờn Ca Tài Tử 1 Ngày', 'Chuyến du lịch thư giãn trong ngày cuối tuần: đi thuyền rồng ngắm 4 cù lao Long Lân Quy Phụng, chèo xuồng ba lá dưới rặng dừa nước rợp bóng mát, uống trà mật ong phấn hoa thơm lừng.',
+ 850000.00, 1, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800', 500,
+ '2026-10-21', '2026-10-22', 'ACTIVE', 4.7, '1100000.00',
+ 'Xe du lịch đời mới', 3, 'TOUR TRONG NGÀY', '["Du thuyền trên sông Tiền ngắm Cầu Rạch Miễu và 4 cồn Long - Lân - Quy - Phụng", "Trải nghiệm chèo xuồng ba lá len lỏi trong rạch dừa nước rợp bóng mát", "Thưởng thức trà mật ong hoa nhãn, kẹo dừa béo ngậy vừa ra lò tại chỗ", "Ăn trưa cá tai tượng chiên xù cuốn bánh tráng rau rừng"]', '[{"day": 1, "title": "TP.HCM - Bến Tàu 30/4 Mỹ Tho - Cù Lao Thới Sơn - Cồn Phụng", "content": "07h30 sáng xuất phát từ TP.HCM. Thuyền đưa đoàn sang Cù lao Thới Sơn nghe đờn ca tài tử ăn trái cây bốn mùa. Xuồng chèo len lỏi qua rạch dừa. Tham quan Đạo Dừa tại Cồn Phụng. Chiều 17h30 về lại TP.HCM."}]', '["Xe đưa đón đời mới", "Thuyền rồng sông Tiền và xuồng ba lá", "Bữa trưa cá tai tượng chiên xù bánh tráng", "Vé tham quan trọn gói, bảo hiểm du lịch"]', '["Chi phí cá nhân", "Đồ uống trong bữa ăn"]', '2026-10-21 07:52:31'),
+(24, 5, 3, 'Đồng Tháp - Làng Hoa Sa Đéc - Khu Sinh Thái Tràm Chim Tam Nông 2N1Đ', 'Về miền sen hồng thanh khiết: check-in làng hoa Sa Đéc trăm tuổi rực rỡ sắc màu, ngắm sếu đầu đỏ tại Vườn quốc gia Tràm Chim, thăm nhà cổ Huỳnh Thủy Lê mối tình lãng mạn xuyên biên giới.',
+ 1790000.00, 2, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 320,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 4.8, '2300000.00',
+ 'Xe Universe 45 chỗ máy lạnh', 3, 'THIÊN NHIÊN HOANG DÃ', '["Khám phá Vườn Quốc Gia Tràm Chim Tam Nông - khu Ramsar thứ 2.000 của thế giới", "Thăm Làng hoa Sa Đéc với hàng ngàn giàn hoa khoe sắc trên mặt nước", "Chiêm ngưỡng kiến trúc Đông Tây hòa quyện tại Nhà cổ Huỳnh Thủy Lê", "Thưởng thức cơm huyết rồng gói lá sen và canh chua cá lóc bông súng"]', '[{"day": 1, "title": "TP.HCM - Sa Đéc Làng Hoa - Nhà Cổ Huỳnh Thủy Lê - Cao Lãnh", "content": "Khởi hành từ TP.HCM đi Đồng Tháp. Ghé thăm Làng hoa Sa Đéc, chụp ảnh cầu hoa, nhà cổ Huỳnh Thủy Lê. Chiều viếng Khu di tích Cụ Phó Bảng Nguyễn Sinh Sắc."}, {"day": 2, "title": "Khám Phá Tràm Chim Tam Nông - Về Lại TP.HCM", "content": "Lên thuyền tắc ráng lướt sóng qua cánh đồng sen bát ngát Tràm Chim, ngắm chim nước và cánh đồng cỏ năn. Chiều khởi hành về lại TP.HCM."}]', '["Xe vận chuyển du lịch đời mới", "Khách sạn tiêu chuẩn tại TP Cao Lãnh", "Tắc ráng tham quan Tràm Chim", "Các bữa ăn đặc sản đồng quê sen Đồng Tháp"]', '["Chi phí cá nhân", "Thuế VAT"]', '2026-10-21 07:52:31'),
+(25, 5, 4, 'Cà Mau - Chinh Phục Cột Mốc Mũi Cà Mau - Rừng Ngập Mặn U Minh Hạ 3N2Đ', 'Hành trình về điểm cực Nam thiêng liêng của dải đất hình chữ S: chạm tay vào Cột Mốc Tọa Độ Quốc Gia GPS 0001, ngắm biểu tượng Con Tàu Mũi Cà Mau vươn mình ra biển lớn.',
+ 3500000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', 300,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '4300000.00',
+ 'Xe du lịch giường nằm cao cấp', 4, 'ĐIỂM CỰC TỔ QUỐC', '["Chạm tay vào Cột Mốc Tọa Độ Quốc Gia GPS 0001 tại Đất Mũi Cà Mau", "Check-in biểu tượng Con Tàu No Gió hướng ra biển Đông rộng lớn", "Đi cano cao tốc xuyên rừng đước ngập mặn lớn thứ 2 thế giới", "Thưởng thức cua Cà Mau chính gốc gạch son chắc nịt và lẩu cá ngát"]', '[{"day": 1, "title": "TP.HCM - Bạc Liêu Nhà Công Tử - TP. Cà Mau", "content": "Khởi hành từ TP.HCM. Ghé Sóc Trăng viếng Chùa Dơi, Chùa Chén Kiểu. Đến Bạc Liêu thăm Nhà Công Tử Bạc Liêu và Cánh đồng điện gió. Nghỉ đêm tại TP Cà Mau."}, {"day": 2, "title": "Chinh Phục Cột Mốc Đất Mũi Cà Mau - Xuyên Rừng Đước", "content": "Đi xe và cano đến Vườn Quốc Gia Mũi Cà Mau. Chụp ảnh lưu niệm tại Cột mốc tọa độ GPS 0001, Cột cờ Hà Nội tại Đất Mũi. Thưởng thức cua Cà Mau nướng mọi."}, {"day": 3, "title": "Rừng U Minh Hạ Ăn Ong Rừng - Trở Về TP.HCM", "content": "Trải nghiệm đi gác kèo ong, thưởng thức mật ong rừng U Minh Hạ và gỏi ong non. Khởi hành về đến TP.HCM lúc 20h00."}]', '["Xe giường nằm Universe đời mới suốt tuyến", "Khách sạn 4 sao Mường Thanh Luxury Cà Mau", "Cano cao tốc xuyên rừng ngập mặn Đất Mũi", "Thực đơn tiệc cua Cà Mau thượng hạng"]', '["Chi phí cá nhân", "Thuế VAT"]', '2026-10-21 07:52:31'),
+(26, 6, 2, 'Hạ Long - Du Thuyền 5 Sao Ambassador Cruise Siêu Sang - Hang Sửng Sốt 2N1Đ', 'Trải nghiệm kỳ nghỉ thượng lưu trên du thuyền 5 sao lớn nhất Vịnh Hạ Long: ngắm hoàng hôn trên sundeck 360 độ, thưởng thức tiệc buffet tôm hùm không giới hạn, khám phá Hang Sửng Sốt kỳ vĩ.',
+ 3990000.00, 2, 'Hà Nội', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800', 350,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 5.0, '5200000.00',
+ 'Xe Limousine Dcar đưa đón Hà Nội - Cảng Tuần Châu & Du Thuyền 5 Sao', 5, '5 SAO CAO CẤP', '["Nghỉ đêm trên du thuyền Ambassador Cruise 5 sao với cabin ban công riêng view vịnh", "Thưởng thức đại tiệc buffet tôm hùm thượng hạng và hải sản Hạ Long", "Thư giãn tại bể sục Jacuzzi ngoài trời trên boong tàu ngắm hoàng hôn", "Chèo thuyền Kayak khám phá Hang Luồn và bách bộ leo Đảo Titov ngắm toàn cảnh vịnh"]', '[{"day": 1, "title": "Hà Nội - Cảng Quốc Tế Tuần Châu - Check-in Du Thuyền Ambassador", "content": "Xe Limousine đón tại Hà Nội qua cao tốc đến Tuần Châu. 12h00 lên du thuyền, thưởng thức đồ uống chào mừng. Dùng buffet trưa sang trọng. Chiều khám phá Hang Sửng Sốt, chèo kayak tại Hang Luồn. Tiệc Sunset Party và đại tiệc tôm hùm ban đêm."}, {"day": 2, "title": "Tập Thái Cực Quyền Bình Minh - Đảo Ti Tốp - Về Hà Nội", "content": "06h30 tập Tai-chi đón bình minh trên sundeck. Chinh phục đỉnh núi Đảo Titov tắm biển cát trắng. Dùng bữa trưa buffet sớm trong khi du thuyền lướt qua Hòn Trống Mái. 12h00 cập bến, xe đưa về Hà Nội."}]', '["Cabin 5 sao view biển có ban công riêng và bồn tắm sang trọng", "Trọn gói 4 bữa ăn cao cấp trên du thuyền (buffet tôm hùm, bữa trưa hải sản)", "Xe Limousine Dcar đưa đón khứ hồi Hà Nội - Hạ Long", "Vé tham quan trọn gói Vịnh Hạ Long, bảo hiểm du lịch đường thủy"]', '["Dịch vụ spa làm đẹp trên du thuyền", "Đồ uống rượu vang tự chọn", "Tiền tip cho thuyền viên"]', '2026-10-21 07:52:31'),
+(27, 6, 3, 'Vịnh Lan Hạ - Cát Bà - Du Thuyền Scarlet Pearl Luxury 5 Sao 2N1Đ', 'Hành trình riêng tư và đẳng cấp tại \'thiên đường bị lãng quên\': du ngoạn Vịnh Lan Hạ nguyên sơ, chèo thuyền Kayak vào Hang Sáng Tối ngắm vượn mắt thụt quý hiếm, tắm biển Ba Trái Đào.',
+ 4350000.00, 2, 'Hà Nội', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 280,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 5.0, '5500000.00',
+ 'Xe Limousine VIP & Du Thuyền Buồm Scarlet Pearl 5 Sao', 5, 'SANG TRỌNG RIÊNG TƯ', '["Khám phá Vịnh Lan Hạ - một trong những vịnh biển đẹp nhất hành tinh", "Nghỉ dưỡng trên du thuyền Scarlet Pearl kiến trúc du thuyền buồm hiện đại bậc nhất", "Chèo thuyền Kayak khám phá Hang Sáng Tối huyền ảo", "Tắm biển và thưởng thức tiệc cocktail hoàng hôn tại Bãi biển Ba Trái Đào"]', '[{"day": 1, "title": "Hà Nội - Cảng Tuần Châu - Du Thuyền Lan Hạ - Hang Sáng Tối", "content": "12h15 lên tàu Scarlet Pearl, nghe giới thiệu an toàn. Dùng bữa trưa hải sản chuẩn fine-dining. Chiều ngồi thuyền nan / kayak qua Hang Sáng Tối. Tối thưởng thức tiệc nướng BBQ hải sản trên sundeck."}, {"day": 2, "title": "Tập Yoga Đón Bình Minh - Làng Chài Việt Hải Cát Bà - Trở Về", "content": "Tập Yoga sáng sớm trên boong tàu. Đạp xe xuyên rừng khám phá Làng cổ Việt Hải Cát Bà. Thưởng thức bữa trưa nhẹ buffet trước khi tàu cập cảng về lại Hà Nội."}]', '["Phòng ngủ 5 sao có ban công hướng vịnh", "Các bữa ăn tiêu chuẩn 5 sao trên tàu (bữa trưa set menu, bữa tối fine dining)", "Xe đạp tham quan làng Việt Hải", "Vé tham quan thắng cảnh Vịnh Lan Hạ"]', '["Dịch vụ massage spa", "Thuyền buồm Catamaran cao cấp", "Chi tiêu cá nhân"]', '2026-10-21 07:52:31'),
+(28, 6, 4, 'Hạ Long - Du Thuyền Paradise Elegance Siêu Sang Khám Phá Toàn Cảnh Vịnh 3N2Đ', 'Kỳ nghỉ dài 3 ngày 2 đêm thư thái trọn vẹn: du ngoạn sâu vào vùng lõi di sản thế giới Vịnh Hạ Long, khám phá Hang Tiên Ông, Làng ngọc trai Tùng Sâu và trải nghiệm câu mực đêm thú vị.',
+ 7890000.00, 3, 'Hà Nội', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800', 250,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 5.0, '9800000.00',
+ 'Xe Limousine đưa đón tận nơi & Du thuyền Paradise Elegance', 5, 'VIP ĐẲNG CẤP', '["Hành trình 3N2Đ khám phá sâu các điểm đẹp nhất mà tour ngắn ngày không tới được", "Thưởng thức ẩm thực của đầu bếp đạt chuẩn Michelin trên nhà hàng Le Marin", "Tham gia lớp học nấu ăn nghệ thuật tỉa củ quả truyền thống Việt Nam", "Trải nghiệm câu mực đêm cùng các thủy thủ đoàn mến khách"]', '[{"day": 1, "title": "Hà Nội - Hạ Long - Check-in Paradise Elegance - Hang Luồn", "content": "Đón tại Hà Nội đi Tuần Châu. Lên du thuyền Paradise Elegance. Bắt đầu hành trình qua Động Mê Cung, Hòn Trống Mái. Chèo thuyền Kayak tại Hang Luồn. Tiệc Live Music trên sundeck."}, {"day": 2, "title": "Làng Chài Cửa Vạn - Hang Tiên Ông - Đảo Hồ Động Tiên", "content": "Chuyển sang tàu ngày chuyên dụng khám phá Làng Chài Cửa Vạn cổ xưa, thăm Hang Tiên Ông với dấu tích người tiền sử. Chiều tắm biển bãi cát tự nhiên vắng người."}, {"day": 3, "title": "Hang Sửng Sốt - Trở Về Đất Liền - Hà Nội", "content": "Bách bộ khám phá Hang Sửng Sốt với vòm hang kỳ vĩ hàng triệu năm. Dùng bữa trưa buffet sớm. Xe Limousine đưa đoàn về lại trung tâm Hà Nội."}]', '["Cabin Suite ban công riêng view panorama vịnh", "Toàn bộ các bữa ăn gourmet cao cấp suốt hành trình", "Kayak không giới hạn", "Vé thắng cảnh trọn gói 3N2Đ"]', '["Đồ uống rượu ngoại", "Spa & Sauna", "Chi tiêu cá nhân"]', '2026-10-21 07:52:31'),
+(29, 6, 2, 'Sông Sài Gòn - Tiệc Tối 5 Sao Du Thuyền Saigon Princess Lung Linh 1 Đêm', 'Chiêm ngưỡng vẻ đẹp hoa lệ của \'Hòn ngọc Viễn Đông\' về đêm: thưởng thức set menu ẩm thực thượng hạng, ngắm tòa nhà Landmark 81 rực rỡ và các cây cầu biểu tượng từ giữa lòng sông Sài Gòn.',
+ 1250000.00, 1, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800', 400,
+ '2026-10-21', '2026-10-22', 'ACTIVE', 4.9, '1600000.00',
+ 'Du Thuyền 5 Sao Saigon Princess đạt chuẩn Hoàng Gia', 5, 'TRẢI NGHIỆM ĐỘC ĐÁO', '["Thưởng thức bữa tối Set Menu 5 món fine-dining do bếp trưởng 5 sao chế biến", "Hành trình lướt êm 2 tiếng ngắm toàn cảnh skyline Sài Gòn và Landmark 81 rực sáng", "Không gian kiến trúc cổ điển châu Âu hoàng gia sang trọng và lãng mạn", "Thưởng thức ban nhạc sống trình diễn các bản tình ca acoustic du dương"]', '[{"day": 1, "title": "18h00 Đón Khách Tại Cảng Sài Gòn - 19h30 Du Ngoạn - 21h30 Kết Thúc", "content": "18h00 quý khách có mặt tại Cảng Sài Gòn (Số 5 Nguyễn Tất Thành, Q.4). Nhận bàn ăn hoa tươi nến lung linh. 19h30 tàu rời bến xuôi dòng ngắm Cầu Ba Son, bến Bạch Đằng, Tòa nhà Bitexco và Landmark 81. 21h30 tàu cập bến trả khách."}]', '["Hành trình 2 tiếng du ngoạn trên sông Sài Gòn", "Bữa tối ẩm thực cao cấp 5 món theo thực đơn Fusion Âu - Á", "Chương trình ban nhạc sống biểu diễn trực tiếp", "Bảo hiểm đường thủy nội địa"]', '["Đồ uống tự gọi (rượu vang, cocktail)", "Chi phí gửi xe tại bến cảng", "Tiền tip ban nhạc"]', '2026-10-21 07:52:31'),
+(30, 6, 3, 'Vịnh Bái Tử Long - Du Thuyền Gỗ Cổ Điển Dragon Legend 3N2Đ', 'Hành trình ngược về thiên nhiên hoang sơ không tì vết: thám hiểm Vịnh Bái Tử Long tĩnh lặng, ghé thăm công viên Hòn Xếp, chèo thuyền kayak qua những vịnh cát trắng mịn không bóng người.',
+ 6900000.00, 3, 'Hà Nội', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800', 240,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '8500000.00',
+ 'Xe Limousine đưa đón khứ hồi Hà Nội & Du thuyền Dragon Legend', 5, 'SINH THÁI NGUYÊN SƠ', '["Khám phá Vịnh Bái Tử Long hoang sơ tuyệt đối ít tàu bè du lịch", "Du thuyền gỗ phong cách rồng thời Lý chạm khắc thủ công tinh xảo", "Bữa tối tiệc nướng BBQ trên bãi biển hoang đảo lãng mạn dưới ngàn sao", "Chèo thuyền Kayak khám phá Hang Thiên Cảnh Sơn"]', '[{"day": 1, "title": "Hà Nội - Cảng Quốc Tế Hạ Long - Du Thuyền Bái Tử Long", "content": "Limousine đưa đoàn đến cảng. Lên du thuyền thưởng thức bữa trưa ngắm núi đá vôi Bái Tử Long kỳ thú. Chiều chèo kayak tại Đầm Đơn. Thư giãn bồn sục khoáng trên tàu."}, {"day": 2, "title": "Hang Cỏ - Bãi Biển Vung Hà - Tiệc Nướng Bãi Biển", "content": "Khám phá thạch nhũ nguyên sinh Hang Cỏ. Chiều tắm biển chèo thuyền tại Vung Đặng. Tối thưởng thức tiệc BBQ bãi biển ấm cúng với lửa trại và hải sản nướng."}, {"day": 3, "title": "Làng Chài Vung Viêng - Thăm Lò Gốm - Hà Nội", "content": "Ngồi thuyền nan mộc mạc thăm Làng Chài Vung Viêng. Thưởng thức bữa trưa chia tay. Xe đưa đoàn về lại Hà Nội, dừng chân xem biểu diễn múa rối nước tại Hải Dương."}]', '["Phòng Suite gỗ sang trọng view biển", "Toàn bộ các bữa ăn hải sản cao cấp trên tàu", "Tiệc BBQ trên bãi biển riêng tư", "Hướng dẫn viên tiếng Anh/Việt nhiệt tình"]', '["Đồ uống minibar", "Chi tiêu cá nhân", "Thuế VAT"]', '2026-10-21 07:52:31'),
+(31, 7, 4, 'Trekking Thám Hiểm Hang Én - Hang Động Tự Nhiên Lớn Thứ 3 Thế Giới 2N1Đ', 'Chinh phục kỳ quan thiên nhiên ngoạn mục bậc nhất hành tinh: băng rừng nguyên sinh Phong Nha, lội suối Rào Thương, cắm trại trên bãi cát mịn trong lòng hang vòm đá khổng lồ kỳ ảo.',
+ 7600000.00, 2, 'Quảng Bình', 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800', 220,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 5.0, '8900000.00',
+ 'Xe chuyên dụng địa hình 4x4 đón tiễn Phong Nha', 4, 'CHINH PHỤC ĐỈNH CAO', '["Thám hiểm Hang Én - hang động tự nhiên lớn thứ 3 thế giới được đài BBC vinh danh", "Trải nghiệm cắm trại ngủ lều trên bãi cát trắng mịn màng bên bờ hồ xanh trong lòng hang", "Ghé thăm Bản Đoòng của đồng bào Bru-Vân Kiều nằm cô lập giữa đại ngàn", "Đội ngũ chuyên gia an toàn và porter chuẩn quốc tế đồng hành chăm sóc chu đáo"]', '[{"day": 1, "title": "Phong Nha - Bản Đoòng - Băng Rừng Lội Suối - Cửa Sau Hang Én", "content": "Họp phổ biến an toàn tại văn phòng. Xe đưa đoàn đến Km35 Đường Hồ Chí Minh Tây. Bắt đầu trekking xuyên rừng già xuống thung lũng Bản Đoòng. Lội suối Rào Thương tiến vào cửa sau Hang Én. Cắm trại bên hồ nước ngọc bích trong lòng hang."}, {"day": 2, "title": "Khám Phá Cửa Trước Hang Én - Leo Dốc Ba Giàn - Phong Nha", "content": "Chiêm ngưỡng giếng trời khổng lồ cửa trước Hang Én nơi hàng vạn cánh én chao lượn. Băng qua các bãi thạch nhũ tổ ong kỳ lạ. Trekking leo dốc Ba Giàn thử thách thể lực. Xe đón đoàn về khách sạn Phong Nha liên hoan tổng kết."}]', '["Trọn gói trang thiết bị thám hiểm chuẩn quốc tế: mũ bảo hiểm, đèn Petzl, găng tay", "Đội ngũ porter gùi hành lý, đầu bếp nấu ăn nóng hổi trong hang", "Lều trại, túi ngủ dày ấm, đệm khí êm ái", "Bảo hiểm thám hiểm mạo hiểm mức 150.000.000 VNĐ"]', '["Vé máy bay / tàu hỏa đến Quảng Bình", "Quần áo giày trekking cá nhân", "Tiền tip cho đội ngũ porter và chuyên gia"]', '2026-10-21 07:52:31'),
+(32, 7, 2, 'Trekking Tà Xùa Săn Biển Mây Đại Ngàn - Sống Lưng Khủng Long 3N2Đ', 'Chinh phục thiên đường mây Tây Bắc đẹp nghẹt thở: đi bộ trên Sống Lưng Khủng Long Háng Đồng chênh vênh giữa biển mây cuồn cuộn, ngắm cây táo mèo cô đơn và mỏm cá heo kỳ thú.',
+ 3200000.00, 3, 'Hà Nội', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', 300,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '3900000.00',
+ 'Xe du lịch đời mới vượt dốc cao', 3, 'SĂN MÂY ĐỈNH CAO', '["Chinh phục Sống Lưng Khủng Long Háng Đồng hùng vĩ giữa 4 bề mây trắng", "Check-in Mỏm Cá Heo và Cây Táo Mèo cô đơn góc chụp ảnh huyền thoại", "Thưởng thức ly cà phê nóng hổi ngắm hoàng hôn buông xuống thung lũng mây Tà Xùa", "Thưởng thức lẩu gà đen H\'Mông và thịt gác bếp nướng than hồng"]', '[{"day": 1, "title": "Hà Nội - Bắc Yên - Đỉnh Gió Tà Xùa Đón Hoàng Hôn", "content": "Khởi hành từ Hà Nội qua đèo Nhọt đến Bắc Yên. Lên xã vùng cao Tà Xùa. Nhận homestay view thung lũng mây. Chiều ngắm hoàng hôn rực rỡ tại Đỉnh Gió."}, {"day": 2, "title": "Trekking Sống Lưng Khủng Long - Mỏm Cá Heo - Cây Cô Đơn", "content": "05h30 sáng trekking trên Sống Lưng Khủng Long Háng Đồng săn biển mây bồng bềnh. Chiều check-in Mỏm Cá Heo và cây táo mèo cô đơn. Tối đốt lửa nướng khoai bắp."}, {"day": 3, "title": "Thung Lũng Mây Xím Vàng - Trở Về Hà Nội", "content": "Dạo bộ ngắm ruộng bậc thang Xím Vàng. Mua chè Shan Tuyết cổ thụ trăm tuổi. Khởi hành về đến Hà Nội lúc 19h30."}]', '["Xe vận chuyển chuyên cung đường đèo dốc khứ hồi", "Homestay bungalow view săn mây tuyệt đẹp", "Các bữa ăn đặc sản Tây Bắc gà đồi lợn bản", "Hướng dẫn viên dẫn đường kiêm thợ chụp ảnh có tâm"]', '["Xe ôm di chuyển vào sống lưng khủng long", "Chi tiêu cá nhân", "Đồ uống riêng"]', '2026-10-21 07:52:31'),
+(33, 7, 3, 'Trekking Lảo Thẩn - Chinh Phục Nóc Nhà Y Tý Bát Xát Mây Trắng 2N1Đ', 'Hành trình săn mây kỳ vĩ trên đỉnh Lảo Thẩn 2.860m: ngắm bình minh trên đỉnh núi đá trọc, cắm trại ngắm dải ngân hà Milky Way lung linh giữa không gian đại ngàn hoang hoải.',
+ 2800000.00, 2, 'Hà Nội', 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800', 260,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 4.8, '3500000.00',
+ 'Xe giường nằm Hà Nội - Sa Pa & Xe trung chuyển Y Tý', 3, 'DÀNH CHO TREKKER', '["Chinh phục đỉnh Lảo Thẩn 2.860m - nóc nhà Y Tý được mệnh danh là \'cung trekking quốc dân\'", "Check-in mỏm đá câu cá nhô ra giữa khoảng không biển mây bạt ngàn", "Cắm trại ngủ lán ngắm trời sao lấp lánh và đón ánh bình minh đầu tiên", "Khám phá kiến trúc nhà trình tường bằng đất độc đáo của người Hà Nhì"]', '[{"day": 1, "title": "Sa Pa - Y Tý - Chân Núi Lảo Thẩn - Lán Nghỉ 2.500m", "content": "Đón tại Sa Pa đi Y Tý. Gặp porter người Mông, bắt đầu trekking vượt đồi cỏ tranh và rừng đỗ quyên. Đến lán nghỉ 2.500m, ngắm hoàng hôn rực lửa. Ăn tối lợn cắp nách nướng than."}, {"day": 2, "title": "Chạm Đỉnh Lảo Thẩn 2.860m - Xuống Núi - Về Sa Pa - Hà Nội", "content": "05h00 sáng chinh phục đỉnh chóp Lảo Thẩn đón bình minh trên biển mây. Chụp ảnh mỏm đá sống ảo. Xuống núi về Sa Pa tắm lá thuốc người Dao Đỏ. Lên xe về Hà Nội."}]', '["Xe đưa đón Sa Pa - Y Tý và xe giường nằm khứ hồi Hà Nội", "Lán nghỉ trên núi có chăn ấm đệm êm", "Đội ngũ porter hỗ trợ gùi đồ ăn uống", "Tắm lá thuốc người Dao Đỏ hồi phục cơ bắp"]', '["Chi phí cá nhân", "Thuế VAT", "Tip cho porter"]', '2026-10-21 07:52:31'),
+(34, 7, 4, 'Thám Hiểm Thác K50 - Trái Tim Rừng Già Khu Bảo Tồn Kon Chư Răng 2N2Đ', 'Chiêm ngưỡng \'đệ nhất thác nước Tây Nguyên\': vượt rừng già nguyên sinh Kon Chư Răng, luồn sâu vào hang đá sau màn nước khổng lồ của Thác K50 để thấy cầu vồng ngũ sắc rực rỡ.',
+ 3950000.00, 2, 'Quy Nhơn', 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800', 200,
+ '2026-10-21', '2026-10-23', 'ACTIVE', 5.0, '4800000.00',
+ 'Xe ô tô đưa đón Quy Nhơn & Xe bán tải chuyên dụng địa hình', 3, 'SIÊU PHẨM THIÊN NHIÊN', '["Khám phá Thác K50 (Thác Hang Én) - tuyệt tác thác nước đẹp bậc nhất Đông Nam Á", "Bách bộ luồn vào hốc đá khổng lồ phía sau dòng nước đổ trắng xóa ngắm cầu vồng kép", "Cắm trại bên bờ suối hoang sơ thưởng thức tiệc BBQ giữa rừng già đại ngàn", "Đắm mình trong làn nước suối xanh trong vắt mát lạnh giải nhiệt mùa hè"]', '[{"day": 1, "title": "Quy Nhơn - Kbang Gia Lai - Trạm Kiểm Lâm Kon Chư Răng", "content": "Xe đón tại Quy Nhơn lên huyện Kbang Gia Lai. Đến Trạm kiểm lâm Khu bảo tồn Kon Chư Răng. Bắt đầu trekking xuyên qua những tán cây cổ thụ nghìn năm tuổi. Chiều đến chân thác K50 cắm trại."}, {"day": 2, "title": "Chiêm Ngưỡng Vòm Hang Thác K50 - Xuất Rừng - Về Quy Nhơn", "content": "Khám phá vòm hang đá kỳ bí sau thác K50, chụp ảnh cầu vồng ngũ sắc. Tắm suối trong vắt. Bắt đầu hành trình xuất rừng. Xe đón đoàn về Quy Nhơn thưởng thức hải sản mừng thành công."}]', '["Xe đưa đón chất lượng cao khứ hồi Quy Nhơn", "Lều trại chống thấm, túi ngủ, đèn pin chiếu sáng", "Toàn bộ các bữa ăn dinh dưỡng trong rừng do porter chuẩn bị", "Phí bảo tồn thiên nhiên và kiểm lâm dẫn đường"]', '["Vé máy bay đến Quy Nhơn", "Giày leo núi và trang phục cá nhân"]', '2026-10-21 07:52:31'),
+(35, 7, 2, 'Trekking Tà Năng Phan Dũng - Cung Đường Biển Mây Đẹp Nhất Việt Nam 3N2Đ', 'Chinh phục cung đường trekking huyền thoại: đi qua 3 tỉnh Lâm Đồng - Ninh Thuận - Bình Thuận, băng qua những đồi cỏ xanh ngút ngàn như thảo nguyên Thụy Sĩ, hạ độ cao xuống rừng khộp Bình Thuận.',
+ 3600000.00, 3, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', 250,
+ '2026-10-21', '2026-10-24', 'ACTIVE', 4.9, '4400000.00',
+ 'Xe Universe đưa đón TP.HCM và xe ôm công nghệ rừng chở đồ', 3, 'HUYỀN THOẠI TREKKING', '["Chinh phục cung đường trekking 35km đẹp nhất Việt Nam nối liền cao nguyên và miền biển", "Check-in cột mốc giao thoa 3 tỉnh Lâm Đồng - Ninh Thuận - Bình Thuận", "Chiêm ngưỡng những đồi cỏ xanh mướt trải dài vô tận tựa thảo nguyên châu Âu", "Cắm trại trên đỉnh đồi lộng gió đón ánh bình minh và ngắm hoàng hôn rực rỡ"]', '[{"day": 1, "title": "TP.HCM - Tà Hine - Bìa Rừng Tà Năng - Đỉnh Cỏ Đồi Lộng Gió", "content": "Xe đêm xuất phát từ TP.HCM đến Tà Hine ăn sáng. Bắt đầu trekking xuyên rừng thông Tà Năng. Leo các con dốc đồi cỏ tuyệt đẹp. Dựng lều cắm trại trên đỉnh đồi cao nhất đón hoàng hôn."}, {"day": 2, "title": "Mốc 3 Tỉnh - Hạ Độ Cao Phan Dũng - Cắm Trại Bên Suối", "content": "Đón bình minh tuyệt đẹp. Tiếp tục băng qua các con dốc sống trâu. Chụp ảnh mốc 3 tỉnh. Bắt đầu hạ độ cao xuống rừng khộp Phan Dũng. Cắm trại bên suối mát tắm giặt."}, {"day": 3, "title": "Rừng Khộp Phan Dũng - Xe Trung Chuyển Grab Rừng - Về TP.HCM", "content": "Đi bộ 7km đường bằng rừng khộp ra bìa rừng Phan Dũng. Trải nghiệm xe ôm Grab rừng vượt suối. Ăn trưa tại Liên Hương. Xe đưa đoàn về TP.HCM kết thúc trọn vẹn."}]', '["Xe du lịch giường nằm máy lạnh khứ hồi", "Lều trại cắm trại cao cấp 2 người/lều", "Xe ôm rừng hỗ trợ đoạn ra khỏi rừng", "Hướng dẫn viên và người dẫn đường bản địa am hiểu địa hình"]', '["Chi phí cá nhân ngoài chương trình", "Đồ ăn vặt tự mang"]', '2026-10-21 07:52:31'),
+(36, 8, 2, 'Thái Lan: Bangkok - Pattaya - Đảo San Hô Coral Island - Chùa Vàng 5N4Đ', 'Kỳ nghỉ sôi động tại xứ sở Chùa Vàng: tắm biển Đảo San Hô Coral Island, chiêm bái Tượng Phật Lớn Wat Phra Yai, xem Alcazar Show hoành tráng và thỏa sức mua sắm tại IconSiam.',
+ 6990000.00, 5, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800', 380,
+ '2026-10-21', '2026-10-26', 'ACTIVE', 4.9, '8500000.00',
+ 'Máy bay khứ hồi Vietnam Airlines / Vietjet Air bao gồm 20kg ký gửi', 4, 'BÁN CHẠY NHẤT', '["Dạo cano cao tốc tắm biển lặn ngắm san hô tại Đảo Coral Pattaya", "Thưởng thức chương trình đại nhạc hội Alcazar Show / Colosseum Show lộng lẫy", "Viếng Chùa Thuyền Wat Yannawa và Chùa Phật Vàng Wat Traimit 5,5 tấn vàng ròng", "Thưởng thức đại tiệc buffet Baiyoke Sky 86 tầng cao nhất Bangkok"]', '[{"day": 1, "title": "TP.HCM / Hà Nội - Bangkok - Thành Phố Biển Pattaya", "content": "Bay đến sân bay Suvarnabhumi Bangkok. Xe và HDV đón đoàn di chuyển về Pattaya. Ghé thăm Chợ nổi 4 miền Thái Lan. Tối tự do khám phá phố đi bộ Walking Street."}, {"day": 2, "title": "Cano Đi Đảo San Hô Coral - Trân Bảo Phật Sơn - Alcazar Show", "content": "Cano đưa sang Đảo Coral tắm biển, chơi dù bay. Thăm Núi Phật Vàng Khau Chee Chan khắc bằng 999kg vàng 24K. Tối xem Alcazar Show của các nghệ sĩ chuyển giới."}, {"day": 3, "title": "Pattaya - Vườn Bách Thảo Nong Nooch - Bangkok - IconSiam", "content": "Thăm Vườn nhiệt đới Nong Nooch xem xiếc voi biểu diễn. Về Bangkok check-in TTTM siêu xa xỉ IconSiam bên bờ sông Chao Phraya. Xem nhạc nước ánh sáng."}, {"day": 4, "title": "Dạo Thuyền Sông Chao Phraya - Chùa Phật Vàng - Buffet Baiyoke Sky", "content": "Dạo thuyền trên dòng sông mẹ Chao Phraya ngắm cá nổi. Viếng Chùa Phật Vàng Wat Traimit. Thưởng thức buffet quốc tế trên đỉnh tòa nhà Baiyoke Sky 86 tầng."}, {"day": 5, "title": "Viếng Phật Bốn Mặt Erawan - Mua Sắm BigC - Tiễn Sân Bay", "content": "Chiêm bái Đền Phật Bốn Mặt Erawan linh thiêng giữa trung tâm Bangkok. Tự do mua sắm tại Central World / Big C. Xe đưa ra sân bay đáp chuyến bay về Việt Nam."}]', '["Vé máy bay khứ hồi bao gồm 20kg ký gửi + 7kg xách tay", "Khách sạn 4 sao tiêu chuẩn quốc tế tại Bangkok và Pattaya", "Vé xem Alcazar Show và buffet Baiyoke Sky 86 tầng", "Bảo hiểm du lịch quốc tế mức bồi thường 210.000.000 VNĐ"]', '["Hộ chiếu còn hạn trên 6 tháng", "Tiền tip quy định bắt buộc cho HDV và tài xế (5 USD/khách/ngày)", "Chi tiêu cá nhân ngoài chương trình"]', '2026-10-21 07:52:31'),
+(37, 8, 3, 'Singapore - Malaysia: Garden By The Bay - Tháp Đôi Petronas - Cao Nguyên Genting 5N4Đ', 'Một hành trình hai quốc gia hiện đại bậc nhất Đông Nam Á: ngắm siêu cây Garden By The Bay Singapore, check-in Tháp Đôi Petronas Kuala Lumpur và đi cáp treo lên Cao nguyên Genting mờ sương.',
+ 10990000.00, 5, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 320,
+ '2026-10-21', '2026-10-26', 'ACTIVE', 5.0, '13500000.00',
+ 'Máy bay khứ hồi Singapore Airlines / Malaysia Airlines', 4, 'TOUR QUỐC TẾ HOT', '["Khám phá kỳ quan kiến trúc Gardens By The Bay và thác nước trong nhà Flower Dome", "Check-in Công viên Sư Tử Biển Merlion Park biểu tượng quốc đảo Singapore", "Chụp ảnh lưu niệm tại Tháp Đôi Petronas Twin Towers cao 452m lừng danh", "Đi cáp treo mây vượt núi lên Thành phố giải trí trên mây Cao Nguyên Genting"]', '[{"day": 1, "title": "TP.HCM - Sân Bay Changi Đẹp Nhất Thế Giới - Singapore City Tour", "content": "Đáp xuống sân bay Changi, ngắm thác nước Jewel khổng lồ. Tham quan Công viên Sư Tử Biển Merlion Park, Nhà hát Trái Sầu Riêng Esplanade. Tối xem show ánh sáng Spectra Show bên vịnh Marina."}, {"day": 2, "title": "Gardens By The Bay - Đảo Sentosa - Xuất Cảnh Sang Malacca Malaysia", "content": "Chiêm ngưỡng siêu cây khổng lồ Gardens By The Bay. Sang Đảo Sentosa chụp ảnh biểu tượng Universal Studios. Chiều làm thủ tục qua cửa khẩu sang thành phố cổ Malacca Malaysia."}, {"day": 3, "title": "Phố Cổ Malacca - Quảng Trường Hà Lan - Thủ Đô Kuala Lumpur", "content": "Dạo Quảng trường Đỏ Hà Lan, Pháo đài Famosa, Nhà thờ Thánh Paul. Khởi hành về thủ đô Kuala Lumpur. Chụp ảnh dưới chân Tháp Đôi Petronas Twin Towers rực rỡ ánh đèn."}, {"day": 4, "title": "Động Batu Huyền Bí - Cáp Treo Lên Cao Nguyên Genting", "content": "Chinh phục 272 bậc thang rực rỡ sắc màu tại Thánh địa Hindu Động Batu. Lên cáp treo Genting Skyway lên đỉnh cao nguyên mây Genting thử vận may tại sòng bạc Casino hợp pháp."}, {"day": 5, "title": "Cung Điện Hoàng Gia - Thành Phố Mới Putrajaya - Bay Về TP.HCM", "content": "Thăm Cung điện Hoàng Gia Istana Negara, Thành phố thông minh Putrajaya và Thánh đường Hồi giáo màu hồng Putra Mosque. Xe tiễn sân bay KLIA về lại TP.HCM."}]', '["Vé máy bay khứ hồi quốc tế", "Khách sạn 4 sao trọn gói suốt hành trình tại Singapore và Malaysia", "Vé cáp treo Genting và vé tham quan các điểm", "Bảo hiểm du lịch quốc tế"]', '["Tiền tip cho HDV và tài xế địa phương (5 USD/ngày)", "Chi tiêu mua sắm cá nhân", "Phụ thu phòng đơn"]', '2026-10-21 07:52:31'),
+(38, 8, 4, 'Nhật Bản Mùa Hoa: Tokyo - Núi Phú Sĩ - Kyoto - Lâu Đài Osaka 6N5Đ', 'Hành trình vàng khám phá xứ sở Mặt trời mọc: ngắm núi Phú Sĩ tuyết phủ soi bóng hồ Kawaguchi, mặc kimono dạo phố cổ Kyoto nghìn năm, chiêm ngưỡng Lâu đài Osaka uy nghiêm.',
+ 29900000.00, 6, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800', 200,
+ '2026-10-21', '2026-10-27', 'ACTIVE', 5.0, '35000000.00',
+ 'Máy bay khứ hồi 5 sao All Nippon Airways (ANA) / Japan Airlines', 4, 'ĐẲNG CẤP XỨ PHÙ TANG', '["Chinh phục Trạm số 5 Núi Phú Sĩ - biểu tượng thiêng liêng của xứ sở hoa anh đào", "Trải nghiệm đi tàu cao tốc Shinkansen vận tốc 320km/h biểu tượng công nghệ Nhật", "Dạo bước qua hàng ngàn cổng Torii màu đỏ cam tại Đền Fushimi Inari Kyoto", "Thưởng thức bò Kobe thượng hạng nướng teppanyaki tan chảy trong miệng"]', '[{"day": 1, "title": "TP.HCM - Sân Bay Narita Tokyo - Nghỉ Đêm Tokyo", "content": "Bay thẳng từ TP.HCM đến Narita Tokyo trên chuyến bay 5 sao ANA. Xe đón về khách sạn trung tâm thủ đô Tokyo nghỉ ngơi."}, {"day": 2, "title": "Chùa Asakusa Kannon - Tháp Tokyo Skytree - Núi Phú Sĩ", "content": "Viếng ngôi chùa cổ nhất Tokyo Asakusa Sensoji. Chụp ảnh Tháp Tokyo Skytree. Di chuyển về khu vực Núi Phú Sĩ. Trải nghiệm tắm suối khoáng nóng Onsen truyền thống."}, {"day": 3, "title": "Núi Phú Sĩ Trạm 5 - Làng Cổ Oshino Hakkai - Trải Nghiệm Shinkansen", "content": "Lên trạm 5 Núi Phú Sĩ ngắm tuyết trắng. Dạo bước làng cổ Oshino Hakkai thanh bình với 8 hồ nước tan từ tuyết núi Phú Sĩ. Lên tàu siêu tốc Shinkansen về thành phố Nagoya."}, {"day": 4, "title": "Nagoya - Cố Đô Kyoto - Đền Ngàn Cổng Fushimi Inari - Chùa Vàng Kinkakuji", "content": "Đến Cố đô Kyoto, viếng Chùa Vàng Kinkakuji dát vàng lộng lẫy soi bóng hồ nước. Dạo bước dưới hàng ngàn cánh cổng Torii đỏ thắm tại Đền Fushimi Inari Taisha."}, {"day": 5, "title": "Kyoto - Thành Phố Osaka - Lâu Đài Osaka - Mua Sắm Shinsaibashi", "content": "Di chuyển về Osaka. Tham quan và chụp ảnh lưu niệm tại khuôn viên Lâu đài Osaka biểu tượng. Tự do mua sắm tại khu phố thương mại sầm uất Shinsaibashi và Dotonbori."}, {"day": 6, "title": "Sân Bay Kansai Osaka - Bay Về TP.HCM", "content": "Dùng bữa sáng buffet tại khách sạn. Xe đưa đoàn ra sân bay quốc tế Kansai đáp chuyến bay về lại TP.HCM kết thúc hải trình hoàn mỹ."}]', '["Vé máy bay khứ hồi hàng không 5 sao có 2 kiện hành lý ký gửi (mỗi kiện 23kg)", "Khách sạn tiêu chuẩn 4 sao Nhật Bản có trải nghiệm tắm Onsen", "Trọn gói visa nhập cảnh Nhật Bản diện du lịch đoàn", "Thực đơn bữa tối bò Kobe và lẩu Shabu Shabu hảo hạng"]', '["Tiền tip tài xế và HDV Nhật Bản (8 USD/khách/ngày)", "Chi tiêu cá nhân ngoài chương trình", "Phí nâng hạng vé máy bay thương gia"]', '2026-10-21 07:52:31'),
+(39, 8, 2, 'Hàn Quốc: Seoul - Đảo Nami Lãng Mạn - Công Viên Lotte World - Tháp Namsan 5N4Đ', 'Trải nghiệm văn hóa xứ sở Kim Chi: dạo bước dưới hàng cây ngân hạnh lãng mạn tại Đảo Nami (phim Bản Tình Ca Mùa Đông), thử mặc Hanbok tại Cung điện Gyeongbokgung, vui chơi thỏa thích tại Lotte World.',
+ 14500000.00, 5, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800', 280,
+ '2026-10-21', '2026-10-26', 'ACTIVE', 4.9, '17800000.00',
+ 'Máy bay khứ hồi Vietnam Airlines / Korean Air', 4, 'LÃNG MẠN XỨ HÀN', '["Dạo bước trên Đảo Nami - phim trường của bộ phim huyền thoại \'Bản Tình Ca Mùa Đông\'", "Mặc trang phục truyền thống Hanbok chụp ảnh tại Cung điện hoàng gia Gyeongbokgung", "Vui chơi thả ga tại Lotte World - công viên giải trí trong nhà lớn nhất thế giới", "Check-in Tháp truyền hình Namsan Seoul gắn ổ khóa tình yêu vĩnh cửu"]', '[{"day": 1, "title": "TP.HCM - Sân Bay Quốc Tế Incheon Seoul", "content": "Bay đêm từ sân bay Tân Sơn Nhất đi Seoul. Nghỉ đêm trên máy bay."}, {"day": 2, "title": "Seoul - Khám Phá Đảo Nami Xinh Đẹp - Tháp Namsan", "content": "Sáng đến sân bay Incheon, thưởng thức bữa sáng canh sườn bò nóng hổi. Khởi hành đi Đảo Nami. Chiều về Seoul ngắm hoàng hôn và gắn ổ khóa tình yêu tại Tháp Namsan."}, {"day": 3, "title": "Cung Điện Gyeongbokgung - Bảo Tàng Dân Gian - Nhà Xanh Cheongwadae", "content": "Mặc Hanbok check-in Cung điện Cảnh Phúc Gyeongbokgung, viếng Viện Bảo tàng Dân tộc Quốc gia, chụp ảnh ngoài Phủ Tổng Thống Nhà Xanh. Chiều mua sắm sâm chính phủ."}, {"day": 4, "title": "Công Viên Giải Trí Lotte World - Mua Sắm Chợ Myeongdong", "content": "Khám phá công viên giải trí Lotte World với hàng chục trò chơi mạo hiểm. Tối dạo phố đi bộ Myeongdong thưởng thức ẩm thực đường phố tokbokki, chả cá oden."}, {"day": 5, "title": "Lớp Học Làm Kim Chi Mặc Hanbok - Sân Bay Incheon Về TP.HCM", "content": "Tham gia lớp học tự tay làm món kim chi truyền thống. Ghé siêu thị Ponglim mua quà bánh kẹo. Xe đưa ra sân bay Incheon bay về TP.HCM."}]', '["Vé máy bay khứ hồi quốc tế có 20kg ký gửi", "Khách sạn 4 sao trung tâm thủ đô Seoul", "Trọn gói visa du lịch Hàn Quốc", "Vé vào cổng Đảo Nami và Công viên Lotte World"]', '["Tiền tip quy định (6 USD/khách/ngày)", "Chi phí cá nhân", "Phụ thu phòng đơn"]', '2026-10-21 07:52:31'),
+(40, 8, 3, 'Đài Loan: Đài Bắc - Đài Trung - Hồ Nhật Nguyệt - Làng Cổ Thập Phần 5N4Đ', 'Thưởng ngoạn hòn đảo ngọc Formosa trù phú: du thuyền ngắm cảnh Hồ Nhật Nguyệt mộng mơ, thả đèn trời ước nguyện tại Phố cổ Thập Phần, chụp ảnh Tòa tháp Taipei 101 biểu tượng.',
+ 12900000.00, 5, 'TP. Hồ Chí Minh', 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800', 300,
+ '2026-10-21', '2026-10-26', 'ACTIVE', 4.9, '15500000.00',
+ 'Máy bay khứ hồi China Airlines / Eva Air 5 sao', 4, 'GIÁ TỐT NHẤT', '["Đi du thuyền thưởng ngoạn vẻ đẹp sơn thủy hữu tình trên Hồ Nhật Nguyệt", "Thả đèn trời bốn mặt cầu bình an may mắn tại Tuyến đường sắt Cổ Thập Phần", "Check-in Tòa tháp Taipei 101 từng là tòa nhà cao nhất thế giới", "Thưởng thức ẩm thực chợ đêm Phùng Giáp và trà sữa trân châu chính gốc"]', '[{"day": 1, "title": "TP.HCM - Sân Bay Đào Viên Đài Bắc - Đài Trung", "content": "Bay đến Đài Bắc. Xe đưa đoàn về thành phố Đài Trung. Khám phá Chợ đêm Phùng Giáp (Fengjia) - thiên đường ăn vặt với đậu hũ thối, trà sữa trân châu."}, {"day": 2, "title": "Hồ Nhật Nguyệt - Miếu Văn Võ - Làng Cầu Vồng Rainbow Village", "content": "Du thuyền ngắm cảnh Hồ Nhật Nguyệt. Viếng Miếu Văn Võ uy nghiêm. Thăm Làng Cầu Vồng rực rỡ sắc màu tranh vẽ của cụ ông Huang Yung-fu. Về Đài Bắc."}, {"day": 3, "title": "Làng Cổ Cửu Phần Jiufen - Thác Nước Thập Phần - Thả Đèn Trời", "content": "Khám phá Làng Cổ Cửu Phần lồng đèn đỏ (cảm hứng phim Vùng Đất Linh Hồn). Đến Phố cổ Thập Phần thả đèn trời ước nguyện dọc đường ray tàu hỏa cổ."}, {"day": 4, "title": "Đài Tưởng Niệm Tưởng Giới Thạch - Tòa Tháp Taipei 101", "content": "Thăm Nhà tưởng niệm Tưởng Giới Thạch xem đổi gác trang nghiêm. Check-in Tháp Taipei 101. Tự do mua sắm bánh dứa Phụng Lê đặc sản."}, {"day": 5, "title": "Chùa Long Sơn - Sân Bay Đào Viên Về TP.HCM", "content": "Viếng Chùa Long Sơn cổ tự linh thiêng bậc nhất Đài Loan. Mua sắm hàng miễn thuế. Xe tiễn sân bay Đào Viên về lại TP.HCM."}]', '["Vé máy bay khứ hồi hãng 5 sao", "Khách sạn 4 sao suốt hành trình", "Visa Quan Hồng tiện lợi", "Bao gồm vé thả đèn trời (4 khách/đèn)"]', '["Vé lên đài quan sát tầng 89 Taipei 101", "Tiền tip cho HDV và tài xế (5 USD/khách/ngày)", "Chi tiêu cá nhân"]', '2026-10-21 07:52:31');
 
--- 12 Chi tiết đơn hàng (Dùng để Admin/Provider test sửa số lượng người tham gia trong đơn)
+-- =================================================================================
+-- 4. BẢNG ORDERS (137 ĐƠN HÀNG: 17 ĐƠN B2B DOANH NGHIỆP + 120 ĐƠN GIA ĐÌNH/CÁ NHÂN)
+-- =================================================================================
+INSERT INTO Orders (
+    order_id, user_id, order_date, total_amount, status,
+    contact_name, contact_phone, contact_email, notes,
+    order_code, is_b2b, discount_percent
+) VALUES
+(1, 5, '2026-10-21 09:40:00', 2860650000.00, 'CONFIRMED', 'Tập Đoàn FPT - FPT Software', '02473007300', 'admin@fpt.com.vn', 'Company Trip thường niên 2026 FPT Software - Chuyến đi Đà Nẵng Hội An', 'ORD-20261021-0001', 1, 10),
+(2, 6, '2026-10-21 07:29:00', 4322250000.00, 'CONFIRMED', 'Tập Đoàn Vingroup - Khối Vận Hành', '02439749999', 'contact@vingroup.net', 'Du lịch nghỉ dưỡng kết hợp Gala Dinner Vingroup tại Grand World Phú Quốc', 'ORD-20261021-0002', 1, 10),
+(3, 7, '2026-10-21 10:29:00', 2872800000.00, 'CONFIRMED', 'Tập Đoàn Công Nghiệp - Viễn Thông Quân Đội Viettel', '02462556789', 'corp@viettel.com.vn', 'Hội nghị khách hàng và teambuilding biển Nha Trang tập đoàn Viettel', 'ORD-20261021-0003', 1, 10),
+(4, 8, '2026-10-21 08:12:00', 1975050000.00, 'CONFIRMED', 'Ngân Hàng TMCP Ngoại Thương Việt Nam (Vietcombank)', '02439343137', 'congdoan@vietcombank.com.vn', 'Hành trình nghỉ dưỡng trên Du thuyền Ambassador Hạ Long - Công đoàn Vietcombank', 'ORD-20261021-0004', 1, 10),
+(5, 9, '2026-10-21 08:13:00', 3442500000.00, 'CONFIRMED', 'Công Ty Cổ Phần Đầu Tư Thế Giới Di Động (MWG)', '02838125960', 'hr@mwg.vn', 'Teambuilding bứt phá giới hạn 2026 tại biển Quy Nhơn - MWG', 'ORD-20261021-0005', 1, 10),
+(6, 10, '2026-10-21 08:32:00', 1820700000.00, 'CONFIRMED', 'Công Ty Cổ Phần Sữa Việt Nam (Vinamilk)', '02854155555', 'tradeunion@vinamilk.com.vn', 'Tour nghỉ dưỡng Đà Lạt ngàn hoa - Công ty CP Sữa Vinamilk', 'ORD-20261021-0006', 1, 10),
+(7, 11, '2026-10-21 07:46:00', 1708200000.00, 'CONFIRMED', 'Ngân Hàng TMCP Kỹ Thương Việt Nam (Techcombank)', '02439446368', 'internal@techcombank.com.vn', 'Hành trình chinh phục đỉnh Fansipan Sa Pa - Techcombank khối Công Nghệ', 'ORD-20261021-0007', 1, 10),
+(8, 12, '2026-10-21 09:22:00', 2830950000.00, 'CONFIRMED', 'Công Ty TNHH Shopee Việt Nam (Sea Group)', '02873061221', 'people@shopee.vn', 'Chuyến du lịch quốc tế Thái Lan Bangkok Pattaya - Shopee Vietnam', 'ORD-20261021-0008', 1, 10),
+(9, 13, '2026-10-21 07:32:00', 2140200000.00, 'CONFIRMED', 'Tập Đoàn Bưu Chính Viễn Thông Việt Nam (VNPT)', '02437741091', 'contact@vnpt.vn', 'Hành trình di sản Cố Đô Huế - Động Phong Nha cán bộ công nhân viên VNPT', 'ORD-20261021-0009', 1, 10),
+(10, 14, '2026-10-21 08:20:00', 1053000000.00, 'CONFIRMED', 'Tập Đoàn Masan (Masan Consumer Corp)', '02862563862', 'admin@masangroup.com', 'Hành trình sông nước miệt vườn Chợ Nổi Cần Thơ Cồn Sơn - Tập đoàn Masan', 'ORD-20261021-0010', 1, 10),
+(11, 15, '2026-10-21 08:24:00', 3240000000.00, 'CONFIRMED', 'Ngân Hàng TMCP Đầu Tư Và Phát Triển Việt Nam (BIDV)', '02422200588', 'congdoan@bidv.com.vn', 'Hành trình tâm linh về nguồn Côn Đảo - Công đoàn Ngân hàng BIDV', 'ORD-20261021-0011', 1, 10),
+(12, 16, '2026-10-21 07:40:00', 2936250000.00, 'CONFIRMED', 'Tập Đoàn Hòa Phát (Hoa Phat Group)', '02462810999', 'admin@hoaphat.com.vn', 'Nghỉ dưỡng đẳng cấp Vịnh Lan Hạ du thuyền Scarlet Pearl - Tập đoàn Hòa Phát', 'ORD-20261021-0012', 1, 10),
+(13, 5, '2026-10-21 08:43:00', 1896480000.00, 'CONFIRMED', 'FPT Telecom - Khối Hạ Tầng', '02473008888', 'telecom@fpt.com.vn', 'Du lịch thưởng ngoạn Đà Nẵng Cầu Rồng - FPT Telecom', 'ORD-20261021-0013', 1, 10),
+(14, 6, '2026-10-21 07:13:00', 582750000.00, 'CONFIRMED', 'VinFast Auto Vietnam', '02439748888', 'vinfast@vingroup.net', 'Hành trình sinh thái Rừng Tràm Trà Sư Châu Đốc - Cán bộ VinFast', 'ORD-20261021-0014', 1, 10),
+(15, 7, '2026-10-21 10:41:00', 1029600000.00, 'CONFIRMED', 'Tổng Công Ty Mạng Lưới Viettel (VTNet)', '02462551111', 'vtnet@viettel.com.vn', 'Du xuân Tràng An Bái Đính Ninh Bình - Khối VTNet Viettel', 'ORD-20261021-0015', 1, 10),
+(16, 10, '2026-10-21 08:44:00', 699300000.00, 'CONFIRMED', 'Trang Trại Vinamilk Mộc Châu', '02854158888', 'farm@vinamilk.com.vn', 'Chuyến đi Mộc Châu Cầu Kính Bạch Long - CBCNV Vinamilk', 'ORD-20261021-0016', 1, 10),
+(17, 9, '2026-10-21 10:36:00', 940500000.00, 'CONFIRMED', 'Chuỗi Bách Hóa Xanh (MWG)', '02838128888', 'bhx@mwg.vn', 'Săn mây Cầu Đất Đà Lạt - Đội ngũ quản lý xuất sắc Bách Hóa Xanh', 'ORD-20261021-0017', 1, 10),
+(18, 18, '2026-10-21 10:15:00', 39550000.00, 'COMPLETED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0018', 0, 0),
+(19, 19, '2026-10-21 17:57:00', 31150000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0019', 0, 0),
+(20, 26, '2026-10-21 06:05:00', 15780000.00, 'COMPLETED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0020', 0, 0),
+(21, 20, '2026-10-21 06:35:00', 16800000.00, 'COMPLETED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0021', 0, 0),
+(22, 25, '2026-10-21 13:37:00', 13050000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0022', 0, 0),
+(23, 17, '2026-10-21 12:21:00', 28700000.00, 'CONFIRMED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0023', 0, 0),
+(24, 19, '2026-10-21 11:06:00', 30000000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0024', 0, 0),
+(25, 23, '2026-10-21 11:38:00', 17800000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0025', 0, 0),
+(26, 17, '2026-10-21 07:59:00', 41400000.00, 'CONFIRMED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0026', 0, 0),
+(27, 18, '2026-10-21 16:39:00', 27960000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0027', 0, 0),
+(28, 26, '2026-10-21 07:02:00', 26950000.00, 'COMPLETED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0028', 0, 0),
+(29, 21, '2026-10-21 09:55:00', 29200000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0029', 0, 0),
+(30, 23, '2026-10-21 16:53:00', 17000000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0030', 0, 0),
+(31, 19, '2026-10-21 09:42:00', 7160000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0031', 0, 0),
+(32, 18, '2026-10-21 08:34:00', 101500000.00, 'COMPLETED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0032', 0, 0),
+(33, 19, '2026-10-21 10:59:00', 34500000.00, 'COMPLETED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0033', 0, 0),
+(34, 22, '2026-10-21 06:51:00', 12750000.00, 'CONFIRMED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0034', 0, 0),
+(35, 23, '2026-10-21 09:58:00', 6800000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0035', 0, 0),
+(36, 20, '2026-10-21 16:29:00', 16000000.00, 'COMPLETED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0036', 0, 0),
+(37, 21, '2026-10-21 17:35:00', 5550000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0037', 0, 0),
+(38, 26, '2026-10-21 12:23:00', 47340000.00, 'COMPLETED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0038', 0, 0),
+(39, 19, '2026-10-21 07:48:00', 14000000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0039', 0, 0),
+(40, 18, '2026-10-21 08:50:00', 15400000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0040', 0, 0),
+(41, 26, '2026-10-21 12:38:00', 36000000.00, 'CONFIRMED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0041', 0, 0),
+(42, 25, '2026-10-21 06:43:00', 16500000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0042', 0, 0),
+(43, 25, '2026-10-21 16:21:00', 27200000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0043', 0, 0),
+(44, 21, '2026-10-21 13:00:00', 23670000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0044', 0, 0),
+(45, 25, '2026-10-21 07:55:00', 26340000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0045', 0, 0),
+(46, 25, '2026-10-21 08:23:00', 43500000.00, 'COMPLETED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0046', 0, 0),
+(47, 25, '2026-10-21 15:20:00', 7900000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0047', 0, 0),
+(48, 17, '2026-10-21 18:19:00', 11800000.00, 'COMPLETED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0048', 0, 0),
+(49, 17, '2026-10-21 07:05:00', 17340000.00, 'CONFIRMED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0049', 0, 0),
+(50, 18, '2026-10-21 08:08:00', 28800000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0050', 0, 0),
+(51, 25, '2026-10-21 14:55:00', 16400000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0051', 0, 0),
+(52, 20, '2026-10-21 17:44:00', 28800000.00, 'COMPLETED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0052', 0, 0),
+(53, 21, '2026-10-21 16:23:00', 27930000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0053', 0, 0),
+(54, 25, '2026-10-21 09:14:00', 2500000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0054', 0, 0),
+(55, 22, '2026-10-21 14:14:00', 33900000.00, 'COMPLETED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0055', 0, 0),
+(56, 17, '2026-10-21 16:03:00', 50400000.00, 'COMPLETED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0056', 0, 0),
+(57, 18, '2026-10-21 11:04:00', 31920000.00, 'COMPLETED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0057', 0, 0),
+(58, 21, '2026-10-21 14:08:00', 9600000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0058', 0, 0),
+(59, 20, '2026-10-21 12:12:00', 60800000.00, 'CONFIRMED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0059', 0, 0),
+(60, 18, '2026-10-21 12:26:00', 31560000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0060', 0, 0),
+(61, 17, '2026-10-21 12:46:00', 8900000.00, 'CONFIRMED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0061', 0, 0),
+(62, 18, '2026-10-21 09:34:00', 8670000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0062', 0, 0),
+(63, 19, '2026-10-21 10:29:00', 23670000.00, 'COMPLETED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0063', 0, 0),
+(64, 18, '2026-10-21 14:06:00', 10000000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0064', 0, 0),
+(65, 25, '2026-10-21 18:54:00', 9780000.00, 'COMPLETED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0065', 0, 0),
+(66, 19, '2026-10-21 13:13:00', 21750000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0066', 0, 0),
+(67, 17, '2026-10-21 06:24:00', 20500000.00, 'CONFIRMED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0067', 0, 0),
+(68, 24, '2026-10-21 17:46:00', 18000000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0068', 0, 0),
+(69, 19, '2026-10-21 09:03:00', 15400000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0069', 0, 0),
+(70, 22, '2026-10-21 15:30:00', 8500000.00, 'COMPLETED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0070', 0, 0),
+(71, 17, '2026-10-21 08:04:00', 5600000.00, 'CONFIRMED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0071', 0, 0),
+(72, 20, '2026-10-21 15:15:00', 7980000.00, 'CONFIRMED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0072', 0, 0),
+(73, 26, '2026-10-21 16:37:00', 18250000.00, 'CONFIRMED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0073', 0, 0),
+(74, 21, '2026-10-21 17:20:00', 26250000.00, 'COMPLETED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0074', 0, 0),
+(75, 21, '2026-10-21 16:41:00', 11970000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0075', 0, 0),
+(76, 24, '2026-10-21 07:00:00', 15600000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0076', 0, 0),
+(77, 26, '2026-10-21 07:34:00', 21980000.00, 'COMPLETED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0077', 0, 0),
+(78, 25, '2026-10-21 11:56:00', 8250000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0078', 0, 0),
+(79, 20, '2026-10-21 08:28:00', 7160000.00, 'CONFIRMED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0079', 0, 0),
+(80, 26, '2026-10-21 16:52:00', 7900000.00, 'CONFIRMED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0080', 0, 0),
+(81, 18, '2026-10-21 07:56:00', 7400000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0081', 0, 0),
+(82, 25, '2026-10-21 10:38:00', 8800000.00, 'COMPLETED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0082', 0, 0),
+(83, 22, '2026-10-21 16:54:00', 26250000.00, 'CONFIRMED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0083', 0, 0),
+(84, 25, '2026-10-21 06:05:00', 12800000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0084', 0, 0),
+(85, 21, '2026-10-21 11:49:00', 7980000.00, 'COMPLETED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0085', 0, 0),
+(86, 21, '2026-10-21 13:35:00', 28700000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0086', 0, 0),
+(87, 25, '2026-10-21 07:56:00', 9780000.00, 'COMPLETED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0087', 0, 0),
+(88, 25, '2026-10-21 11:37:00', 31920000.00, 'COMPLETED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0088', 0, 0),
+(89, 23, '2026-10-21 10:23:00', 3700000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0089', 0, 0),
+(90, 22, '2026-10-21 09:42:00', 26250000.00, 'CONFIRMED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0090', 0, 0),
+(91, 22, '2026-10-21 12:39:00', 55920000.00, 'COMPLETED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0091', 0, 0),
+(92, 20, '2026-10-21 18:11:00', 32800000.00, 'CONFIRMED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0092', 0, 0),
+(93, 17, '2026-10-21 11:50:00', 30730000.00, 'CONFIRMED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0093', 0, 0),
+(94, 20, '2026-10-21 18:44:00', 10200000.00, 'CONFIRMED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0094', 0, 0),
+(95, 23, '2026-10-21 13:14:00', 31920000.00, 'COMPLETED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0095', 0, 0),
+(96, 24, '2026-10-21 18:55:00', 3400000.00, 'COMPLETED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0096', 0, 0),
+(97, 20, '2026-10-21 09:25:00', 39550000.00, 'CONFIRMED', 'Lê Hoàng Nam', '0945678901', 'nam.le@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0097', 0, 0),
+(98, 21, '2026-10-21 10:22:00', 57600000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0098', 0, 0),
+(99, 25, '2026-10-21 07:56:00', 3700000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0099', 0, 0),
+(100, 19, '2026-10-21 06:06:00', 119600000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0100', 0, 0),
+(101, 22, '2026-10-21 15:32:00', 9750000.00, 'CONFIRMED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0101', 0, 0),
+(102, 23, '2026-10-21 10:02:00', 32970000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0102', 0, 0),
+(103, 17, '2026-10-21 14:43:00', 31600000.00, 'COMPLETED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0103', 0, 0),
+(104, 22, '2026-10-21 16:58:00', 15780000.00, 'CONFIRMED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0104', 0, 0),
+(105, 26, '2026-10-21 07:46:00', 13650000.00, 'CONFIRMED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0105', 0, 0),
+(106, 25, '2026-10-21 12:20:00', 27650000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0106', 0, 0),
+(107, 21, '2026-10-21 09:26:00', 20970000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0107', 0, 0),
+(108, 19, '2026-10-21 10:25:00', 77400000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0108', 0, 0),
+(109, 21, '2026-10-21 12:50:00', 10800000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0109', 0, 0),
+(110, 24, '2026-10-21 16:13:00', 6250000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0110', 0, 0),
+(111, 19, '2026-10-21 14:42:00', 14600000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0111', 0, 0),
+(112, 18, '2026-10-21 10:14:00', 20230000.00, 'COMPLETED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0112', 0, 0),
+(113, 19, '2026-10-21 09:30:00', 11300000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0113', 0, 0),
+(114, 24, '2026-10-21 15:12:00', 30450000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0114', 0, 0),
+(115, 24, '2026-10-21 08:41:00', 11970000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0115', 0, 0),
+(116, 18, '2026-10-21 08:51:00', 23670000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0116', 0, 0),
+(117, 17, '2026-10-21 07:29:00', 20970000.00, 'COMPLETED', 'Nguyễn Văn Khách', '0912345678', 'customer@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0117', 0, 0),
+(118, 24, '2026-10-21 15:20:00', 23700000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0118', 0, 0),
+(119, 26, '2026-10-21 14:28:00', 14000000.00, 'COMPLETED', 'Bùi Thế Anh', '0923344556', 'anh.bui@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0119', 0, 0),
+(120, 24, '2026-10-21 18:15:00', 5000000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0120', 0, 0),
+(121, 25, '2026-10-21 09:17:00', 22400000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0121', 0, 0),
+(122, 18, '2026-10-21 10:21:00', 10800000.00, 'CONFIRMED', 'Nguyễn Văn An', '0987654321', 'an.nguyen@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0122', 0, 0),
+(123, 25, '2026-10-21 08:14:00', 10950000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0123', 0, 0),
+(124, 19, '2026-10-21 12:26:00', 7500000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 2 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0124', 0, 0),
+(125, 25, '2026-10-21 06:13:00', 34500000.00, 'CONFIRMED', 'Đoàn Thanh Sơn', '0912233445', 'son.doan@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0125', 0, 0),
+(126, 23, '2026-10-21 06:54:00', 209300000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0126', 0, 0),
+(127, 24, '2026-10-21 10:48:00', 19560000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0127', 0, 0),
+(128, 23, '2026-10-21 17:34:00', 25200000.00, 'COMPLETED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0128', 0, 0),
+(129, 24, '2026-10-21 12:31:00', 8400000.00, 'CONFIRMED', 'Hoàng Mai Linh', '0901122334', 'linh.hoang@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0129', 0, 0),
+(130, 23, '2026-10-21 16:51:00', 12950000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0130', 0, 0),
+(131, 19, '2026-10-21 15:34:00', 20700000.00, 'CONFIRMED', 'Trần Thị Bích Ngọc', '0934567890', 'bich.tran@gmail.com', 'Đặt tour du lịch gia đình 3 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0131', 0, 0),
+(132, 23, '2026-10-21 16:01:00', 179400000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 6 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0132', 0, 0),
+(133, 23, '2026-10-21 13:11:00', 14800000.00, 'CONFIRMED', 'Đặng Quốc Bảo', '0989012345', 'bao.dang@gmail.com', 'Đặt tour du lịch gia đình 8 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0133', 0, 0),
+(134, 21, '2026-10-21 09:29:00', 14000000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0134', 0, 0),
+(135, 22, '2026-10-21 18:53:00', 14000000.00, 'CONFIRMED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 4 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0135', 0, 0),
+(136, 21, '2026-10-21 06:47:00', 18250000.00, 'CONFIRMED', 'Phạm Minh Tuấn', '0967890123', 'tuan.pham@gmail.com', 'Đặt tour du lịch gia đình 5 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0136', 0, 0),
+(137, 22, '2026-10-21 07:49:00', 14700000.00, 'CONFIRMED', 'Vũ Thị Phương Thảo', '0978901234', 'thao.vu@gmail.com', 'Đặt tour du lịch gia đình 7 khách khởi hành trong ngày 2026-10-21', 'ORD-20261021-0137', 0, 0);
+
+-- =================================================================================
+-- 5. BẢNG ORDERDETAILS (TỔNG KHÁCH: 10.591 KHÁCH CÓ CHUYẾN ĐI TRONG NGÀY)
+-- =================================================================================
 INSERT INTO OrderDetails (order_detail_id, order_id, tour_id, quantity, unit_price) VALUES
-(1, 1001, 1, 2, 5490000.00),   -- Đơn 1001: 2 khách Phú Quốc (giá gốc 5.490.000)
-(2, 1002, 5, 4, 7890000.00),   -- Đơn 1002: 4 khách Sapa - Hạ Long (giá gốc 7.890.000)
-(3, 1003, 10, 4, 2890000.00),  -- Đơn 1003: 4 khách Đà Lạt
-(4, 1004, 6, 2, 4690000.00),    -- Đơn 1004: 2 khách Hà Giang
-(5, 1005, 8, 4, 6250000.00),   -- Đơn 1005: 4 khách Đà Nẵng - Hội An - Huế
-(6, 1006, 7, 3, 2450000.00),    -- Đơn 1006: 3 khách Ninh Bình
-(7, 1007, 2, 2, 3950000.00),    -- Đơn 1007: 2 khách Nha Trang
-(8, 1007, 3, 2, 4290000.00),    -- Đơn 1007: 2 khách Quy Nhơn - Phú Yên
-(9, 1008, 11, 2, 3390000.00),   -- Đơn 1008: 2 khách Măng Đen
-(10, 1008, 12, 2, 1690000.00),  -- Đơn 1008: 2 khách Miền Tây
-(11, 1009, 10, 25, 2601000.00), -- Đơn 1009 (B2B Đoàn 25 người): Giá gốc 2.890.000đ giảm 10% còn 2.601.000đ/người x 25 người = 65.025.000đ
-(12, 1010, 1, 1, 5490000.00);   -- Đơn 1010 (User 16 Nguyễn Văn An): 1 khách Phú Quốc (Dùng để test chặn Safe Delete)
+(1, 1, 1, 650, 4890000.00),
+(2, 2, 2, 850, 5650000.00),
+(3, 3, 3, 800, 3990000.00),
+(4, 4, 26, 550, 3990000.00),
+(5, 5, 4, 900, 4250000.00),
+(6, 6, 16, 700, 2890000.00),
+(7, 7, 6, 520, 3650000.00),
+(8, 8, 36, 450, 6990000.00),
+(9, 9, 11, 580, 4100000.00),
+(10, 10, 21, 600, 1950000.00),
+(11, 11, 5, 500, 7200000.00),
+(12, 12, 27, 750, 4350000.00),
+(13, 13, 12, 480, 4390000.00),
+(14, 14, 22, 350, 1850000.00),
+(15, 15, 10, 520, 2200000.00),
+(16, 16, 9, 420, 1850000.00),
+(17, 17, 17, 380, 2750000.00),
+(18, 18, 2, 7, 5650000.00),
+(19, 19, 7, 7, 4450000.00),
+(20, 20, 28, 2, 7890000.00),
+(21, 21, 33, 6, 2800000.00),
+(22, 22, 27, 3, 4350000.00),
+(23, 23, 11, 7, 4100000.00),
+(24, 24, 14, 8, 3750000.00),
+(25, 25, 7, 4, 4450000.00),
+(26, 26, 30, 6, 6900000.00),
+(27, 27, 36, 4, 6990000.00),
+(28, 28, 13, 7, 3850000.00),
+(29, 29, 6, 8, 3650000.00),
+(30, 30, 18, 5, 3400000.00),
+(31, 31, 24, 4, 1790000.00),
+(32, 32, 39, 7, 14500000.00),
+(33, 33, 30, 5, 6900000.00),
+(34, 34, 4, 3, 4250000.00),
+(35, 35, 18, 2, 3400000.00),
+(36, 36, 32, 5, 3200000.00),
+(37, 37, 9, 3, 1850000.00),
+(38, 38, 28, 6, 7890000.00),
+(39, 39, 33, 5, 2800000.00),
+(40, 40, 10, 7, 2200000.00),
+(41, 41, 5, 5, 7200000.00),
+(42, 42, 17, 6, 2750000.00),
+(43, 43, 18, 8, 3400000.00),
+(44, 44, 28, 3, 7890000.00),
+(45, 45, 12, 6, 4390000.00),
+(46, 46, 39, 3, 14500000.00),
+(47, 47, 34, 2, 3950000.00),
+(48, 48, 8, 4, 2950000.00),
+(49, 49, 16, 6, 2890000.00),
+(50, 50, 35, 8, 3600000.00),
+(51, 51, 11, 4, 4100000.00),
+(52, 52, 35, 8, 3600000.00),
+(53, 53, 26, 7, 3990000.00),
+(54, 54, 29, 2, 1250000.00),
+(55, 55, 2, 6, 5650000.00),
+(56, 56, 5, 7, 7200000.00),
+(57, 57, 3, 8, 3990000.00),
+(58, 58, 32, 3, 3200000.00),
+(59, 59, 31, 8, 7600000.00),
+(60, 60, 28, 4, 7890000.00),
+(61, 61, 7, 2, 4450000.00),
+(62, 62, 16, 3, 2890000.00),
+(63, 63, 28, 3, 7890000.00),
+(64, 64, 29, 8, 1250000.00),
+(65, 65, 1, 2, 4890000.00),
+(66, 66, 27, 5, 4350000.00),
+(67, 67, 11, 5, 4100000.00),
+(68, 68, 19, 5, 3600000.00),
+(69, 69, 13, 4, 3850000.00),
+(70, 70, 4, 2, 4250000.00),
+(71, 71, 33, 2, 2800000.00),
+(72, 72, 26, 2, 3990000.00),
+(73, 73, 6, 5, 3650000.00),
+(74, 74, 14, 7, 3750000.00),
+(75, 75, 26, 3, 3990000.00),
+(76, 76, 21, 8, 1950000.00),
+(77, 77, 37, 2, 10990000.00),
+(78, 78, 17, 3, 2750000.00),
+(79, 79, 24, 4, 1790000.00),
+(80, 80, 34, 2, 3950000.00),
+(81, 81, 9, 4, 1850000.00),
+(82, 82, 10, 4, 2200000.00),
+(83, 83, 14, 7, 3750000.00),
+(84, 84, 32, 4, 3200000.00),
+(85, 85, 3, 2, 3990000.00),
+(86, 86, 11, 7, 4100000.00),
+(87, 87, 1, 2, 4890000.00),
+(88, 88, 3, 8, 3990000.00),
+(89, 89, 9, 2, 1850000.00),
+(90, 90, 14, 7, 3750000.00),
+(91, 91, 36, 8, 6990000.00),
+(92, 92, 11, 8, 4100000.00),
+(93, 93, 12, 7, 4390000.00),
+(94, 94, 18, 3, 3400000.00),
+(95, 95, 3, 8, 3990000.00),
+(96, 96, 23, 4, 850000.00),
+(97, 97, 2, 7, 5650000.00),
+(98, 98, 5, 8, 7200000.00),
+(99, 99, 22, 2, 1850000.00),
+(100, 100, 38, 4, 29900000.00),
+(101, 101, 21, 5, 1950000.00),
+(102, 102, 37, 3, 10990000.00),
+(103, 103, 34, 8, 3950000.00),
+(104, 104, 28, 2, 7890000.00),
+(105, 105, 21, 7, 1950000.00),
+(106, 106, 20, 7, 3950000.00),
+(107, 107, 36, 3, 6990000.00),
+(108, 108, 40, 6, 12900000.00),
+(109, 109, 19, 3, 3600000.00),
+(110, 110, 29, 5, 1250000.00),
+(111, 111, 6, 4, 3650000.00),
+(112, 112, 16, 7, 2890000.00),
+(113, 113, 2, 2, 5650000.00),
+(114, 114, 27, 7, 4350000.00),
+(115, 115, 26, 3, 3990000.00),
+(116, 116, 28, 3, 7890000.00),
+(117, 117, 36, 3, 6990000.00),
+(118, 118, 34, 6, 3950000.00),
+(119, 119, 33, 5, 2800000.00),
+(120, 120, 29, 4, 1250000.00),
+(121, 121, 32, 7, 3200000.00),
+(122, 122, 19, 3, 3600000.00),
+(123, 123, 6, 3, 3650000.00),
+(124, 124, 14, 2, 3750000.00),
+(125, 125, 30, 5, 6900000.00),
+(126, 126, 38, 7, 29900000.00),
+(127, 127, 1, 4, 4890000.00),
+(128, 128, 35, 7, 3600000.00),
+(129, 129, 15, 4, 2100000.00),
+(130, 130, 22, 7, 1850000.00),
+(131, 131, 30, 3, 6900000.00),
+(132, 132, 38, 6, 29900000.00),
+(133, 133, 9, 8, 1850000.00),
+(134, 134, 25, 4, 3500000.00),
+(135, 135, 25, 4, 3500000.00),
+(136, 136, 6, 5, 3650000.00),
+(137, 137, 15, 7, 2100000.00);
 
 -- =================================================================================
--- 5. BẢNG USER_ACTIVITY_HISTORY (LỊCH SỬ HOẠT ĐỘNG ĐỂ DEMO GỢI Ý & AI CHAT)
--- VIEW = 1đ, ADD_TO_CART = 3đ, BOOK = 5đ
+-- 6. BẢNG USER_ACTIVITY_HISTORY (164 TƯƠNG TÁC PHỤC VỤ AI RECOMMENDATION)
 -- =================================================================================
 INSERT INTO user_activity_history (id, user_id, session_id, tour_id, activity_type, score, created_at) VALUES
--- User 3 (Nguyễn Minh Thư): Rất thích các tour Biển Đảo -> Hệ thống gợi ý Tour 2 (Nha Trang), Tour 3 (Quy Nhơn), Tour 4 (Côn Đảo)
-(1, 3, 'sess_minhthu_01', 1, 'BOOK', 5, '2026-09-25 09:15:00'),
-(2, 3, 'sess_minhthu_02', 2, 'VIEW', 1, '2026-10-12 20:10:00'),
-(3, 3, 'sess_minhthu_02', 3, 'VIEW', 1, '2026-10-13 21:05:00'),
-(4, 3, 'sess_minhthu_02', 4, 'ADD_TO_CART', 3, '2026-10-14 07:30:00'),
-
--- User 4 (Trần Quốc Bảo): Thích các tour Khám phá Miền Bắc & Vùng cao -> Hệ thống gợi ý Tour 6 (Hà Giang), Tour 16 (Du thuyền Lan Hạ)
-(5, 4, 'sess_quocbao_01', 5, 'BOOK', 5, '2026-09-28 14:20:00'),
-(6, 4, 'sess_quocbao_01', 7, 'BOOK', 5, '2026-10-10 20:10:00'),
-(7, 4, 'sess_quocbao_02', 6, 'VIEW', 1, '2026-10-13 19:00:00'),
-(8, 4, 'sess_quocbao_02', 16, 'VIEW', 1, '2026-10-14 07:45:00'),
-
--- User 5 (Lê Thanh Hà): Thích tour Cao nguyên Đà Lạt & Măng Đen -> Hệ thống gợi ý Tour 11 (Măng Đen)
-(9, 5, 'sess_thanhha_01', 10, 'BOOK', 5, '2026-10-02 10:05:00'),
-(10, 5, 'sess_thanhha_02', 11, 'VIEW', 1, '2026-10-11 11:20:00'),
-
--- User 6 (Võ Anh Khoa): Thích khám phá hang động & Mạo hiểm -> Hệ thống gợi ý Tour 9 (Phong Nha), Tour 13 (Tú Làn)
-(11, 6, 'sess_anhkhoa_01', 9, 'VIEW', 1, '2026-10-12 16:00:00'),
-(12, 6, 'sess_anhkhoa_01', 13, 'VIEW', 1, '2026-10-13 22:15:00'),
-
--- User 12 (customer): Tài khoản demo đăng nhập nhanh thích tour Biển Đảo -> Hệ thống gợi ý các tour Biển Đảo
-(13, 12, 'sess_customer_01', 1, 'BOOK', 5, '2026-09-25 09:15:00'),
-(14, 12, 'sess_customer_02', 2, 'VIEW', 1, '2026-10-12 20:10:00'),
-(15, 12, 'sess_customer_02', 3, 'VIEW', 1, '2026-10-13 21:05:00'),
-(16, 12, 'sess_customer_02', 4, 'ADD_TO_CART', 3, '2026-10-14 07:30:00');
+(1, 17, 'sess-17-677', 16, 'VIEW', 1, '2026-10-20 11:29:00'),
+(2, 17, 'sess-17-885', 16, 'ADD_TO_CART', 3, '2026-10-20 13:10:00'),
+(3, 17, 'sess-17-865', 13, 'VIEW', 1, '2026-10-20 19:07:00'),
+(4, 17, 'sess-17-267', 13, 'ADD_TO_CART', 3, '2026-10-20 12:06:00'),
+(5, 17, 'sess-17-419', 2, 'VIEW', 1, '2026-10-20 17:43:00'),
+(6, 17, 'sess-17-484', 2, 'ADD_TO_CART', 3, '2026-10-20 14:45:00'),
+(7, 17, 'sess-17-706', 10, 'VIEW', 1, '2026-10-20 19:53:00'),
+(8, 17, 'sess-17-204', 10, 'ADD_TO_CART', 3, '2026-10-20 19:49:00'),
+(9, 17, 'sess-17-800', 40, 'VIEW', 1, '2026-10-20 17:51:00'),
+(10, 17, 'sess-17-901', 40, 'BOOK', 5, '2026-10-21 08:22:00'),
+(11, 17, 'sess-17-645', 9, 'VIEW', 1, '2026-10-20 14:42:00'),
+(12, 17, 'sess-17-449', 31, 'VIEW', 1, '2026-10-20 08:54:00'),
+(13, 17, 'sess-17-543', 8, 'VIEW', 1, '2026-10-20 13:40:00'),
+(14, 17, 'sess-17-570', 8, 'ADD_TO_CART', 3, '2026-10-20 19:09:00'),
+(15, 18, 'sess-18-349', 18, 'VIEW', 1, '2026-10-20 20:29:00'),
+(16, 18, 'sess-18-784', 18, 'ADD_TO_CART', 3, '2026-10-20 14:21:00'),
+(17, 18, 'sess-18-971', 35, 'VIEW', 1, '2026-10-20 13:11:00'),
+(18, 18, 'sess-18-364', 31, 'VIEW', 1, '2026-10-20 13:17:00'),
+(19, 18, 'sess-18-818', 31, 'ADD_TO_CART', 3, '2026-10-20 22:17:00'),
+(20, 18, 'sess-18-629', 30, 'VIEW', 1, '2026-10-20 11:05:00'),
+(21, 18, 'sess-18-668', 28, 'VIEW', 1, '2026-10-20 20:15:00'),
+(22, 18, 'sess-18-761', 28, 'ADD_TO_CART', 3, '2026-10-20 19:31:00'),
+(23, 18, 'sess-18-117', 40, 'VIEW', 1, '2026-10-20 09:18:00'),
+(24, 18, 'sess-18-413', 21, 'VIEW', 1, '2026-10-20 18:37:00'),
+(25, 18, 'sess-18-452', 16, 'VIEW', 1, '2026-10-20 14:47:00'),
+(26, 18, 'sess-18-460', 16, 'ADD_TO_CART', 3, '2026-10-20 19:29:00'),
+(27, 18, 'sess-18-357', 6, 'VIEW', 1, '2026-10-20 11:07:00'),
+(28, 18, 'sess-18-423', 6, 'ADD_TO_CART', 3, '2026-10-20 09:47:00'),
+(29, 18, 'sess-18-880', 9, 'VIEW', 1, '2026-10-20 19:11:00'),
+(30, 18, 'sess-18-383', 9, 'BOOK', 5, '2026-10-21 17:48:00'),
+(31, 18, 'sess-18-637', 29, 'VIEW', 1, '2026-10-20 17:18:00'),
+(32, 18, 'sess-18-952', 29, 'ADD_TO_CART', 3, '2026-10-20 11:18:00'),
+(33, 18, 'sess-18-283', 15, 'VIEW', 1, '2026-10-20 12:00:00'),
+(34, 18, 'sess-18-229', 15, 'ADD_TO_CART', 3, '2026-10-20 12:02:00'),
+(35, 18, 'sess-18-666', 15, 'BOOK', 5, '2026-10-21 12:44:00'),
+(36, 19, 'sess-19-288', 32, 'VIEW', 1, '2026-10-20 08:16:00'),
+(37, 19, 'sess-19-589', 32, 'ADD_TO_CART', 3, '2026-10-20 09:52:00'),
+(38, 19, 'sess-19-603', 7, 'VIEW', 1, '2026-10-20 09:36:00'),
+(39, 19, 'sess-19-154', 7, 'ADD_TO_CART', 3, '2026-10-20 10:09:00'),
+(40, 19, 'sess-19-411', 7, 'BOOK', 5, '2026-10-21 09:15:00'),
+(41, 19, 'sess-19-221', 1, 'VIEW', 1, '2026-10-20 16:48:00'),
+(42, 19, 'sess-19-733', 37, 'VIEW', 1, '2026-10-20 11:49:00'),
+(43, 19, 'sess-19-561', 37, 'ADD_TO_CART', 3, '2026-10-20 22:28:00'),
+(44, 19, 'sess-19-702', 19, 'VIEW', 1, '2026-10-20 14:19:00'),
+(45, 19, 'sess-19-161', 19, 'ADD_TO_CART', 3, '2026-10-20 17:47:00'),
+(46, 19, 'sess-19-881', 31, 'VIEW', 1, '2026-10-20 11:40:00'),
+(47, 19, 'sess-19-260', 35, 'VIEW', 1, '2026-10-20 11:11:00'),
+(48, 19, 'sess-19-260', 35, 'ADD_TO_CART', 3, '2026-10-20 08:26:00'),
+(49, 19, 'sess-19-708', 29, 'VIEW', 1, '2026-10-20 15:18:00'),
+(50, 19, 'sess-19-389', 22, 'VIEW', 1, '2026-10-20 19:55:00'),
+(51, 20, 'sess-20-161', 38, 'VIEW', 1, '2026-10-20 10:50:00'),
+(52, 20, 'sess-20-682', 38, 'BOOK', 5, '2026-10-21 12:28:00'),
+(53, 20, 'sess-20-227', 13, 'VIEW', 1, '2026-10-20 15:44:00'),
+(54, 20, 'sess-20-378', 28, 'VIEW', 1, '2026-10-20 16:34:00'),
+(55, 20, 'sess-20-140', 8, 'VIEW', 1, '2026-10-20 22:27:00'),
+(56, 20, 'sess-20-718', 8, 'ADD_TO_CART', 3, '2026-10-20 12:01:00'),
+(57, 20, 'sess-20-790', 35, 'VIEW', 1, '2026-10-20 21:55:00'),
+(58, 20, 'sess-20-121', 35, 'ADD_TO_CART', 3, '2026-10-20 20:43:00'),
+(59, 20, 'sess-20-690', 35, 'BOOK', 5, '2026-10-21 08:48:00'),
+(60, 20, 'sess-20-874', 15, 'VIEW', 1, '2026-10-20 10:30:00'),
+(61, 20, 'sess-20-552', 15, 'ADD_TO_CART', 3, '2026-10-20 22:17:00'),
+(62, 20, 'sess-20-699', 10, 'VIEW', 1, '2026-10-20 14:40:00'),
+(63, 20, 'sess-20-193', 10, 'ADD_TO_CART', 3, '2026-10-20 15:22:00'),
+(64, 20, 'sess-20-428', 18, 'VIEW', 1, '2026-10-20 18:06:00'),
+(65, 20, 'sess-20-437', 18, 'ADD_TO_CART', 3, '2026-10-20 14:44:00'),
+(66, 20, 'sess-20-778', 34, 'VIEW', 1, '2026-10-20 14:52:00'),
+(67, 20, 'sess-20-137', 34, 'ADD_TO_CART', 3, '2026-10-20 15:05:00'),
+(68, 20, 'sess-20-431', 3, 'VIEW', 1, '2026-10-20 09:49:00'),
+(69, 21, 'sess-21-740', 35, 'VIEW', 1, '2026-10-20 15:48:00'),
+(70, 21, 'sess-21-234', 30, 'VIEW', 1, '2026-10-20 22:18:00'),
+(71, 21, 'sess-21-224', 27, 'VIEW', 1, '2026-10-20 08:40:00'),
+(72, 21, 'sess-21-345', 27, 'ADD_TO_CART', 3, '2026-10-20 19:10:00'),
+(73, 21, 'sess-21-114', 4, 'VIEW', 1, '2026-10-20 16:26:00'),
+(74, 21, 'sess-21-216', 4, 'BOOK', 5, '2026-10-21 15:07:00'),
+(75, 21, 'sess-21-763', 13, 'VIEW', 1, '2026-10-20 21:09:00'),
+(76, 21, 'sess-21-621', 13, 'BOOK', 5, '2026-10-21 12:26:00'),
+(77, 21, 'sess-21-954', 34, 'VIEW', 1, '2026-10-20 15:30:00'),
+(78, 21, 'sess-21-492', 24, 'VIEW', 1, '2026-10-20 11:58:00'),
+(79, 21, 'sess-21-864', 24, 'ADD_TO_CART', 3, '2026-10-20 22:08:00'),
+(80, 21, 'sess-21-382', 24, 'BOOK', 5, '2026-10-21 14:21:00'),
+(81, 21, 'sess-21-906', 32, 'VIEW', 1, '2026-10-20 16:17:00'),
+(82, 21, 'sess-21-389', 32, 'ADD_TO_CART', 3, '2026-10-20 19:19:00'),
+(83, 21, 'sess-21-693', 32, 'BOOK', 5, '2026-10-21 18:31:00'),
+(84, 22, 'sess-22-990', 29, 'VIEW', 1, '2026-10-20 11:44:00'),
+(85, 22, 'sess-22-976', 35, 'VIEW', 1, '2026-10-20 20:26:00'),
+(86, 22, 'sess-22-822', 35, 'BOOK', 5, '2026-10-21 14:24:00'),
+(87, 22, 'sess-22-779', 31, 'VIEW', 1, '2026-10-20 20:52:00'),
+(88, 22, 'sess-22-255', 31, 'ADD_TO_CART', 3, '2026-10-20 15:02:00'),
+(89, 22, 'sess-22-704', 23, 'VIEW', 1, '2026-10-20 13:55:00'),
+(90, 22, 'sess-22-202', 23, 'BOOK', 5, '2026-10-21 16:58:00'),
+(91, 22, 'sess-22-567', 22, 'VIEW', 1, '2026-10-20 08:46:00'),
+(92, 22, 'sess-22-258', 22, 'BOOK', 5, '2026-10-21 09:30:00'),
+(93, 22, 'sess-22-900', 39, 'VIEW', 1, '2026-10-20 12:21:00'),
+(94, 22, 'sess-22-507', 39, 'ADD_TO_CART', 3, '2026-10-20 18:05:00'),
+(95, 22, 'sess-22-972', 39, 'BOOK', 5, '2026-10-21 18:54:00'),
+(96, 22, 'sess-22-646', 25, 'VIEW', 1, '2026-10-20 14:20:00'),
+(97, 22, 'sess-22-877', 25, 'ADD_TO_CART', 3, '2026-10-20 15:55:00'),
+(98, 22, 'sess-22-732', 30, 'VIEW', 1, '2026-10-20 09:15:00'),
+(99, 22, 'sess-22-394', 30, 'ADD_TO_CART', 3, '2026-10-20 11:47:00'),
+(100, 22, 'sess-22-200', 21, 'VIEW', 1, '2026-10-20 20:40:00'),
+(101, 22, 'sess-22-202', 21, 'ADD_TO_CART', 3, '2026-10-20 15:10:00'),
+(102, 23, 'sess-23-350', 3, 'VIEW', 1, '2026-10-20 16:26:00'),
+(103, 23, 'sess-23-911', 3, 'ADD_TO_CART', 3, '2026-10-20 10:10:00'),
+(104, 23, 'sess-23-724', 21, 'VIEW', 1, '2026-10-20 21:24:00'),
+(105, 23, 'sess-23-346', 21, 'ADD_TO_CART', 3, '2026-10-20 15:58:00'),
+(106, 23, 'sess-23-337', 4, 'VIEW', 1, '2026-10-20 15:40:00'),
+(107, 23, 'sess-23-109', 19, 'VIEW', 1, '2026-10-20 22:51:00'),
+(108, 23, 'sess-23-659', 23, 'VIEW', 1, '2026-10-20 10:04:00'),
+(109, 23, 'sess-23-701', 24, 'VIEW', 1, '2026-10-20 12:40:00'),
+(110, 23, 'sess-23-806', 24, 'ADD_TO_CART', 3, '2026-10-20 12:29:00'),
+(111, 23, 'sess-23-303', 24, 'BOOK', 5, '2026-10-21 14:54:00'),
+(112, 23, 'sess-23-594', 28, 'VIEW', 1, '2026-10-20 09:15:00'),
+(113, 23, 'sess-23-402', 10, 'VIEW', 1, '2026-10-20 19:18:00'),
+(114, 23, 'sess-23-505', 10, 'BOOK', 5, '2026-10-21 12:00:00'),
+(115, 24, 'sess-24-885', 4, 'VIEW', 1, '2026-10-20 18:43:00'),
+(116, 24, 'sess-24-743', 4, 'ADD_TO_CART', 3, '2026-10-20 09:57:00'),
+(117, 24, 'sess-24-140', 39, 'VIEW', 1, '2026-10-20 12:50:00'),
+(118, 24, 'sess-24-849', 32, 'VIEW', 1, '2026-10-20 10:05:00'),
+(119, 24, 'sess-24-434', 32, 'ADD_TO_CART', 3, '2026-10-20 19:26:00'),
+(120, 24, 'sess-24-235', 19, 'VIEW', 1, '2026-10-20 20:34:00'),
+(121, 24, 'sess-24-474', 19, 'ADD_TO_CART', 3, '2026-10-20 16:32:00'),
+(122, 24, 'sess-24-950', 19, 'BOOK', 5, '2026-10-21 10:16:00'),
+(123, 24, 'sess-24-944', 15, 'VIEW', 1, '2026-10-20 15:51:00'),
+(124, 24, 'sess-24-923', 15, 'BOOK', 5, '2026-10-21 09:29:00'),
+(125, 24, 'sess-24-177', 23, 'VIEW', 1, '2026-10-20 10:48:00'),
+(126, 24, 'sess-24-980', 23, 'ADD_TO_CART', 3, '2026-10-20 18:46:00'),
+(127, 24, 'sess-24-506', 36, 'VIEW', 1, '2026-10-20 21:51:00'),
+(128, 24, 'sess-24-192', 36, 'ADD_TO_CART', 3, '2026-10-20 20:25:00'),
+(129, 24, 'sess-24-649', 13, 'VIEW', 1, '2026-10-20 09:29:00'),
+(130, 24, 'sess-24-368', 13, 'BOOK', 5, '2026-10-21 17:24:00'),
+(131, 24, 'sess-24-942', 17, 'VIEW', 1, '2026-10-20 18:23:00'),
+(132, 24, 'sess-24-125', 22, 'VIEW', 1, '2026-10-20 17:56:00'),
+(133, 24, 'sess-24-435', 22, 'ADD_TO_CART', 3, '2026-10-20 22:39:00'),
+(134, 24, 'sess-24-164', 25, 'VIEW', 1, '2026-10-20 18:52:00'),
+(135, 24, 'sess-24-764', 25, 'BOOK', 5, '2026-10-21 14:07:00'),
+(136, 24, 'sess-24-243', 24, 'VIEW', 1, '2026-10-20 08:02:00'),
+(137, 25, 'sess-25-524', 16, 'VIEW', 1, '2026-10-20 18:06:00'),
+(138, 25, 'sess-25-730', 16, 'ADD_TO_CART', 3, '2026-10-20 14:17:00'),
+(139, 25, 'sess-25-479', 35, 'VIEW', 1, '2026-10-20 11:28:00'),
+(140, 25, 'sess-25-471', 9, 'VIEW', 1, '2026-10-20 09:43:00'),
+(141, 25, 'sess-25-760', 9, 'BOOK', 5, '2026-10-21 13:03:00'),
+(142, 25, 'sess-25-507', 25, 'VIEW', 1, '2026-10-20 12:12:00'),
+(143, 25, 'sess-25-968', 25, 'ADD_TO_CART', 3, '2026-10-20 21:29:00'),
+(144, 25, 'sess-25-317', 30, 'VIEW', 1, '2026-10-20 18:40:00'),
+(145, 25, 'sess-25-121', 30, 'ADD_TO_CART', 3, '2026-10-20 08:50:00'),
+(146, 25, 'sess-25-228', 24, 'VIEW', 1, '2026-10-20 20:36:00'),
+(147, 25, 'sess-25-667', 24, 'BOOK', 5, '2026-10-21 11:37:00'),
+(148, 25, 'sess-25-321', 27, 'VIEW', 1, '2026-10-20 21:55:00'),
+(149, 25, 'sess-25-907', 27, 'BOOK', 5, '2026-10-21 17:00:00'),
+(150, 25, 'sess-25-383', 10, 'VIEW', 1, '2026-10-20 21:09:00'),
+(151, 25, 'sess-25-653', 10, 'ADD_TO_CART', 3, '2026-10-20 12:51:00'),
+(152, 26, 'sess-26-153', 9, 'VIEW', 1, '2026-10-20 10:47:00'),
+(153, 26, 'sess-26-165', 1, 'VIEW', 1, '2026-10-20 15:28:00'),
+(154, 26, 'sess-26-625', 1, 'ADD_TO_CART', 3, '2026-10-20 17:06:00'),
+(155, 26, 'sess-26-326', 23, 'VIEW', 1, '2026-10-20 17:02:00'),
+(156, 26, 'sess-26-987', 23, 'ADD_TO_CART', 3, '2026-10-20 18:33:00'),
+(157, 26, 'sess-26-758', 16, 'VIEW', 1, '2026-10-20 08:03:00'),
+(158, 26, 'sess-26-967', 16, 'ADD_TO_CART', 3, '2026-10-20 14:27:00'),
+(159, 26, 'sess-26-602', 21, 'VIEW', 1, '2026-10-20 19:58:00'),
+(160, 26, 'sess-26-429', 21, 'BOOK', 5, '2026-10-21 17:09:00'),
+(161, 26, 'sess-26-167', 2, 'VIEW', 1, '2026-10-20 10:17:00'),
+(162, 26, 'sess-26-699', 2, 'ADD_TO_CART', 3, '2026-10-20 16:45:00'),
+(163, 26, 'sess-26-711', 12, 'VIEW', 1, '2026-10-20 16:18:00'),
+(164, 26, 'sess-26-201', 17, 'VIEW', 1, '2026-10-20 20:44:00');
