@@ -60,6 +60,36 @@ public class TourOrder {
     @Column(name = "discount_percent")
     private Integer discountPercent = 0;
 
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod = "CASH";
+
+    @Column(name = "payment_status", length = 30)
+    private String paymentStatus = "UNPAID";
+
+    @Column(name = "payment_transaction_id", length = 100)
+    private String paymentTransactionId;
+
+    @Column(name = "cancellation_fee_percent")
+    private Integer cancellationFeePercent = 0;
+
+    @Column(name = "cancellation_fee")
+    private BigDecimal cancellationFee = BigDecimal.ZERO;
+
+    @Column(name = "refund_amount")
+    private BigDecimal refundAmount = BigDecimal.ZERO;
+
+    @Column(name = "refund_bank_name", length = 100)
+    private String refundBankName;
+
+    @Column(name = "refund_account_number", length = 50)
+    private String refundAccountNumber;
+
+    @Column(name = "refund_account_name", length = 100)
+    private String refundAccountName;
+
+    @Column(name = "cancellation_reason", length = 255)
+    private String cancellationReason;
+
     @Column(name = "notes")
     private String notes;
 

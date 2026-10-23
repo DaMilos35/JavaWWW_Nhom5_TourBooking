@@ -33,25 +33,25 @@ INSERT INTO Categories (category_id, category_name, description, image_url) VALU
 
 -- =================================================================================
 -- 2. BẢNG USERS (10 TÀI KHOẢN: 2 ADMIN, 2 PROVIDER, 4 KHÁCH ĐÃ ĐẶT, 2 KHÁCH CHƯA ĐẶT)
--- Mật khẩu chung: 123456 (BCrypt: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy)
+-- Mật khẩu chung: 123456 (BCrypt: $2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa)
 -- =================================================================================
 INSERT INTO Users (user_id, username, email, password, full_name, phone, role, is_active, created_at) VALUES
-(1, 'admin_nghia', 'nghia.admin@iuh.edu.vn', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Vũ Trần Đức Nghĩa (Admin)', '0901234567', 'ADMIN', 1, '2026-09-01 08:00:00'),
-(2, 'admin_phi', 'phi.admin@iuh.edu.vn', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Nguyễn Đình Phi (Quản trị viên)', '0902345678', 'ADMIN', 1, '2026-09-01 08:00:00'),
-(3, 'minhthu_nguyen', 'minhthu.nguyen@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Nguyễn Minh Thư', '0918273645', 'CUSTOMER', 1, '2026-09-10 10:00:00'),
-(4, 'quocbao_tran', 'quocbao.tran99@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Trần Quốc Bảo (FPT Software)', '0987654321', 'CUSTOMER', 1, '2026-09-15 14:00:00'),
-(5, 'thanhha_le', 'lethanhha.travel@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Lê Thanh Hà', '0933445566', 'CUSTOMER', 1, '2026-09-20 09:30:00'),
-(6, 'anhkhoa_vo', 'voanhkhoa.dev@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Võ Anh Khoa', '0944556677', 'CUSTOMER', 1, '2026-09-22 16:15:00'),
-(7, 'hoangnam_new', 'hoangnam.neverbooked@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Trần Hoàng Nam (Chưa đặt tour - Demo Xóa)', '0977889900', 'CUSTOMER', 1, '2026-10-01 11:00:00'),
-(8, 'caoson_guest', 'caoson.newuser@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Lê Viết Cao Sơn (Chưa đặt tour - Demo Xóa)', '0966778899', 'CUSTOMER', 1, '2026-10-02 15:45:00'),
-(9, 'provider_vietravel', 'partner@vietravel.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Công ty Lữ hành Vietravel (Đối tác Provider)', '19001839', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(10, 'provider_saigontourist', 'booking@saigontourist.net', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Lữ hành Saigontourist (Đối tác Provider)', '19001808', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(11, 'admin', 'admin@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Ban Quản Trị Hệ Thống (Admin)', '0909999999', 'ADMIN', 1, '2026-09-01 08:00:00'),
-(12, 'customer', 'customer@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Trần Thị Bích (Customer)', '0919999999', 'CUSTOMER', 1, '2026-09-10 10:00:00'),
-(13, 'saigontourist', 'saigontourist@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Saigontourist Travel (Đối tác Provider)', '19001808', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(14, 'vietravel', 'vietravel@tourbooking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Vietravel Corporation (Đối tác Provider)', '19001839', 'PROVIDER', 1, '2026-09-05 08:30:00'),
-(15, 'fpt_corp', 'fpt_corp@fpt.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Tập đoàn FPT Software (Khách đoàn B2B)', '0987654321', 'CUSTOMER', 1, '2026-09-15 14:00:00'),
-(16, 'nguyenvanan', 'nguyenvanan@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Nguyễn Văn An (Có đơn hàng - Demo Safe Delete)', '0912345678', 'CUSTOMER', 1, '2026-09-20 09:00:00');
+(1, 'admin_nghia', 'nghia.admin@iuh.edu.vn', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Vũ Trần Đức Nghĩa (Admin)', '0901234567', 'ADMIN', 1, '2026-09-01 08:00:00'),
+(2, 'admin_phi', 'phi.admin@iuh.edu.vn', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Nguyễn Đình Phi (Quản trị viên)', '0902345678', 'ADMIN', 1, '2026-09-01 08:00:00'),
+(3, 'minhthu_nguyen', 'minhthu.nguyen@gmail.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Nguyễn Minh Thư', '0918273645', 'CUSTOMER', 1, '2026-09-10 10:00:00'),
+(4, 'quocbao_tran', 'quocbao.tran99@gmail.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Trần Quốc Bảo (FPT Software)', '0987654321', 'CUSTOMER', 1, '2026-09-15 14:00:00'),
+(5, 'thanhha_le', 'lethanhha.travel@gmail.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Lê Thanh Hà', '0933445566', 'CUSTOMER', 1, '2026-09-20 09:30:00'),
+(6, 'anhkhoa_vo', 'voanhkhoa.dev@gmail.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Võ Anh Khoa', '0944556677', 'CUSTOMER', 1, '2026-09-22 16:15:00'),
+(7, 'hoangnam_new', 'hoangnam.neverbooked@gmail.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Trần Hoàng Nam (Chưa đặt tour - Demo Xóa)', '0977889900', 'CUSTOMER', 1, '2026-10-01 11:00:00'),
+(8, 'caoson_guest', 'caoson.newuser@gmail.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Lê Viết Cao Sơn (Chưa đặt tour - Demo Xóa)', '0966778899', 'CUSTOMER', 1, '2026-10-02 15:45:00'),
+(9, 'provider_vietravel', 'partner@vietravel.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Công ty Lữ hành Vietravel (Đối tác Provider)', '19001839', 'PROVIDER', 1, '2026-09-05 08:30:00'),
+(10, 'provider_saigontourist', 'booking@saigontourist.net', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Lữ hành Saigontourist (Đối tác Provider)', '19001808', 'PROVIDER', 1, '2026-09-05 08:30:00'),
+(11, 'admin', 'admin@tourbooking.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Ban Quản Trị Hệ Thống (Admin)', '0909999999', 'ADMIN', 1, '2026-09-01 08:00:00'),
+(12, 'customer', 'customer@tourbooking.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Trần Thị Bích (Customer)', '0919999999', 'CUSTOMER', 1, '2026-09-10 10:00:00'),
+(13, 'saigontourist', 'saigontourist@tourbooking.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Saigontourist Travel (Đối tác Provider)', '19001808', 'PROVIDER', 1, '2026-09-05 08:30:00'),
+(14, 'vietravel', 'vietravel@tourbooking.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Vietravel Corporation (Đối tác Provider)', '19001839', 'PROVIDER', 1, '2026-09-05 08:30:00'),
+(15, 'fpt_corp', 'fpt_corp@fpt.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Tập đoàn FPT Software (Khách đoàn B2B)', '0987654321', 'CUSTOMER', 1, '2026-09-15 14:00:00'),
+(16, 'nguyenvanan', 'nguyenvanan@gmail.com', '$2a$10$2Uz432oqZFvyQX4xr/36K.yLkVeFO1G/N1JmeqN2Cw829Ib9tCHxa', 'Nguyễn Văn An (Có đơn hàng - Demo Safe Delete)', '0912345678', 'CUSTOMER', 1, '2026-09-20 09:00:00');
 
 -- =================================================================================
 -- 3. BẢNG TOURS (16 TOUR THỰC TẾ KHẮP 3 MIỀN)

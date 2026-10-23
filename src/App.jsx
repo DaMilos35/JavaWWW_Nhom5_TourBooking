@@ -21,6 +21,7 @@ import ProfilePage from './pages/ProfilePage';
 import MyOrdersPage from './pages/MyOrdersPage';
 import WishlistPage from './pages/WishlistPage';
 import HelpCenterPage from './pages/HelpCenterPage';
+import VnPayReturnPage from './pages/VnPayReturnPage';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -62,6 +63,7 @@ function App() {
             <Route path="/cart" element={<UserLayout><CartPage /></UserLayout>} />
             <Route path="/wishlist" element={<UserLayout><WishlistPage /></UserLayout>} />
             <Route path="/help" element={<UserLayout><HelpCenterPage /></UserLayout>} />
+            <Route path="/payment/vnpay-return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
             <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />
             <Route path="/register" element={<UserLayout><RegisterPage /></UserLayout>} />
 

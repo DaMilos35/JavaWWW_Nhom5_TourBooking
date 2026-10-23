@@ -173,7 +173,9 @@ class OrderServiceTest {
         TourOrder order = new TourOrder();
         order.setId(2001);
         order.setUser(sampleUser);
-        order.setStatus("PENDING");
+        order.setStatus("CONFIRMED");
+        order.setPaymentStatus("PAID");
+        order.setTotalAmount(new BigDecimal("25000000"));
         order.setOrderDate(LocalDateTime.now());
         order.setDetails(new ArrayList<>());
 
@@ -192,6 +194,121 @@ class OrderServiceTest {
         assertNotNull(cancelled);
         assertEquals("CANCELLED", order.getStatus());
         assertEquals(25, sampleTour.getAvailableSeats()); // 20 + 5 = 25 chỗ
+        verify(tourRepository).save(sampleTour);
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    @DisplayName("[ORD-TC06] Hủy đơn hàng ĐÃ THANH TOÁN (từ 3 - 6 ngày): Khấu trừ 30% phí và hoàn trả 70% tiền")
+    void testCancelOrder_PaidOrder_Deducts30PercentPenalty() {
+        sampleTour.setAvailableSeats(10);
+        sampleTour.setStartDate(LocalDate.now().plusDays(4)); // 4 ngày nữa khởi hành (3 - 6 ngày)
+
+        TourOrder order = new TourOrder();
+        order.setId(2002);
+        order.setUser(sampleUser);
+        order.setStatus("CONFIRMED");
+        order.setPaymentStatus("PAID");
+        order.setTotalAmount(new BigDecimal("10000000")); // 10 triệu
+        order.setOrderDate(LocalDateTime.now());
+        order.setDetails(new ArrayList<>());
+
+        OrderDetail detail = new OrderDetail();
+        detail.setOrder(order);
+        detail.setTour(sampleTour);
+        detail.setQuantity(2);
+        detail.setUnitPrice(new BigDecimal("5000000"));
+        order.getDetails().add(detail);
+
+        when(orderRepository.findByIdWithDetails(2002)).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+
+        OrderDto cancelled = orderService.cancelOrder(2002, 1);
+
+        assertNotNull(cancelled);
+        assertEquals("CANCELLED", order.getStatus());
+        assertEquals("REFUND_PENDING", order.getPaymentStatus());
+        assertEquals(30, order.getCancellationFeePercent());
+        // Phí khấu trừ 30% của 10.000.000 = 3.000.000 đ
+        assertEquals(0, new BigDecimal("3000000").compareTo(order.getCancellationFee()));
+        // Hoàn lại 70% = 7.000.000 đ
+        assertEquals(0, new BigDecimal("7000000").compareTo(order.getRefundAmount()));
+        assertEquals(12, sampleTour.getAvailableSeats()); // 10 + 2 = 12 chỗ
+        verify(tourRepository).save(sampleTour);
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    @DisplayName("[ORD-TC07] Hủy đơn hàng CHƯA THANH TOÁN: Miễn phí 100%, không mất chi phí và hoàn trả chỗ ngồi")
+    void testCancelOrder_UnpaidOrder_FreeCancellation() {
+        sampleTour.setAvailableSeats(8);
+
+        TourOrder order = new TourOrder();
+        order.setId(2003);
+        order.setUser(sampleUser);
+        order.setStatus("PENDING");
+        order.setPaymentStatus("UNPAID");
+        order.setTotalAmount(new BigDecimal("5000000"));
+        order.setOrderDate(LocalDateTime.now());
+        order.setDetails(new ArrayList<>());
+
+        OrderDetail detail = new OrderDetail();
+        detail.setOrder(order);
+        detail.setTour(sampleTour);
+        detail.setQuantity(2);
+        detail.setUnitPrice(new BigDecimal("2500000"));
+        order.getDetails().add(detail);
+
+        when(orderRepository.findByIdWithDetails(2003)).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+
+        OrderDto cancelled = orderService.cancelOrder(2003, 1);
+
+        assertNotNull(cancelled);
+        assertEquals("CANCELLED", order.getStatus());
+        assertEquals("UNPAID", order.getPaymentStatus());
+        assertEquals(0, order.getCancellationFeePercent());
+        assertEquals(0, BigDecimal.ZERO.compareTo(order.getCancellationFee()));
+        assertEquals(0, BigDecimal.ZERO.compareTo(order.getRefundAmount()));
+        assertEquals(10, sampleTour.getAvailableSeats()); // 8 + 2 = 10 chỗ hoàn lại
+        verify(tourRepository).save(sampleTour);
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    @DisplayName("[ORD-TC08] Hủy tour trước 7 ngày: Hoàn trả 100% số tiền (Phí đổi hủy 0%)")
+    void testCancelOrder_PaidOrder_MoreThan7Days_FullRefund() {
+        sampleTour.setAvailableSeats(15);
+        sampleTour.setStartDate(LocalDate.now().plusDays(10)); // 10 ngày nữa khởi hành (>= 7 ngày)
+
+        TourOrder order = new TourOrder();
+        order.setId(2004);
+        order.setUser(sampleUser);
+        order.setStatus("CONFIRMED");
+        order.setPaymentStatus("PAID");
+        order.setTotalAmount(new BigDecimal("8000000"));
+        order.setOrderDate(LocalDateTime.now());
+        order.setDetails(new ArrayList<>());
+
+        OrderDetail detail = new OrderDetail();
+        detail.setOrder(order);
+        detail.setTour(sampleTour);
+        detail.setQuantity(2);
+        detail.setUnitPrice(new BigDecimal("4000000"));
+        order.getDetails().add(detail);
+
+        when(orderRepository.findByIdWithDetails(2004)).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+
+        OrderDto cancelled = orderService.cancelOrder(2004, 1);
+
+        assertNotNull(cancelled);
+        assertEquals("CANCELLED", order.getStatus());
+        assertEquals("REFUND_PENDING", order.getPaymentStatus());
+        assertEquals(0, order.getCancellationFeePercent()); // 0% phí
+        assertEquals(0, BigDecimal.ZERO.compareTo(order.getCancellationFee()));
+        assertEquals(0, new BigDecimal("8000000").compareTo(order.getRefundAmount())); // Hoàn 100%
+        assertEquals(17, sampleTour.getAvailableSeats()); // 15 + 2 = 17 chỗ
         verify(tourRepository).save(sampleTour);
         verify(orderRepository).save(order);
     }

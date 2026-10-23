@@ -68,6 +68,16 @@ public class AdminController {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, request));
     }
 
+    @PutMapping("/orders/{id}/confirm-payment")
+    public ResponseEntity<OrderDto> confirmPayment(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderService.adminConfirmPayment(id));
+    }
+
+    @PutMapping("/orders/{id}/confirm-refund")
+    public ResponseEntity<OrderDto> confirmRefund(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderService.confirmOrderRefund(id));
+    }
+
     @PutMapping("/orders/{orderId}/details/{detailId}")
     public ResponseEntity<OrderDto> updateOrderDetailQuantity(
             @PathVariable Integer orderId,

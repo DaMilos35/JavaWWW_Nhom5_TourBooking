@@ -13,13 +13,15 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Map<String, String>> handleApi(ApiException e) {
-        return ResponseEntity.status(e.getStatus()).body(Map.of("message", e.getMessage()));
+        String msg = e.getMessage() != null ? e.getMessage() : "Yêu cầu không hợp lệ";
+        return ResponseEntity.status(e.getStatus()).body(Map.of("message", msg));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(org.springframework.context.support.DefaultMessageSourceResolvable::getDefaultMessage)
+                .filter(java.util.Objects::nonNull)
                 .findFirst()
                 .orElse("Dữ liệu gửi lên không hợp lệ.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", message));
@@ -32,12 +34,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, String>> handleIllegalState(IllegalStateException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        String msg = e.getMessage() != null ? e.getMessage() : "Trạng thái không hợp lệ";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", msg));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        String msg = e.getMessage() != null ? e.getMessage() : "Tham số không hợp lệ";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", msg));
     }
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
@@ -47,6 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneralException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Đã xảy ra lỗi hệ thống: " + e.getMessage()));
+        String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Đã xảy ra lỗi hệ thống: " + msg));
     }
 }

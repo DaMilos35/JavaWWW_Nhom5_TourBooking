@@ -6,18 +6,37 @@ import FallbackImage from './FallbackImage';
 import './AiChatWidget.css';
 
 const DEFAULT_PROMPTS = [
-  'Gợi ý tour biển dưới 6 triệu',
-  'Tour nghỉ dưỡng cao cấp Phú Quốc',
-  'Lịch trình khám phá Đà Nẵng 4N3Đ',
-  'Tour quốc tế Nhật Bản hoặc Thái Lan'
+  'Gợi ý tour nghỉ mát biển đảo',
+  'Tour săn mây vùng cao mát mẻ',
+  'Khám phá miền Tây sông nước ẩm thực',
+  'Tour du lịch giá rẻ dưới 5 triệu'
 ];
+
+const renderFormattedText = (text) => {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return lines.map((line, lineIdx) => {
+    const parts = line.split(/(\*\*[^*]+\*\*)/g);
+    return (
+      <React.Fragment key={lineIdx}>
+        {parts.map((part, partIdx) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
+          }
+          return part;
+        })}
+        {lineIdx < lines.length - 1 && <br />}
+      </React.Fragment>
+    );
+  });
+};
 
 const AiChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: 'Xin chào! Tôi là Trợ Lý Du Lịch AI của Du Lịch Việt. Tôi có thể giúp bạn tìm tour du lịch phù hợp nhất theo ngân sách, sở thích hoặc lên kế hoạch hành trình.',
+      text: 'Xin chào! Tôi là Trợ Lý Du Lịch AI của Du Lịch Việt. Tôi có thể giúp bạn tìm tour du lịch phù hợp nhất theo sở thích (nghỉ mát biển, săn mây vùng cao, miền Tây...) hoặc theo ngân sách.',
       suggestedTours: []
     }
   ]);
@@ -113,7 +132,7 @@ const AiChatWidget = () => {
             {messages.map((msg, index) => (
               <div key={index} className={`ai-message ${msg.sender}`}>
                 <div className="ai-bubble">
-                  {msg.text}
+                  {renderFormattedText(msg.text)}
                 </div>
 
                 {/* Tour cards if suggested by AI */}

@@ -123,9 +123,118 @@ const AdminOrderDetail = () => {
             <div><strong style={{ color: '#64748b' }}>Họ và tên:</strong> <span style={{ fontWeight: 600 }}>{order.fullName || order.contactName}</span></div>
             <div><strong style={{ color: '#64748b' }}>Số điện thoại:</strong> <span>{order.phone || order.contactPhone}</span></div>
             <div><strong style={{ color: '#64748b' }}>Email:</strong> <span>{order.email || order.contactEmail}</span></div>
+            <div><strong style={{ color: '#64748b' }}>Phương thức:</strong> <span>Quét mã VietQR (Napas 24/7)</span></div>
+            <div>
+              <strong style={{ color: '#64748b' }}>Trạng thái thanh toán: </strong>
+              <span style={{
+                padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 700,
+                background: order.paymentStatus === 'PAID' ? '#dcfce7' : order.paymentStatus === 'REFUND_PENDING' ? '#ffedd5' : order.paymentStatus === 'REFUNDED' ? '#f3e8ff' : '#fef3c7',
+                color: order.paymentStatus === 'PAID' ? '#15803d' : order.paymentStatus === 'REFUND_PENDING' ? '#ea580c' : order.paymentStatus === 'REFUNDED' ? '#9333ea' : '#b45309'
+              }}>
+                {order.paymentStatus === 'PAID' ? 'ĐÃ THANH TOÁN (PAID)' :
+                 order.paymentStatus === 'REFUND_PENDING' ? 'CẦN CHUYỂN KHOẢN HOÀN TIỀN (97%)' :
+                 order.paymentStatus === 'REFUNDED' ? 'ĐÃ HOÀN TIỀN THÀNH CÔNG' : 'CHỜ THANH TOÁN (UNPAID)'}
+              </span>
+            </div>
             <div><strong style={{ color: '#64748b' }}>Ngày đặt:</strong> <span>{new Date(order.createdAt || order.orderDate).toLocaleString('vi-VN')}</span></div>
             <div><strong style={{ color: '#64748b' }}>Ghi chú:</strong> <span style={{ fontStyle: 'italic' }}>{order.notes || 'Không có ghi chú'}</span></div>
           </div>
+          
+          {/* Nút Admin xác nhận thanh toán nếu khách đã chuyển tiền */}
+          {order.status === 'PENDING' && order.paymentStatus !== 'PAID' && (
+            <div style={{ marginTop: '16px', padding: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px' }}>
+              <div style={{ fontSize: '0.85rem', color: '#166534', marginBottom: '8px', fontWeight: 600 }}>
+                💡 Khách hàng thanh toán qua VietQR. Khi tiền đã vào tài khoản, bấm xác nhận để kích hoạt vé cho khách:
+              </div>
+              <button
+                onClick={async () => {
+                  try {
+                    await adminApi.confirmPayment(order.id);
+                    toast.success('Đã xác nhận thanh toán thành công! Khách hàng giờ đây đã có thể thấy nút Hủy Tour nếu cần.');
+                    fetchOrder();
+                  } catch (err) {
+                    toast.error('Lỗi khi xác nhận thanh toán: ' + (err.response?.data?.message || err.message));
+                  }
+                }}
+                style={{
+                  width: '100%', padding: '10px', background: '#16a34a', color: '#fff',
+                  border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.9rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                }}
+              >
+                <FaCheck /> Xác Nhận Đã Nhận Tiền Thanh Toán
+              </button>
+            </div>
+          )}
+
+          {/* Hộp Thông Tin Hoàn Tiền nếu đơn đã hủy và có yêu cầu chuyển khoản */}
+          {order.status === 'CANCELLED' && order.refundAmount > 0 && (
+            <div style={{ marginTop: '20px', padding: '16px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px' }}>
+              <h4 style={{ margin: '0 0 10px', color: '#ea580c', fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                ⚠️ YÊU CẦU HOÀN TIỀN VÉ (97%)
+              </h4>
+              <div style={{ fontSize: '0.88rem', color: '#7c2d12', lineHeight: 1.6, marginBottom: '12px' }}>
+                <div><strong>Tổng tiền ban đầu:</strong> {formatPrice(order.totalAmount)}</div>
+                <div style={{ color: '#b91c1c' }}><strong>Khấu trừ phí hủy vé (3%):</strong> -{formatPrice(order.cancellationFee)}</div>
+                <div style={{ color: '#15803d', fontSize: '1rem', fontWeight: 700 }}>
+                  <strong>Số tiền Admin cần chuyển trả khách (97%):</strong> {formatPrice(order.refundAmount)}
+                </div>
+                <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #fed7aa' }}>
+                  <div><strong>Ngân hàng khách:</strong> {order.refundBankName || 'Chưa cung cấp'}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <strong>Số tài khoản:</strong> <span style={{ color: '#0284c7', fontSize: '1.05rem', fontWeight: 700 }}>{order.refundAccountNumber || 'Chưa cung cấp'}</span>
+                    {order.refundAccountNumber && (
+                      <button 
+                        onClick={() => { navigator.clipboard.writeText(order.refundAccountNumber); toast.success('Đã chép STK khách!'); }}
+                        style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.8rem' }}
+                      >
+                        (Copy)
+                      </button>
+                    )}
+                  </div>
+                  <div><strong>Chủ tài khoản:</strong> {order.refundAccountName || 'Chưa cung cấp'}</div>
+                  {order.cancellationReason && <div><strong>Lý do hủy:</strong> <em>{order.cancellationReason}</em></div>}
+                </div>
+              </div>
+
+              {/* VietQR chuyển khoản lại cho khách */}
+              {order.refundAccountNumber && (
+                <div style={{ textAlign: 'center', background: '#fff', padding: '10px', borderRadius: '8px', marginBottom: '12px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '6px' }}>Mã VietQR chuyển tiền hoàn cho khách:</div>
+                  <img 
+                    src={`https://img.vietqr.io/image/MB-${order.refundAccountNumber}-compact2.png?amount=${order.refundAmount}&addInfo=HoanTienDon${order.id}&accountName=${encodeURIComponent(order.refundAccountName || '')}`}
+                    alt="VietQR Refund"
+                    style={{ maxWidth: '180px', width: '100%', height: 'auto', display: 'inline-block' }}
+                  />
+                </div>
+              )}
+
+              {order.paymentStatus === 'REFUND_PENDING' ? (
+                <button
+                  onClick={async () => {
+                    try {
+                      await adminApi.confirmRefund(order.id);
+                      toast.success('Đã xác nhận hoàn tiền thành công!');
+                      fetchOrder();
+                    } catch (err) {
+                      toast.error('Lỗi khi cập nhật hoàn tiền: ' + (err.response?.data?.message || err.message));
+                    }
+                  }}
+                  style={{
+                    width: '100%', padding: '10px', background: '#9333ea', color: '#fff',
+                    border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.9rem',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                  }}
+                >
+                  <FaCheck /> Xác Nhận Đã Chuyển Tiền Hoàn Cho Khách
+                </button>
+              ) : (
+                <div style={{ textAlign: 'center', color: '#15803d', fontWeight: 700, fontSize: '0.85rem' }}>
+                  ✅ Đã hoàn tất chuyển khoản hoàn tiền cho khách hàng.
+                </div>
+              )}
+            </div>
+          )}
           
           {/* Cập nhật nhanh trạng thái đơn */}
           <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
@@ -147,7 +256,7 @@ const AdminOrderDetail = () => {
               }}
             >
               <option value="PENDING">Chờ xử lý (Chưa xác nhận)</option>
-              <option value="CONFIRMED">Đã xác nhận (Khách đã thanh toán)</option>
+              <option value="CONFIRMED">Đã xác nhận (Khách đã thanh toán - Kích hoạt vé)</option>
               <option value="COMPLETED">Hoàn thành (Đã đi tour xong)</option>
               <option value="CANCELLED">Đã hủy (Hoàn trả chỗ ngồi)</option>
             </select>

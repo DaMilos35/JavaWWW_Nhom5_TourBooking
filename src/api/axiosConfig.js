@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   withCredentials: true, // gửi cookie session (JSESSIONID, remember-me)
   headers: {
     'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export const orderApi = {
   getMyOrders: () => api.get('/orders/my'),
   getMyOrderById: (id) => api.get('/orders/my/' + id),
   getOrderById: (id) => api.get('/admin/orders/' + id),
-  cancelOrder: (id) => api.post('/orders/my/' + id + '/cancel'),
+  cancelOrder: (id, refundData) => api.post('/orders/my/' + id + '/cancel', refundData),
 };
 
 // ========= USER PROFILE =========
@@ -141,6 +141,8 @@ export const adminApi = {
   getOrders: () => api.get('/admin/orders'),
   getOrderById: (id) => api.get('/admin/orders/' + id),
   updateOrderStatus: (id, status) => api.put('/admin/orders/' + id + '/status', { status }),
+  confirmPayment: (id) => api.put('/admin/orders/' + id + '/confirm-payment'),
+  confirmRefund: (id) => api.put('/admin/orders/' + id + '/confirm-refund'),
   updateOrderDetail: (orderId, detailId, quantity) =>
     api.put('/admin/orders/' + orderId + '/details/' + detailId, { quantity }),
 };
@@ -150,6 +152,14 @@ export const aiApi = {
   chat: (data) => api.post('/ai/chat', data),
   recommend: (data) => api.post('/ai/recommend', data),
   itinerary: (data) => api.post('/ai/itinerary', data),
+};
+
+// ========= PAYMENT =========
+export const paymentApi = {
+  getInfo: (orderId) => api.get(`/payment/info/${orderId}`),
+  createVnPayUrl: (orderId, returnUrl) => api.post('/payment/vnpay/create-url', { orderId, returnUrl }),
+  confirm: (data) => api.post('/payment/confirm', data),
+  processVnPayReturn: (queryString) => api.get(`/payment/vnpay/return?${queryString}`),
 };
 
 export default api;

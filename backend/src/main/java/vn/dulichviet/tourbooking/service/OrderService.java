@@ -60,6 +60,7 @@ public class OrderService {
 
     /** Tạo đơn hàng mới */
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
     public OrderDto createOrder(CreateOrderRequest request, Integer userId) {
         if (request.items() == null || request.items().isEmpty()) {
             throw new ApiException(400, "Đơn hàng phải có ít nhất 1 tour");
@@ -76,6 +77,15 @@ public class OrderService {
         order.setContactPhone(request.contactPhone());
         order.setContactEmail(request.contactEmail());
         order.setNotes(request.notes());
+
+        String payMethod = (request.paymentMethod() != null && !request.paymentMethod().isBlank())
+                ? request.paymentMethod().trim().toUpperCase()
+                : "CASH";
+        order.setPaymentMethod(payMethod);
+        order.setPaymentStatus("UNPAID");
+        order.setCancellationFeePercent(0);
+        order.setCancellationFee(BigDecimal.ZERO);
+        order.setRefundAmount(BigDecimal.ZERO);
 
         // Tạo mã đơn hàng nghiệp vụ chuẩn Báo cáo đề tài (VD: ORD-20261020-1234)
         String datePart = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -171,19 +181,119 @@ public class OrderService {
         return OrderDto.from(savedOrder);
     }
 
-    /** Huỷ đơn (chỉ khi status = PENDING) */
+    /** Huỷ đơn hàng khi đã thanh toán kèm thông tin tài khoản ngân hàng nhận hoàn tiền */
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
     public OrderDto cancelOrder(Integer orderId, Integer userId) {
+        return cancelOrder(orderId, userId, null);
+    }
+
+    @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
+    public OrderDto cancelOrder(Integer orderId, Integer userId, vn.dulichviet.tourbooking.dto.CancelOrderRequest request) {
         TourOrder order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
         if (!order.getUser().getId().equals(userId)) {
             throw new ApiException(403, "Bạn không có quyền huỷ đơn hàng này");
         }
-        if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
-            throw new ApiException(400, "Chỉ có thể huỷ đơn hàng ở trạng thái Chờ xử lý (PENDING)");
+        if ("CANCELLED".equalsIgnoreCase(order.getStatus())) {
+            throw new ApiException(400, "Đơn hàng này đã bị hủy trước đó");
+        }
+        if ("COMPLETED".equalsIgnoreCase(order.getStatus())) {
+            throw new ApiException(400, "Chuyến đi đã hoàn thành, không thể hủy đơn hàng này");
         }
 
-        // Hoàn lại số ghế cho tour
+        // Kiểm tra xem đơn hàng đã được thanh toán và Admin xác nhận hay chưa
+        boolean isPaid = "PAID".equalsIgnoreCase(order.getPaymentStatus())
+                || "CONFIRMED".equalsIgnoreCase(order.getStatus());
+
+        if (!isPaid) {
+            // KHÁCH HÀNG HỦY ĐƠN KHI CHƯA THANH TOÁN: Miễn phí 100%, không mất chi phí nào cả
+            order.setCancellationFeePercent(0);
+            order.setCancellationFee(BigDecimal.ZERO);
+            order.setRefundAmount(BigDecimal.ZERO);
+            order.setStatus("CANCELLED");
+            order.setPaymentStatus("UNPAID");
+
+            if (request != null && request.reason() != null && !request.reason().isBlank()) {
+                order.setCancellationReason(request.reason());
+            }
+
+            String reasonTag = (request != null && request.reason() != null && !request.reason().isBlank())
+                    ? " - Lý do: " + request.reason()
+                    : "";
+            String cancelTag = "[Khách hủy đơn chưa thanh toán: Miễn phí 100%]" + reasonTag;
+            String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
+            order.setNotes((cancelTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
+
+            // Hoàn lại số ghế trống khả dụng cho các Tour trong đơn hàng
+            for (OrderDetail detail : order.getDetails()) {
+                Tour tour = detail.getTour();
+                if (tour != null) {
+                    tour.setAvailableSeats(tour.getAvailableSeats() + detail.getQuantity());
+                    tourRepository.save(tour);
+                }
+            }
+
+            return OrderDto.from(orderRepository.save(order));
+        }
+
+        // TRƯỜNG HỢP ĐƠN ĐÃ THANH TOÁN: Áp dụng Chính sách đặt, đổi và hoàn hủy tour:
+        // 1. Hủy tour trước 7 ngày: Hoàn trả 100% số tiền (Phí đổi hủy 0%)
+        // 2. Hủy tour từ 3 - 6 ngày: Phí đổi hủy 30% giá tour (Hoàn trả 70%)
+        // 3. Hủy tour trong vòng 48h trước giờ khởi hành: Phí đổi hủy 70% giá tour (Hoàn trả 30%)
+        java.time.LocalDate earliestDeparture = null;
+        for (OrderDetail detail : order.getDetails()) {
+            if (detail.getTour() != null && detail.getTour().getStartDate() != null) {
+                if (earliestDeparture == null || detail.getTour().getStartDate().isBefore(earliestDeparture)) {
+                    earliestDeparture = detail.getTour().getStartDate();
+                }
+            }
+        }
+
+        int penaltyPercent = 3; // Mặc định phí xử lý tối thiểu 3% nếu không có ngày khởi hành cụ thể
+        if (earliestDeparture != null) {
+            long daysUntilDeparture = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), earliestDeparture);
+            if (daysUntilDeparture >= 7) {
+                penaltyPercent = 0; // Hủy trước 7 ngày: Hoàn 100% số tiền (phí 0%)
+            } else if (daysUntilDeparture >= 3) {
+                penaltyPercent = 30; // Hủy từ 3 - 6 ngày: Phí 30% giá tour
+            } else {
+                penaltyPercent = 70; // Hủy trong vòng 48h trước giờ khởi hành: Phí 70% giá tour
+            }
+        }
+
+        BigDecimal fee = order.getTotalAmount()
+                .multiply(BigDecimal.valueOf(penaltyPercent))
+                .divide(BigDecimal.valueOf(100), 0, java.math.RoundingMode.HALF_UP);
+        BigDecimal refund = order.getTotalAmount().subtract(fee);
+
+        order.setCancellationFeePercent(penaltyPercent);
+        order.setCancellationFee(fee);
+        order.setRefundAmount(refund);
+        order.setPaymentStatus("REFUND_PENDING"); // Đang chờ Admin chuyển khoản hoàn trả
+        order.setStatus("CANCELLED");
+
+        if (request != null) {
+            order.setRefundBankName(request.refundBankName());
+            order.setRefundAccountNumber(request.refundAccountNumber());
+            order.setRefundAccountName(request.refundAccountName());
+            order.setCancellationReason(request.reason());
+        }
+
+        java.text.NumberFormat curFormat = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+        String bankTag = (request != null && request.refundAccountNumber() != null && !request.refundAccountNumber().isBlank())
+                ? String.format(" | STK nhận hoàn: %s - %s (%s)", request.refundAccountNumber(), request.refundBankName(), request.refundAccountName())
+                : "";
+        String reasonTag = (request != null && request.reason() != null && !request.reason().isBlank())
+                ? " - Lý do: " + request.reason()
+                : "";
+        String refundTag = String.format("[Yêu cầu hủy vé: Phí đổi hủy %d%% (-%s) | Hoàn tiền thực nhận: %s%s]%s",
+                penaltyPercent, curFormat.format(fee), curFormat.format(refund), bankTag, reasonTag);
+        String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
+        order.setNotes((refundTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
+
+        // Hoàn lại số ghế trống khả dụng cho các Tour trong đơn hàng
         for (OrderDetail detail : order.getDetails()) {
             Tour tour = detail.getTour();
             if (tour != null) {
@@ -192,7 +302,6 @@ public class OrderService {
             }
         }
 
-        order.setStatus("CANCELLED");
         return OrderDto.from(orderRepository.save(order));
     }
 
@@ -261,7 +370,41 @@ public class OrderService {
             }
         }
 
-        order.setStatus(newStatus);
+        // Tự động đồng bộ paymentStatus khi Admin duyệt đơn
+        if ("CONFIRMED".equalsIgnoreCase(newStatus) || "PAID".equalsIgnoreCase(newStatus)) {
+            order.setStatus("CONFIRMED");
+            order.setPaymentStatus("PAID");
+        } else {
+            order.setStatus(newStatus);
+        }
+
+        return OrderDto.from(orderRepository.save(order));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @Transactional
+    public OrderDto adminConfirmPayment(Integer orderId) {
+        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
+        order.setStatus("CONFIRMED");
+        order.setPaymentStatus("PAID");
+        return OrderDto.from(orderRepository.save(order));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @Transactional
+    public OrderDto confirmOrderRefund(Integer orderId) {
+        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
+        order.setPaymentStatus("REFUNDED");
+        java.text.NumberFormat curFormat = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+        String confirmTag = String.format("[Admin đã chuyển tiền hoàn %s cho khách qua STK %s - %s (%s)]",
+                curFormat.format(order.getRefundAmount() != null ? order.getRefundAmount() : BigDecimal.ZERO),
+                order.getRefundAccountNumber() != null ? order.getRefundAccountNumber() : "N/A",
+                order.getRefundBankName() != null ? order.getRefundBankName() : "",
+                order.getRefundAccountName() != null ? order.getRefundAccountName() : "");
+        String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
+        order.setNotes((confirmTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
         return OrderDto.from(orderRepository.save(order));
     }
 

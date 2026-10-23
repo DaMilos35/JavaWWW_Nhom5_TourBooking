@@ -14,7 +14,7 @@ import vn.dulichviet.tourbooking.repository.CategoryRepository;
 import vn.dulichviet.tourbooking.repository.TourRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +46,12 @@ public class TourService {
         this.tourVectorIndexer = tourVectorIndexer;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private VectorStoreService vectorStoreService;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private EmbeddingService embeddingService;
+
     public List<TourDto> findAll() {
         return tourRepository.findAll().stream()
                 .map(TourDto::from)
@@ -60,9 +66,42 @@ public class TourService {
     }
 
     public List<TourDto> search(String keyword) {
-        return tourRepository.findByNameContainingIgnoreCase(keyword).stream()
+        if (keyword == null || keyword.isBlank()) {
+            return findAll();
+        }
+        List<TourDto> sqlResults = tourRepository.findByNameContainingIgnoreCase(keyword).stream()
                 .map(TourDto::from)
                 .collect(Collectors.toList());
+
+        if (!sqlResults.isEmpty()) {
+            return sqlResults;
+        }
+
+        // Tự động tìm kiếm ngữ nghĩa qua Vector Database khi từ khóa là khái niệm du lịch (ví dụ: "nghỉ mát", "săn mây")
+        try {
+            if (vectorStoreService != null && embeddingService != null) {
+                float[] qVec = embeddingService.embed(keyword);
+                var vResults = vectorStoreService.search(qVec, 6, 0.08);
+                if (!vResults.isEmpty()) {
+                    List<Integer> ids = vResults.stream().map(VectorStoreService.SearchResult::tourId).toList();
+                    Map<Integer, Tour> tourMap = tourRepository.findAllById(ids).stream()
+                            .collect(Collectors.toMap(Tour::getId, t -> t));
+                    List<TourDto> semanticResults = new ArrayList<>();
+                    for (var r : vResults) {
+                        Tour t = tourMap.get(r.tourId());
+                        if (t != null && "ACTIVE".equalsIgnoreCase(t.getStatus())) {
+                            semanticResults.add(TourDto.from(t));
+                        }
+                    }
+                    if (!semanticResults.isEmpty()) {
+                        return semanticResults;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return sqlResults;
     }
 
     public List<TourDto> findByCategoryId(Integer categoryId) {

@@ -1,5 +1,6 @@
 package vn.dulichviet.tourbooking.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -11,6 +12,7 @@ import java.util.List;
 /**
  * DTO yêu cầu đặt tour với đầy đủ validation theo chuẩn Jakarta Bean Validation
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record CreateOrderRequest(
         @NotBlank(message = "Họ và tên người liên hệ không được để trống")
         String contactName,
@@ -26,15 +28,21 @@ public record CreateOrderRequest(
         Boolean isB2b,
         String companyName,
         String taxId,
+        String paymentMethod,
 
         @NotEmpty(message = "Đơn hàng phải chứa ít nhất 1 tour du lịch")
         @Valid
         List<Item> items) {
 
     public CreateOrderRequest(String contactName, String contactPhone, String contactEmail, String notes, List<Item> items) {
-        this(contactName, contactPhone, contactEmail, notes, false, null, null, items);
+        this(contactName, contactPhone, contactEmail, notes, false, null, null, "CASH", items);
     }
 
+    public CreateOrderRequest(String contactName, String contactPhone, String contactEmail, String notes, Boolean isB2b, String companyName, String taxId, List<Item> items) {
+        this(contactName, contactPhone, contactEmail, notes, isB2b, companyName, taxId, "CASH", items);
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record Item(
             @NotNull(message = "Mã tour không được để trống")
             Integer tourId,

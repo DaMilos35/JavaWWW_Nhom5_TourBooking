@@ -40,18 +40,26 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .ignoringRequestMatchers(
-                    "/api/auth/login", "/api/auth/register",
-                    "/api/tours/**", "/api/categories/**",
-                    "/api/orders/**", "/api/users/**", "/api/admin/**",
-                    "/api/ai/**", "/api/activity/**"))
+                    "/api/auth/**",
+                    "/api/tours", "/api/tours/**",
+                    "/api/categories", "/api/categories/**",
+                    "/api/orders", "/api/orders/**",
+                    "/api/payment", "/api/payment/**",
+                    "/api/users", "/api/users/**",
+                    "/api/admin", "/api/admin/**",
+                    "/api/ai", "/api/ai/**",
+                    "/api/activity", "/api/activity/**"))
             .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/ai/**", "/api/activity/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/tours/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/tours/**/activity", "/api/activity/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/ai", "/api/ai/**", "/api/activity", "/api/activity/**").permitAll()
+                .requestMatchers("/api/payment/vnpay/return").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**", "/api/tours", "/api/tours/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/activity", "/api/activity/**").permitAll()
                 .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "PROVIDER")
+                .requestMatchers("/api/payment/**").authenticated()
                 .anyRequest().authenticated())
             .formLogin(form -> form
                 .loginProcessingUrl("/api/auth/login")
@@ -121,7 +129,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(allowedOrigin));
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                allowedOrigin
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

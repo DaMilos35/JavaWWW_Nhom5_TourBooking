@@ -61,6 +61,15 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_code VARCHAR(30) NULL");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS is_b2b TINYINT(1) DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_percent INT DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancellation_fee_percent INT DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancellation_fee DECIMAL(18,2) DEFAULT 0.00");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_amount DECIMAL(18,2) DEFAULT 0.00");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_bank_name VARCHAR(100) NULL");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_account_number VARCHAR(50) NULL");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_account_name VARCHAR(100) NULL");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancellation_reason VARCHAR(255) NULL");
+            jdbcTemplate.execute("ALTER TABLE orders MODIFY COLUMN payment_status VARCHAR(30) NOT NULL DEFAULT 'UNPAID' CHECK (payment_status IN ('UNPAID','PENDING_PAYMENT','PAID','REFUND_PENDING','REFUNDED','FAILED'))");
+            jdbcTemplate.execute("CREATE OR REPLACE VIEW order_details AS SELECT * FROM orderdetails");
         } catch (Exception e) {
             log.debug("Các cột nghiệp vụ orders đã sẵn sàng: {}", e.getMessage());
         }

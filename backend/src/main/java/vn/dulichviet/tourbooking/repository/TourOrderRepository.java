@@ -27,4 +27,6 @@ public interface TourOrderRepository extends JpaRepository<TourOrder, Integer> {
 
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM TourOrder o WHERE o.status IN ('CONFIRMED', 'COMPLETED', 'PAID')")
     BigDecimal sumRevenue();
+
+    Optional<TourOrder> findByOrderCode(String orderCode);
 }

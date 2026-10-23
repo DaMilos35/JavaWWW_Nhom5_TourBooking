@@ -37,8 +37,10 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getMyOrderById(id, userId));
     }
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OrderController.class);
+
     /** Tạo đơn hàng mới */
-    @PostMapping
+    @PostMapping({"", "/"})
     public ResponseEntity<OrderDto> createOrder(
             @jakarta.validation.Valid @RequestBody CreateOrderRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -46,13 +48,14 @@ public class OrderController {
         return ResponseEntity.status(201).body(orderService.createOrder(request, userId));
     }
 
-    /** Huỷ đơn hàng (chỉ khi PENDING) */
+    /** Huỷ đơn hàng khi đã thanh toán kèm form điền STK hoàn tiền */
     @PostMapping("/my/{id}/cancel")
     public ResponseEntity<OrderDto> cancelOrder(
             @PathVariable Integer id,
+            @RequestBody(required = false) vn.dulichviet.tourbooking.dto.CancelOrderRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         Integer userId = extractUserId(userDetails);
-        return ResponseEntity.ok(orderService.cancelOrder(id, userId));
+        return ResponseEntity.ok(orderService.cancelOrder(id, userId, request));
     }
 
     private Integer extractUserId(UserDetails userDetails) {

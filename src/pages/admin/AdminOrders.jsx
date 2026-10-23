@@ -157,44 +157,106 @@ const AdminOrders = () => {
                       {formatPrice(order.totalAmount)}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 10px',
-                        borderRadius: '6px',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        backgroundColor: 
-                          order.status === 'CONFIRMED' ? '#dcfce7' :
-                          order.status === 'COMPLETED' ? '#e0f2fe' :
-                          order.status === 'PENDING' ? '#fef3c7' : '#fee2e2',
-                        color: 
-                          order.status === 'CONFIRMED' ? '#15803d' :
-                          order.status === 'COMPLETED' ? '#0369a1' :
-                          order.status === 'PENDING' ? '#b45309' : '#b91c1c'
-                      }}>
-                        {order.status === 'CONFIRMED' ? 'Đã xác nhận' :
-                         order.status === 'COMPLETED' ? 'Hoàn thành' :
-                         order.status === 'PENDING' ? 'Chờ xử lý' : 'Đã hủy'}
-                      </span>
+                      <div style={{ marginBottom: '4px' }}>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          backgroundColor: 
+                            order.status === 'CONFIRMED' ? '#dcfce7' :
+                            order.status === 'COMPLETED' ? '#e0f2fe' :
+                            order.status === 'PENDING' ? '#fef3c7' : '#fee2e2',
+                          color: 
+                            order.status === 'CONFIRMED' ? '#15803d' :
+                            order.status === 'COMPLETED' ? '#0369a1' :
+                            order.status === 'PENDING' ? '#b45309' : '#b91c1c'
+                        }}>
+                          {order.status === 'CONFIRMED' ? 'Đã xác nhận' :
+                           order.status === 'COMPLETED' ? 'Hoàn thành' :
+                           order.status === 'PENDING' ? 'Chờ xử lý' : 'Đã hủy'}
+                        </span>
+                      </div>
+                      <div>
+                        {order.paymentStatus === 'PAID' ? (
+                          <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>● Đã thanh toán</span>
+                        ) : order.paymentStatus === 'REFUND_PENDING' ? (
+                          <span style={{ fontSize: '0.75rem', color: '#ea580c', fontWeight: 700, background: '#ffedd5', padding: '2px 6px', borderRadius: '4px' }}>⚠️ Cần hoàn tiền (97%)</span>
+                        ) : order.paymentStatus === 'REFUNDED' ? (
+                          <span style={{ fontSize: '0.75rem', color: '#9333ea', fontWeight: 600 }}>● Đã hoàn tiền</span>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: '#ca8a04', fontWeight: 600 }}>● Chờ thanh toán</span>
+                        )}
+                      </div>
                     </td>
                     <td style={{ padding: '14px 16px' }}>
-                      <select 
-                        value={order.status} 
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        style={{
-                          padding: '5px 8px',
-                          borderRadius: '6px',
-                          border: '1px solid #cbd5e1',
-                          fontSize: '0.85rem',
-                          background: '#fff',
-                          color: '#334155'
-                        }}
-                      >
-                        <option value="PENDING">Chờ xử lý</option>
-                        <option value="CONFIRMED">Đã xác nhận</option>
-                        <option value="COMPLETED">Hoàn thành</option>
-                        <option value="CANCELLED">Đã hủy</option>
-                      </select>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <select 
+                          value={order.status} 
+                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                          style={{
+                            padding: '5px 8px',
+                            borderRadius: '6px',
+                            border: '1px solid #cbd5e1',
+                            fontSize: '0.82rem',
+                            background: '#fff',
+                            color: '#334155'
+                          }}
+                        >
+                          <option value="PENDING">Chờ xử lý</option>
+                          <option value="CONFIRMED">Đã xác nhận (PAID)</option>
+                          <option value="COMPLETED">Hoàn thành</option>
+                          <option value="CANCELLED">Đã hủy</option>
+                        </select>
+
+                        {/* Nút Admin xác nhận thanh toán nhanh */}
+                        {order.status === 'PENDING' && order.paymentStatus !== 'PAID' && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                await adminApi.confirmPayment(order.id);
+                                toast.success(`Đã xác nhận thanh toán đơn #${order.id}!`);
+                                fetchOrders();
+                              } catch (err) {
+                                toast.error('Lỗi khi xác nhận thanh toán');
+                              }
+                            }}
+                            style={{
+                              background: '#16a34a', color: '#fff', border: 'none',
+                              padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem',
+                              fontWeight: 700, cursor: 'pointer', display: 'inline-flex',
+                              alignItems: 'center', gap: '4px'
+                            }}
+                            title="Xác nhận khách đã chuyển khoản thành công"
+                          >
+                            <FaCheck /> Xác nhận tiền về
+                          </button>
+                        )}
+
+                        {/* Nút Admin xác nhận đã hoàn tiền nhanh */}
+                        {order.paymentStatus === 'REFUND_PENDING' && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                await adminApi.confirmRefund(order.id);
+                                toast.success(`Đã cập nhật trạng thái đã hoàn tiền đơn #${order.id}!`);
+                                fetchOrders();
+                              } catch (err) {
+                                toast.error('Lỗi khi cập nhật hoàn tiền');
+                              }
+                            }}
+                            style={{
+                              background: '#9333ea', color: '#fff', border: 'none',
+                              padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem',
+                              fontWeight: 700, cursor: 'pointer'
+                            }}
+                            title="Xác nhận đã chuyển khoản 97% trả khách"
+                          >
+                            ✓ Đã chuyển hoàn
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                       <Link 
