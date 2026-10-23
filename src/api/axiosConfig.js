@@ -102,6 +102,7 @@ export const orderApi = {
   getMyOrderById: (id) => api.get('/orders/my/' + id),
   getOrderById: (id) => api.get('/admin/orders/' + id),
   cancelOrder: (id, refundData) => api.post('/orders/my/' + id + '/cancel', refundData),
+  payOrder: (id, data) => api.post('/orders/my/' + id + '/pay', data),
 };
 
 // ========= USER PROFILE =========
@@ -152,6 +153,10 @@ export const aiApi = {
   chat: (data) => api.post('/ai/chat', data),
   recommend: (data) => api.post('/ai/recommend', data),
   itinerary: (data) => api.post('/ai/itinerary', data),
+  semanticSearch: (query, limit = 6) => api.get('/ai/semantic-search?q=' + encodeURIComponent(query) + '&limit=' + limit),
+  getVectorDbStatus: () => api.get('/ai/vector-db/status'),
+  reindexVectorDb: () => api.post('/ai/vector-db/reindex'),
+  getSuggestions: () => api.get('/ai/suggestions'),
 };
 
 // ========= PAYMENT =========

@@ -70,6 +70,14 @@ CREATE TABLE Tours (
                                         CHECK (status IN ('ACTIVE', 'INACTIVE')),
     rating              DECIMAL(2,1)    NULL DEFAULT 4.5
                                         CHECK (rating >= 0 AND rating <= 5),
+    original_price      DECIMAL(18,2)   NULL,
+    vehicle             VARCHAR(100)    NULL,
+    hotel_star          INT             NULL DEFAULT 3,
+    badge               VARCHAR(50)     NULL,
+    highlights          LONGTEXT        NULL,
+    itinerary           LONGTEXT        NULL,
+    inclusions          LONGTEXT        NULL,
+    exclusions          LONGTEXT        NULL,
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT FK_Tours_Categories FOREIGN KEY (category_id)

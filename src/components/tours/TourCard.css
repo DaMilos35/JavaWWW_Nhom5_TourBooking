@@ -1,218 +1,94 @@
 .tour-card-wrap {
   position: relative;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .tour-card {
-  background: var(--bg-surface);
-  border-radius: var(--radius-md);
+  background: #ffffff;
+  border-radius: 14px;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   position: relative;
   text-decoration: none;
-}
-
-.tour-save-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 18px;
-  background: rgba(11, 15, 25, 0.88);
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.tour-save-btn:hover,
-.tour-save-btn.is-saved {
-  border-color: #0ea5e9;
-  color: #7dd3fc;
-}
-
-.tour-save-btn:focus-visible {
-  outline: 2px solid #7dd3fc;
-  outline-offset: 2px;
+  height: 100%;
 }
 
 .tour-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(14, 165, 233, 0.4);
-  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+  border-color: #93c5fd;
+  box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.12);
 }
 
+/* Save / Wishlist Button */
+.tour-save-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tour-save-btn:hover {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.tour-save-btn.is-saved {
+  border-color: #f43f5e;
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.2);
+}
+
+.tour-save-btn:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+/* Tour Image Wrapper */
 .tc-img-wrapper {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 210px;
   overflow: hidden;
-  background-color: #111827;
+  background-color: #f1f5f9;
 }
 
 .tc-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .tour-card:hover .tc-img {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
-.tc-content {
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.tc-kicker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-.tc-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: #f59e0b;
-  font-weight: 600;
-}
-
-.star-icon {
-  font-size: 0.8rem;
-}
-
-.tc-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 10px;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.tc-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  color: #94a3b8;
-  font-size: 0.82rem;
-  margin-bottom: 16px;
-}
-
-.tc-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tc-seats {
-  color: #38bdf8;
-  font-weight: 500;
-}
-
-.tc-footer {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  gap: 10px;
-}
-
-.tc-price-wrap {
-  display: flex;
-  flex-direction: column;
-}
-
-.tc-price-label {
-  font-size: 0.72rem;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.tc-price {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #38bdf8;
-}
-
-.tc-action-btns {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-book {
-  background: rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  transition: all 0.2s;
-  display: inline-block;
-}
-
-.tour-card:hover .btn-book {
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-}
-
-.btn-quick-add {
-  background: #0284c7;
-  color: #ffffff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.2s;
-}
-
-.btn-quick-add:hover:not(:disabled) {
-  background: #0369a1;
-  transform: translateY(-1px);
-}
-
-.btn-quick-add:disabled {
-  background: #475569;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Badges on tour image */
+/* Badges on Top Left of Image */
 .tc-badge-container {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 12px;
+  left: 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -222,29 +98,260 @@
 .tc-badge {
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
-  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
   letter-spacing: 0.4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.badge-available {
-  background: rgba(22, 163, 74, 0.9);
+.tc-badge-icon {
+  font-size: 0.75rem;
+}
+
+.tc-marketing-badge {
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.badge-hot {
+  background: linear-gradient(135deg, #ef4444, #f97316);
   color: #ffffff;
 }
 
-.badge-warning {
-  background: rgba(234, 88, 12, 0.9);
+.badge-bestseller {
+  background: linear-gradient(135deg, #0284c7, #06b6d4);
   color: #ffffff;
 }
 
-.badge-full {
-  background: rgba(100, 116, 139, 0.9);
+.badge-premium {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
   color: #ffffff;
 }
 
 .badge-duration {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.82);
   color: #7dd3fc;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+/* Seats Corner (Bottom of Image) */
+.tc-seats-corner {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  z-index: 2;
+}
+
+.tc-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
+}
+
+.pill-seats {
+  background: rgba(16, 185, 129, 0.95);
+  color: #ffffff;
+}
+
+.pill-urgent {
+  background: rgba(245, 158, 11, 0.95);
+  color: #ffffff;
+  animation: pulse 2s infinite;
+}
+
+.pill-soldout {
+  background: rgba(100, 116, 139, 0.95);
+  color: #ffffff;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* Card Body Content */
+.tc-content {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tc-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tc-category-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #0284c7;
+  letter-spacing: 0.5px;
+}
+
+.tc-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.tc-rating-label {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.star-icon {
+  font-size: 0.8rem;
+}
+
+/* TIÊU ĐỀ TOUR SẮC NÉT TRÊN NỀN TRẮNG */
+.tc-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3rem;
+  transition: color 0.2s;
+}
+
+.tour-card:hover .tc-title {
+  color: #0194f3;
+}
+
+/* Traveloka Amenities Row */
+.tc-amenities-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.tc-amenity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.tc-chip-icon {
+  color: #0284c7;
+  font-size: 0.78rem;
+}
+
+/* Card Footer */
+.tc-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  gap: 12px;
+}
+
+.tc-price-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.tc-price-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.tc-original-price {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.tc-discount-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #ef4444;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.tc-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.tc-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ff5e1f;
+  line-height: 1;
+}
+
+.tc-price-unit {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tc-action-btns {
+  display: flex;
+  align-items: center;
+}
+
+.btn-quick-add {
+  background: linear-gradient(135deg, #0194f3, #0284c7);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(1, 148, 243, 0.25);
+}
+
+.btn-quick-add:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(1, 148, 243, 0.35);
+}
+
+.btn-quick-add:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
 }

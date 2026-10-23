@@ -45,11 +45,39 @@ public class Tour {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
+    @Column(name = "original_price")
+    private BigDecimal originalPrice;
+
     @Column(name = "duration", nullable = false)
     private Integer duration;
 
     @Column(name = "departure_location")
     private String departureLocation;
+
+    @Column(name = "vehicle")
+    private String vehicle;
+
+    @Column(name = "hotel_star")
+    private Integer hotelStar;
+
+    @Column(name = "badge")
+    private String badge;
+
+    @Lob
+    @Column(name = "highlights")
+    private String highlights;
+
+    @Lob
+    @Column(name = "itinerary")
+    private String itinerary;
+
+    @Lob
+    @Column(name = "inclusions")
+    private String inclusions;
+
+    @Lob
+    @Column(name = "exclusions")
+    private String exclusions;
 
     @Column(name = "image_url")
     private String imageUrl;

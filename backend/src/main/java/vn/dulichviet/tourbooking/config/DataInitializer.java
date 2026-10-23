@@ -75,6 +75,27 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         try {
+            // Mở rộng các trường đặc tả phong phú chuẩn Traveloka / OTA
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS original_price DECIMAL(12,2) NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS vehicle VARCHAR(150) NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS hotel_star INT DEFAULT 3");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS badge VARCHAR(50) NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS highlights LONGTEXT NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS itinerary LONGTEXT NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS inclusions LONGTEXT NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS exclusions LONGTEXT NULL");
+        } catch (Exception e) {
+            log.debug("Các cột thông tin phong phú Tours đã sẵn sàng: {}", e.getMessage());
+        }
+
+        try {
+            // Nới lỏng CHECK constraint role trong bảng users nếu cần
+            jdbcTemplate.execute("ALTER TABLE users MODIFY COLUMN role VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER' CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER'))");
+        } catch (Exception e) {
+            log.debug("Cột role đã hỗ trợ PROVIDER: {}", e.getMessage());
+        }
+
+        try {
             // Khởi tạo các tài khoản demo chuẩn theo Bảng 5.3 trong Báo cáo (Mật khẩu đồng nhất: 123456)
             seedUserIfNotExists("admin", "admin@tourbooking.com", "123456", "Quản Trị Viên Hệ Thống", "ADMIN", "0909999999");
             seedUserIfNotExists("saigontourist", "saigontourist@tourbooking.com", "123456", "Saigontourist Travel", "PROVIDER", "19001808");

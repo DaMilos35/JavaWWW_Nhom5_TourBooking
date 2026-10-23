@@ -214,8 +214,16 @@ public class TourService {
         tour.setName(request.name());
         tour.setDescription(request.description());
         tour.setPrice(request.price());
+        tour.setOriginalPrice(request.originalPrice());
         tour.setDuration(request.duration());
         tour.setDepartureLocation(request.departureLocation());
+        tour.setVehicle(request.vehicle());
+        tour.setHotelStar(request.hotelStar() != null ? request.hotelStar() : 3);
+        tour.setBadge(request.badge());
+        tour.setHighlights(request.highlights());
+        tour.setItinerary(request.itinerary());
+        tour.setInclusions(request.inclusions());
+        tour.setExclusions(request.exclusions());
         tour.setImageUrl(request.imageUrl());
         tour.setAvailableSeats(request.availableSeats());
         tour.setStartDate(request.startDate());

@@ -58,6 +58,18 @@ public class OrderController {
         return ResponseEntity.ok(orderService.cancelOrder(id, userId, request));
     }
 
+    /** Thanh toán / Xác nhận thanh toán đơn hàng */
+    @PostMapping("/my/{id}/pay")
+    public ResponseEntity<OrderDto> payOrder(
+            @PathVariable Integer id,
+            @RequestBody(required = false) vn.dulichviet.tourbooking.dto.PayOrderRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Integer userId = extractUserId(userDetails);
+        String method = request != null ? request.paymentMethod() : "VIETQR";
+        String tx = request != null ? request.transactionCode() : null;
+        return ResponseEntity.ok(orderService.payOrder(id, userId, method, tx));
+    }
+
     private Integer extractUserId(UserDetails userDetails) {
         if (userDetails instanceof CustomUserDetails custom) {
             return custom.getUser().getId();

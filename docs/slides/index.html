@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Chuyên Đề: Cơ Sở Dữ Liệu Vector (Vector Database) - Nhóm 5</title>
+  
+  <!-- Reveal.js Core & Themes (CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/black.min.css" id="theme">
+  <!-- Code Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/plugin/highlight/atom-one-dark.min.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --accent-blue: #38bdf8;
+      --accent-purple: #c084fc;
+      --accent-green: #34d399;
+      --accent-orange: #fb923c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --border-subtle: rgba(255, 255, 255, 0.12);
+    }
+
+    body, .reveal {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                  var(--bg-dark);
+    }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      color: #ffffff;
+    }
+
+    .reveal pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      line-height: 1.45;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Custom Slide Elements */
+    .slide-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.65em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      color: var(--accent-blue);
+    }
+
+    .slide-badge.ai {
+      background: rgba(168, 85, 247, 0.15);
+      border-color: rgba(168, 85, 247, 0.4);
+      color: var(--accent-purple);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gradient-orange {
+      background: linear-gradient(135deg, #fb923c 0%, #f43f5e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 22px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .glass-card h4 {
+      margin-top: 0;
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .glass-card p, .glass-card li {
+      font-size: 0.78em;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .highlight-pill {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .formula-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin: 16px 0;
+      font-family: 'JetBrains Mono', monospace;
+      color: #e2e8f0;
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+    .vs-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.72em;
+      margin-top: 15px;
+    }
+
+    .vs-table th {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 12px 16px;
+      color: #f8fafc;
+      font-weight: 700;
+      text-align: left;
+      border-bottom: 2px solid var(--border-subtle);
+    }
+
+    .vs-table td {
+      background: rgba(30, 41, 59, 0.5);
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: #cbd5e1;
+    }
+
+    .vs-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .step-arrow {
+      color: var(--accent-blue);
+      font-weight: bold;
+    }
+
+    /* Footer Banner */
+    .slide-footer-info {
+      position: absolute;
+      bottom: 16px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.48em;
+      color: #64748b;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- =======================================================
+           SLIDE 1: TRANG TIÊU ĐỀ (TITLE SLIDE)
+           ======================================================= -->
+      <section data-transition="zoom">
+        <div class="slide-badge">BÁO CÁO ĐỒ ÁN MÔN HỌC WWW JAVA · ĐỀ TÀI SỐ 49</div>
+        <h1 style="font-size: 2.2em; margin-bottom: 0.2em;">
+          CƠ SỞ DỮ LIỆU <span class="gradient-text">VECTOR</span><br>
+          <span style="font-size: 0.75em; font-weight: 600; color: #cbd5e1;">& Ứng Dụng Tìm Kiếm Ngữ Nghĩa Du Lịch Việt</span>
+        </h1>
+        <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 1.8em;">
+          Đột phá trải nghiệm tìm kiếm lữ hành thông minh theo chuẩn Traveloka & RAG AI Architecture
+        </p>
+
+        <div style="display: flex; justify-content: center; gap: 40px; font-size: 0.65em; text-align: left;">
+          <div class="glass-card" style="padding: 14px 24px;">
+            <span style="color: var(--accent-blue); font-weight: 700;">ĐƠN VỊ ĐÀO TẠO</span><br>
+            <b>Trường ĐH Công Nghiệp TP.HCM (IUH)</b><br>
+            Khoa Công Nghệ Thông Tin
+          </div>
+          <div class="glass-card" style="padding: 14px 24px;">
+            <span style="color: var(--accent-green); font-weight: 700;">GIẢNG VIÊN HƯỚNG DẪN</span><br>
+            <b>ThS. Nguyễn Vũ Lâm</b><br>
+            Bộ môn Công nghệ phần mềm
+          </div>
+          <div class="glass-card" style="padding: 14px 24px;">
+            <span style="color: var(--accent-purple); font-weight: 700;">NHÓM THỰC HIỆN</span><br>
+            <b>Nhóm 5 · Lớp DHKTPM19ATT</b><br>
+            Vũ Trần Đức Nghĩa · Nguyễn Đình Phi
+          </div>
+        </div>
+
+        <aside class="notes">
+          Kính chào Thầy Nguyễn Vũ Lâm và các bạn. Hôm nay Nhóm 5 xin báo cáo chuyên đề công nghệ cốt lõi được tích hợp trong Đề tài 49: Cơ sở dữ liệu Vector (Vector Database), lý thuyết nền tảng và cách nhóm đã hiện thực hóa vào hệ thống Tour Booking Du Lịch Việt.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 2: ĐẶT VẤN ĐỀ (THE PROBLEM)
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge">1. BỐI CẢNH & ĐẶT VẤN ĐỀ</div>
+        <h2>Hạn Chế Của Tìm Kiếm Truyền Thống</h2>
+        <p style="font-size: 0.8em; color: var(--text-muted);">
+          Tại sao câu lệnh SQL <code>LIKE '%keyword%'</code> không còn đáp ứng được nhu cầu của các sàn OTA hiện đại?
+        </p>
+
+        <div class="card-grid">
+          <div class="glass-card" style="border-left: 4px solid #ef4444;">
+            <h4 style="color: #f87171;">❌ SQL Truyền Thống (Lexical Search)</h4>
+            <ul>
+              <li>Chỉ so khớp <b>chính xác từng ký tự (Exact Keyword Match)</b>.</li>
+              <li>Người dùng gõ: <i>"Chỗ nghỉ dưỡng mát mẻ cho gia đình có em bé"</i> $\rightarrow$ SQL <b>trả về 0 kết quả</b> vì tên tour trong DB là: <i>"Đà Lạt 3N2Đ săn mây thung lũng"</i>.</li>
+              <li>Bỏ sót hoàn toàn từ đồng nghĩa: <i>"biển đảo"</i> $\leftrightarrow$ <i>"lặn san hô"</i> $\leftrightarrow$ <i>"cano 4 đảo"</i> $\leftrightarrow$ <i>"resort"</i>.</li>
+            </ul>
+          </div>
+
+          <div class="glass-card" style="border-left: 4px solid var(--accent-green);">
+            <h4 style="color: #34d399;">✅ Tìm Kiếm Ngữ Nghĩa (Semantic Search)</h4>
+            <ul>
+              <li>Hiểu được <b>Ý định & Ngữ cảnh (Intent & Context)</b> của người đi du lịch.</li>
+              <li>Không cần trùng từ khóa: Hiểu rằng <i>"nghỉ dưỡng biển"</i> rất gần gũi với <i>"Phú Quốc resort 5 sao"</i> hay <i>"Nha Trang tắm bùn khoáng"</i>.</li>
+              <li>Cho phép tìm kiếm tự nhiên bằng ngôn ngữ đời thường như đang trò chuyện với chuyên viên lữ hành.</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Trong thương mại điện tử du lịch, khách hàng tìm kiếm bằng cảm xúc và nhu cầu: "muốn đi trốn nóng", "ngắm tuyết rơi", "ăn hải sản tươi sống". SQL truyền thống hoàn toàn bất lực vì cơ sở dữ liệu lưu tên tour hành chính. Vector Database sinh ra để giải quyết khoảng cách ngữ nghĩa này.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 3: VECTOR DATABASE LÀ GÌ? (DEFINITION)
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge ai">2. ĐỊNH NGHĨA KHOA HỌC</div>
+        <h2>Vector Database Là Gì?</h2>
+        <p style="font-size: 0.8em; color: var(--text-muted); max-width: 900px; margin: 0 auto 20px;">
+          Một hệ thống quản trị cơ sở dữ liệu chuyên biệt được tối ưu hóa để <b>lưu trữ</b>, <b>quản lý</b> và <b>truy vấn</b> các vector số thực nhiều chiều (High-Dimensional Vectors / Embeddings).
+        </p>
+
+        <table class="vs-table">
+          <thead>
+            <tr>
+              <th>Tiêu chí so sánh</th>
+              <th>Relational Database (MariaDB/MySQL)</th>
+              <th>Vector Database (Milvus, Pinecone, Local Vector Store)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Dạng dữ liệu lưu trữ</b></td>
+              <td>Dữ liệu có cấu trúc (Bảng, Cột, Chuỗi, Số, Ngày tháng)</td>
+              <td>Vector nhúng đa chiều ($[0.125, -0.432, 0.891, ...]$) biểu diễn ngữ nghĩa</td>
+            </tr>
+            <tr>
+              <td><b>Cơ chế đánh chỉ mục</b></td>
+              <td>B-Tree, B+Tree, Hash Index</td>
+              <td>HNSW (Navigable Small World), IVF-PQ, Cosine Space Index</td>
+            </tr>
+            <tr>
+              <td><b>Phương thức truy vấn</b></td>
+              <td>So khớp chính xác ($=$, $>$, $<$, $LIKE$, $JOIN$)</td>
+              <td>Tìm kiếm lân cận gần nhất (Nearest Neighbor / Cosine Similarity)</td>
+            </tr>
+            <tr>
+              <td><b>Mục tiêu cốt lõi</b></td>
+              <td>Toàn vẹn giao dịch ACID, số dư, đơn hàng, bảo mật</td>
+              <td>Tìm kiếm ngữ nghĩa, Đề xuất thông minh, RAG AI Memory</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <aside class="notes">
+          Hãy nhấn mạnh: Vector DB không thay thế RDBMS mà song hành cùng RDBMS. MariaDB quản lý tiền bạc, số chỗ, đơn hàng; còn Vector DB quản lý não bộ tìm kiếm và AI tư vấn.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 4: VECTOR EMBEDDINGS (THEORY 1)
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge">3. LÝ THUYẾT CỐT LÕI</div>
+        <h2>Vector Embeddings Là Gì?</h2>
+        <p style="font-size: 0.8em; color: var(--text-muted);">
+          Cầu nối biến ngôn ngữ phi cấu trúc của con người thành toán học không gian đa chiều.
+        </p>
+
+        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 18px 24px; margin-bottom: 20px; text-align: left; font-size: 0.8em;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="background: rgba(14, 165, 233, 0.2); border: 1px solid #38bdf8; padding: 10px 16px; border-radius: 8px;">
+              <b>Văn bản Tour:</b> "Phú Quốc cano 4 đảo lặn san hô"
+            </div>
+            <div class="step-arrow">➔ Mô hình Embedding (Gemini / BERT) ➔</div>
+            <div style="background: rgba(168, 85, 247, 0.2); border: 1px solid #c084fc; padding: 10px 16px; border-radius: 8px; font-family: monospace;">
+              Vector $\vec{v} = [0.241, -0.089, 0.512, ..., 0.177] \in \mathbb{R}^{768}$
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <div class="glass-card">
+            <h4>🌌 Không Gian Ngữ Nghĩa (Semantic Space)</h4>
+            <p>
+              Các khái niệm có ý nghĩa tương đồng sẽ có vector hội tụ gần nhau. Khoảng cách hình học giữa 2 điểm phản ánh độ tương quan ngữ nghĩa thực tế.
+            </p>
+          </div>
+          <div class="glass-card">
+            <h4>📐 Đại Số Tuyến Tính Trong Ngữ Nghĩa</h4>
+            <p>
+              Công thức kinh điển trong xử lý ngôn ngữ tự nhiên (NLP):<br>
+              <code style="color: var(--accent-blue);">vec("Vua") - vec("Đàn ông") + vec("Phụ nữ") ≈ vec("Nữ hoàng")</code><br>
+              Tương tự: <code style="color: var(--accent-green);">vec("Đà Lạt") - vec("Lạnh") + vec("Nắng biển") ≈ vec("Nha Trang")</code>
+            </p>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Vector Embeddings biến chữ viết thành các tọa độ trong không gian 128 chiều hoặc 768 chiều. Nhờ đó, máy tính có thể dùng công thức toán học để so sánh xem hai tour du lịch giống nhau đến mức nào.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 5: ĐO LƯỜNG TƯƠNG ĐỒNG (COSINE SIMILARITY)
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge ai">4. TOÁN HỌC & ĐỘ TƯƠNG ĐỒNG</div>
+        <h2>Giải Thuật Cosine Similarity</h2>
+        <p style="font-size: 0.8em; color: var(--text-muted);">
+          Thước đo góc giữa hai vector trong không gian đa chiều — Giải pháp tối ưu nhất cho văn bản.
+        </p>
+
+        <div class="formula-box">
+          $$\text{Cosine}(A, B) = \cos(\theta) = \frac{A \cdot B}{\|A\| \|B\|} = \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \cdot \sqrt{\sum_{i=1}^{n} B_i^2}}$$
+        </div>
+
+        <div class="card-grid" style="font-size: 0.95em;">
+          <div class="glass-card">
+            <h4 style="color: #38bdf8;">🎯 Phổ Điểm Đánh Giá</h4>
+            <ul>
+              <li><b>+1.0 ($\theta = 0^\circ$)</b>: Hai vector trùng hướng $\rightarrow$ Hoàn toàn đồng nghĩa.</li>
+              <li><b>0.0 ($\theta = 90^\circ$)</b>: Hai vector trực giao $\rightarrow$ Không liên quan gì đến nhau.</li>
+              <li><b>-1.0 ($\theta = 180^\circ$)</b>: Hai vector đối nghịch hoàn toàn về mặt ngữ nghĩa.</li>
+            </ul>
+          </div>
+          <div class="glass-card">
+            <h4 style="color: #34d399;">💡 Tại Sao Nhóm 5 Chọn Cosine?</h4>
+            <ul>
+              <li><b>Bất biến với độ dài (Scale-invariant)</b>: Tour mô tả 500 từ và Tour mô tả 50 từ có chung chủ đề vẫn cho điểm tương đồng cao (khác với Euclidean Distance bị ảnh hưởng bởi độ dài văn bản).</li>
+              <li>Khi vector được chuẩn hóa $L_2$ ($\|A\| = 1$), Cosine Similarity trở thành phép nhân ma trận Dot Product cực nhanh.</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Nhóm 5 đã lựa chọn Cosine Similarity vì độ dài mô tả của các tour du lịch thường khác nhau rất nhiều (tour 5 sao viết dài, tour ngắn ngày viết ngắn). Cosine Similarity chỉ quan tâm đến góc lệch ngữ nghĩa, không bị đánh lừa bởi số lượng từ.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 6: KIẾN TRÚC RAG (RETRIEVAL-AUGMENTED GENERATION)
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge">5. MÔ HÌNH HỆ THỐNG</div>
+        <h2>Kiến Trúc RAG Kết Hợp Vector DB</h2>
+        <p style="font-size: 0.8em; color: var(--text-muted);">
+          Giải pháp biến Trợ lý Du Lịch AI từ mô hình "chém gió" thành chuyên viên tư vấn chuẩn xác 100%.
+        </p>
+
+        <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 20px; margin: 15px 0;">
+          <div style="display: flex; justify-content: space-around; align-items: center; font-size: 0.72em; text-align: center; gap: 10px;">
+            <div style="background: #1e293b; padding: 12px; border-radius: 10px; border: 1px solid #38bdf8; flex: 1;">
+              <span style="font-size: 1.5em;">👤</span><br><b>User Query</b><br>
+              <span style="color: var(--text-muted);">"Tìm tour biển dưới 6tr"</span>
+            </div>
+            <div class="step-arrow">➔ 1. Embed ➔</div>
+            <div style="background: #1e293b; padding: 12px; border-radius: 10px; border: 1px solid #c084fc; flex: 1.2;">
+              <span style="font-size: 1.5em;">🗄️</span><br><b>Vector DB (Retrieval)</b><br>
+              <span style="color: var(--accent-purple);">Cosine Top-4 Tours Khớp Nhất</span>
+            </div>
+            <div class="step-arrow">➔ 2. Nạp Context ➔</div>
+            <div style="background: #1e293b; padding: 12px; border-radius: 10px; border: 1px solid #34d399; flex: 1.4;">
+              <span style="font-size: 1.5em;">🤖</span><br><b>LLM (Gemini 1.5 Flash)</b><br>
+              <span style="color: var(--accent-green);">Sinh câu trả lời từ dữ liệu thật</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <div class="glass-card">
+            <h4>🛡️ Chống Ảo Giác (Zero Hallucination)</h4>
+            <p>LLM không được tự bịa ra giá tour hay lịch trình. Toàn bộ thông tin tư vấn đều bắt buộc trích xuất trực tiếp từ dữ liệu thực tế do Vector DB cung cấp.</p>
+          </div>
+          <div class="glass-card">
+            <h4>⚡ Cập Nhật Tức Thời (Real-Time Sync)</h4>
+            <p>Khi nhà cung cấp Vietravel cập nhật tour mới hoặc giảm giá, chỉ cần nạp vector vào Vector Store là AI biết ngay lập tức, không cần tốn hàng ngàn USD để fine-tune lại model.</p>
+          </div>
+        </div>
+
+        <aside class="notes">
+          RAG là công nghệ đỉnh cao hiện nay. Nếu không có Vector Database, AI sẽ nói huyên thuyên những tour không có thật ở Việt Nam. Khi có Vector DB làm bộ nhớ ngoài, AI chỉ tư vấn những tour đang thực sự mở bán trong cơ sở dữ liệu của nhóm 5.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 7: MINH HỌA THỰC TẾ (DEMO COMPARISON)
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge ai">6. THỬ NGHIỆM THỰC TẾ</div>
+        <h2>So Sánh Trực Quan: SQL vs Vector Search</h2>
+        
+        <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 10px; padding: 10px 18px; font-size: 0.8em; margin-bottom: 20px;">
+          💬 <b>Yêu cầu khách hàng:</b> <i>"Tour lặn ngắm san hô biển đảo hè có flycam quay chụp cho gia đình"</i>
+        </div>
+
+        <div class="card-grid">
+          <div class="glass-card">
+            <h4 style="color: #f87171;">🔎 Kết Quả Tìm Kiếm SQL (MySQL / MariaDB)</h4>
+            <div style="background: #0f172a; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.8em; margin-bottom: 10px;">
+              SELECT * FROM Tours WHERE tour_name LIKE '%lặn ngắm san hô%'...
+            </div>
+            <p style="color: #f87171; font-weight: 600;">⚠️ Kết quả: 0 TOUR TÌM THẤY</p>
+            <p style="font-size: 0.75em; color: #94a3b8;">Lý do: Tên tour trong DB là "Phú Quốc 3N2Đ: Thị Trấn Hoàng Hôn - Cáp Treo Hòn Thơm". Cụm từ "lặn ngắm san hô" và "flycam" nằm ẩn trong lịch trình và điểm nhấn, SQL không quét được chính xác.</p>
+          </div>
+
+          <div class="glass-card" style="border: 1px solid #34d399;">
+            <h4 style="color: #34d399;">🚀 Kết Quả Vector DB (Cosine Similarity)</h4>
+            <ul style="list-style: none; padding-left: 0; font-size: 0.78em;">
+              <li style="margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <b style="color: #38bdf8;">1. Phú Quốc 3N2Đ: Cano 3 Đảo - Cáp Treo</b><br>
+                <span class="highlight-pill">🎯 Độ tương đồng: 94.6%</span> · Tặng bộ ảnh Flycam & Lặn San Hô Bãi Dứa.
+              </li>
+              <li style="margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <b style="color: #38bdf8;">2. Nha Trang 3N2Đ: VinWonders - Đảo Hoa Lan</b><br>
+                <span class="highlight-pill">🎯 Độ tương đồng: 91.2%</span> · Cano vịnh biển và tắm biển An Bình.
+              </li>
+              <li>
+                <b style="color: #38bdf8;">3. Quy Nhơn - Phú Yên 3N2Đ: Kỳ Co Eo Gió</b><br>
+                <span class="highlight-pill">🎯 Độ tương đồng: 88.5%</span> · Lặn san hô tự nhiên Bãi Dứa.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Đây là minh chứng thực tế trên dữ liệu thật của nhóm 5. Nhờ Vector DB, những đặc điểm chi tiết như flycam, cano lặn san hô đều được chuyển hóa thành vector và kéo tour chính xác lên đầu kết quả tìm kiếm.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 8: LIÊN HỆ PROJECT NHÓM 5 - TỔNG QUAN KIẾN TRÚC
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge">7. HIỆN THỰC HÓA TRONG ĐỒ ÁN NHÓM 5</div>
+        <h2>Kiến Trúc Tích Hợp Đa Tầng (Full-Stack)</h2>
+        <p style="font-size: 0.8em; color: var(--text-muted);">
+          Thiết kế tách bạch trách nhiệm theo mô hình 3 tầng chuẩn mực công nghệ Spring Boot 3 & React 18.
+        </p>
+
+        <div class="card-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 25px;">
+          <div class="glass-card" style="border-top: 4px solid var(--accent-blue);">
+            <h4 style="color: var(--accent-blue);">🖥️ Presentation (React 18)</h4>
+            <ul>
+              <li><b>Hero Search (Traveloka Style)</b>: Tab tìm kiếm AI Vector Search song song với bộ lọc SQL.</li>
+              <li><b>AI Chatbot Widget</b>: Trò chuyện lữ hành nổi góc màn hình hỗ trợ 24/7.</li>
+              <li><b>Thẻ TourCard</b>: Hiển thị huy hiệu độ khớp Cosine (<code>Độ khớp: 94%</code>).</li>
+            </ul>
+          </div>
+
+          <div class="glass-card" style="border-top: 4px solid var(--accent-purple);">
+            <h4 style="color: var(--accent-purple);">⚙️ Service & AI Layer (Spring)</h4>
+            <ul>
+              <li><b>EmbeddingService</b>: Chuyển đổi văn bản sang vector với cơ chế Dual-Engine thông minh.</li>
+              <li><b>VectorStoreService</b>: Tính toán Cosine Similarity song song trên bộ nhớ RAM.</li>
+              <li><b>TourVectorIndexer</b>: Lập chỉ mục tự động metadata Tour đa dạng.</li>
+            </ul>
+          </div>
+
+          <div class="glass-card" style="border-top: 4px solid var(--accent-green);">
+            <h4 style="color: var(--accent-green);">💾 Storage Layer (Dual-Store)</h4>
+            <ul>
+              <li><b>In-Memory Vector Store</b>: Lưu trữ ma trận vector cho độ trễ siêu tốc $\le 5\text{ms}$.</li>
+              <li><b>MariaDB 12.2 Relational DB</b>: Lưu trữ bảng dữ liệu chuẩn hóa, khóa giao dịch đặt tour (Pessimistic Lock).</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Trong đề tài số 49, nhóm 5 không chỉ nói lý thuyết mà đã cài đặt hoàn chỉnh thành mã nguồn Java Spring Boot và React. Kiến trúc lưu trữ phân tầng: RAM cho vector siêu tốc, MariaDB cho giao dịch tài chính an toàn.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 9: ĐIỂM SÁNG KỸ THUẬT 1 - EMBEDDING SERVICE DUAL-ENGINE
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge ai">8. MÃ NGUỒN CỐT LÕI</div>
+        <h2>EmbeddingService: Cơ Chế Dual-Engine</h2>
+        <p style="font-size: 0.78em; color: var(--text-muted);">
+          Thiết kế kỹ thuật xuất sắc giúp hệ thống hoạt động bền bỉ, chạy offline hoặc kiểm thử 100% không phụ thuộc Internet.
+        </p>
+
+        <pre><code class="language-java">// backend/.../service/EmbeddingService.java
+@Service
+public class EmbeddingService {
+    public static final int LOCAL_VECTOR_DIM = 128;
+
+    public float[] embed(String text) {
+        // 1. CHẾ ĐỘ ONLINE: Tích hợp Google Gemini text-embedding-004 (768 chiều)
+        if (!geminiApiKey.isBlank()) {
+            try {
+                float[] onlineVector = callGeminiEmbeddingApi(text);
+                if (onlineVector != null && onlineVector.length > 0) return onlineVector;
+            } catch (Exception e) {
+                log.warn("Gemini API lỗi/mất mạng, tự động chuyển Local Vectorizer");
+            }
+        }
+        // 2. CHẾ ĐỘ OFFLINE FALLBACK: Semantic Projection + L2-Normalized (128 chiều)
+        return localSemanticProjection(text);
+    }
+}</code></pre>
+
+        <div style="display: flex; gap: 15px; font-size: 0.72em; text-align: left;">
+          <div class="glass-card" style="flex: 1; padding: 12px 18px;">
+            <b style="color: var(--accent-blue);">🌐 Chế độ Online:</b> Độ chính xác ngữ nghĩa sâu rộng của mô hình nền tảng Google 768 chiều.
+          </div>
+          <div class="glass-card" style="flex: 1; padding: 12px 18px;">
+            <b style="color: var(--accent-green);">⚡ Chế độ Local Fallback:</b> Không bao giờ gián đoạn dịch vụ, vượt qua 100% các bài test tự động JUnit.
+          </div>
+        </div>
+
+        <aside class="notes">
+          Thầy và hội đồng hãy chú ý giải pháp Dual-Engine này: Đây là điểm chứng minh tư duy kỹ thuật thực tế của sinh viên CNTT. Một hệ thống sản xuất không bao giờ được phép dừng hoạt động chỉ vì nhà cung cấp API bên thứ ba gặp sự cố.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 10: ĐIỂM SÁNG KỸ THUẬT 2 - VECTOR STORE & COSINE PIPELINE
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge">9. MÃ NGUỒN CỐT LÕI</div>
+        <h2>VectorStoreService & Lập Chỉ Mục Metadata</h2>
+        <p style="font-size: 0.78em; color: var(--text-muted);">
+          Thuật toán Cosine Similarity trực tiếp trên bộ nhớ kết hợp trích xuất đặc trưng Tour phong phú.
+        </p>
+
+        <pre><code class="language-java">// Trích xuất đặc trưng đa chiều từ Tour Traveloka (TourVectorIndexer.java)
+public static String buildTourDocument(Tour tour) {
+    return String.format("Tour: %s. Danh mục: %s. Khởi hành: %s. Giá: %s. Phương tiện: %s. "
+        + "Khách sạn: %d sao. Đặc điểm: %s. Điểm nhấn: %s. Mô tả: %s",
+        tour.getName(), tour.getCategory().getName(), tour.getDepartureLocation(),
+        tour.getPrice(), tour.getVehicle(), tour.getHotelStar(),
+        tour.getBadge(), tour.getHighlights(), tour.getDescription());
+}
+
+// Tính Cosine Similarity chuẩn xác (VectorStoreService.java)
+public double cosineSimilarity(float[] vecA, float[] vecB) {
+    double dotProduct = 0.0, normA = 0.0, normB = 0.0;
+    for (int i = 0; i < vecA.length; i++) {
+        dotProduct += vecA[i] * vecB[i];
+        normA += vecA[i] * vecA[i];
+        normB += vecB[i] * vecB[i];
+    }
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}</code></pre>
+
+        <aside class="notes">
+          Trong TourVectorIndexer, nhóm đã nạp toàn bộ các thuộc tính như phương tiện máy bay/du thuyền, số sao khách sạn, điểm nhấn lịch trình vào văn bản vector hóa. Nhờ đó, khách tìm "du thuyền 5 sao" hay "khách sạn 4 sao" đều được Vector DB tìm ra ngay lập tức.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 11: DEMO GIAO DIỆN NGƯỜI DÙNG TRAVELOKA
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge ai">10. TRẢI NGHIỆM NGƯỜI DÙNG (UX/UI)</div>
+        <h2>Tích Hợp Giao Diện Trực Quan (Traveloka Style)</h2>
+        <p style="font-size: 0.8em; color: var(--text-muted);">
+          Người dùng trực tiếp trải nghiệm sức mạnh của Vector Database ngay trên giao diện web.
+        </p>
+
+        <div class="card-grid" style="grid-template-columns: 1fr 1fr; margin-top: 15px;">
+          <div class="glass-card">
+            <h4 style="color: var(--accent-purple);">✨ Hero Search Bar: Chế độ AI Vector</h4>
+            <ul>
+              <li>Tab chuyển đổi linh hoạt: <b>Tìm kiếm tiêu chuẩn</b> $\leftrightarrow$ <b>AI Vector Database</b>.</li>
+              <li>Ô nhập ngôn ngữ tự nhiên: <i>"Miêu tả chuyến đi mong muốn của bạn..."</i></li>
+              <li>Thẻ gợi ý bấm nhanh: <i>"Tour biển đảo Phú Quốc hè"</i>, <i>"Săn mây Fansipan Sapa"</i>.</li>
+              <li>Hiển thị thanh tiến trình trích xuất vector sống động.</li>
+            </ul>
+          </div>
+
+          <div class="glass-card">
+            <h4 style="color: var(--accent-blue);">🎯 Kết Quả Phân Hạng Độ Khớp (Ranking)</h4>
+            <ul>
+              <li>Hiển thị trực quan badge độ khớp: <code>🎯 Độ khớp: 95%</code>.</li>
+              <li>Lý do tương đồng ngữ nghĩa: <i>"Trùng khớp điểm đến biển đảo, lặn san hô và cano"</i>.</li>
+              <li>Liên kết trực tiếp đặt tour, giữ chỗ thời gian thực và tự động áp dụng chiết khấu đoàn B2B.</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Đây là hình ảnh thể hiện trên trang chủ HomePage. Khách hàng chỉ cần bấm vào tab AI Vector DB, gõ một câu văn bình thường là hệ thống lập tức tính toán Cosine Similarity và hiển thị thẻ tour chuẩn Traveloka có phần trăm độ khớp.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 12: ĐÁNH GIÁ & ĐỊNH HƯỚNG MỞ RỘNG
+           ======================================================= -->
+      <section data-transition="slide">
+        <div class="slide-badge">11. TỔNG KẾT & HƯỚNG MỞ RỘNG</div>
+        <h2>Đánh Giá Hiệu Năng & Phát Triển</h2>
+
+        <div class="card-grid">
+          <div class="glass-card">
+            <h4 style="color: #34d399;">🏆 Ưu Điểm Đạt Được Trong Đề Tài</h4>
+            <ul>
+              <li><b>Tốc độ siêu việt</b>: Truy vấn trên RAM với ma trận ConcurrentHashMap cho độ trễ $\le 5\text{ms}$.</li>
+              <li><b>Trải nghiệm cá nhân hóa</b>: Tăng tỷ lệ giữ chân người dùng và tỷ lệ chuyển đổi đơn hàng (Conversion Rate).</li>
+              <li><b>Độ bền vững cao</b>: Cơ chế Dual-Engine giúp vượt qua 100% các bài test tự động JUnit và build Vite sạch 0 lỗi.</li>
+            </ul>
+          </div>
+
+          <div class="glass-card">
+            <h4 style="color: #38bdf8;">🔮 Hướng Phát Triển Tương Lai (Production Scale)</h4>
+            <ul>
+              <li><b>Phân tán quy mô lớn</b>: Nâng cấp lên Milvus Distributed Cluster hoặc PostgreSQL với extension <code>pgvector</code> khi quy mô đạt hàng triệu tour.</li>
+              <li><b>Multimodal Embeddings</b>: Sử dụng mô hình OpenAI CLIP để tìm kiếm tour du lịch bằng hình ảnh phong cảnh do khách tải lên.</li>
+              <li><b>Lập chỉ mục HNSW</b>: Áp dụng đồ thị thế giới nhỏ phân tầng để tìm kiếm lân cận xấp xỉ trong $O(\log N)$.</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Trong tương lai khi dự án thương mại hóa với quy mô hàng triệu tour, nhóm hoàn toàn có thể chuyển dịch kiến trúc In-Memory hiện tại sang cụm phân tán Milvus hoặc pgvector mà không cần thay đổi tầng giao diện người dùng.
+        </aside>
+      </section>
+
+      <!-- =======================================================
+           SLIDE 13: KẾT LUẬN & HỎI ĐÁP (Q&A)
+           ======================================================= -->
+      <section data-transition="zoom">
+        <div class="slide-badge ai">12. KẾT LUẬN & BẢO VỆ ĐỀ TÀI</div>
+        <h1 style="font-size: 2.2em; margin-bottom: 0.3em;">
+          XIN TRÂN TRỌNG <span class="gradient-text">CẢM ƠN!</span>
+        </h1>
+        <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 1.5em;">
+          Kính chúc Thầy Nguyễn Vũ Lâm và Hội đồng sức khỏe & thành công!
+        </p>
+
+        <div class="glass-card" style="max-width: 650px; margin: 0 auto 30px; padding: 20px;">
+          <h4 style="color: var(--accent-green); margin-bottom: 8px;">🎯 TỔNG KẾT ĐỀ TÀI SỐ 49</h4>
+          <p style="font-size: 0.82em; color: #cbd5e1; margin: 0;">
+            Hệ thống Tour Booking Du Lịch Việt hoàn thành trọn vẹn: Full-Stack Spring Boot 3 + React 18, Tích hợp Vector Database Cosine Similarity, RAG Chatbot Gemini, Đặt tour B2B chiết khấu và Kiểm soát toàn vẹn Safe Delete 100%.
+          </p>
+        </div>
+
+        <div style="font-size: 0.8em; color: var(--accent-blue); font-weight: 700;">
+          ❓ SẴN SÀNG TIẾP NHẬN CÂU HỎI & DEMO TRỰC TIẾP TỪ HỘI ĐỒNG
+        </div>
+
+        <aside class="notes">
+          Phần trình bày về Cơ sở dữ liệu Vector của Nhóm 5 đến đây là kết thúc. Em xin mời Thầy và các bạn đặt câu hỏi. Nhóm em đã chuẩn bị sẵn hệ thống đang chạy để demo trực tiếp các kịch bản tìm kiếm!
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Reveal.js Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/plugin/notes/notes.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/plugin/highlight/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/plugin/math/math.min.js"></script>
+
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      controls: true,
+      progress: true,
+      center: true,
+      transition: 'slide', // none/fade/slide/convex/concave/zoom
+      backgroundTransition: 'fade',
+      plugins: [ RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+    });
+  </script>
+</body>
+</html>

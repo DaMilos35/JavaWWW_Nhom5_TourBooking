@@ -6,6 +6,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import vn.dulichviet.tourbooking.entity.Tour;
 import vn.dulichviet.tourbooking.repository.TourRepository;
 
@@ -43,10 +44,11 @@ public class TourVectorIndexer {
 
     /**
      * Quét toàn bộ danh mục Tour từ cơ sở dữ liệu và nạp vector vào Vector Store.
+     * Sử dụng findAllWithCategoryAndProvider() để nạp eager fetch không bị LazyInitializationException.
      *
      * @return Số lượng tour đã được đánh chỉ mục
      */
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public synchronized int indexAllTours() {
         long start = System.currentTimeMillis();
         List<Tour> tours = tourRepository.findAllWithCategoryAndProvider();
@@ -97,11 +99,17 @@ public class TourVectorIndexer {
         StringBuilder sb = new StringBuilder();
         String name = tour.getName() != null ? tour.getName() : "";
         String desc = tour.getDescription() != null ? tour.getDescription() : "";
-        String catName = tour.getCategory() != null && tour.getCategory().getName() != null ? tour.getCategory().getName() : "";
-
-        sb.append("Tour: ").append(name).append(". ");
-        if (!catName.isBlank()) {
-            sb.append("Danh mục: ").append(catName).append(". ");
+        String catName = "";
+        try {
+            if (tour.getCategory() != null && tour.getCategory().getName() != null) {
+                catName = tour.getCategory().getName();
+                sb.append("Tour: ").append(name).append(". ");
+                sb.append("Danh mục: ").append(catName).append(". ");
+            } else {
+                sb.append("Tour: ").append(name).append(". ");
+            }
+        } catch (Exception ignored) {
+            sb.append("Tour: ").append(name).append(". ");
         }
         if (tour.getDepartureLocation() != null) {
             sb.append("Khởi hành từ: ").append(tour.getDepartureLocation()).append(". ");
@@ -114,6 +122,18 @@ public class TourVectorIndexer {
             if (tour.getPrice().compareTo(java.math.BigDecimal.valueOf(5000000)) <= 0) {
                 sb.append("Từ khóa giá: tour giá rẻ, tiết kiệm chi phí, bình dân, giá tốt, học sinh sinh viên. ");
             }
+        }
+        if (tour.getVehicle() != null && !tour.getVehicle().isBlank()) {
+            sb.append("Phương tiện: ").append(tour.getVehicle()).append(". ");
+        }
+        if (tour.getHotelStar() != null) {
+            sb.append("Khách sạn: ").append(tour.getHotelStar()).append(" sao. ");
+        }
+        if (tour.getBadge() != null && !tour.getBadge().isBlank()) {
+            sb.append("Đặc điểm: ").append(tour.getBadge()).append(". ");
+        }
+        if (tour.getHighlights() != null && !tour.getHighlights().isBlank()) {
+            sb.append("Điểm nhấn: ").append(tour.getHighlights()).append(". ");
         }
         if (!desc.isBlank()) {
             sb.append("Mô tả: ").append(desc).append(". ");
