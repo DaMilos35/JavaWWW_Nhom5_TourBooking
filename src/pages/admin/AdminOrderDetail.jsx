@@ -6,6 +6,25 @@ import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import FallbackImage from '../../components/common/FallbackImage';
 
+const getVietQrBankCode = (bankName) => {
+  if (!bankName) return 'MB';
+  const name = bankName.toLowerCase();
+  if (name.includes('vietcombank') || name.includes('vcb')) return 'VCB';
+  if (name.includes('techcombank') || name.includes('tcb')) return 'TCB';
+  if (name.includes('bidv')) return 'BIDV';
+  if (name.includes('vietinbank') || name.includes('icb')) return 'ICB';
+  if (name.includes('agribank') || name.includes('vba')) return 'VBA';
+  if (name.includes('acb')) return 'ACB';
+  if (name.includes('vpbank') || name.includes('vpb')) return 'VPB';
+  if (name.includes('tpbank') || name.includes('tpb')) return 'TPB';
+  if (name.includes('sacombank') || name.includes('stb')) return 'STB';
+  if (name.includes('vib')) return 'VIB';
+  if (name.includes('hdbank') || name.includes('hdb')) return 'HDB';
+  if (name.includes('shb')) return 'SHB';
+  if (name.includes('mbbank') || name.includes('mb')) return 'MB';
+  return 'MB';
+};
+
 const AdminOrderDetail = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
@@ -171,13 +190,13 @@ const AdminOrderDetail = () => {
           {order.status === 'CANCELLED' && order.refundAmount > 0 && (
             <div style={{ marginTop: '20px', padding: '16px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px' }}>
               <h4 style={{ margin: '0 0 10px', color: '#ea580c', fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                ⚠️ YÊU CẦU HOÀN TIỀN VÉ (97%)
+                ⚠️ YÊU CẦU HOÀN TIỀN VÉ (${100 - (order.cancellationFeePercent ?? 0)}%)
               </h4>
               <div style={{ fontSize: '0.88rem', color: '#7c2d12', lineHeight: 1.6, marginBottom: '12px' }}>
                 <div><strong>Tổng tiền ban đầu:</strong> {formatPrice(order.totalAmount)}</div>
-                <div style={{ color: '#b91c1c' }}><strong>Khấu trừ phí hủy vé (3%):</strong> -{formatPrice(order.cancellationFee)}</div>
+                <div style={{ color: '#b91c1c' }}><strong>Khấu trừ phí hủy vé (${order.cancellationFeePercent ?? 0}%):</strong> -{formatPrice(order.cancellationFee)}</div>
                 <div style={{ color: '#15803d', fontSize: '1rem', fontWeight: 700 }}>
-                  <strong>Số tiền Admin cần chuyển trả khách (97%):</strong> {formatPrice(order.refundAmount)}
+                  <strong>Số tiền Admin cần chuyển trả khách (${100 - (order.cancellationFeePercent ?? 0)}%):</strong> {formatPrice(order.refundAmount)}
                 </div>
                 <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #fed7aa' }}>
                   <div><strong>Ngân hàng khách:</strong> {order.refundBankName || 'Chưa cung cấp'}</div>
@@ -202,7 +221,7 @@ const AdminOrderDetail = () => {
                 <div style={{ textAlign: 'center', background: '#fff', padding: '10px', borderRadius: '8px', marginBottom: '12px', border: '1px solid #e2e8f0' }}>
                   <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '6px' }}>Mã VietQR chuyển tiền hoàn cho khách:</div>
                   <img 
-                    src={`https://img.vietqr.io/image/MB-${order.refundAccountNumber}-compact2.png?amount=${order.refundAmount}&addInfo=HoanTienDon${order.id}&accountName=${encodeURIComponent(order.refundAccountName || '')}`}
+                    src={`https://img.vietqr.io/image/${getVietQrBankCode(order.refundBankName)}-${order.refundAccountNumber}-compact2.png?amount=${order.refundAmount}&addInfo=HoanTienDon${order.id}&accountName=${encodeURIComponent(order.refundAccountName || '')}`}
                     alt="VietQR Refund"
                     style={{ maxWidth: '180px', width: '100%', height: 'auto', display: 'inline-block' }}
                   />

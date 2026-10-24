@@ -64,6 +64,7 @@ function App() {
             <Route path="/wishlist" element={<UserLayout><WishlistPage /></UserLayout>} />
             <Route path="/help" element={<UserLayout><HelpCenterPage /></UserLayout>} />
             <Route path="/payment/vnpay-return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
+            <Route path="/vnpay/return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
             <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />
             <Route path="/register" element={<UserLayout><RegisterPage /></UserLayout>} />
 

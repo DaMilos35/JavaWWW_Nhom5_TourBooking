@@ -31,6 +31,4 @@ public interface TourRepository extends JpaRepository<Tour, Integer>, JpaSpecifi
     @Query("SELECT t FROM Tour t WHERE t.id = :id")
     Optional<Tour> findByIdForUpdate(@Param("id") Integer id);
 
-    @Query("SELECT t FROM Tour t LEFT JOIN FETCH t.category LEFT JOIN FETCH t.provider")
-    List<Tour> findAllWithCategoryAndProvider();
 }

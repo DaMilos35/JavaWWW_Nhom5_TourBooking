@@ -103,6 +103,16 @@ CREATE TABLE Orders (
     order_code      VARCHAR(30)     NULL UNIQUE,
     is_b2b          TINYINT(1)      NOT NULL DEFAULT 0,
     discount_percent INT            NOT NULL DEFAULT 0,
+    payment_method   VARCHAR(50)     NULL DEFAULT 'CASH',
+    payment_status   VARCHAR(30)     NULL DEFAULT 'UNPAID',
+    payment_transaction_id VARCHAR(100) NULL,
+    cancellation_fee_percent INT     NULL DEFAULT 0,
+    cancellation_fee DECIMAL(18,2)   NULL DEFAULT 0.00,
+    refund_amount    DECIMAL(18,2)   NULL DEFAULT 0.00,
+    refund_bank_name VARCHAR(100)    NULL,
+    refund_account_number VARCHAR(50) NULL,
+    refund_account_name VARCHAR(100) NULL,
+    cancellation_reason VARCHAR(255) NULL,
 
     CONSTRAINT FK_Orders_Users FOREIGN KEY (user_id)
         REFERENCES Users(user_id)

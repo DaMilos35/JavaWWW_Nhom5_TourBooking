@@ -363,7 +363,7 @@ const MyOrdersPage = () => {
               const canCancel = isPaid && !isCancelled;
 
               return (
-                <div key={order.id} className="order-card" style={{ border: isCancelled ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div key={order.id} className="order-card" style={{ border: isCancelled ? '1.5px solid #fca5a5' : '1px solid #e2e8f0' }}>
                   <div className="order-header" onClick={() => toggleExpand(order.id)}>
                     <div className="oh-info">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -380,9 +380,10 @@ const MyOrdersPage = () => {
                       <span className="order-total">{formatPrice(order.totalAmount)}</span>
                       <button 
                         style={{
-                          background: 'rgba(255,255,255,0.06)',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          color: '#fff',
+                          background: '#f1f5f9',
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                          fontWeight: 600,
                           borderRadius: '6px',
                           padding: '6px 12px',
                           fontSize: '0.85rem',
@@ -399,7 +400,7 @@ const MyOrdersPage = () => {
                   
                   {isExpanded && (
                     <div className="order-details">
-                      <h4 style={{ color: '#fff', margin: '0 0 12px', fontSize: '1rem' }}>Chi tiết các tour đã đặt:</h4>
+                      <h4 style={{ color: '#0f172a', margin: '0 0 12px', fontSize: '1rem', fontWeight: 700 }}>Chi tiết các tour đã đặt:</h4>
                       <ul className="order-items-list">
                         {order.orderDetails?.map(detail => {
                           const tourName = detail.tour?.name || detail.tour?.tourName || 'Tour du lịch';
@@ -431,36 +432,36 @@ const MyOrdersPage = () => {
                       {/* Hiển thị chi tiết khấu trừ và thông tin STK nhận tiền nếu đơn đã hủy */}
                       {isCancelled && (order.cancellationFee > 0 || order.refundAmount > 0) && (
                         <div style={{
-                          background: 'rgba(239, 68, 68, 0.08)',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                          borderRadius: '10px',
-                          padding: '16px',
+                          background: '#fef2f2',
+                          border: '1px solid #fecaca',
+                          borderRadius: '12px',
+                          padding: '18px',
                           marginBottom: '16px',
                           fontSize: '0.9rem',
-                          color: '#fca5a5'
+                          color: '#991b1b'
                         }}>
                           <div style={{ fontWeight: 700, color: '#ef4444', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <FaUndo /> THÔNG TIN HOÀN TIỀN VÉ ĐÃ HỦY:
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#334155' }}>
                             <span>Tổng giá trị đơn ban đầu:</span>
                             <strong>{formatPrice(order.totalAmount)}</strong>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#f87171' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#b91c1c' }}>
                             <span>Phí đổi hủy áp dụng ({order.cancellationFeePercent ?? 0}%):</span>
                             <strong>-{formatPrice(order.cancellationFee ?? 0)}</strong>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(239, 68, 68, 0.3)', paddingTop: '6px', marginTop: '6px', color: '#86efac', fontWeight: 700 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed #fca5a5', paddingTop: '8px', marginTop: '6px', color: '#15803d', fontWeight: 700 }}>
                             <span>Số tiền Admin chuyển khoản hoàn lại ({100 - (order.cancellationFeePercent ?? 0)}%):</span>
                             <span>{formatPrice(order.refundAmount ?? 0)}</span>
                           </div>
 
                           {order.refundAccountNumber && (
-                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)', color: '#e2e8f0', fontSize: '0.85rem' }}>
+                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #fecaca', color: '#334155', fontSize: '0.85rem' }}>
                               <div><strong>Tài khoản nhận tiền:</strong> {order.refundAccountNumber} - {order.refundBankName}</div>
                               <div><strong>Chủ tài khoản:</strong> {order.refundAccountName}</div>
                               {order.cancellationReason && <div><strong>Lý do hủy:</strong> {order.cancellationReason}</div>}
-                              <div style={{ marginTop: '4px', color: order.paymentStatus === 'REFUNDED' ? '#4ade80' : '#fbbf24', fontWeight: 600 }}>
+                              <div style={{ marginTop: '4px', color: order.paymentStatus === 'REFUNDED' ? '#15803d' : '#b45309', fontWeight: 600 }}>
                                 {order.paymentStatus === 'REFUNDED' 
                                   ? '✅ Ban Quản Trị đã hoàn tất chuyển tiền hoàn lại cho bạn.' 
                                   : '⏳ Đang chờ Ban Quản Trị chuyển khoản hoàn tiền vào tài khoản trên.'}
@@ -473,18 +474,18 @@ const MyOrdersPage = () => {
                       {/* Hiển thị đơn hủy miễn phí (khi chưa thanh toán) */}
                       {isCancelled && (!order.cancellationFee || order.cancellationFee === 0) && (!order.refundAmount || order.refundAmount === 0) && (
                         <div style={{
-                          background: 'rgba(16, 185, 129, 0.08)',
-                          border: '1px solid rgba(16, 185, 129, 0.3)',
-                          borderRadius: '10px',
-                          padding: '14px 18px',
+                          background: '#f0fdf4',
+                          border: '1px solid #bbf7d0',
+                          borderRadius: '12px',
+                          padding: '16px 20px',
                           marginBottom: '16px',
                           fontSize: '0.9rem',
-                          color: '#86efac'
+                          color: '#166534'
                         }}>
                           <div style={{ fontWeight: 700, color: '#10b981', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <FaCheckCircle /> ĐÃ HỦY ĐƠN HÀNG THÀNH CÔNG (MIỄN PHÍ 100%)
                           </div>
-                          <div style={{ color: '#cbd5e1', fontSize: '0.85rem' }}>
+                          <div style={{ color: '#64748b', fontSize: '0.85rem' }}>
                             Đơn hàng được hủy khi chưa thanh toán, không phát sinh chi phí nào và toàn bộ số chỗ ngồi đã được hoàn lại hệ thống.
                           </div>
                           {order.cancellationReason && (
@@ -595,18 +596,18 @@ const MyOrdersPage = () => {
       {paymentModalOrder && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)',
           zIndex: 1050, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px'
         }}>
           <div style={{
-            backgroundColor: '#1e293b', color: '#fff', padding: '28px',
-            borderRadius: '16px', width: '100%', maxWidth: '480px',
-            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)', textAlign: 'center'
+            backgroundColor: '#ffffff', color: '#0f172a', padding: '32px 28px',
+            borderRadius: '20px', width: '100%', maxWidth: '480px',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)', textAlign: 'center', border: '1px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 6px', color: '#38bdf8', fontSize: '1.3rem', fontWeight: 800 }}>
+            <h3 style={{ margin: '0 0 6px', color: '#0194f3', fontSize: '1.35rem', fontWeight: 800, letterSpacing: '-0.3px' }}>
               QUÉT MÃ VIETQR THANH TOÁN
             </h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.88rem', marginBottom: '14px' }}>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '16px' }}>
               Đơn hàng: <strong>{paymentModalOrder.orderCode || '#' + paymentModalOrder.id}</strong> · Tổng tiền: <strong style={{ color: '#f97316' }}>{formatPrice(paymentModalOrder.totalAmount)}</strong>
             </p>
 
@@ -625,28 +626,28 @@ const MyOrdersPage = () => {
                 )}
 
                 <div style={{
-                  background: '#0f172a', borderRadius: '10px', padding: '12px 16px',
-                  textAlign: 'left', fontSize: '0.88rem', marginBottom: '14px'
+                  background: '#f8fafc', borderRadius: '12px', padding: '14px 18px', border: '1px solid #e2e8f0',
+                  textAlign: 'left', fontSize: '0.9rem', marginBottom: '16px'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Ngân hàng:</span>
+                    <span style={{ color: '#64748b' }}>Ngân hàng:</span>
                     <strong>{paymentInfo?.bankName || 'MBBank (Quân Đội)'}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Số tài khoản:</span>
+                    <span style={{ color: '#64748b' }}>Số tài khoản:</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <strong style={{ color: '#38bdf8' }}>{paymentInfo?.accountNumber || '0383687150'}</strong>
+                      <strong style={{ color: '#0194f3', fontFamily: 'monospace', fontSize: '1.05rem' }}>{paymentInfo?.accountNumber || '0383687150'}</strong>
                       <button onClick={() => handleCopy(paymentInfo?.accountNumber || '0383687150', 'Số tài khoản')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><FaCopy /></button>
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8' }}>Chủ tài khoản:</span>
+                    <span style={{ color: '#64748b' }}>Chủ tài khoản:</span>
                     <strong>{paymentInfo?.accountName || 'CONG TY DU LICH VIET'}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#94a3b8' }}>Nội dung CK:</span>
+                    <span style={{ color: '#64748b' }}>Nội dung CK:</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <strong style={{ color: '#22c55e' }}>{paymentInfo?.transferContent || paymentModalOrder.orderCode}</strong>
+                      <strong style={{ color: '#15803d', fontFamily: 'monospace' }}>{paymentInfo?.transferContent || paymentModalOrder.orderCode}</strong>
                       <button onClick={() => handleCopy(paymentInfo?.transferContent || paymentModalOrder.orderCode, 'Nội dung')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><FaCopy /></button>
                     </span>
                   </div>
@@ -665,7 +666,7 @@ const MyOrdersPage = () => {
                   </button>
                   <button 
                     onClick={() => setPaymentModalOrder(null)}
-                    style={{ padding: '8px 18px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#94a3b8', cursor: 'pointer' }}
+                    style={{ padding: '8px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
                   >
                     Đóng
                   </button>
@@ -684,16 +685,16 @@ const MyOrdersPage = () => {
           zIndex: 1060, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px'
         }}>
           <div style={{
-            backgroundColor: '#1e293b', color: '#fff', padding: '30px',
-            borderRadius: '16px', width: '100%', maxWidth: '520px',
-            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)'
+            backgroundColor: '#ffffff', color: '#0f172a', padding: '32px',
+            borderRadius: '20px', width: '100%', maxWidth: '540px',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)', border: '1px solid #e2e8f0'
           }}>
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <FaUniversity style={{ color: '#ef4444', fontSize: '2.5rem', marginBottom: '8px' }} />
-              <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.3rem', fontWeight: 800 }}>
+              <h3 style={{ margin: 0, color: '#0f172a', fontSize: '1.35rem', fontWeight: 800 }}>
                 YÊU CẦU HỦY TOUR #{cancelModalOrder.id}
               </h3>
-              <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '0.85rem' }}>
+              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>
                 Điền thông tin tài khoản ngân hàng để Ban Quản Trị chuyển khoản hoàn lại tiền cho bạn
               </p>
             </div>
@@ -704,7 +705,7 @@ const MyOrdersPage = () => {
               const feeAmount = Math.round(cancelModalOrder.totalAmount * (pol.percent / 100));
               const refundAmount = Math.max(0, cancelModalOrder.totalAmount - feeAmount);
               return (
-                <div style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '16px', marginBottom: '18px', fontSize: '0.88rem', lineHeight: 1.55 }}>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '18px', marginBottom: '20px', fontSize: '0.9rem', lineHeight: 1.55 }}>
                   {pol.departureDateStr && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', paddingBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                       <span style={{ color: '#94a3b8' }}>Ngày khởi hành:</span>
@@ -753,13 +754,13 @@ const MyOrdersPage = () => {
                   onChange={(e) => setRefundForm({ ...refundForm, bankName: e.target.value })}
                   style={{
                     width: '100%', padding: '10px 12px', borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.15)', background: '#0f172a',
-                    color: '#fff', fontSize: '0.9rem'
+                    border: '1.5px solid #cbd5e1', background: '#ffffff',
+                    color: '#0f172a', fontSize: '0.9rem'
                   }}
                   required
                 >
                   {POPULAR_BANKS.map(b => (
-                    <option key={b} value={b} style={{ background: '#0f172a', color: '#fff' }}>{b}</option>
+                    <option key={b} value={b} style={{ background: '#ffffff', color: '#0f172a' }}>{b}</option>
                   ))}
                 </select>
               </div>
@@ -775,8 +776,8 @@ const MyOrdersPage = () => {
                   placeholder="Nhập số tài khoản ngân hàng của bạn"
                   style={{
                     width: '100%', padding: '10px 12px', borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.15)', background: '#0f172a',
-                    color: '#fff', fontSize: '0.9rem', boxSizing: 'border-box'
+                    border: '1.5px solid #cbd5e1', background: '#ffffff',
+                    color: '#0f172a', fontSize: '0.9rem', boxSizing: 'border-box'
                   }}
                   required
                 />
@@ -793,8 +794,8 @@ const MyOrdersPage = () => {
                   placeholder="VD: NGUYEN VAN A"
                   style={{
                     width: '100%', padding: '10px 12px', borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.15)', background: '#0f172a',
-                    color: '#fff', fontSize: '0.9rem', boxSizing: 'border-box', textTransform: 'uppercase'
+                    border: '1.5px solid #cbd5e1', background: '#ffffff',
+                    color: '#0f172a', fontSize: '0.9rem', boxSizing: 'border-box', textTransform: 'uppercase'
                   }}
                   required
                 />
@@ -811,8 +812,8 @@ const MyOrdersPage = () => {
                   placeholder="VD: Có việc gia đình bận đột xuất..."
                   style={{
                     width: '100%', padding: '8px 12px', borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.15)', background: '#0f172a',
-                    color: '#fff', fontSize: '0.88rem', boxSizing: 'border-box'
+                    border: '1.5px solid #cbd5e1', background: '#ffffff',
+                    color: '#0f172a', fontSize: '0.88rem', boxSizing: 'border-box'
                   }}
                 ></textarea>
               </div>
@@ -822,7 +823,7 @@ const MyOrdersPage = () => {
                   type="button"
                   onClick={() => setCancelModalOrder(null)}
                   disabled={cancelling}
-                  style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#cbd5e1', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
                 >
                   Đóng lại
                 </button>
@@ -847,9 +848,9 @@ const MyOrdersPage = () => {
           zIndex: 1060, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px'
         }}>
           <div style={{
-            backgroundColor: '#1e293b', color: '#fff', padding: '30px',
-            borderRadius: '16px', width: '100%', maxWidth: '480px',
-            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)', textAlign: 'center'
+            backgroundColor: '#ffffff', color: '#0f172a', padding: '32px',
+            borderRadius: '20px', width: '100%', maxWidth: '480px',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)', textAlign: 'center', border: '1px solid #e2e8f0'
           }}>
             <div style={{
               width: '64px', height: '64px', borderRadius: '50%',
@@ -860,19 +861,19 @@ const MyOrdersPage = () => {
               <FaCheckCircle />
             </div>
 
-            <h3 style={{ margin: '0 0 10px', color: '#fff', fontSize: '1.3rem', fontWeight: 800 }}>
+            <h3 style={{ margin: '0 0 10px', color: '#0f172a', fontSize: '1.35rem', fontWeight: 800 }}>
               XÁC NHẬN HỦY ĐƠN HÀNG #{unpaidCancelModalOrder.id}
             </h3>
 
             <div style={{
-              background: 'rgba(34, 197, 94, 0.08)',
-              border: '1px solid rgba(34, 197, 94, 0.25)',
-              borderRadius: '12px',
-              padding: '16px',
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: '14px',
+              padding: '18px',
               marginBottom: '20px',
               textAlign: 'left',
-              fontSize: '0.88rem',
-              color: '#cbd5e1',
+              fontSize: '0.9rem',
+              color: '#166534',
               lineHeight: 1.6
             }}>
               <div style={{ color: '#4ade80', fontWeight: 700, fontSize: '0.95rem', marginBottom: '6px' }}>

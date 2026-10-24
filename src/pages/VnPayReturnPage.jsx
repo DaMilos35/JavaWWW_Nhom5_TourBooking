@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { paymentApi } from '../api/axiosConfig';
-import { FaCheckCircle, FaTimesCircle, FaClipboardList, FaHome, FaShieldAlt } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaClipboardList, FaHome, FaShieldAlt, FaReceipt } from 'react-icons/fa';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const VnPayReturnPage = () => {
@@ -41,104 +41,148 @@ const VnPayReturnPage = () => {
 
   if (loading) {
     return (
-      <div className="container py-5 text-center" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ backgroundColor: '#f8fafc', minHeight: '75vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px 16px' }}>
         <LoadingSpinner />
-        <h3 style={{ marginTop: '20px', color: '#0ea5e9' }}>Đang xác thực kết quả thanh toán VNPay...</h3>
-        <p style={{ color: '#94a3b8' }}>Vui lòng không tắt hoặc tải lại trình duyệt.</p>
+        <h3 style={{ marginTop: '20px', color: '#0194f3', fontWeight: 700, fontSize: '1.25rem' }}>Đang xác thực giao dịch VNPay...</h3>
+        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Vui lòng giữ nguyên màn hình và không tắt trình duyệt.</p>
       </div>
     );
   }
 
-  const isSuccess = result?.success || result?.responseCode === '00';
+  // Xác thực trạng thái thành công dựa trên response backend & mã vnp_ResponseCode
+  const responseCode = searchParams.get('vnp_ResponseCode');
+  const isSuccess = 
+    result?.paymentStatus === 'PAID' || 
+    result?.status === 'CONFIRMED' || 
+    responseCode === '00' ||
+    result?.success === true;
+
+  const orderId = result?.id || searchParams.get('vnp_TxnRef');
+  const orderCode = result?.orderCode || ('ORD-' + orderId);
+  const transactionId = result?.paymentTransactionId || searchParams.get('vnp_TransactionNo') || 'VNP-' + Date.now();
+  const totalAmount = result?.totalAmount || (searchParams.get('vnp_Amount') ? Number(searchParams.get('vnp_Amount')) / 100 : 0);
 
   return (
-    <div className="vnpay-return-page py-5">
-      <div className="container" style={{ maxWidth: '640px' }}>
+    <div style={{ backgroundColor: '#f8fafc', minHeight: '85vh', padding: '48px 16px 80px' }}>
+      <div style={{ maxWidth: '620px', margin: '0 auto' }}>
         <div style={{
-          background: '#1e293b',
-          border: `1px solid ${isSuccess ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-          borderRadius: '20px',
-          padding: '40px 32px',
+          background: '#ffffff',
+          border: `1px solid ${isSuccess ? '#bbf7d0' : '#fecaca'}`,
+          borderRadius: '24px',
+          padding: '44px 36px',
           textAlign: 'center',
-          boxShadow: '0 20px 30px rgba(0,0,0,0.3)',
-          color: '#f8fafc'
+          boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.08)',
+          color: '#0f172a'
         }}>
           {isSuccess ? (
             <>
               <div style={{
-                width: '80px', height: '80px', margin: '0 auto 20px',
-                borderRadius: '50%', background: 'rgba(34, 197, 94, 0.15)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                width: '84px', height: '84px', margin: '0 auto 20px',
+                borderRadius: '50%', background: '#dcfce7',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 0 10px rgba(34, 197, 94, 0.1)'
               }}>
-                <FaCheckCircle style={{ color: '#22c55e', fontSize: '3rem' }} />
+                <FaCheckCircle style={{ color: '#16a34a', fontSize: '2.8rem' }} />
               </div>
-              <h2 style={{ color: '#22c55e', fontWeight: 800, margin: '0 0 8px', fontSize: '1.75rem' }}>
+              
+              <h2 style={{ color: '#0f172a', fontWeight: 800, margin: '0 0 8px', fontSize: '1.75rem', letterSpacing: '-0.5px' }}>
                 THANH TOÁN THÀNH CÔNG!
               </h2>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '24px' }}>
+              <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '28px' }}>
                 Giao dịch thanh toán trực tuyến qua cổng VNPay đã hoàn tất và được hệ thống ghi nhận.
               </p>
 
+              {/* Biên lai điện tử (E-Receipt) */}
               <div style={{
-                background: '#0f172a',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '14px',
-                padding: '20px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '16px',
+                padding: '24px',
                 textAlign: 'left',
                 marginBottom: '28px',
-                fontSize: '0.95rem'
+                fontSize: '0.92rem'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ color: '#94a3b8' }}>Mã đơn hàng:</span>
-                  <strong style={{ color: '#38bdf8' }}>#{result?.orderId} ({result?.orderCode})</strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0194f3', fontWeight: 700, marginBottom: '16px', fontSize: '0.95rem' }}>
+                  <FaReceipt /> THÔNG TIN GIAO DỊCH
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ color: '#94a3b8' }}>Mã giao dịch VNPay:</span>
-                  <strong style={{ color: '#f8fafc' }}>{result?.transactionNo || 'N/A'}</strong>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <span style={{ color: '#64748b' }}>Mã đơn hàng:</span>
+                  <strong style={{ color: '#0194f3', fontFamily: 'monospace', fontSize: '1rem' }}>{orderCode}</strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ color: '#94a3b8' }}>Phương thức:</span>
-                  <strong style={{ color: '#f8fafc' }}>Cổng thanh toán điện tử VNPay</strong>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <span style={{ color: '#64748b' }}>Mã giao dịch VNPay:</span>
+                  <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{transactionId}</strong>
                 </div>
-                <div style={{ borderTop: '1px dashed rgba(255, 255, 255, 0.15)', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#94a3b8' }}>Số tiền thanh toán:</span>
-                  <strong style={{ color: '#e8400c', fontSize: '1.25rem' }}>{formatPrice(result?.amount || 0)}</strong>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <span style={{ color: '#64748b' }}>Phương thức:</span>
+                  <strong style={{ color: '#0f172a' }}>Cổng thanh toán điện tử VNPay</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <span style={{ color: '#64748b' }}>Trạng thái vé:</span>
+                  <span style={{ color: '#15803d', background: '#dcfce7', padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem' }}>
+                    ĐÃ XÁC NHẬN (CONFIRMED)
+                  </span>
+                </div>
+                <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '16px', marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#0f172a', fontWeight: 600 }}>Số tiền đã thanh toán:</span>
+                  <strong style={{ color: '#ff5e1f', fontSize: '1.4rem', fontWeight: 800 }}>{formatPrice(totalAmount)}</strong>
                 </div>
               </div>
 
               <div style={{
-                display: 'flex', alignItems: 'center', gap: '10px',
-                padding: '12px 16px', background: 'rgba(14, 165, 233, 0.1)',
-                border: '1px solid rgba(14, 165, 233, 0.25)', borderRadius: '10px',
-                marginBottom: '28px', textAlign: 'left', fontSize: '0.88rem', color: '#bae6fd'
+                display: 'flex', alignItems: 'center', gap: '12px',
+                padding: '14px 18px', background: '#f0fdf4',
+                border: '1px solid #bbf7d0', borderRadius: '12px',
+                marginBottom: '32px', textAlign: 'left', fontSize: '0.88rem', color: '#166534'
               }}>
-                <FaShieldAlt style={{ fontSize: '1.4rem', color: '#38bdf8', flexShrink: 0 }} />
-                <span>Vé của bạn đã được chuyển sang trạng thái <strong>ĐÃ XÁC NHẬN (CONFIRMED)</strong>. Email hoá đơn đã được gửi tự động.</span>
+                <FaShieldAlt style={{ fontSize: '1.5rem', color: '#16a34a', flexShrink: 0 }} />
+                <span>Vé điện tử và hóa đơn đã được kích hoạt. Quý khách có thể xem và tải vé trong mục <strong>Đơn Hàng Của Tôi</strong>.</span>
               </div>
             </>
           ) : (
             <>
               <div style={{
-                width: '80px', height: '80px', margin: '0 auto 20px',
-                borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                width: '84px', height: '84px', margin: '0 auto 20px',
+                borderRadius: '50%', background: '#fee2e2',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 0 10px rgba(239, 68, 68, 0.1)'
               }}>
-                <FaTimesCircle style={{ color: '#ef4444', fontSize: '3rem' }} />
+                <FaTimesCircle style={{ color: '#dc2626', fontSize: '2.8rem' }} />
               </div>
-              <h2 style={{ color: '#ef4444', fontWeight: 800, margin: '0 0 8px', fontSize: '1.75rem' }}>
+              <h2 style={{ color: '#0f172a', fontWeight: 800, margin: '0 0 8px', fontSize: '1.75rem', letterSpacing: '-0.5px' }}>
                 THANH TOÁN CHƯA THÀNH CÔNG
               </h2>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '24px' }}>
-                {errorMsg || result?.message || 'Giao dịch qua cổng VNPay bị hủy hoặc không thành công.'}
+              <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '28px' }}>
+                {errorMsg || result?.message || 'Giao dịch qua cổng VNPay bị hủy hoặc không hoàn tất.'}
               </p>
             </>
           )}
 
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/my-orders" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '10px' }}>
+          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link 
+              to="/my-orders" 
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '12px 28px', borderRadius: '12px',
+                background: '#0194f3', color: '#ffffff',
+                fontWeight: 700, fontSize: '0.95rem',
+                textDecoration: 'none', boxShadow: '0 4px 14px rgba(1, 148, 243, 0.3)',
+                transition: 'all 0.2s ease'
+              }}
+            >
               <FaClipboardList /> Xem Đơn Hàng Của Tôi
             </Link>
-            <Link to="/" className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px' }}>
+            <Link 
+              to="/" 
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '12px 22px', borderRadius: '12px',
+                background: '#ffffff', color: '#475569',
+                border: '1px solid #cbd5e1',
+                fontWeight: 600, fontSize: '0.95rem',
+                textDecoration: 'none', transition: 'all 0.2s ease'
+              }}
+            >
               <FaHome /> Về Trang Chủ
             </Link>
           </div>
