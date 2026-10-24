@@ -94,7 +94,7 @@ const ProfilePage = () => {
             <div className="avatar-placeholder">
               {user?.fullName?.charAt(0) || user?.username?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <h3 className="mt-3" style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ffffff' }}>
+            <h3 className="mt-3" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
               {user?.fullName || user?.username}
             </h3>
             <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '12px' }}>
@@ -108,8 +108,9 @@ const ProfilePage = () => {
               borderRadius: '20px',
               fontSize: '0.85rem',
               fontWeight: 600,
-              background: user?.role === 'ADMIN' ? 'rgba(14, 165, 233, 0.16)' : 'rgba(148, 163, 184, 0.12)',
-              color: user?.role === 'ADMIN' ? '#7dd3fc' : '#cbd5e1'
+              background: user?.role === 'ADMIN' ? '#e0f2fe' : '#f1f5f9',
+              color: user?.role === 'ADMIN' ? '#0369a1' : '#475569',
+              border: user?.role === 'ADMIN' ? '1px solid #bae6fd' : '1px solid #e2e8f0'
             }}>
               <FaShieldAlt /> {user?.role === 'ADMIN' ? 'Quản Trị Viên (Admin)' : 'Khách Hàng (Customer)'}
             </span>
@@ -117,16 +118,16 @@ const ProfilePage = () => {
           
           {/* Cột phải: Form cập nhật thông tin và đổi mật khẩu */}
           <div className="profile-main card-box">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px' }}>
               <FaUserCircle style={{ fontSize: '1.4rem', color: '#0ea5e9' }} />
-              <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 700, color: '#ffffff' }}>
+              <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>
                 Thông Tin Cá Nhân
               </h2>
             </div>
 
             <form onSubmit={handleProfileSubmit}>
               <div className="form-group mb-3">
-                <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Họ và tên</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Họ và tên</label>
                 <input 
                   type="text" 
                   name="fullName" 
@@ -140,7 +141,7 @@ const ProfilePage = () => {
 
               <div className="form-row mb-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Địa chỉ Email</label>
+                  <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Địa chỉ Email</label>
                   <input 
                     type="email" 
                     name="email" 
@@ -152,7 +153,7 @@ const ProfilePage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Số điện thoại</label>
+                  <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Số điện thoại</label>
                   <input 
                     type="tel" 
                     name="phone" 
@@ -165,7 +166,7 @@ const ProfilePage = () => {
               </div>
 
               <div className="form-group mb-4">
-                <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Địa chỉ liên hệ</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Địa chỉ liên hệ</label>
                 <input 
                   type="text" 
                   name="address" 
@@ -186,19 +187,19 @@ const ProfilePage = () => {
               </button>
             </form>
 
-            <hr className="my-5" style={{ borderColor: 'rgba(255,255,255,0.12)' }} />
+            <hr className="my-5" style={{ borderColor: '#e2e8f0' }} />
             
             {/* Đổi mật khẩu */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
               <FaKey style={{ fontSize: '1.2rem', color: '#f59e0b' }} />
-              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#ffffff' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
                 Đổi Mật Khẩu
               </h3>
             </div>
 
             <form onSubmit={handlePasswordSubmit}>
               <div className="form-group mb-3">
-                <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Mật khẩu hiện tại</label>
+                <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Mật khẩu hiện tại</label>
                 <input 
                   type="password" 
                   className="form-control" 
@@ -210,7 +211,7 @@ const ProfilePage = () => {
 
               <div className="form-row mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Mật khẩu mới</label>
+                  <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Mật khẩu mới</label>
                   <input 
                     type="password" 
                     className="form-control" 
@@ -220,7 +221,7 @@ const ProfilePage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: 600, color: '#94a3b8' }}>Xác nhận mật khẩu mới</label>
+                  <label className="form-label" style={{ fontWeight: 600, color: '#334155' }}>Xác nhận mật khẩu mới</label>
                   <input 
                     type="password" 
                     className="form-control" 

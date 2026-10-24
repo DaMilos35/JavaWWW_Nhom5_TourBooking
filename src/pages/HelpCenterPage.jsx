@@ -5,38 +5,43 @@ import './HelpCenterPage.css';
 const articles = [
   {
     category: 'Đặt tour',
-    question: 'Làm thế nào để gửi yêu cầu đặt tour?',
-    answer: 'Chọn tour còn chỗ, thêm vào giỏ, đăng nhập rồi điền thông tin liên hệ ở bước gửi yêu cầu. Yêu cầu được tạo ở trạng thái chờ xử lý; nhân viên cần xác nhận trước khi thanh toán.'
+    question: 'Làm thế nào để đặt vé và giữ chỗ tour?',
+    answer: 'Bạn chọn tour mong muốn, chọn số lượng hành khách rồi tiến hành Đặt ngay hoặc Thêm vào giỏ hàng. Tại trang Đặt tour, hệ thống hỗ trợ tự động điền (1-click autofill) hồ sơ tài khoản và đếm ngược giữ chỗ 15 phút an toàn.'
   },
   {
     category: 'Đặt tour',
-    question: 'Giá hiển thị có phải số tiền cuối cùng cần trả không?',
-    answer: 'Đây là giá tour hiện lưu trong hệ thống và tổng tiền được máy chủ tính lại khi tạo yêu cầu. Các dịch vụ đi kèm hoặc phụ phí chưa được cấu hình riêng, vì vậy cần xác nhận trước khi thanh toán.'
+    question: 'Chính sách ưu đãi dành cho đoàn hoặc doanh nghiệp B2B như thế nào?',
+    answer: 'Hệ thống tự động kích hoạt mức chiết khấu 5% cho các đơn hàng từ 10 vé trở lên. Doanh nghiệp và đối tác B2B còn được nhận tài khoản định danh riêng và xuất hóa đơn điện tử hợp lệ.'
   },
   {
     category: 'Thanh toán',
-    question: 'Tôi có thể thanh toán bằng VietQR hoặc VNPAY trên website không?',
-    answer: 'Chưa. Website chưa tích hợp cổng thanh toán và không xử lý giao dịch trực tuyến. Đừng chuyển tiền dựa trên thông tin chưa được nhân viên xác nhận.'
+    question: 'Hệ thống hỗ trợ những phương thức thanh toán trực tuyến nào?',
+    answer: 'Hệ thống hỗ trợ 3 phương thức thanh toán chuẩn hóa: (1) Cổng thanh toán trực tuyến VNPay Sandbox (ATM, Visa, QR-Pay); (2) Quét mã VietQR động chuẩn Napas 24/7 với nội dung chuyển khoản tự động; (3) Tiền mặt tại văn phòng du lịch.'
   },
   {
     category: 'Đơn đặt',
-    question: 'Tôi có thể hủy yêu cầu đặt tour không?',
-    answer: 'Bạn có thể hủy đơn đang ở trạng thái chờ xử lý trong mục Đơn hàng của tôi. Đơn đã xác nhận hoặc hoàn thành không thể hủy bằng chức năng hiện tại.'
+    question: 'Chính sách đổi hủy tour và quy trình nhận tiền hoàn như thế nào?',
+    answer: 'Chính sách hủy tour minh bạch chuẩn Traveloka: (1) Đơn chưa thanh toán: Hủy miễn phí 100%, ghế hoàn kho tức thì. (2) Đơn đã thanh toán: Hủy trước ≥ 7 ngày hoàn 100%; từ 3-6 ngày phí 30%; trong vòng 48h phí 70%. Quý khách chỉ cần điền STK ngân hàng trong mục Đơn hàng của tôi, Ban Quản Trị sẽ chuyển tiền hoàn qua VietQR đối soát.'
   },
   {
     category: 'Đơn đặt',
-    question: 'Khi nào chỗ tour được cập nhật?',
-    answer: 'Số chỗ được kiểm tra và trừ khi máy chủ tạo đơn thành công. Nếu không đủ chỗ tại thời điểm gửi yêu cầu, hệ thống sẽ từ chối đơn và không trừ tồn chỗ.'
+    question: 'Khi nào số chỗ khả dụng của tour được cập nhật và bảo vệ?',
+    answer: 'Hệ thống sử dụng cơ chế Khóa bi quan (Pessimistic Locking) trong cơ sở dữ liệu MariaDB khi đặt vé để đảm bảo không bị trùng chỗ (overbooking). Khi đơn hàng hủy, số ghế tự động được hoàn trả ngay lập tức.'
+  },
+  {
+    category: 'Tìm kiếm AI',
+    question: 'Công nghệ AI Vector Database (Semantic Search) hoạt động như thế nào?',
+    answer: 'Thay vì chỉ tìm từ khóa khớp chính xác, thanh tìm kiếm thông minh sử dụng thuật toán Vector Embeddings để phân tích ngữ nghĩa tự nhiên của bạn (ví dụ: "cần nơi yên bình ngắm biển cho gia đình có người lớn tuổi"), từ đó gợi ý các tour phù hợp nhất.'
   },
   {
     category: 'Thông tin tour',
-    question: 'Vì sao một số tour chưa có lịch trình, dịch vụ hoặc chính sách hủy?',
-    answer: 'Hệ thống hiện chưa lưu các thông tin đó thành dữ liệu riêng cho từng tour. Trang chi tiết sẽ báo chưa cập nhật thay vì hiển thị nội dung chung không được xác minh.'
+    question: 'Lịch trình, tiêu chuẩn khách sạn và dịch vụ bao gồm xem ở đâu?',
+    answer: 'Mỗi tour đều có trang chi tiết đầy đủ 8 trường dữ liệu: Lịch trình trực quan theo dòng thời gian (Timeline Itinerary), danh sách dịch vụ Bao gồm (Included) & Không bao gồm (Excluded), tiêu chuẩn khách sạn sao, phương tiện di chuyển và chính sách hoàn hủy.'
   },
   {
     category: 'Tài khoản',
-    question: 'Danh sách tour đã lưu được lưu ở đâu?',
-    answer: 'Danh sách được lưu cục bộ trên trình duyệt của thiết bị hiện tại, không đồng bộ giữa các thiết bị hoặc tài khoản.'
+    question: 'Tôi có thể xem vé điện tử và tải phiếu xác nhận ở đâu?',
+    answer: 'Sau khi thanh toán thành công, bạn vào mục "Đơn Hàng Của Tôi", chọn "Xem Phiếu Xác Nhận Tour" để xem vé điện tử E-Ticket Traveloka style có mã QR và in phiếu xác nhận trực tiếp.'
   }
 ];
 
@@ -62,9 +67,9 @@ const HelpCenterPage = () => {
     <section className="help-center-page">
       <div className="container">
         <header className="help-center-hero">
-          <p className="help-center-eyebrow">Hỗ trợ đặt tour</p>
+          <p className="help-center-eyebrow">Hỗ trợ khách hàng</p>
           <h1>Trung tâm trợ giúp</h1>
-          <p>Tìm câu trả lời về cách gửi yêu cầu, lịch tour và trạng thái đơn.</p>
+          <p>Tìm câu trả lời về đặt vé, thanh toán trực tuyến, chính sách hoàn hủy và công nghệ AI.</p>
           <label className="help-search">
             <FaSearch aria-hidden="true" />
             <input
@@ -98,29 +103,27 @@ const HelpCenterPage = () => {
               <article className="help-article" key={article.question}>
                 <button
                   type="button"
+                  className="help-article-trigger"
                   aria-expanded={isOpen}
                   onClick={() => setOpenQuestion(isOpen ? '' : article.question)}
                 >
-                  <span>
-                    <small>{article.category}</small>
-                    <strong>{article.question}</strong>
-                  </span>
-                  <FaChevronDown className={isOpen ? 'is-open' : ''} aria-hidden="true" />
+                  <span className="help-badge">{article.category}</span>
+                  <span className="help-question">{article.question}</span>
+                  <FaChevronDown className={`help-chevron ${isOpen ? 'is-open' : ''}`} aria-hidden="true" />
                 </button>
-                {isOpen && <p>{article.answer}</p>}
+                {isOpen && (
+                  <div className="help-answer">
+                    <p>{article.answer}</p>
+                  </div>
+                )}
               </article>
             );
           }) : (
-            <div className="help-no-results">
-              <h2>Không tìm thấy câu trả lời phù hợp</h2>
-              <p>Thử từ khóa khác hoặc chọn “Tất cả” chủ đề.</p>
+            <div className="help-empty">
+              <p>Không tìm thấy câu trả lời phù hợp với từ khóa của bạn.</p>
             </div>
           )}
         </section>
-
-        <p className="help-contact-note">
-          Kênh hỗ trợ trực tiếp chưa được cấu hình. Hãy ghi câu hỏi cần xác nhận trong phần ghi chú của yêu cầu đặt tour.
-        </p>
       </div>
     </section>
   );
