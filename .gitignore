@@ -37,3 +37,7 @@ Thumbs.db
 # Agent & Dev Tooling
 .agents/
 
+
+# Test & Demo documentation (Private, do not push)
+*.docx
+docs_demo/
