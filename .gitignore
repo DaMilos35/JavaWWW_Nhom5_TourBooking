@@ -35,7 +35,9 @@ yarn-error.log*
 Thumbs.db
 
 # Agent & Dev Tooling
-.agents/
+.agents/*
+!.agents/skills/
+!.agents/skills/**
 
 
 # Test & Demo documentation (Private, do not push)

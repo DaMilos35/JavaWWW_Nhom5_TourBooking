@@ -212,7 +212,9 @@ const HomePage = () => {
 
             {/* Các Gợi Ý Ý Tưởng Tìm Kiếm Nhanh (Được Hỗ Trợ Bởi Vector Database Ngầm) */}
             <div className="smart-search-hints mt-3">
-              <span className="hints-label">✨ Gợi ý tìm kiếm:</span>
+              <span className="hints-label">
+                <FaMagic className="hint-icon" aria-hidden="true" /> Gợi ý tìm kiếm:
+              </span>
               <div className="hints-chips-list">
                 {smartSuggestions.map((item, idx) => (
                   <button
@@ -264,7 +266,9 @@ const HomePage = () => {
                   return (
                     <div key={tourItem.id || idx} className="semantic-item-wrap">
                       <div className="semantic-match-banner">
-                        <span className="match-score">✨ Phù hợp: {matchPercent}%</span>
+                        <span className="match-score">
+                          <FaMagic className="match-icon" aria-hidden="true" /> Phù hợp: {matchPercent}%
+                        </span>
                         <span className="match-reason" title={reason}>{reason}</span>
                       </div>
                       <TourCard tour={tourItem} />
@@ -370,7 +374,7 @@ const HomePage = () => {
           <div className="section-header">
             <div>
               <div className="personalized-badge">
-                <span>✨</span> CÁ NHÂN HÓA DÀNH CHO BẠN
+                <FaMagic className="mr-1" aria-hidden="true" /> CÁ NHÂN HÓA DÀNH CHO BẠN
               </div>
               <h2 className="section-title">Gợi Ý Dựa Trên Sở Thích Của Bạn</h2>
               <p className="section-subtitle">Dựa trên lịch sử tìm kiếm, danh mục và hành vi trải nghiệm của bạn</p>

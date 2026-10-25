@@ -86,7 +86,9 @@ const TourCard = ({ tour }) => {
             {seats <= 0 ? (
               <span className="tc-status-pill pill-soldout">Hết chỗ</span>
             ) : seats <= 5 ? (
-              <span className="tc-status-pill pill-urgent">⚡ Chỉ còn {seats} chỗ</span>
+              <span className="tc-status-pill pill-urgent">
+                <FaBolt className="tc-urgent-icon" aria-hidden="true" /> Chỉ còn {seats} chỗ
+              </span>
             ) : (
               <span className="tc-status-pill pill-seats">Còn {seats} chỗ</span>
             )}
