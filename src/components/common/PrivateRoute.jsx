@@ -21,9 +21,13 @@ export const AdminRoute = ({ children }) => {
 
   if (loading) return null;
 
-  return isAuthenticated && isAdmin() ? (
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return isAdmin() ? (
     children
   ) : (
-    <Navigate to="/" replace state={{ from: location }} />
+    <Navigate to="/" replace />
   );
 };

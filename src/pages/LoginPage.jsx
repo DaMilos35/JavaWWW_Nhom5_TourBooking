@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { 
@@ -25,10 +25,14 @@ const LoginPage = () => {
   const { login, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  // Chuyển hướng an toàn sau khi đã đăng nhập (tránh navigate cứng '/' đè lên '/admin')
+  useEffect(() => {
+    if (user) {
+      const redirectPath = location.state?.from?.pathname 
+        || (user.role === 'ADMIN' ? '/admin' : '/');
+      navigate(redirectPath, { replace: true });
+    }
+  }, [user, navigate, location.state]);
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -67,7 +71,11 @@ const LoginPage = () => {
     
     setLoading(true);
     try {
-      const result = await login(credentials);
+      const result = await login({
+        username: credentials.username.trim(),
+        password: credentials.password,
+        rememberMe,
+      });
       if (result.success) {
         toast.success(`Chào mừng ${result.user.fullName || result.user.username} đã đăng nhập!`);
         

@@ -57,7 +57,10 @@ const RegisterPage = () => {
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
       navigate('/login');
     } catch (error) {
-      toast.error(error.response?.data?.message || error.response?.data || 'Có lỗi xảy ra khi đăng ký');
+      const msg = error.response?.data?.message 
+        || (typeof error.response?.data === 'string' && error.response.data.length < 150 ? error.response.data : null)
+        || (error.code === 'ERR_NETWORK' || !error.response || error.response?.status >= 500 ? 'Không thể kết nối đến máy chủ Backend (Port 8080). Vui lòng kiểm tra lại backend!' : 'Có lỗi xảy ra khi đăng ký tài khoản.');
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

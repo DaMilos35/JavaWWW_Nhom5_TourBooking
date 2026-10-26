@@ -12,7 +12,8 @@ export const AuthProvider = ({ children }) => {
     authApi.me()
       .then((res) => {
         const { userId, username, email, role, fullName, phone, address } = res.data;
-        setUser({ id: userId, username, email, role, fullName: fullName || username, phone: phone || '', address: address || '' });
+        const cleanRole = (role || '').replace(/^ROLE_/, '');
+        setUser({ id: userId, username, email, role: cleanRole, fullName: fullName || username, phone: phone || '', address: address || '' });
       })
       .catch(() => {
         // Session đã hết hoặc chưa đăng nhập → giữ user = null
@@ -25,23 +26,44 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authApi.login(credentials);
       const { userId, username, email, role, fullName, phone, address } = response.data;
+      const cleanRole = (role || '').replace(/^ROLE_/, '');
       const newUser = {
         id: userId,
         username,
         email,
-        role,
+        role: cleanRole,
         fullName: fullName || username,
         phone: phone || '',
         address: address || '',
       };
       setUser(newUser);
       // Lưu tên vào localStorage để hiển thị nhanh (không phải để xác thực)
-      localStorage.setItem('user_display', JSON.stringify({ username, fullName: newUser.fullName, role }));
+      localStorage.setItem('user_display', JSON.stringify({ username, fullName: newUser.fullName, role: cleanRole }));
       return { success: true, user: newUser };
     } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+      let message = 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+      const status = error.response?.status;
+      const respData = error.response?.data;
+
+      if (respData?.message) {
+        message = respData.message;
+      } else if (status === 401) {
+        message = 'Tên đăng nhập hoặc mật khẩu không chính xác.';
+      } else if (status === 403) {
+        message = 'Tài khoản của bạn đã bị khóa hoặc không có quyền truy cập.';
+      } else if (
+        status === 500 ||
+        status === 502 || 
+        status === 503 || 
+        status === 504 || 
+        error.code === 'ERR_NETWORK' || 
+        error.code === 'ECONNABORTED' ||
+        error.message?.includes('Network Error') || 
+        error.message?.includes('timeout') ||
+        !error.response
+      ) {
+        message = 'Không thể kết nối đến máy chủ Backend (Port 8080). Vui lòng đảm bảo Spring Boot Backend đã được khởi động!';
+      }
       return { success: false, error: message };
     }
   };
@@ -80,7 +102,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const isAdmin = () => user?.role === 'ADMIN';
+  const isAdmin = () => {
+    if (!user || !user.role) return false;
+    const r = user.role.replace(/^ROLE_/, '');
+    return r === 'ADMIN';
+  };
 
   const value = {
     user,
