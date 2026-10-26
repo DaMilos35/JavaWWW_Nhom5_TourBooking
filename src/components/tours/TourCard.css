@@ -1,6 +1,7 @@
 /* ==========================================================================
    MASTER TOUR CARD DESIGN (Traveloka / OTA Grade 2026)
    Powered by UI-UX Pro Max Design Intelligence
+   Chống tuyệt đối lỗi đè chữ, tràn chữ, hay cắt cụt nội dung
    ========================================================================== */
 
 .tour-card-wrap {
@@ -195,9 +196,9 @@
   50% { opacity: 0.85; }
 }
 
-/* --- Card Body Content --- */
+/* --- Card Body Content (Tối ưu không gian breathing room) --- */
 .tc-content {
-  padding: 16px 18px 18px;
+  padding: 16px 14px 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -240,18 +241,19 @@
   font-size: 0.75rem;
 }
 
-/* --- Tour Title (2-line clamp) --- */
+/* --- Tour Title (2-line clamp chuẩn, tự động ngắt chữ đẹp) --- */
 .tc-title {
-  font-size: 1.02rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 12px;
-  line-height: 1.45;
+  line-height: 1.42;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2.9rem;
+  word-break: break-word;
+  min-height: 2.8rem;
   transition: color 0.2s;
 }
 
@@ -259,14 +261,15 @@
   color: #0194f3;
 }
 
-/* --- Traveloka Amenities / Chips Row (Single line, no awkward breaks) --- */
+/* --- Amenities / Chips Row (2 hàng thoáng mát, không bao giờ cắt vụn từ) --- */
 .tc-amenities-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 16px;
-  overflow: hidden;
-  flex-wrap: nowrap;
+  margin-bottom: 14px;
+  min-height: 52px;
+  align-content: flex-start;
 }
 
 .tc-amenity-chip {
@@ -276,20 +279,24 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 0.74rem;
+  padding: 3px 7px;
+  font-size: 0.72rem;
   color: #334155;
   font-weight: 500;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
+  line-height: 1.3;
 }
 
-.tc-amenity-chip span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.tc-amenity-chip.chip-hotel {
+  flex-shrink: 0;
+  background: #fefce8;
+  border-color: #fef08a;
+  color: #854d0e;
+  font-weight: 600;
+}
+
+.tc-amenity-chip.chip-location {
+  flex-shrink: 0;
 }
 
 .tc-chip-icon {
@@ -298,15 +305,19 @@
   flex-shrink: 0;
 }
 
-/* --- Card Footer & Price Presentation --- */
+.chip-hotel .tc-chip-icon {
+  color: #ca8a04;
+}
+
+/* --- Card Footer & Vertical Price Presentation (Chống đè chữ 100%) --- */
 .tc-footer {
   margin-top: auto;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid #f1f5f9;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tc-price-wrap {
@@ -321,10 +332,16 @@
   align-items: center;
   gap: 6px;
   margin-bottom: 2px;
+  height: 18px;
+}
+
+.tc-price-top-spacer {
+  height: 18px;
+  margin-bottom: 2px;
 }
 
 .tc-original-price {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #94a3b8;
   text-decoration: line-through;
   font-weight: 500;
@@ -332,28 +349,23 @@
 }
 
 .tc-discount-pill {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 800;
   color: #ef4444;
   background: #fee2e2;
   border: 1px solid #fecaca;
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 4px;
   white-space: nowrap;
-}
-
-.tc-price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
+  line-height: 1.2;
 }
 
 .tc-price {
-  font-size: 1.25rem;
+  font-size: 1.22rem;
   font-weight: 800;
   color: #ff5e1f;
-  line-height: 1;
-  letter-spacing: -0.4px;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
   white-space: nowrap;
 }
 
@@ -361,40 +373,43 @@
   font-size: 0.72rem;
   color: #64748b;
   font-weight: 500;
+  line-height: 1.2;
+  margin-top: 2px;
   white-space: nowrap;
 }
 
 .tc-action-btns {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   flex-shrink: 0;
 }
 
-/* --- Clean, Non-wrapping Quick Add CTA Button --- */
+/* --- Clean, Fixed-height CTA Button (Không bao giờ rớt dòng hay đè giá) --- */
 .btn-quick-add {
   background: linear-gradient(135deg, #0194f3, #0284c7);
   color: #ffffff;
-  padding: 9px 15px;
-  border-radius: 9px;
-  font-size: 0.82rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(1, 148, 243, 0.25);
+  box-shadow: 0 4px 10px rgba(1, 148, 243, 0.2);
   line-height: 1;
+  height: 34px;
 }
 
 .btn-quick-add:hover:not(:disabled) {
   background: linear-gradient(135deg, #0284c7, #0369a1);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(1, 148, 243, 0.35);
+  box-shadow: 0 6px 14px rgba(1, 148, 243, 0.3);
 }
 
 .btn-quick-add:active:not(:disabled) {
@@ -407,4 +422,8 @@
   box-shadow: none;
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-cart-icon {
+  font-size: 0.75rem;
 }

@@ -17,7 +17,7 @@ import FallbackImage from '../common/FallbackImage';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
-import { getTourImage, formatVehicleChip } from '../../utils/tourImages';
+import { getTourImage, formatVehicleChip, formatLocationChip } from '../../utils/tourImages';
 import './TourCard.css';
 
 const TourCard = ({ tour }) => {
@@ -39,6 +39,7 @@ const TourCard = ({ tour }) => {
   const hotelStar = tour.hotelStar || tour.hotel_star;
   const vehicle = tour.vehicle;
   const vehicleText = formatVehicleChip(vehicle);
+  const locationText = formatLocationChip(tour.departureLocation);
   const imageUrl = getTourImage(tour);
 
   const getVehicleIcon = (v) => {
@@ -74,7 +75,7 @@ const TourCard = ({ tour }) => {
             loading="lazy"
           />
 
-          {/* Lớp phủ sáng tạo chiều sâu */}
+          {/* Lớp phủ tinh tế tăng tương phản */}
           <div className="tc-img-overlay" />
 
           {/* Badges container góc trên trái */}
@@ -116,35 +117,36 @@ const TourCard = ({ tour }) => {
             {tour.name || tour.tourName}
           </h3>
 
-          {/* Traveloka Style Features / Chips chống tràn */}
+          {/* Tiện ích 2 hàng thông thoáng không bao giờ bị cắt vụn */}
           <div className="tc-amenities-row">
             {vehicleText && (
-              <span className="tc-amenity-chip" title={vehicle}>
+              <span className="tc-amenity-chip chip-vehicle" title={vehicle}>
                 {getVehicleIcon(vehicle)} <span>{vehicleText}</span>
               </span>
             )}
             {hotelStar && (
-              <span className="tc-amenity-chip">
+              <span className="tc-amenity-chip chip-hotel">
                 <FaHotel className="tc-chip-icon" /> <span>KS {hotelStar}★</span>
               </span>
             )}
-            <span className="tc-amenity-chip" title={`Khởi hành từ ${tour.departureLocation || 'Việt Nam'}`}>
-              <FaMapMarkerAlt className="tc-chip-icon" /> <span>{tour.departureLocation || 'Việt Nam'}</span>
+            <span className="tc-amenity-chip chip-location" title={`Khởi hành từ ${tour.departureLocation || 'Việt Nam'}`}>
+              <FaMapMarkerAlt className="tc-chip-icon" /> <span>{locationText}</span>
             </span>
           </div>
 
+          {/* Footer giá xếp tầng dọc: Tuyệt đối không đè chữ /khách */}
           <div className="tc-footer">
             <div className="tc-price-wrap">
-              {hasDiscount && (
+              {hasDiscount ? (
                 <div className="tc-price-top">
                   <span className="tc-original-price">{formatPrice(originalPrice)}</span>
                   <span className="tc-discount-pill">-{discountPercent}%</span>
                 </div>
+              ) : (
+                <div className="tc-price-top-spacer" />
               )}
-              <div className="tc-price-row">
-                <span className="tc-price">{formatPrice(price)}</span>
-                <span className="tc-price-unit">/khách</span>
-              </div>
+              <div className="tc-price">{formatPrice(price)}</div>
+              <div className="tc-price-unit">/ khách</div>
             </div>
 
             <div className="tc-action-btns">
@@ -155,7 +157,7 @@ const TourCard = ({ tour }) => {
                 disabled={seats <= 0}
                 onClick={handleQuickAdd}
               >
-                <FaShoppingCart /> <span>{seats > 0 ? 'Đặt ngay' : 'Hết chỗ'}</span>
+                <FaShoppingCart className="btn-cart-icon" /> <span>{seats > 0 ? 'Đặt ngay' : 'Hết chỗ'}</span>
               </button>
             </div>
           </div>

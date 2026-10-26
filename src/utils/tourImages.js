@@ -72,7 +72,7 @@ export function getTourImage(tour) {
 }
 
 /**
- * Định dạng tiện ích phương tiện tinh tế, chống tràn chữ hoặc cắt ngang từ
+ * Định dạng tiện ích phương tiện súc tích, chống tràn chữ hoàn hảo
  */
 export function formatVehicleChip(vehicle) {
   if (!vehicle) return null;
@@ -81,19 +81,42 @@ export function formatVehicleChip(vehicle) {
 
   if (lower.includes('bamboo')) return 'Bamboo Airways';
   if (lower.includes('vietjet')) return 'Vietjet Air';
-  if (lower.includes('singapore airlines')) return 'Singapore Airlines';
-  if (lower.includes('vietnam airlines')) return 'Vietnam Airlines';
-  if (lower.includes('bay') || lower.includes('máy bay')) return 'Vé máy bay khứ hồi';
+  if (lower.includes('singapore')) return 'Singapore Air';
+  if (lower.includes('vietnam airlines') || lower.includes('vna')) return 'VN Airlines';
+  if (lower.includes('bay') || lower.includes('máy bay')) return 'Vé máy bay';
   if (lower.includes('limousine')) return 'Limousine VIP';
   if (lower.includes('du thuyền') || lower.includes('cruise')) return 'Du thuyền 5★';
-  if (lower.includes('universe') || lower.includes('45 chỗ') || lower.includes('xe du lịch')) return 'Xe du lịch cao cấp';
   if (lower.includes('cano') || lower.includes('ca nô')) return 'Cano cao tốc';
-  if (lower.includes('giường nằm')) return 'Xe giường nằm VIP';
+  if (lower.includes('giường nằm')) return 'Giường nằm VIP';
+  if (lower.includes('universe') || lower.includes('xe du lịch')) return 'Xe du lịch';
 
-  if (v.length > 20) {
-    const truncated = v.substring(0, 18);
+  if (v.length > 14) {
+    const truncated = v.substring(0, 13);
     const lastSpace = truncated.lastIndexOf(' ');
-    return (lastSpace > 8 ? truncated.substring(0, lastSpace) : truncated) + '...';
+    return (lastSpace > 5 ? truncated.substring(0, lastSpace) : truncated);
   }
   return v;
+}
+
+/**
+ * Định dạng điểm khởi hành ngắn gọn, tinh tế chuẩn Traveloka
+ */
+export function formatLocationChip(location) {
+  if (!location) return 'Việt Nam';
+  const l = location.trim();
+  const lower = l.toLowerCase();
+
+  if (lower.includes('hồ chí minh') || lower.includes('hcm') || lower.includes('sài gòn')) return 'TP.HCM';
+  if (lower.includes('hà nội')) return 'Hà Nội';
+  if (lower.includes('đà nẵng')) return 'Đà Nẵng';
+  if (lower.includes('cần thơ')) return 'Cần Thơ';
+  if (lower.includes('nha trang')) return 'Nha Trang';
+  if (lower.includes('phú quốc')) return 'Phú Quốc';
+  if (lower.includes('hải phòng')) return 'Hải Phòng';
+  if (lower.includes('quy nhơn')) return 'Quy Nhơn';
+  
+  if (l.length > 12) {
+    return l.substring(0, 10);
+  }
+  return l;
 }
