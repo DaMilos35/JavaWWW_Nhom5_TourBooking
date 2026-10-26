@@ -54,6 +54,7 @@ const AdminTours = () => {
     try {
       await adminApi.updateTour(tour.id, {
         ...tour,
+        categoryId: tour.categoryId || tour.category?.id || tour.category?.categoryId,
         status: newStatus
       });
       toast.success(`Đã chuyển tour sang: ${newStatus === 'ACTIVE' ? 'Đang mở bán' : 'Tạm ẩn'}`);

@@ -213,7 +213,7 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 24px;
+  padding: 26px 28px;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
@@ -227,16 +227,16 @@
 .highlight-points-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 .highlight-point {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   font-size: 0.95rem;
   color: #334155;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .hl-point-icon {
@@ -308,11 +308,11 @@
 
 .itinerary-day-card {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 22px 24px;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -327,9 +327,9 @@
   background: linear-gradient(135deg, #0194f3, #0284c7);
   color: #ffffff;
   font-weight: 800;
-  font-size: 0.78rem;
-  padding: 6px 12px;
-  border-radius: 8px;
+  font-size: 0.82rem;
+  padding: 8px 14px;
+  border-radius: 10px;
   align-self: flex-start;
   white-space: nowrap;
 }
@@ -340,15 +340,15 @@
 
 .itinerary-day-title {
   color: #0f172a;
-  font-size: 1.05rem;
+  font-size: 1.12rem;
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
 }
 
 .itinerary-day-text {
-  color: #475569;
-  font-size: 0.92rem;
-  line-height: 1.65;
+  color: #334155;
+  font-size: 0.95rem;
+  line-height: 1.7;
 }
 
 /* Services 2 Columns */
@@ -361,7 +361,7 @@
 .service-col-box {
   background: #ffffff;
   border-radius: 14px;
-  padding: 24px;
+  padding: 26px 28px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
@@ -375,12 +375,12 @@
 }
 
 .service-box-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 16px 0;
+  gap: 10px;
+  margin: 0 0 18px 0;
 }
 
 .title-inclusions {
@@ -397,16 +397,16 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .service-list li {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  font-size: 0.9rem;
+  gap: 12px;
+  font-size: 0.95rem;
   color: #334155;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .li-icon {
@@ -428,7 +428,7 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 24px;
+  padding: 26px 28px;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
@@ -464,17 +464,19 @@
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 16px;
-  padding: 24px;
+  padding: 26px 28px;
   box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
 }
 
-.booking-card-header {
+.booking-card-header,
+.price-box {
   margin-bottom: 20px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.price-row {
+.price-row,
+.sidebar-price-row {
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -487,40 +489,47 @@
   line-height: 1;
 }
 
-.unit {
+.unit,
+.price-unit {
   font-size: 0.88rem;
   color: #64748b;
   font-weight: 500;
 }
 
-.original-price-wrap {
+.original-price-wrap,
+.sidebar-original-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 4px;
+  margin-bottom: 6px;
 }
 
-.orig-price {
-  font-size: 0.9rem;
+.orig-price,
+.sidebar-original-price {
+  font-size: 0.95rem;
   color: #94a3b8;
   text-decoration: line-through;
+  font-weight: 500;
 }
 
-.discount-badge {
+.discount-badge,
+.sidebar-discount-pill {
   background: #fee2e2;
   color: #ef4444;
   border: 1px solid #fecaca;
   font-size: 0.75rem;
   font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
-.qty-control-wrap {
+.qty-control-wrap,
+.quantity-box {
   margin-bottom: 20px;
 }
 
-.qty-control-wrap label {
+.qty-control-wrap label,
+.quantity-box label {
   display: block;
   font-size: 0.82rem;
   font-weight: 700;

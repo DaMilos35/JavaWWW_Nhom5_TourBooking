@@ -113,52 +113,107 @@ const TourDetailPage = () => {
     return <FaBus />;
   };
 
+  // Robust JSON or Array string parser
+  const safeParseJson = (val) => {
+    if (!val) return null;
+    if (Array.isArray(val) || (typeof val === 'object' && val !== null)) return val;
+    if (typeof val === 'string') {
+      const trimmed = val.trim();
+      if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+        try {
+          return JSON.parse(trimmed);
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    return null;
+  };
+
   // Helper parsing highlights
   const parseHighlights = (text) => {
-    if (!text || !text.trim()) {
-      return [
-        `Khám phá trọn vẹn điểm đến ${tour.name || 'nổi tiếng'}`,
-        `Phương tiện: ${vehicle}`,
-        `Tiêu chuẩn lưu trú: Khách sạn ${hotelStar} sao sang trọng`,
-        'Bảo hiểm du lịch trọn gói mức trách nhiệm 100.000.000đ/vụ'
-      ];
+    const defaultHighlights = [
+      `Khám phá trọn vẹn điểm đến ${tour.name || 'nổi tiếng'}`,
+      `Phương tiện: ${vehicle}`,
+      `Tiêu chuẩn lưu trú: Khách sạn ${hotelStar} sao sang trọng`,
+      'Bảo hiểm du lịch trọn gói mức trách nhiệm 100.000.000đ/vụ'
+    ];
+
+    if (!text) return defaultHighlights;
+
+    const parsed = safeParseJson(text);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map(s => String(s).trim().replace(/^[-*•✓]\s*/, '')).filter(Boolean);
     }
-    return text.split('\n').map(s => s.trim().replace(/^[-*•✓]\s*/, '')).filter(Boolean);
+
+    if (typeof text === 'string' && text.trim()) {
+      const items = text.split('\n').map(s => s.trim().replace(/^[-*•✓]\s*/, '')).filter(Boolean);
+      if (items.length > 0) return items;
+    }
+
+    return defaultHighlights;
   };
 
   // Helper parsing itinerary
   const parseItinerary = (itineraryText) => {
-    if (!itineraryText || !itineraryText.trim()) {
-      return Array.from({ length: Math.max(1, tour.duration || 3) }).map((_, idx) => ({
-        day: idx + 1,
-        title: idx === 0 ? `Khởi hành từ ${tour.departureLocation || 'điểm hẹn'} – Nhận phòng nghỉ ngơi` :
-               idx === (tour.duration || 3) - 1 ? 'Tự do mua sắm đặc sản – Kết thúc hành trình' :
-               'Khám phá danh lam thắng cảnh & Trải nghiệm văn hóa địa phương',
-        content: idx === 0 ? `Xe và hướng dẫn viên đón đoàn tại điểm hẹn, khởi hành đi ${tour.name || 'điểm đến'}. Đoàn dùng bữa trưa tại nhà hàng, nhận phòng khách sạn và bắt đầu tham quan các điểm nổi bật buổi chiều.` :
-                 idx === (tour.duration || 3) - 1 ? 'Đoàn dùng điểm tâm sáng buffet, tự do dạo phố, chụp ảnh và mua sắm quà lưu niệm cho người thân. Sau bữa trưa, xe đưa đoàn về lại điểm đón ban đầu, chia tay và hẹn gặp lại.' :
-                 'Đoàn thưởng thức bữa sáng buffet, sau đó di chuyển tham quan các danh lam thắng cảnh tiêu biểu, trải nghiệm các hoạt động giải trí đặc sắc và thưởng thức ẩm thực truyền thống.'
-      }));
-    }
+    const defaultItinerary = Array.from({ length: Math.max(1, tour.duration || 3) }).map((_, idx) => ({
+      day: idx + 1,
+      title: idx === 0 ? `Khởi hành từ ${tour.departureLocation || 'điểm hẹn'} – Nhận phòng nghỉ ngơi` :
+             idx === (tour.duration || 3) - 1 ? 'Tự do mua sắm đặc sản – Kết thúc hành trình' :
+             'Khám phá danh lam thắng cảnh & Trải nghiệm văn hóa địa phương',
+      content: idx === 0 ? `Xe và hướng dẫn viên đón đoàn tại điểm hẹn, khởi hành đi ${tour.name || 'điểm đến'}. Đoàn dùng bữa trưa tại nhà hàng, nhận phòng khách sạn và bắt đầu tham quan các điểm nổi bật buổi chiều.` :
+               idx === (tour.duration || 3) - 1 ? 'Đoàn dùng điểm tâm sáng buffet, tự do dạo phố, chụp ảnh và mua sắm quà lưu niệm cho người thân. Sau bữa trưa, xe đưa đoàn về lại điểm đón ban đầu, chia tay và hẹn gặp lại.' :
+               'Đoàn thưởng thức bữa sáng buffet, sau đó di chuyển tham quan các danh lam thắng cảnh tiêu biểu, trải nghiệm các hoạt động giải trí đặc sắc và thưởng thức ẩm thực truyền thống.'
+    }));
 
-    const rawDays = itineraryText.split(/(?=(?:NGÀY|Ngày)\s*\d+[:\s-])/g).filter(Boolean);
-    if (rawDays.length > 0) {
-      return rawDays.map((block, idx) => {
-        const firstLineEnd = block.indexOf('\n');
-        const titleLine = firstLineEnd !== -1 ? block.substring(0, firstLineEnd).trim() : block.trim();
-        const body = firstLineEnd !== -1 ? block.substring(firstLineEnd).trim() : '';
+    if (!itineraryText) return defaultItinerary;
+
+    const parsed = safeParseJson(itineraryText);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map((item, idx) => {
+        if (typeof item === 'object' && item !== null) {
+          const contentStr = typeof item.content === 'string'
+            ? item.content
+            : Array.isArray(item.content)
+              ? item.content.join('\n')
+              : (item.description || item.desc || '');
+          return {
+            day: item.day || (idx + 1),
+            title: item.title || `Khám phá ngày ${idx + 1}`,
+            content: contentStr
+          };
+        }
         return {
           day: idx + 1,
-          title: titleLine.replace(/^(?:NGÀY|Ngày)\s*\d+[:\s-]*/i, '').trim() || `Khám phá ngày ${idx + 1}`,
-          content: body || titleLine
+          title: `Ngày ${idx + 1}`,
+          content: String(item)
         };
       });
     }
 
-    return [{
-      day: 1,
-      title: 'Lịch trình chi tiết chương trình',
-      content: itineraryText
-    }];
+    if (typeof itineraryText === 'string' && itineraryText.trim()) {
+      const rawDays = itineraryText.split(/(?=(?:NGÀY|Ngày|Day)\s*\d+[:\s-])/gi).filter(Boolean);
+      if (rawDays.length > 0) {
+        return rawDays.map((block, idx) => {
+          const firstLineEnd = block.indexOf('\n');
+          const titleLine = firstLineEnd !== -1 ? block.substring(0, firstLineEnd).trim() : block.trim();
+          const body = firstLineEnd !== -1 ? block.substring(firstLineEnd).trim() : '';
+          return {
+            day: idx + 1,
+            title: titleLine.replace(/^(?:NGÀY|Ngày|Day)\s*\d+[:\s-]*/i, '').trim() || `Khám phá ngày ${idx + 1}`,
+            content: body || titleLine
+          };
+        });
+      }
+
+      return [{
+        day: 1,
+        title: 'Lịch trình chi tiết chương trình',
+        content: itineraryText
+      }];
+    }
+
+    return defaultItinerary;
   };
 
   // Helper parsing inclusions / exclusions
@@ -179,13 +234,21 @@ const TourDetailPage = () => {
     'Thuế VAT 8% (nếu quý khách có nhu cầu xuất hóa đơn đỏ công ty)'
   ];
 
-  const inclusions = tour.inclusions && tour.inclusions.trim()
-    ? tour.inclusions.split('\n').map(s => s.trim().replace(/^[-*•✓]\s*/, '')).filter(Boolean)
-    : defaultInclusions;
+  const parseList = (rawText, defaultList) => {
+    if (!rawText) return defaultList;
+    const parsed = safeParseJson(rawText);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map(s => String(s).trim().replace(/^[-*•✓✕x]\s*/, '')).filter(Boolean);
+    }
+    if (typeof rawText === 'string' && rawText.trim()) {
+      const items = rawText.split('\n').map(s => s.trim().replace(/^[-*•✓✕x]\s*/, '')).filter(Boolean);
+      if (items.length > 0) return items;
+    }
+    return defaultList;
+  };
 
-  const exclusions = tour.exclusions && tour.exclusions.trim()
-    ? tour.exclusions.split('\n').map(s => s.trim().replace(/^[-*•✕x]\s*/, '')).filter(Boolean)
-    : defaultExclusions;
+  const inclusions = parseList(tour.inclusions, defaultInclusions);
+  const exclusions = parseList(tour.exclusions, defaultExclusions);
 
   const itineraryDays = parseItinerary(tour.itinerary);
   const highlights = parseHighlights(tour.highlights);
