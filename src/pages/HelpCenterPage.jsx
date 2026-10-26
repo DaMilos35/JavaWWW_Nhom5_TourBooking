@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FaChevronDown, FaSearch } from 'react-icons/fa';
 import './HelpCenterPage.css';
 
@@ -47,10 +48,53 @@ const articles = [
 
 const categories = ['Tất cả', ...new Set(articles.map((article) => article.category))];
 
+const tabSlugMap = {
+  'dat-tour': 'Đặt tour',
+  'thanh-toan': 'Thanh toán',
+  'don-dat': 'Đơn đặt',
+  'ai-search': 'Tìm kiếm AI',
+  'thong-tin': 'Thông tin tour',
+  'tai-khoan': 'Tài khoản',
+  'all': 'Tất cả'
+};
+
 const HelpCenterPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Tất cả');
+
+  const getCategoryFromParam = () => {
+    const param = searchParams.get('tab') || searchParams.get('category');
+    if (!param) return 'Tất cả';
+    return tabSlugMap[param] || param;
+  };
+
+  const [activeCategory, setActiveCategory] = useState(getCategoryFromParam());
   const [openQuestion, setOpenQuestion] = useState(articles[0].question);
+
+  useEffect(() => {
+    const targetCat = getCategoryFromParam();
+    if (targetCat) {
+      setActiveCategory(targetCat);
+      const firstArticle = articles.find(a => targetCat === 'Tất cả' || a.category === targetCat);
+      if (firstArticle) {
+        setOpenQuestion(firstArticle.question);
+      }
+    }
+  }, [searchParams]);
+
+  const handleCategoryClick = (category) => {
+    setActiveCategory(category);
+    const slug = Object.keys(tabSlugMap).find(k => tabSlugMap[k] === category);
+    if (slug && slug !== 'all') {
+      setSearchParams({ tab: slug });
+    } else {
+      setSearchParams({});
+    }
+    const firstArticle = articles.find(a => category === 'Tất cả' || a.category === category);
+    if (firstArticle) {
+      setOpenQuestion(firstArticle.question);
+    }
+  };
 
   const filteredArticles = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('vi');
@@ -89,7 +133,7 @@ const HelpCenterPage = () => {
               type="button"
               className={activeCategory === category ? 'is-active' : ''}
               aria-pressed={activeCategory === category}
-              onClick={() => setActiveCategory(category)}
+              onClick={() => handleCategoryClick(category)}
             >
               {category}
             </button>

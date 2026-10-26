@@ -45,17 +45,17 @@ const Footer = () => {
           <h4 className="footer-title">Điểm Đến Hấp Dẫn</h4>
           <ul className="footer-links">
             <li>
-              <Link to="/tours?category=1">
+              <Link to="/tours">
                 <FaChevronRight className="link-icon" /> Tour Trong Nước
               </Link>
             </li>
             <li>
-              <Link to="/tours?category=2">
+              <Link to="/tours?category=8">
                 <FaChevronRight className="link-icon" /> Tour Quốc Tế
               </Link>
             </li>
             <li>
-              <Link to="/tours?category=3">
+              <Link to="/tours?category=1">
                 <FaChevronRight className="link-icon" /> Tour Nghỉ Dưỡng
               </Link>
             </li>
@@ -76,17 +76,17 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <Link to="/help">
+              <Link to="/help?tab=dat-tour">
                 <FaChevronRight className="link-icon" /> Hướng Dẫn Đặt Tour
               </Link>
             </li>
             <li>
-              <Link to="/help">
+              <Link to="/help?tab=don-dat">
                 <FaChevronRight className="link-icon" /> Chính Sách Hoàn Hủy
               </Link>
             </li>
             <li>
-              <Link to="/help">
+              <Link to="/help?tab=thong-tin">
                 <FaChevronRight className="link-icon" /> Điều Khoản & Quy Định
               </Link>
             </li>

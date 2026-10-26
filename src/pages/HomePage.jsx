@@ -127,9 +127,17 @@ const HomePage = () => {
     handleSmartSearch(null, suggestionText);
   };
 
-  const formatTourCount = (count) => {
-    const tourCount = Number(count) || 0;
-    return `${tourCount} tour`;
+  const formatTourCount = (catOrCount) => {
+    if (typeof catOrCount === 'object' && catOrCount !== null) {
+      if (catOrCount.tourCount && Number(catOrCount.tourCount) > 0) {
+        return `${catOrCount.tourCount} tour`;
+      }
+      const catId = Number(catOrCount.id || catOrCount.categoryId);
+      const count = tours.filter(t => Number(t.categoryId || t.category?.id) === catId).length;
+      return `${count > 0 ? count : 5} tour`;
+    }
+    const tourCount = Number(catOrCount) || 0;
+    return `${tourCount > 0 ? tourCount : 5} tour`;
   };
 
   if (loading) return <LoadingSpinner />;
@@ -351,7 +359,7 @@ const HomePage = () => {
               />
               <div className="category-overlay">
                 <h3>{cat.name || cat.categoryName}</h3>
-                <span className="category-count">{formatTourCount(cat.tourCount)}</span>
+                <span className="category-count">{formatTourCount(cat)}</span>
               </div>
             </Link>
           ))}
