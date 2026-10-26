@@ -18,13 +18,27 @@ import {
   FaStar,
   FaFire,
   FaPercent,
-  FaInfoCircle
+  FaInfoCircle,
+  FaAward,
+  FaHeadset,
+  FaCompass,
+  FaComments,
+  FaCheck,
+  FaMagic,
+  FaLightbulb,
+  FaSun,
+  FaUtensils,
+  FaCamera,
+  FaUsers,
+  FaChevronRight,
+  FaExpand
 } from 'react-icons/fa';
 import { tourApi } from '../api/axiosConfig';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
-import { getTourImage } from '../utils/tourImages';
+import { getTourImage, getTourGallery, getItineraryDayPhotos } from '../utils/tourImages';
+import TourGalleryBento from '../components/tours/TourGalleryBento';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import FallbackImage from '../components/common/FallbackImage';
 import { toast } from 'react-toastify';
@@ -45,6 +59,8 @@ const TourDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('itinerary');
   const [selectedPersona, setSelectedPersona] = useState('family');
+  const [selectedDayFilter, setSelectedDayFilter] = useState(null);
+  const [dayLightboxPhoto, setDayLightboxPhoto] = useState(null);
 
   const personaOptions = [
     { id: 'family', label: 'Gia đình có trẻ nhỏ', icon: FaUsers, advice: 'Lịch trình được tối ưu với nhịp độ thư thả, xe đưa đón điều hòa êm ái, các điểm tham quan có lối đi xe đẩy và thang máy. Thực đơn nhà hàng đảm bảo món thanh đạm, dinh dưỡng cho trẻ nhỏ.' },
@@ -345,17 +361,8 @@ const TourDetailPage = () => {
           </div>
         </div>
 
-        {/* Hero Image Showcase */}
-        <div className="td-gallery mb-4">
-          <FallbackImage
-            src={getTourImage(tour)}
-            alt={tour.name || tour.tourName} 
-            className="main-img" 
-          />
-          <div className="gallery-overlay-badge">
-            <span>Mã tour: #{tour.id || tour.tourId}</span>
-          </div>
-        </div>
+        {/* Modern Traveloka Bento Media Mosaic Gallery with Carousel, Video & Lightbox */}
+        <TourGalleryBento tour={tour} gallery={getTourGallery(tour)} />
 
         {/* Quick Traveloka Highlights Strip */}
         <div className="td-highlights mb-4">
@@ -486,23 +493,100 @@ const TourDetailPage = () => {
                 </div>
 
                 <div className="td-section">
-                  <h3 className="section-tab-heading">Lịch trình chi tiết từng ngày</h3>
-                  <div className="itinerary-timeline">
-                    {itineraryDays.map((item) => (
-                      <div key={item.day} className="itinerary-day-card">
-                        <div className="itinerary-day-badge">
-                          NGÀY {item.day}
-                        </div>
-                        <div className="itinerary-day-body">
-                          <h4 className="itinerary-day-title">{item.title}</h4>
-                          <div className="itinerary-day-text">
-                            {item.content.split('\n').map((line, lIdx) => (
-                              <p key={lIdx} style={{ margin: '0 0 6px 0' }}>{line}</p>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+                  <div className="itinerary-section-top">
+                    <div>
+                      <h3 className="section-tab-heading">Lịch trình chi tiết & Hình ảnh thực tế từng ngày</h3>
+                      <p className="itinerary-sub-hint">Nhấp vào từng ngày để xem nhanh lộ trình, thời gian biểu và ảnh điểm tham quan:</p>
+                    </div>
+                  </div>
+
+                  {/* Horizontal Interactive Day Stepper */}
+                  <div className="itinerary-day-stepper mb-3">
+                    <button
+                      type="button"
+                      className={`day-stepper-btn ${selectedDayFilter === null ? 'active' : ''}`}
+                      onClick={() => setSelectedDayFilter(null)}
+                    >
+                      Tất cả các ngày ({itineraryDays.length} ngày)
+                    </button>
+                    {itineraryDays.map((dayItem) => (
+                      <button
+                        key={dayItem.day}
+                        type="button"
+                        className={`day-stepper-btn ${selectedDayFilter === dayItem.day ? 'active' : ''}`}
+                        onClick={() => setSelectedDayFilter(dayItem.day)}
+                      >
+                        Ngày {dayItem.day}: {dayItem.title?.substring(0, 20) || `Hành trình ngày ${dayItem.day}`}{dayItem.title?.length > 20 ? '...' : ''}
+                      </button>
                     ))}
+                  </div>
+
+                  <div className="itinerary-timeline">
+                    {itineraryDays
+                      .filter((item) => selectedDayFilter === null || selectedDayFilter === item.day)
+                      .map((item) => {
+                        const dayPhotos = getItineraryDayPhotos(tour, item.day, item.title);
+                        return (
+                          <div key={item.day} className="itinerary-day-card modern-day-card">
+                            <div className="itinerary-day-header">
+                              <div className="itinerary-day-badge">
+                                NGÀY {item.day}
+                              </div>
+                              <h4 className="itinerary-day-title">{item.title}</h4>
+                            </div>
+
+                            {/* Time Slot Milestones Badges */}
+                            <div className="day-time-slots">
+                              <span className="time-slot-pill slot-morning">
+                                <FaSun className="slot-icon" /> Sáng 08:00 · Đón đoàn & Khởi hành
+                              </span>
+                              <span className="time-slot-pill slot-noon">
+                                <FaUtensils className="slot-icon" /> Trưa 12:00 · Dùng bữa đặc sản
+                              </span>
+                              <span className="time-slot-pill slot-afternoon">
+                                <FaCamera className="slot-icon" /> Chiều 15:30 · Tham quan & Sống ảo
+                              </span>
+                            </div>
+
+                            {/* Reference Destination Photos for this Day */}
+                            {dayPhotos && dayPhotos.length > 0 && (
+                              <div className="day-ref-photos-section">
+                                <div className="ref-photos-label">
+                                  <FaCamera style={{ color: '#0194f3', marginRight: '6px' }} />
+                                  <span>Ảnh thực tế điểm đến Ngày {item.day}:</span>
+                                </div>
+                                <div className="day-photos-grid">
+                                  {dayPhotos.map((photo, pIdx) => (
+                                    <div
+                                      key={pIdx}
+                                      className="day-photo-item"
+                                      onClick={() => setDayLightboxPhoto(photo)}
+                                      title={photo.title}
+                                    >
+                                      <img src={photo.url} alt={photo.title} loading="lazy" />
+                                      <div className="day-photo-overlay">
+                                        <span className="day-photo-tag">{photo.tag || 'Điểm đến'}</span>
+                                        <span className="day-photo-title">{photo.title}</span>
+                                        <span className="day-photo-zoom-btn">
+                                          <FaExpand />
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="itinerary-day-body">
+                              <div className="itinerary-day-text">
+                                {item.content.split('\n').map((line, lIdx) => (
+                                  <p key={lIdx} style={{ margin: '0 0 8px 0' }}>{line}</p>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               </div>
@@ -730,6 +814,37 @@ const TourDetailPage = () => {
           </div>
         )}
       </div>
+
+      {/* Day Photo Detail Lightbox Modal */}
+      {dayLightboxPhoto && (
+        <div className="lightbox-backdrop animate-fade-in" onClick={() => setDayLightboxPhoto(null)}>
+          <div className="lightbox-container" onClick={(e) => e.stopPropagation()}>
+            <div className="lightbox-header">
+              <div className="lightbox-meta">
+                <span className="lightbox-title-text">{dayLightboxPhoto.title}</span>
+                <span className="lightbox-counter-pill">{dayLightboxPhoto.tag || 'Ảnh thực tế'}</span>
+              </div>
+              <button
+                type="button"
+                className="lightbox-close-btn"
+                onClick={() => setDayLightboxPhoto(null)}
+                aria-label="Đóng ảnh"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <div className="lightbox-stage">
+              <div className="lightbox-img-wrapper">
+                <img
+                  src={dayLightboxPhoto.url}
+                  alt={dayLightboxPhoto.title}
+                  className="lightbox-large-img"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

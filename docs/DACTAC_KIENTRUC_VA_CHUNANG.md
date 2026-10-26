@@ -540,6 +540,11 @@ Hệ thống đã triển khai đầy đủ 15 ca kiểm thử tự động vớ
 5. **Universal Scroll-To-Top & Phễu Chuyển Đổi Đăng Nhập Thông Minh**:
    - Tích hợp component `ScrollToTop` lắng nghe sự kiện đổi route và đổi ID tour, tự động đưa màn hình về đầu trang tức thì khi người dùng nhấp xem tour.
    - Khi khách vãng lai chưa đăng nhập bấm nút Lưu yêu thích (Wishlist) hoặc Đặt chỗ/Thêm giỏ hàng, hệ thống lập tức chuyển hướng đến trang `/login` kèm trạng thái lưu nhớ URL nguồn (`state: { from: location }`), giúp khách hàng đăng nhập xong tự động quay lại đúng tour đang thao tác mà không bị gián đoạn trải nghiệm.
+6. **Thư Viện Đa Phương Tiện Bento Mosaic Gallery Với Video 4K & Lightbox Toàn Màn Hình**:
+   - Thay thế toàn bộ ảnh bìa tĩnh đơn độc bằng cụm Bento Mosaic Gallery chuẩn Airbnb & Traveloka 2026: 1 khung chiếu tiêu điểm lớn (Hero) tích hợp bộ chuyển đổi Chế độ Ảnh HD / Video trải nghiệm 4K cùng 4 thẻ ảnh phụ dạng lưới 2x2.
+   - Hỗ trợ duyệt ảnh qua lại bằng nút điều hướng `<` và `>` mờ sương (glassmorphism), thanh Ribbon cuộn thumbnail phía dưới, hoặc phóng to chi tiết qua Fullscreen Lightbox Modal hỗ trợ phím mũi tên và phím Escape.
+7. **Lịch Trình Tương Tác Theo Ngày (Interactive Day Stepper) Kèm Ảnh Thực Tế Điểm Đến**:
+   - Bổ sung thanh chọn ngày tương tác (Day Stepper) cho phép xem riêng từng ngày hoặc toàn bộ hành trình; hiển thị cột mốc thời gian rõ ràng (Sáng 08:00, Trưa 12:00, Chiều 15:30); và nhúng trực tiếp lưới ảnh minh họa thực tế của từng ngày (Day Reference Photos Grid) giúp du khách có cái nhìn trực quan, chân thực về cảnh quan và dịch vụ lưu trú.
 
 ### 10.2. Hệ Sinh Thái AI Theo Ngữ Cảnh (Contextual AI Decision Touchpoints)
 Không dừng lại ở widget trò chuyện AI nổi thông thường, hệ thống tích hợp sâu trí tuệ nhân tạo vào các điểm chạm quyết định của du khách:
@@ -557,8 +562,8 @@ Không dừng lại ở widget trò chuyện AI nổi thông thường, hệ th�
 3. **Tìm kiếm Ngữ nghĩa Đa chiều (Vector Database RAG Search)**:
    - Cho phép tìm kiếm bằng văn phong tự nhiên đời thường (ví dụ: *"tìm tour đi biển 3 ngày cho gia đình có con nhỏ gần TP.HCM"*), chuyển đổi thành vector embedding để so khớp mức độ tương đồng ngữ nghĩa.
 
-### 10.3. Bảng Ánh Xạ Bộ Kiểm Thử Tự Động Toàn Diện (68/68 Test Cases Passed)
+### 10.3. Bảng Ánh Xạ Bộ Kiểm Thử Tự Động Toàn Diện (86/86 Test Cases Passed)
 Hệ thống được bảo vệ bởi bộ kiểm thử tự động toàn diện bao gồm:
 - **15 Test Cases TDD Backend (JUnit 5 + H2 DB)**: Kiểm thử toàn vẹn giao dịch, khóa chống bán lụt chỗ (`PESSIMISTIC_WRITE`), chiết khấu bậc thang B2B, kiểm soát Safe Delete và Rate Limiting.
-- **53 Test Cases E2E & Business Logic Frontend**: Kiểm thử bóc tách lịch trình JSON/Multiline, kiểm tra biến token CSS giao diện, kiểm thử phân quyền quản trị CRUD 18 trường tour, kiểm tra an toàn đăng nhập và chuyển hướng thông minh.
-- **Kết quả nghiệm thu**: **68 / 68 Kịch bản đạt 100% PASS** với thời gian chạy < 1.5 giây.
+- **71 Test Cases E2E & Business Logic Frontend**: Kiểm thử bóc tách lịch trình JSON/Multiline, kiểm tra biến token CSS giao diện, kiểm thử phân quyền quản trị CRUD 18 trường tour, kiểm tra an toàn đăng nhập và chuyển hướng thông minh, xác thực Bento Mosaic Gallery, Video 4K, Lightbox Modal và Day Stepper.
+- **Kết quả nghiệm thu**: **86 / 86 Kịch bản đạt 100% PASS** với thời gian chạy < 1.5 giây.
