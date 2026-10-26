@@ -231,4 +231,67 @@ public class TourService {
         tour.setStatus(request.status());
         tour.setRating(request.rating());
     }
+
+    @Transactional
+    public int syncRealTours(List<Map<String, Object>> toursData) {
+        if (toursData == null || toursData.isEmpty()) return 0;
+        int count = 0;
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+
+        for (Map<String, Object> map : toursData) {
+            try {
+                Integer tourId = map.get("tour_id") != null ? ((Number) map.get("tour_id")).intValue() : null;
+                if (tourId == null) continue;
+
+                Tour tour = tourRepository.findById(tourId).orElseGet(Tour::new);
+                tour.setName((String) map.get("tour_name"));
+                tour.setDescription((String) map.get("description"));
+
+                if (map.get("price") != null) {
+                    tour.setPrice(new java.math.BigDecimal(map.get("price").toString()));
+                }
+                if (map.get("original_price") != null) {
+                    tour.setOriginalPrice(new java.math.BigDecimal(map.get("original_price").toString()));
+                }
+                if (map.get("duration") != null) {
+                    tour.setDuration(((Number) map.get("duration")).intValue());
+                }
+                tour.setDepartureLocation((String) map.get("departure_location"));
+                tour.setImageUrl((String) map.get("image_url"));
+                if (map.get("available_seats") != null) {
+                    tour.setAvailableSeats(((Number) map.get("available_seats")).intValue());
+                }
+                tour.setStatus((String) map.getOrDefault("status", "ACTIVE"));
+                if (map.get("rating") != null) {
+                    tour.setRating(new java.math.BigDecimal(map.get("rating").toString()));
+                }
+                tour.setVehicle((String) map.get("vehicle"));
+                if (map.get("hotel_star") != null) {
+                    tour.setHotelStar(((Number) map.get("hotel_star")).intValue());
+                }
+                tour.setBadge((String) map.get("badge"));
+
+                Object hl = map.get("highlights");
+                tour.setHighlights(hl instanceof String ? (String) hl : mapper.writeValueAsString(hl));
+                Object it = map.get("itinerary");
+                tour.setItinerary(it instanceof String ? (String) it : mapper.writeValueAsString(it));
+                Object inc = map.get("inclusions");
+                tour.setInclusions(inc instanceof String ? (String) inc : mapper.writeValueAsString(inc));
+                Object exc = map.get("exclusions");
+                tour.setExclusions(exc instanceof String ? (String) exc : mapper.writeValueAsString(exc));
+
+                if (tour.getCreatedAt() == null) {
+                    tour.setCreatedAt(LocalDateTime.now());
+                }
+
+                Integer catId = map.get("category_id") != null ? ((Number) map.get("category_id")).intValue() : 1;
+                categoryRepository.findById(catId).ifPresent(tour::setCategory);
+
+                tourRepository.save(tour);
+                count++;
+            } catch (Exception ignored) {
+            }
+        }
+        return count;
+    }
 }

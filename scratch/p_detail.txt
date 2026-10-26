@@ -1,0 +1,55 @@
+P280 [Normal]: 
+P281 [Normal]: Bảng 3.9: Từ điển dữ liệu bảng ORDERS (Đơn đặt tour)
+P282 [Normal]: 
+P283 [Heading 2]: 3.6. Thiết Kế Giao Diện Người Dùng Trên PC / Laptop (Desktop UI/UX)
+P284 [Normal]: Giao diện được thiết kế tối ưu hóa cho màn hình máy tính cá nhân (1366x768 đến 1920x1080 Full HD), tận dụng tối đa không gian hiển thị rộng rãi để người dùng dễ dàng so sánh thông tin:
+P285 [Normal]: 
+P286 [Normal]: Hình 3.14: Giao diện Trang chủ Web Desktop PC/Laptop (Hero Banner & Bộ lọc)
+P287 [Normal]: 
+P288 [Normal]: Hình 3.15: Giao diện Chi tiết tour đa cột trên PC/Laptop (Timeline & Bảng giá)
+P289 [Normal]: 
+P290 [Normal]: Hình 3.16: Giao diện Bảng điều khiển quản trị trung tâm (Admin Dashboard)
+P291 [Normal]: 
+P292 [Normal]: Hình 3.17: Giao diện Quản trị Tour và Cảnh báo Xóa an toàn (Safe Delete)
+P293 [Normal]: 
+P294 [Normal]: Hình 3.18: Cửa sổ Trợ lý ảo Du lịch thông minh tích hợp Google Gemini AI
+P295 [Heading 1]: CHƯƠNG 4. CÀI ĐẶT VÀ HIỆN THỰC HỆ THỐNG (WWW JAVA TRÊN PC/LAPTOP)
+P296 [Heading 2]: 4.1. Hiện thực Module Khóa Bi Quan (@Lock PESSIMISTIC_WRITE) Chống Overselling
+P297 [Normal]: Để giải quyết triệt để bài toán tranh chấp tài nguyên khi nhiều người dùng cùng đặt một tour vào cùng một mili-giây, TourRepository áp dụng khóa bi quan cấp cơ sở dữ liệu (SELECT ... FOR UPDATE). Giao dịch đầu tiên sẽ giữ khóa ghi, buộc các giao dịch tiếp theo phải chờ cho đến khi hoàn tất kiểm tra chỗ và trừ số lượng nguyên tử:
+P298 [Normal]: 
+P299 [Normal]: Hình 4.1: Sơ đồ Luồng giao dịch Khóa bi quan (@Lock PESSIMISTIC_WRITE)
+P300 [Heading 2]: 4.2. Hiện thực Module Tối Ưu Truy Vấn N+1 & Bộ Nhớ Đệm Spring Cache
+P301 [Normal]: Trong CategoryService.findAll(), phương pháp duyệt vòng lặp cũ gây ra N câu truy vấn SELECT đếm số tour cho N danh mục. Nhóm đã tối ưu hóa bằng câu truy vấn gom nhóm duy nhất countToursGroupedByCategory() trong TourRepository và kích hoạt Spring Cache (@Cacheable, @CacheEvict), giúp giảm 90% số lượng truy vấn CSDL và tăng tốc độ tải trang lên gấp 5 lần.
+P302 [Heading 2]: 4.3. Hiện thực Thuật Toán Chiết Khấu Đoàn B2B Bậc Thang
+P303 [Normal]: Hệ thống tự động áp dụng chính sách chiết khấu bậc thang theo số lượng khách tham gia tour trong OrderService:
+P304 [Normal]: - Đoàn dưới 10 khách: Chiết khấu 0% (Giá gốc).
+P305 [Normal]: - Đoàn từ 10 đến 19 khách: Tự động chiết khấu 5% trên tổng giá trị tour.
+P306 [Normal]: - Đoàn từ 20 khách trở lên: Tự động chiết khấu 10% trên tổng giá trị tour.
+P307 [Heading 2]: 4.4. Hiện thực Cơ Chế Kiểm Soát Xóa An Toàn (Safe Delete)
+P308 [Normal]: Trong TourService.deleteTour() và CategoryService.deleteCategory(), hệ thống luôn thực thi bước kiểm tra ràng buộc khóa ngoại trước khi tiến hành xóa:
+P309 [Normal]: 1. Nếu Tour đã phát sinh ít nhất một đơn đặt hàng (existsByTourId): Hệ thống lập tức ném IllegalStateException("Không thể xóa tour đã phát sinh đơn đặt chỗ"), trả về mã HTTP 400 Bad Request và giữ nguyên dữ liệu.
+P310 [Normal]: 2. Nếu Danh mục vẫn còn tour trực thuộc: Hệ thống ngăn chặn thao tác xóa và thông báo cho Quản trị viên phải điều chuyển hoặc xóa tour trước.
+P311 [Heading 2]: 4.5. Hiện thực Trợ Lý Ảo Du Lịch AI Gemini & Bộ Lọc Rate Limiting
+P312 [Normal]: Tích hợp mô hình ngôn ngữ lớn Google Gemini 1.5 Flash thông qua RESTful API, cung cấp khả năng tư vấn lịch trình chi tiết và giải đáp thông minh mọi câu hỏi của du khách 24/7. Đồng thời, cấu hình RateLimitingFilter với Bucket4j giới hạn mỗi địa chỉ IP tối đa 10 request/phút để chống cạn kiệt tài nguyên.
+P313 [Heading 1]: CHƯƠNG 5. KIỂM THỬ VÀ ĐÁNH GIÁ HỆ THỐNG
+P314 [Heading 2]: 5.1. Chiến lược và Phương pháp kiểm thử hệ thống
+P315 [Normal]: Nhóm áp dụng phương pháp phát triển hướng kiểm thử (Test-Driven Development - TDD) kết hợp kiểm thử hộp đen (Black-box Testing) trên giao diện Web Desktop. Toàn bộ mã nguồn nghiệp vụ trọng yếu đều được bao phủ bởi các bài test tự động JUnit 5 và Mockito trên cơ sở dữ liệu in-memory H2 DB.
+P316 [Heading 2]: 5.2. Ma trận kết quả kiểm thử tự động TDD (15/15 PASS - 100%)
+P317 [Normal]: Bảng 5.1: Bảng tổng hợp kết quả 15 ca kiểm thử tự động TDD trên Backend Gradle
+P318 [Normal]: 
+P319 [Heading 2]: 5.3. Bảng kiểm thử chức năng giao diện người dùng
+P320 [Normal]: Bảng 5.2: Bảng kiểm thử chức năng giao diện người dùng Desktop
+P321 [Normal]: 
+P322 [Heading 2]: 5.4. Bảng tài khoản demo chuẩn bị cho buổi báo cáo và chấm điểm
+P323 [Normal]: Bảng 5.3: Danh sách tài khoản trải nghiệm thực tế (Mật khẩu đồng nhất: 123456)
+P324 [Normal]: 
+P325 [Heading 1]: CHƯƠNG 6. KẾ HOẠCH KHỞI NGHIỆP VÀ THƯƠNG MẠI HÓA
+P326 [Heading 2]: 6.1. Bối cảnh thị trường và Cơ hội khởi nghiệp
+P327 [Normal]: Thị trường lữ hành trực tuyến tại Việt Nam đang tăng trưởng với tốc độ trên 18%/năm. Sự kết hợp giữa nền tảng Web Desktop hiệu năng cao và Trợ lý ảo AI giúp giảm thiểu chi phí tư vấn viên thủ công tới 40%, đồng thời mở rộng tệp khách hàng doanh nghiệp đặt đoàn đông thông qua cơ chế chiết khấu bậc thang tự động.
+P328 [Heading 2]: 6.2. Mô hình kinh doanh và Dòng doanh thu
+P329 [Normal]: Dự án có khả năng thương mại hóa thông qua 3 nguồn doanh thu chính: (1) Phí hoa hồng trên mỗi đơn đặt tour thành công từ các đối tác lữ hành (chiết khấu 8-12%); (2) Phí dịch vụ đăng ký quảng cáo vị trí nổi bật trên Trang chủ dành cho các tour độc quyền; (3) Phí dịch vụ giải pháp quản lý bán tour cho các đại lý du lịch vừa và nhỏ (B2B SaaS).
+P330 [Heading 1]: CHƯƠNG 7. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+P331 [Heading 2]: 7.1. Kết quả đạt được
+P332 [Normal]: Dự án Đề tài số 49 "Website giới thiệu và đăng ký tour du lịch trực tuyến (Du Lịch Việt)" đã hoàn thành 100% mục tiêu đặt ra theo đề cương học phần Lập trình WWW (Java) của Khoa Công nghệ Thông tin - Trường Đại học Công nghiệp TP.HCM (IUH). Toàn bộ hệ thống Backend Spring Boot 3.5.6 và Frontend React 18 SPA vận hành ổn định, đồng bộ dữ liệu chuẩn ACID trên MariaDB, vượt qua 15/15 bài kiểm thử tự động TDD và tích hợp thành công Trợ lý ảo AI Google Gemini.
+P333 [Heading 2]: 7.2. Hướng phát triển trong tương lai
+P334 [Normal]: Trong các giai đoạn tiếp theo, nhóm định hướng mở rộng hệ thống với: (1) Tích hợp cổng thanh toán trực tuyến thực tế (VNPay, MoMo QR); (2) Bổ sung thông báo đẩy thời gian thực qua WebSocket khi có cập nhật số chỗ trống; (3) Nâng cấp mô hình gợi ý kết hợp Content-Based và Collaborative Filtering trên tập dữ liệu người dùng quy mô lớn.

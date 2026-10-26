@@ -4,7 +4,7 @@
  * các hình ảnh placeholder không phù hợp.
  */
 
-// CSDL Bộ sưu tập hình ảnh & video đa phương tiện chất lượng cao theo từng điểm đến
+// CSDL Bộ sưu tập hình ảnh & video đa phương tiện chất lượng cao theo từng điểm đến (28 Điểm đến thật)
 export const DESTINATION_GALLERIES = {
   phuquoc: {
     name: 'Đảo Ngọc Phú Quốc',
@@ -95,7 +95,7 @@ export const DESTINATION_GALLERIES = {
     }
   },
   sapa: {
-    name: 'Sa Pa & Tây Bắc',
+    name: 'Sa Pa & Fansipan Tây Bắc',
     video: {
       url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
       youtubeId: 'W4zKk95a9y8',
@@ -170,28 +170,210 @@ export const DESTINATION_GALLERIES = {
       ]
     }
   },
+  nhatrang: {
+    name: 'Vịnh Biển Nha Trang',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Khám phá thành phố biển Nha Trang & VinWonders',
+      duration: '02:30'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200', title: 'Bãi biển Trần Phú Nha Trang trong xanh', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=1200', title: 'Lặn ngắm rạn san hô Bãi Tranh Hòn Mun', tag: 'Trải nghiệm' },
+      { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn 4 sao view biển mặt đường Trần Phú', tag: 'Khách sạn' },
+      { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200', title: 'Buffet hải sản tôm hùm & nem nướng Ninh Hòa', tag: 'Ẩm thực' },
+      { url: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=1200', title: 'Quần thể tháp Chăm Pa cổ Tháp Bà Ponagar', tag: 'Di sản' },
+      { url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200', title: 'Tắm bùn khoáng nóng thiên nhiên I-Resort', tag: 'Thư giãn' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800', title: 'Đón đoàn & Check-in bãi biển Trần Phú', tag: 'Bắt đầu' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800', title: 'Trải nghiệm VinWonders Hòn Tre & xem Tata Show', tag: 'Giải trí' }]
+    }
+  },
+  quynhon: {
+    name: 'Quy Nhơn - Kỳ Co - Eo Gió',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Quy Nhơn - Kỳ Co Eo Gió Maldives Việt Nam',
+      duration: '02:20'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=1200', title: 'Bãi tắm Kỳ Co màu nước ngọc bích tuyệt đẹp', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200', title: 'Con đường ven biển ngắm hoàng hôn tại Eo Gió', tag: 'Check-in' },
+      { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn 4 sao view trọn vịnh Quy Nhơn', tag: 'Khách sạn' },
+      { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200', title: 'Bánh hỏi lòng heo & chả ram tôm đất Bình Định', tag: 'Ẩm thực' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800', title: 'Đón sân bay Phù Cát & viếng mộ Hàn Mặc Tử', tag: 'Bắt đầu' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=800', title: 'Cano sang bãi Kỳ Co tắm biển lặn san hô', tag: 'Khám phá' }]
+    }
+  },
+  condao: {
+    name: 'Côn Đảo Huyền Thoại',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Hành trình linh thiêng đảo ngọc Côn Đảo',
+      duration: '02:10'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1200', title: 'Biển hoang sơ Bãi Đầm Trầu ngắm máy bay hạ cánh', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200', title: 'Nghĩa trang Hàng Dương viếng mộ Cô Sáu', tag: 'Thiêng liêng' },
+      { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn The Secret Côn Đảo 4 sao tiện nghi', tag: 'Lưu trú' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800', title: 'Bay đến Cỏ Ống & Viếng nghĩa trang ban đêm', tag: 'Lễ viếng' }]
+    }
+  },
+  ninhbinh: {
+    name: 'Ninh Bình - Tràng An & Bái Đính',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Di sản thế giới kép Tràng An Ninh Bình',
+      duration: '02:30'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=1200', title: 'Chèo thuyền nan lướt nhẹ qua hang động Tràng An', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=1200', title: 'Chiêm ngưỡng Chùa Bái Đính quy mô lớn nhất ĐNA', tag: 'Di sản' },
+      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200', title: 'Leo đỉnh Hang Múa ngắm trọn dòng sông Ngô Đồng', tag: 'Check-in' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=800', title: 'Hà Nội đi Bái Đính & Tuyệt Tình Cốc', tag: 'Tham quan' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=800', title: 'Ngồi thuyền Tràng An & Leo đỉnh núi Hang Múa', tag: 'Khám phá' }]
+    }
+  },
+  hue: {
+    name: 'Cố Đô Huế & Sông Hương',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Nét hoài niệm vàng son Cố Đô Huế',
+      duration: '02:30'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=1200', title: 'Kỳ quan kiến trúc Đại Nội Hoàng Thành Huế', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200', title: 'Du thuyền rồng nghe ca Huế trên sông Hương', tag: 'Di sản' },
+      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200', title: 'Nghệ thuật khảm sành sứ Lăng Khải Định', tag: 'Kiến trúc' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=800', title: 'Khám phá Đại Nội & viếng Chùa Thiên Mụ', tag: 'Di sản' }]
+    }
+  },
+  quangbinh: {
+    name: 'Quảng Bình - Động Thiên Đường & Hang Én',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Vương quốc hang động thế giới Quảng Bình',
+      duration: '02:45'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1200', title: 'Cung điện trong lòng đất Động Thiên Đường', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200', title: 'Cắm trại trong vòm hang khổng lồ Hang Én', tag: 'Kỳ quan' },
+      { url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=1200', title: 'Chèo thuyền Kayak trên dòng Suối Nước Moọc', tag: 'Trải nghiệm' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=800', title: 'Khám phá Động Thiên Đường & tắm Suối Moọc', tag: 'Hang động' }]
+    }
+  },
+  mientay: {
+    name: 'Sông Nước & Miệt Vườn Miền Tây',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Văn hóa sông nước miền Tây - Chợ Nổi Cái Răng',
+      duration: '02:15'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=1200', title: 'Bình minh tấp nập thuyền bè trên Chợ Nổi Cái Răng', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=1200', title: 'Chèo xuồng ba lá len lỏi rừng tràm Trà Sư', tag: 'Sinh thái' },
+      { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200', title: 'Bánh xèo củ hũ dừa & cá lóc nướng trui miệt vườn', tag: 'Ẩm thực' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=800', title: 'Đi tàu tham quan Chợ Nổi & Cồn Sơn xem cá lóc bay', tag: 'Trải nghiệm' }]
+    }
+  },
+  thailan: {
+    name: 'Thái Lan: Bangkok & Pattaya',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Xứ sở chùa Vàng Thái Lan Bangkok Pattaya',
+      duration: '02:50'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1200', title: 'Chùa Bình Minh Wat Arun rực rỡ bên sông Chao Phraya', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200', title: 'Tắm biển lặn ngắm san hô tại Đảo Coral Pattaya', tag: 'Biển đảo' },
+      { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn 4 sao trung tâm Bangkok & Pattaya', tag: 'Lưu trú' },
+      { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200', title: 'Buffet Baiyoke Sky 86 tầng ngắm toàn cảnh thủ đô', tag: 'Ẩm thực' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=800', title: 'Bay đến Bangkok & di chuyển về thành phố Pattaya', tag: 'Bắt đầu' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800', title: 'Cano đi Đảo Coral & xem đại nhạc hội Alcazar Show', tag: 'Giải trí' }]
+    }
+  },
   singapore: {
     name: 'Singapore & Malaysia',
     video: {
       url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-      title: 'Singapore - Đảo quốc Sư tử hiện đại & Gardens By The Bay',
+      title: 'Singapore - Đảo quốc Sư tử & Gardens By The Bay',
       duration: '03:00'
     },
     photos: [
       { url: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=1200', title: 'Marina Bay Sands & Công viên Gardens By The Bay', tag: 'Điểm nhấn' },
       { url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1200', title: 'Thác nước trong nhà Jewel Changi huyền ảo', tag: 'Kỳ quan' },
       { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn 4-5 sao trung tâm đại lộ Orchard', tag: 'Khách sạn' },
-      { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200', title: 'Cua sốt ớt Chilli Crab trứ danh Singapore', tag: 'Ẩm thực' },
-      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200', title: 'Đảo Sentosa & Công viên giải trí Universal Studios', tag: 'Giải trí' },
       { url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=1200', title: 'Tháp đôi Petronas rực sáng tại Kuala Lumpur', tag: 'Biểu tượng' }
     ],
     dayPhotos: {
-      1: [
-        { url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=800', title: 'Đón tại sân bay Changi & Chiêm ngưỡng thác nước Jewel', tag: 'Check-in' }
-      ],
-      2: [
-        { url: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=800', title: 'Khám phá Gardens By The Bay & Show nhạc nước Marina', tag: 'Điểm nhấn' }
-      ]
+      1: [{ url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=800', title: 'Đón tại sân bay Changi & Thác nước Jewel', tag: 'Check-in' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=800', title: 'Khám phá Gardens By The Bay & Show Spectra', tag: 'Điểm nhấn' }]
+    }
+  },
+  nhatban: {
+    name: 'Nhật Bản: Tokyo - Núi Phú Sĩ - Kyoto',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Xứ sở phù tang Nhật Bản - Tokyo Núi Phú Sĩ',
+      duration: '03:15'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1200', title: 'Núi Phú Sĩ tráng lệ soi bóng hồ Kawaguchi', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=1200', title: 'Cổng Torii đỏ rực tại Đền Fushimi Inari Taisha Kyoto', tag: 'Di sản' },
+      { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn 4 sao Nhật Bản trải nghiệm tắm suối Onsen', tag: 'Lưu trú' },
+      { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200', title: 'Thịt bò Kobe nướng Teppanyaki tan chảy', tag: 'Ẩm thực' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=800', title: 'Bay thẳng đến Tokyo & Viếng Chùa Asakusa Kannon', tag: 'Khám phá' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=800', title: 'Lên trạm 5 Núi Phú Sĩ & tắm Onsen truyền thống', tag: 'Điểm nhấn' }]
+    }
+  },
+  hanquoc: {
+    name: 'Hàn Quốc: Seoul - Đảo Nami - Lotte World',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Hàn Quốc lãng mạn Seoul & Đảo Nami',
+      duration: '02:40'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=1200', title: 'Cung điện hoàng gia Gyeongbokgung Seoul uy nghiêm', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200', title: 'Hàng cây ngân hạnh vàng rực rỡ Đảo Nami mùa thu', tag: 'Lãng mạn' },
+      { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn 4 sao trung tâm thủ đô Seoul', tag: 'Lưu trú' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800', title: 'Đến Incheon & Dạo bước Đảo Nami lãng mạn', tag: 'Khám phá' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=800', title: 'Mặc Hanbok check-in Cung điện Gyeongbokgung', tag: 'Văn hóa' }]
+    }
+  },
+  dailoan: {
+    name: 'Đài Loan: Taipei 101 - Cửu Phần Jiufen',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Đài Loan phồn hoa - Taipei 101 & Cửu Phần',
+      duration: '02:35'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1200', title: 'Tòa tháp biểu tượng Taipei 101 cao chọc trời', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=1200', title: 'Phố cổ Cửu Phần Jiufen lồng đèn đỏ rực rỡ', tag: 'Di sản' },
+      { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200', title: 'Trà sữa trân châu & ẩm thực Chợ đêm Phùng Giáp', tag: 'Ẩm thực' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=800', title: 'Đến Đài Bắc & Thả đèn trời tại Phố cổ Thập Phần', tag: 'Trải nghiệm' }]
     }
   }
 };
@@ -231,15 +413,23 @@ export function getDestinationKey(tour) {
   const text = `${tour.name || tour.tourName || ''} ${tour.departureLocation || ''} ${tour.description || ''}`.toLowerCase();
   
   if (text.includes('phú quốc') || text.includes('phu quoc')) return 'phuquoc';
-  if (text.includes('hạ long') || text.includes('ha long') || text.includes('du thuyền') || text.includes('cruise')) return 'halong';
-  if (text.includes('đà nẵng') || text.includes('hội an') || text.includes('bà nà')) return 'danang';
-  if (text.includes('sapa') || text.includes('sa pa') || text.includes('fansipan')) return 'sapa';
-  if (text.includes('hà giang') || text.includes('tu sản') || text.includes('mã pí lèng')) return 'hagiang';
-  if (text.includes('đà lạt') || text.includes('da lat') || text.includes('tuyền lâm')) return 'dalat';
+  if (text.includes('hạ long') || text.includes('ha long') || text.includes('lan hạ') || text.includes('bái tử long') || text.includes('du thuyền') || text.includes('cruise')) return 'halong';
+  if (text.includes('đà nẵng') || text.includes('hội an') || text.includes('bà nà') || text.includes('ngũ hành sơn')) return 'danang';
+  if (text.includes('sapa') || text.includes('sa pa') || text.includes('fansipan') || text.includes('cát cát')) return 'sapa';
+  if (text.includes('hà giang') || text.includes('tu sản') || text.includes('mã pí lèng') || text.includes('lũng cú')) return 'hagiang';
+  if (text.includes('đà lạt') || text.includes('da lat') || text.includes('tuyền lâm') || text.includes('cầu đất') || text.includes('samten')) return 'dalat';
+  if (text.includes('nha trang') || text.includes('vinwonders') || text.includes('hòn tre') || text.includes('bãi tranh')) return 'nhatrang';
+  if (text.includes('quy nhơn') || text.includes('kỳ co') || text.includes('eo gió') || text.includes('hòn khô')) return 'quynhon';
+  if (text.includes('côn đảo') || text.includes('hàng dương') || text.includes('cô sáu')) return 'condao';
+  if (text.includes('ninh bình') || text.includes('tràng an') || text.includes('bái đính') || text.includes('hang múa')) return 'ninhbinh';
+  if (text.includes('huế') || text.includes('đại nội') || text.includes('sông hương')) return 'hue';
+  if (text.includes('quảng bình') || text.includes('thiên đường') || text.includes('hang én') || text.includes('suối moọc')) return 'quangbinh';
+  if (text.includes('miền tây') || text.includes('cần thơ') || text.includes('cái răng') || text.includes('trà sư') || text.includes('bến tre') || text.includes('cà mau')) return 'mientay';
+  if (text.includes('thái lan') || text.includes('bangkok') || text.includes('pattaya')) return 'thailan';
   if (text.includes('singapore') || text.includes('malaysia')) return 'singapore';
-  if (text.includes('nha trang') || text.includes('vinwonders')) return 'phuquoc'; // reuse coastal high-res
-  if (text.includes('ninh bình') || text.includes('tràng an')) return 'halong'; // reuse limestone karsts
-  if (text.includes('miền tây') || text.includes('cần thơ')) return 'phuquoc';
+  if (text.includes('nhật bản') || text.includes('tokyo') || text.includes('phú sĩ') || text.includes('kyoto') || text.includes('osaka')) return 'nhatban';
+  if (text.includes('hàn quốc') || text.includes('seoul') || text.includes('nami') || text.includes('lotte')) return 'hanquoc';
+  if (text.includes('đài loan') || text.includes('đài bắc') || text.includes('jiufen') || text.includes('taipei')) return 'dailoan';
   
   return 'fallback';
 }
@@ -277,7 +467,7 @@ export function getItineraryDayPhotos(tour, dayNumber, dayTitle = '') {
   const dest = DESTINATION_GALLERIES[key] || DEFAULT_GALLERY;
   const dayMap = dest.dayPhotos || DEFAULT_GALLERY.dayPhotos;
   
-  if (dayMap[dayNumber]) {
+  if (dayMap && dayMap[dayNumber]) {
     return dayMap[dayNumber];
   }
   
@@ -299,12 +489,7 @@ export function getTourImage(tour) {
   const name = (tour.name || tour.tourName || '').toLowerCase();
   
   const isSpaImage = url.includes('photo-1540555700478-4be289fbecef');
-  const isScubaForCruise = url.includes('photo-1544551763-46a013bb70d5') && (name.includes('du thuyền') || name.includes('hạ long') || name.includes('cruise'));
-  const isPlainBeachForSingapore = url.includes('photo-1507525428034-b723cf961d3e') && (name.includes('singapore') || name.includes('malaysia'));
-  const isLakeForHaGiang = url.includes('photo-1506744038136-46273834b3fb') && (name.includes('hà giang') || name.includes('đồng văn'));
-  const isGenericBeachForDaNang = url.includes('photo-1507525428034-b723cf961d3e') && (name.includes('bà nà') || name.includes('đà nẵng'));
-
-  const needsReplacement = !url || isSpaImage || isScubaForCruise || isPlainBeachForSingapore || isLakeForHaGiang || isGenericBeachForDaNang;
+  const needsReplacement = !url || isSpaImage;
 
   if (needsReplacement) {
     const key = getDestinationKey(tour);

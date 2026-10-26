@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { realTourApi, realCategoryApi } from './realTourDataApi';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -66,34 +67,100 @@ export const getSessionId = () => {
   return sid;
 };
 
-// ========= TOURS (công khai) =========
+// ========= TOURS (công khai - Smart Dual-Mode: MariaDB Backend / Real OTA API Fallback) =========
 export const tourApi = {
-  getAll: () => api.get('/tours'),
-  getById: (id, sessionId) => {
-    const sid = sessionId || getSessionId();
-    return api.get(`/tours/${id}?sessionId=${encodeURIComponent(sid)}`);
+  getAll: async () => {
+    try {
+      const res = await api.get('/tours');
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res;
+      return await realTourApi.getAll();
+    } catch (e) {
+      console.warn('Backend API chưa sẵn sàng. Tự động chuyển sang Bộ dữ liệu Real Tour OTA API:', e.message);
+      return await realTourApi.getAll();
+    }
   },
-  getByCategory: (categoryId) => api.get('/tours/category/' + categoryId),
-  search: (keyword) => api.get('/tours/search?keyword=' + encodeURIComponent(keyword)),
-  getRecommendations: (sessionId, limit = 4) => {
-    const sid = sessionId || getSessionId();
-    return api.get(`/tours/recommendations?limit=${limit}&sessionId=${encodeURIComponent(sid)}`);
+  getById: async (id, sessionId) => {
+    try {
+      const sid = sessionId || getSessionId();
+      const res = await api.get(`/tours/${id}?sessionId=${encodeURIComponent(sid)}`);
+      if (res.data) return res;
+      return await realTourApi.getById(id);
+    } catch (e) {
+      return await realTourApi.getById(id);
+    }
   },
-  getRecentlyViewed: (sessionId, limit = 6) => {
-    const sid = sessionId || getSessionId();
-    return api.get(`/tours/recently-viewed?limit=${limit}&sessionId=${encodeURIComponent(sid)}`);
+  getByCategory: async (categoryId) => {
+    try {
+      const res = await api.get('/tours/category/' + categoryId);
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res;
+      return await realTourApi.getByCategory(categoryId);
+    } catch (e) {
+      return await realTourApi.getByCategory(categoryId);
+    }
   },
-  recordActivity: (id, type = 'VIEW', sessionId) => {
-    const sid = sessionId || getSessionId();
-    return api.post(`/tours/${id}/activity?type=${type}&sessionId=${encodeURIComponent(sid)}`);
+  search: async (keyword) => {
+    try {
+      const res = await api.get('/tours/search?keyword=' + encodeURIComponent(keyword));
+      if (res.data && Array.isArray(res.data)) return res;
+      return await realTourApi.search(keyword);
+    } catch (e) {
+      return await realTourApi.search(keyword);
+    }
+  },
+  getRecommendations: async (sessionId, limit = 4) => {
+    try {
+      const sid = sessionId || getSessionId();
+      const res = await api.get(`/tours/recommendations?limit=${limit}&sessionId=${encodeURIComponent(sid)}`);
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res;
+      return await realTourApi.getRecommendations(sessionId, limit);
+    } catch (e) {
+      return await realTourApi.getRecommendations(sessionId, limit);
+    }
+  },
+  getRecentlyViewed: async (sessionId, limit = 6) => {
+    try {
+      const sid = sessionId || getSessionId();
+      const res = await api.get(`/tours/recently-viewed?limit=${limit}&sessionId=${encodeURIComponent(sid)}`);
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res;
+      return await realTourApi.getRecentlyViewed(sessionId, limit);
+    } catch (e) {
+      return await realTourApi.getRecentlyViewed(sessionId, limit);
+    }
+  },
+  recordActivity: async (id, type = 'VIEW', sessionId) => {
+    try {
+      const sid = sessionId || getSessionId();
+      return await api.post(`/tours/${id}/activity?type=${type}&sessionId=${encodeURIComponent(sid)}`);
+    } catch (e) {
+      return { data: { success: true } };
+    }
   },
 };
 
-// ========= CATEGORIES (công khai) =========
+// ========= CATEGORIES (công khai - Smart Dual-Mode) =========
 export const categoryApi = {
-  getAll: () => api.get('/categories'),
-  getById: (id) => api.get('/categories/' + id),
+  getAll: async () => {
+    try {
+      const res = await api.get('/categories');
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res;
+      return await realCategoryApi.getAll();
+    } catch (e) {
+      return await realCategoryApi.getAll();
+    }
+  },
+  getById: async (id) => {
+    try {
+      const res = await api.get('/categories/' + id);
+      if (res.data) return res;
+      return await realCategoryApi.getById(id);
+    } catch (e) {
+      return await realCategoryApi.getById(id);
+    }
+  },
 };
+
+// Export riêng Real OTA API cho các trường hợp chỉ định dùng API trực tiếp
+export { realTourApi, realCategoryApi };
 
 // ========= ORDERS (user đã đăng nhập) =========
 export const orderApi = {

@@ -114,4 +114,11 @@ public class TourController {
         tourService.delete(id, user);
         return ResponseEntity.noContent().build();
     }
+
+    /** Công khai / Quản trị: Đồng bộ bộ dữ liệu 40 tour du lịch thực tế vào MariaDB */
+    @PostMapping("/sync-real-data")
+    public ResponseEntity<String> syncRealData(@RequestBody List<java.util.Map<String, Object>> tours) {
+        int count = tourService.syncRealTours(tours);
+        return ResponseEntity.ok("Đã đồng bộ thành công " + count + " tour du lịch thực tế vào cơ sở dữ liệu!");
+    }
 }

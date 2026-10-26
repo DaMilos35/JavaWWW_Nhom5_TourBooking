@@ -1,0 +1,59 @@
+Line 59: 3. Enhancing user booking conversion via personalized recommendation scoring based on user activity matrices and automated AI consultation via Google Gemini 1.5 Flash.
+Line 96: 3. Đánh giá về cấu trúc báo cáo, giải thuật và độ hoàn thiện mã nguồn Java:
+Line 98: 4. Điểm đánh giá (bằng số): ............. (bằng chữ: ....................................................................)
+Line 113: 3. Điểm đánh giá (bằng số): ............. (bằng chữ: ....................................................................)
+Line 128: CHƯƠNG 1. GIỚI THIỆU TỔNG QUAN	1
+Line 132: CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ LIÊN QUAN	3
+Line 137: CHƯƠNG 3. PHÂN TÍCH YÊU CẦU VÀ THIẾT KẾ HỆ THỐNG	6
+Line 138: 3.1. Khảo sát hiện trạng và Thu thập yêu cầu người dùng PC/Laptop	6
+Line 139: 3.2. Sơ đồ Ca Sử Dụng Tổng Quát (Use Case Diagram)	7
+Line 140: 3.3. Đặc Tả Chi Tiết Các Ca Sử Dụng Trọng Tâm	8
+Line 141: 3.3.1. Đặc tả UC01: Tra cứu và Tìm kiếm Tour Đa Tiêu Chí	8
+Line 142: 3.3.2. Đặc tả UC02: Đặt Tour Trực Tuyến & Chiết Khấu Đoàn B2B	10
+Line 143: 3.3.3. Đặc tả UC03: Quản Trị Viên Xóa An Toàn (Safe Delete Validation)	12
+Line 144: 3.3.4. Đặc tả UC04: Gợi Ý Tour Cá Nhân Hóa Dựa Trên Lịch Sử Hoạt Động	14
+Line 145: 3.3.5. Đặc tả UC05: Tư Vấn Lịch Trình Qua Trợ Lý Ảo AI Google Gemini	16
+Line 146: 3.4. Kiến Trúc Hệ Thống và Cơ Chế Bảo Mật Đa Tầng	17
+Line 147: 3.5. Thiết Kế Cơ Sở Dữ Liệu (Class Diagram & ERD 3NF)	18
+Line 148: 3.6. Thiết Kế Giao Diện Người Dùng Trên PC / Laptop (Desktop UI/UX)	22
+Line 149: CHƯƠNG 4. CÀI ĐẶT VÀ HIỆN THỰC HỆ THỐNG (WWW JAVA TRÊN PC/LAPTOP)	26
+Line 150: 4.1. Hiện thực Module Khóa Bi Quan (@Lock PESSIMISTIC_WRITE) Chống Overselling	26
+Line 151: 4.2. Hiện thực Module Tối Ưu Truy Vấn N+1 & Bộ Nhớ Đệm Spring Cache	27
+Line 152: 4.3. Hiện thực Thuật Toán Chiết Khấu Đoàn B2B Bậc Thang	28
+Line 153: 4.4. Hiện thực Cơ Chế Kiểm Soát Xóa An Toàn (Safe Delete)	29
+Line 154: 4.5. Hiện thực Trợ Lý Ảo Du Lịch AI Gemini & Bộ Lọc Rate Limiting	30
+Line 155: CHƯƠNG 5. KIỂM THỬ VÀ ĐÁNH GIÁ HỆ THỐNG	31
+Line 156: 5.1. Chiến lược và Phương pháp kiểm thử hệ thống	31
+Line 157: 5.2. Ma trận kết quả kiểm thử tự động TDD (15/15 PASS - 100%)	31
+Line 158: 5.3. Bảng kiểm thử chức năng giao diện người dùng	33
+Line 159: 5.4. Bảng tài khoản demo chuẩn bị cho buổi báo cáo và chấm điểm	34
+Line 160: CHƯƠNG 6. KẾ HOẠCH KHỞI NGHIỆP VÀ THƯƠNG MẠI HÓA	35
+Line 163: CHƯƠNG 7. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN	37
+Line 206: CHƯƠNG 1. GIỚI THIỆU TỔNG QUAN
+Line 214: 3. Cửa sổ Trợ lý ảo AI trực quan: Khung tương tác AI Chat thông minh cố định góc màn hình, tư vấn lịch trình và giải đáp mọi thắc mắc của khách hàng dựa trên mô hình ngôn ngữ lớn Google Gemini 1.5.
+Line 217: CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ LIÊN QUAN
+Line 230: CHƯƠNG 3. PHÂN TÍCH YÊU CẦU VÀ THIẾT KẾ HỆ THỐNG
+Line 231: 3.1. Khảo sát hiện trạng và Thu thập yêu cầu người dùng PC/Laptop
+Line 233: 3.2. Sơ đồ Ca Sử Dụng Tổng Quát (Use Case Diagram)
+Line 238: 3.3. Đặc Tả Chi Tiết Các Ca Sử Dụng Trọng Tâm
+Line 239: 3.3.1. Đặc tả UC01: Tra cứu và Tìm kiếm Tour Đa Tiêu Chí
+Line 245: 3.3.2. Đặc tả UC02: Đặt Tour Trực Tuyến & Áp Dụng Chiết Khấu Đoàn B2B
+Line 251: 3.3.3. Đặc tả UC03: Quản Trị Viên Xóa An Toàn (Safe Delete Validation)
+Line 257: 3.3.4. Đặc tả UC04: Gợi Ý Tour Cá Nhân Hóa Dựa Trên Lịch Sử Hoạt Động
+Line 263: 3.3.5. Đặc tả UC05: Tư Vấn Lịch Trình Qua Trợ Lý Ảo AI Google Gemini
+Line 267: 3.4. Kiến Trúc Hệ Thống và Cơ Chế Bảo Mật Đa Tầng
+Line 269: 3.5. Thiết Kế Cơ Sở Dữ Liệu (Class Diagram & ERD 3NF)
+Line 283: 3.6. Thiết Kế Giao Diện Người Dùng Trên PC / Laptop (Desktop UI/UX)
+Line 295: CHƯƠNG 4. CÀI ĐẶT VÀ HIỆN THỰC HỆ THỐNG (WWW JAVA TRÊN PC/LAPTOP)
+Line 296: 4.1. Hiện thực Module Khóa Bi Quan (@Lock PESSIMISTIC_WRITE) Chống Overselling
+Line 300: 4.2. Hiện thực Module Tối Ưu Truy Vấn N+1 & Bộ Nhớ Đệm Spring Cache
+Line 302: 4.3. Hiện thực Thuật Toán Chiết Khấu Đoàn B2B Bậc Thang
+Line 307: 4.4. Hiện thực Cơ Chế Kiểm Soát Xóa An Toàn (Safe Delete)
+Line 311: 4.5. Hiện thực Trợ Lý Ảo Du Lịch AI Gemini & Bộ Lọc Rate Limiting
+Line 313: CHƯƠNG 5. KIỂM THỬ VÀ ĐÁNH GIÁ HỆ THỐNG
+Line 314: 5.1. Chiến lược và Phương pháp kiểm thử hệ thống
+Line 316: 5.2. Ma trận kết quả kiểm thử tự động TDD (15/15 PASS - 100%)
+Line 319: 5.3. Bảng kiểm thử chức năng giao diện người dùng
+Line 322: 5.4. Bảng tài khoản demo chuẩn bị cho buổi báo cáo và chấm điểm
+Line 325: CHƯƠNG 6. KẾ HOẠCH KHỞI NGHIỆP VÀ THƯƠNG MẠI HÓA
+Line 330: CHƯƠNG 7. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
