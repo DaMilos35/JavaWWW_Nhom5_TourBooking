@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaSearch, FaFilter, FaRedo, FaTimes } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import { TourGridSkeleton } from '../components/common/TourCardSkeleton';
 import './TourListPage.css';
 
 const TourListPage = () => {
@@ -256,7 +256,7 @@ const TourListPage = () => {
             )}
 
             {loading ? (
-              <LoadingSpinner />
+              <TourGridSkeleton count={6} />
             ) : loadError ? null : displayedTours.length > 0 ? (
               <div className="tours-grid-list">
                 {displayedTours.map(tour => (

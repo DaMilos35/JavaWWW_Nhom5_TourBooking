@@ -463,7 +463,7 @@ const MyOrdersPage = () => {
                               {order.cancellationReason && <div><strong>Lý do hủy:</strong> {order.cancellationReason}</div>}
                               <div style={{ marginTop: '4px', color: order.paymentStatus === 'REFUNDED' ? '#15803d' : '#b45309', fontWeight: 600 }}>
                                 {order.paymentStatus === 'REFUNDED' 
-                                  ? '✅ Ban Quản Trị đã hoàn tất chuyển tiền hoàn lại cho bạn.' 
+                                  ? 'Ban Quản Trị đã hoàn tất chuyển tiền hoàn lại cho bạn.' 
                                   : '⏳ Đang chờ Ban Quản Trị chuyển khoản hoàn tiền vào tài khoản trên.'}
                               </div>
                             </div>
@@ -733,7 +733,7 @@ const MyOrdersPage = () => {
 
                   {/* Tóm tắt 5 chính sách quy định */}
                   <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.78rem', color: '#94a3b8', lineHeight: 1.45 }}>
-                    <div style={{ fontWeight: 700, color: '#e2e8f0', marginBottom: '4px' }}>📋 Chính sách hủy đổi tour Du Lịch Việt:</div>
+                    <div style={{ fontWeight: 700, color: '#e2e8f0', marginBottom: '4px' }}><FaFileAlt style={{ color: '#0194F3', marginRight: '6px' }} /> Chính sách hủy đổi tour Du Lịch Việt:</div>
                     <div>• <strong>Trước 7 ngày:</strong> Hoàn 100% hoặc đổi hành trình miễn phí.</div>
                     <div>• <strong>Từ 3 - 6 ngày:</strong> Phí đổi hủy 30% giá tour.</div>
                     <div>• <strong>Trong vòng 48h:</strong> Phí đổi hủy 70% giá tour.</div>
@@ -877,7 +877,7 @@ const MyOrdersPage = () => {
               lineHeight: 1.6
             }}>
               <div style={{ color: '#4ade80', fontWeight: 700, fontSize: '0.95rem', marginBottom: '6px' }}>
-                ✓ Hủy Miễn Phí 100% Không Mất Phí Nào
+                Hủy Miễn Phí 100% Không Mất Phí Nào
               </div>
               <div>Vì đơn hàng này <strong>chưa thanh toán</strong>, quý khách sẽ <strong>không mất bất kỳ khoản phí nào</strong> (phí đổi hủy 0 đ).</div>
               <div style={{ marginTop: '8px', fontSize: '0.82rem', color: '#94a3b8' }}>

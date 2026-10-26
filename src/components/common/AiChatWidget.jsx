@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaRobot, FaPaperPlane, FaTimes, FaMagic, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaRobot, FaPaperPlane, FaTimes, FaMagic, FaExternalLinkAlt, FaStar } from 'react-icons/fa';
 import { aiApi } from '../../api/axiosConfig';
 import FallbackImage from './FallbackImage';
 import './AiChatWidget.css';
@@ -154,7 +154,7 @@ const AiChatWidget = () => {
                           <div className="ai-tour-mini-name">{tour.name}</div>
                           <div className="ai-tour-mini-price">{formatPrice(tour.price)}</div>
                           <div className="ai-tour-mini-meta">
-                            {tour.duration} ngày · {tour.departureLocation} · {tour.rating}★
+                            {tour.duration} ngày · {tour.departureLocation} · <FaStar style={{ color: '#f59e0b', fontSize: '0.72rem', display: 'inline', verticalAlign: '-1px' }} /> {tour.rating}
                           </div>
                         </div>
                       </div>

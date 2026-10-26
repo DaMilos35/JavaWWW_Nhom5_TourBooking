@@ -182,7 +182,7 @@ const AdminOrders = () => {
                         {order.paymentStatus === 'PAID' ? (
                           <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>● Đã thanh toán</span>
                         ) : order.paymentStatus === 'REFUND_PENDING' ? (
-                          <span style={{ fontSize: '0.75rem', color: '#ea580c', fontWeight: 700, background: '#ffedd5', padding: '2px 6px', borderRadius: '4px' }}>⚠️ Cần hoàn tiền (${100 - (order.cancellationFeePercent ?? 0)}%)</span>
+                          <span style={{ fontSize: '0.75rem', color: '#ea580c', fontWeight: 700, background: '#ffedd5', padding: '2px 6px', borderRadius: '4px' }}><FaExclamationTriangle style={{ marginRight: '4px' }} /> Cần hoàn tiền (${100 - (order.cancellationFeePercent ?? 0)}%)</span>
                         ) : order.paymentStatus === 'REFUNDED' ? (
                           <span style={{ fontSize: '0.75rem', color: '#9333ea', fontWeight: 600 }}>● Đã hoàn tiền</span>
                         ) : (
@@ -253,7 +253,7 @@ const AdminOrders = () => {
                             }}
                             title="Xác nhận đã chuyển khoản hoàn tiền cho khách"
                           >
-                            ✓ Đã chuyển hoàn
+                            Đã chuyển hoàn
                           </button>
                         )}
                       </div>

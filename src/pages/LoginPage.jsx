@@ -101,16 +101,16 @@ const LoginPage = () => {
         <p>Khám phá vẻ đẹp bất tận của Việt Nam và thế giới. Đăng nhập ngay để nhận những ưu đãi tour đặc biệt chỉ dành cho thành viên.</p>
         <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94a3b8' }}>
-            <span style={{ color: '#0ea5e9', fontWeight: 'bold' }}>✓</span> Hơn 100+ tour trọn gói chất lượng cao
+            <FaCheckCircle style={{ color: '#0194F3', fontSize: '0.9rem', flexShrink: 0 }} /> Hơn 100+ tour trọn gói chất lượng cao
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94a3b8' }}>
-            <span style={{ color: '#0ea5e9', fontWeight: 'bold' }}>✓</span> Ưu đãi chiết khấu đoàn Doanh nghiệp B2B (5% - 10%)
+            <FaCheckCircle style={{ color: '#0194F3', fontSize: '0.9rem', flexShrink: 0 }} /> Ưu đãi chiết khấu đoàn Doanh nghiệp B2B (5% - 10%)
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94a3b8' }}>
-            <span style={{ color: '#0ea5e9', fontWeight: 'bold' }}>✓</span> Đặt chỗ tức thì với khóa tranh chấp an toàn
+            <FaCheckCircle style={{ color: '#0194F3', fontSize: '0.9rem', flexShrink: 0 }} /> Đặt chỗ tức thì với khóa tranh chấp an toàn
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94a3b8' }}>
-            <span style={{ color: '#0ea5e9', fontWeight: 'bold' }}>✓</span> Trợ lý du lịch ảo AI Gemini tư vấn 24/7
+            <FaCheckCircle style={{ color: '#0194F3', fontSize: '0.9rem', flexShrink: 0 }} /> Trợ lý du lịch ảo AI Gemini tư vấn 24/7
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ const LoginPage = () => {
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
-              <span>⚡ Đăng nhập nhanh tài khoản mẫu:</span>
+              <span><FaBolt style={{ color: '#f59e0b', marginRight: '6px' }} />Đăng nhập nhanh tài khoản mẫu:</span>
               <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 400 }}>Pass: 123456</span>
             </div>
             

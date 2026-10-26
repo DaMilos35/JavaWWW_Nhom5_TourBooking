@@ -85,7 +85,7 @@ export function formatVehicleChip(vehicle) {
   if (lower.includes('vietnam airlines') || lower.includes('vna')) return 'VN Airlines';
   if (lower.includes('bay') || lower.includes('máy bay')) return 'Vé máy bay';
   if (lower.includes('limousine')) return 'Limousine VIP';
-  if (lower.includes('du thuyền') || lower.includes('cruise')) return 'Du thuyền 5★';
+  if (lower.includes('du thuyền') || lower.includes('cruise')) return 'Du thuyền 5 sao';
   if (lower.includes('cano') || lower.includes('ca nô')) return 'Cano cao tốc';
   if (lower.includes('giường nằm')) return 'Giường nằm VIP';
   if (lower.includes('universe') || lower.includes('xe du lịch')) return 'Xe du lịch';

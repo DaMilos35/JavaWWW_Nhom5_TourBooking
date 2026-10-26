@@ -1,0 +1,106 @@
+/* TourCardSkeleton.css - Traveloka/Airbnb Grade Bento Shimmer Loading */
+
+.tc-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.tc-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  min-height: 380px;
+}
+
+.tc-skeleton-media {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 190px;
+  background: #e2e8f0;
+}
+
+.tc-skeleton-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 12px;
+}
+
+.tc-skeleton-kicker {
+  width: 40%;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.tc-skeleton-title {
+  width: 90%;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.tc-skeleton-title-sub {
+  width: 65%;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.tc-skeleton-amenities {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tc-skeleton-chip {
+  width: 70px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.tc-skeleton-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.tc-skeleton-price {
+  width: 90px;
+  height: 26px;
+  border-radius: 6px;
+}
+
+.tc-skeleton-btn {
+  width: 100px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+/* Shimmer pulse animation */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 0%,
+    #e2e8f0 50%,
+    #f1f5f9 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerMove 1.5s infinite ease-in-out;
+}
+
+@keyframes shimmerMove {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

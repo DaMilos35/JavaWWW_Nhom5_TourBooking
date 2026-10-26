@@ -434,14 +434,14 @@ const AdminTourForm = () => {
                 style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '0.95rem', background: '#fff' }}
               >
                 <option value="">-- Không dùng huy hiệu --</option>
-                <option value="BÁN CHẠY NHẤT">🔥 BÁN CHẠY NHẤT</option>
-                <option value="5 SAO CAO CẤP">⭐ 5 SAO CAO CẤP</option>
-                <option value="ƯU ĐÃI ĐOÀN B2B">🏢 ƯU ĐÃI ĐOÀN B2B</option>
-                <option value="HOT TUẦN NÀY">⚡ HOT TUẦN NÀY</option>
-                <option value="GIÁ TỐT TRAVELOKA">💎 GIÁ TỐT TRAVELOKA</option>
-                <option value="DI SẢN UNESCO">🏛️ DI SẢN UNESCO</option>
-                <option value="LINH THIÊNG">🕊️ LINH THIÊNG</option>
-                <option value="MÙA ĐẸP NHẤT">🌾 MÙA ĐẸP NHẤT</option>
+                <option value="BÁN CHẠY NHẤT">BÁN CHẠY NHẤT</option>
+                <option value="5 SAO CAO CẤP">5 SAO CAO CẤP</option>
+                <option value="ƯU ĐÃI ĐOÀN B2B">ƯU ĐÃI ĐOÀN B2B</option>
+                <option value="HOT TUẦN NÀY">HOT TUẦN NÀY</option>
+                <option value="GIÁ TỐT TRAVELOKA">GIÁ TỐT TRAVELOKA</option>
+                <option value="DI SẢN UNESCO">DI SẢN UNESCO</option>
+                <option value="LINH THIÊNG">LINH THIÊNG</option>
+                <option value="MÙA ĐẸP NHẤT">MÙA ĐẸP NHẤT</option>
               </select>
             </div>
           </div>
@@ -531,7 +531,7 @@ const AdminTourForm = () => {
 
               <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '8px' }}>
-                  📸 Chọn nhanh ảnh mẫu chất lượng cao:
+                  <FaCamera style={{ marginRight: '6px' }} /> Chọn nhanh ảnh mẫu chất lượng cao:
                 </span>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {[
@@ -616,7 +616,7 @@ const AdminTourForm = () => {
             <FaRoute style={{ color: '#ea580c' }} /> 5. Lịch Trình Chi Tiết Từng Ngày (Itinerary Timeline)
           </h3>
           <p style={{ margin: '0 0 12px', fontSize: '0.85rem', color: '#64748b' }}>
-            💡 Cú pháp tự nhiên: Bắt đầu mỗi ngày bằng <b>Ngày 1: [Tiêu đề ngày]</b>, sau đó xuống dòng là nội dung các hoạt động. Hệ thống sẽ tự động bóc tách thành các thẻ Ngày 1, Ngày 2 chuẩn giao diện Traveloka.
+            <FaLightbulb style={{ color: '#f59e0b', marginRight: '6px' }} /> Cú pháp tự nhiên: Bắt đầu mỗi ngày bằng <b>Ngày 1: [Tiêu đề ngày]</b>, sau đó xuống dòng là nội dung các hoạt động. Hệ thống sẽ tự động bóc tách thành các thẻ Ngày 1, Ngày 2 chuẩn giao diện Traveloka.
           </p>
           <textarea 
             name="itinerary" 

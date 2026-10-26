@@ -93,20 +93,20 @@ const RegisterPage = () => {
       <div className="auth-left">
         <div className="auth-brand">
           <FaPlane size={40} />
-          <h1>VietTour</h1>
+          <h1>Du Lịch Việt</h1>
         </div>
         <h2>Bắt đầu hành trình của bạn</h2>
         <p>Đăng ký tài khoản để quản lý tour, nhận ưu đãi riêng và tích điểm đổi quà hấp dẫn từ hệ thống của chúng tôi.</p>
         <div className="auth-features">
-          <div className="feature-item">✓ Hỗ trợ khách hàng 24/7</div>
-          <div className="feature-item">✓ Thanh toán an toàn 100%</div>
-          <div className="feature-item">✓ Hủy tour linh hoạt</div>
+          <div className="feature-item"><FaCheckCircle style={{ color: "#0194F3", marginRight: "8px" }} /> Hỗ trợ khách hàng 24/7</div>
+          <div className="feature-item"><FaCheckCircle style={{ color: "#0194F3", marginRight: "8px" }} /> Thanh toán an toàn 100%</div>
+          <div className="feature-item"><FaCheckCircle style={{ color: "#0194F3", marginRight: "8px" }} /> Hủy tour linh hoạt</div>
         </div>
       </div>
       <div className="auth-right">
         <div className="auth-card register-card">
           <h2>Tạo Tài Khoản Mới</h2>
-          <p className="auth-subtitle">Điền thông tin để tham gia cộng đồng VietTour</p>
+          <p className="auth-subtitle">Điền thông tin để tham gia cộng đồng Du Lịch Việt</p>
           
           <form onSubmit={handleSubmit} className="register-form">
             <div className="form-row">

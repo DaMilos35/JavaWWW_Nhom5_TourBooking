@@ -341,7 +341,7 @@ const CheckoutPage = () => {
             {/* Header Vé */}
             <div className="eticket-header">
               <div className="eticket-brand">
-                <span className="brand-logo-text">✈️ DU LỊCH VIỆT</span>
+                <span className="brand-logo-text"><FaPlaneDeparture style={{ marginRight: "8px", color: "#0194F3" }} /> DU LỊCH VIỆT</span>
                 <span className="brand-tag">VÉ ĐIỆN TỬ XÁC NHẬN ĐẶT TOUR (E-TICKET)</span>
               </div>
               <div className="eticket-status-badge">
@@ -399,9 +399,9 @@ const CheckoutPage = () => {
                       <div className="tour-info-box">
                         <h4 className="tour-name">{t.name || t.tourName}</h4>
                         <div className="tour-meta-row">
-                          <span>📍 Điểm đón: <b>{t.departureLocation || 'TP. Hồ Chí Minh'}</b></span>
+                          <span><FaMapMarkerAlt style={{ color: '#0194F3', marginRight: '4px' }} /> Điểm đón: <b>{t.departureLocation || 'TP. Hồ Chí Minh'}</b></span>
                           <span>⏳ Thời lượng: <b>{t.duration || 3} ngày</b></span>
-                          <span>👥 Số vé: <b>{item.quantity || 1} khách</b></span>
+                          <span><FaUsers style={{ color: '#0194F3', marginRight: '4px' }} /> Số vé: <b>{item.quantity || 1} khách</b></span>
                         </div>
                       </div>
                       <div className="tour-price-box text-right">
@@ -543,7 +543,7 @@ const CheckoutPage = () => {
                         <div className="user-name-title">
                           <strong>{user.fullName || user.username}</strong>
                           <span className="vip-tag">
-                            {isCorporateAccount ? '🏢 KHÁCH HÀNG DOANH NGHIỆP VIP' : '⭐ THÀNH VIÊN ĐÃ XÁC THỰC'}
+                            {isCorporateAccount ? (<><FaBuilding style={{ marginRight: '6px' }} /> KHÁCH HÀNG DOANH NGHIỆP VIP</>) : (<><FaStar style={{ marginRight: '6px', color: '#f59e0b' }} /> THÀNH VIÊN ĐÃ XÁC THỰC</>)}
                           </span>
                         </div>
                         <span className="user-sub">{user.email} · {user.phone || '0901234567'}</span>
@@ -560,7 +560,7 @@ const CheckoutPage = () => {
                         <span className="toggle-slider"></span>
                         <span className="toggle-text">
                           {useMyProfile
-                            ? '✓ Sử dụng thông tin tài khoản của tôi (Tự động điền, không cần nhập lại)'
+                            ? 'Sử dụng thông tin tài khoản của tôi (Tự động điền, không cần nhập lại)'
                             : 'Nhập thông tin người liên hệ khác'}
                         </span>
                       </label>

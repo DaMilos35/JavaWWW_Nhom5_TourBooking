@@ -163,7 +163,7 @@ const AdminOrderDetail = () => {
           {order.status === 'PENDING' && order.paymentStatus !== 'PAID' && (
             <div style={{ marginTop: '16px', padding: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px' }}>
               <div style={{ fontSize: '0.85rem', color: '#166534', marginBottom: '8px', fontWeight: 600 }}>
-                💡 Khách hàng thanh toán qua VietQR. Khi tiền đã vào tài khoản, bấm xác nhận để kích hoạt vé cho khách:
+                <FaLightbulb style={{ color: '#eab308', marginRight: '6px' }} /> Khách hàng thanh toán qua VietQR. Khi tiền đã vào tài khoản, bấm xác nhận để kích hoạt vé cho khách:
               </div>
               <button
                 onClick={async () => {
@@ -190,7 +190,7 @@ const AdminOrderDetail = () => {
           {order.status === 'CANCELLED' && order.refundAmount > 0 && (
             <div style={{ marginTop: '20px', padding: '16px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px' }}>
               <h4 style={{ margin: '0 0 10px', color: '#ea580c', fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                ⚠️ YÊU CẦU HOÀN TIỀN VÉ (${100 - (order.cancellationFeePercent ?? 0)}%)
+                <FaExclamationTriangle style={{ color: '#ea580c', marginRight: '6px' }} /> YÊU CẦU HOÀN TIỀN VÉ (${100 - (order.cancellationFeePercent ?? 0)}%)
               </h4>
               <div style={{ fontSize: '0.88rem', color: '#7c2d12', lineHeight: 1.6, marginBottom: '12px' }}>
                 <div><strong>Tổng tiền ban đầu:</strong> {formatPrice(order.totalAmount)}</div>
@@ -249,7 +249,7 @@ const AdminOrderDetail = () => {
                 </button>
               ) : (
                 <div style={{ textAlign: 'center', color: '#15803d', fontWeight: 700, fontSize: '0.85rem' }}>
-                  ✅ Đã hoàn tất chuyển khoản hoàn tiền cho khách hàng.
+                  <FaCheckCircle style={{ color: '#16a34a', marginRight: '6px' }} /> Đã hoàn tất chuyển khoản hoàn tiền cho khách hàng.
                 </div>
               )}
             </div>

@@ -146,7 +146,7 @@ const TourCard = ({ tour }) => {
             )}
             {hotelStar && (
               <span className="tc-amenity-chip chip-hotel">
-                <FaHotel className="tc-chip-icon" /> <span>KS {hotelStar}★</span>
+                <FaHotel className="tc-chip-icon" /> <span>KS {hotelStar} sao</span>
               </span>
             )}
             <span className="tc-amenity-chip chip-location" title={`Khởi hành từ ${tour.departureLocation || 'Việt Nam'}`}>
