@@ -17,6 +17,7 @@ import FallbackImage from '../common/FallbackImage';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
+import { getTourImage, formatVehicleChip } from '../../utils/tourImages';
 import './TourCard.css';
 
 const TourCard = ({ tour }) => {
@@ -37,12 +38,18 @@ const TourCard = ({ tour }) => {
   const badge = tour.badge || (hasDiscount && discountPercent >= 15 ? 'HOT DEAL' : null);
   const hotelStar = tour.hotelStar || tour.hotel_star;
   const vehicle = tour.vehicle;
+  const vehicleText = formatVehicleChip(vehicle);
+  const imageUrl = getTourImage(tour);
 
   const getVehicleIcon = (v) => {
     if (!v) return null;
     const lower = v.toLowerCase();
-    if (lower.includes('bay') || lower.includes('vietjet') || lower.includes('bamboo')) return <FaPlane className="tc-chip-icon" />;
-    if (lower.includes('tàu') || lower.includes('du thuyền') || lower.includes('cano')) return <FaShip className="tc-chip-icon" />;
+    if (lower.includes('bay') || lower.includes('vietjet') || lower.includes('bamboo') || lower.includes('airlines')) {
+      return <FaPlane className="tc-chip-icon" />;
+    }
+    if (lower.includes('tàu') || lower.includes('du thuyền') || lower.includes('cano') || lower.includes('cruise')) {
+      return <FaShip className="tc-chip-icon" />;
+    }
     return <FaBus className="tc-chip-icon" />;
   };
 
@@ -61,13 +68,16 @@ const TourCard = ({ tour }) => {
       <Link to={`/tours/${tour.id || tour.tourId}`} className="tour-card">
         <div className="tc-img-wrapper">
           <FallbackImage
-            src={tour.imageUrl}
+            src={imageUrl}
             alt={tour.name || tour.tourName}
             className="tc-img"
             loading="lazy"
           />
 
-          {/* Badges container */}
+          {/* Lớp phủ sáng tạo chiều sâu */}
+          <div className="tc-img-overlay" />
+
+          {/* Badges container góc trên trái */}
           <div className="tc-badge-container">
             {badge && (
               <span className={`tc-badge tc-marketing-badge ${badge.includes('HOT') ? 'badge-hot' : badge.includes('CHẠY') ? 'badge-bestseller' : 'badge-premium'}`}>
@@ -76,53 +86,50 @@ const TourCard = ({ tour }) => {
               </span>
             )}
             <span className="tc-badge badge-duration">
-              <FaClock style={{ fontSize: '0.65rem' }} /> {tour.duration}N{Math.max(1, (tour.duration || 1) - 1)}Đ
+              <FaClock style={{ fontSize: '0.65rem' }} /> {tour.duration || 1}N{Math.max(1, (tour.duration || 1) - 1)}Đ
             </span>
           </div>
 
-          {/* Seats availability indicator */}
-          <div className="tc-seats-corner">
-            {seats <= 0 ? (
+          {/* Chỉ hiển thị pill khẩn cấp khi chỗ <= 5 hoặc đã hết chỗ */}
+          {seats <= 0 ? (
+            <div className="tc-seats-corner">
               <span className="tc-status-pill pill-soldout">Hết chỗ</span>
-            ) : seats <= 5 ? (
+            </div>
+          ) : seats <= 5 ? (
+            <div className="tc-seats-corner">
               <span className="tc-status-pill pill-urgent">
                 <FaBolt className="tc-urgent-icon" aria-hidden="true" /> Chỉ còn {seats} chỗ
               </span>
-            ) : (
-              <span className="tc-status-pill pill-seats">Còn {seats} chỗ</span>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
 
         <div className="tc-content">
           <div className="tc-kicker">
             <span className="tc-category-tag">{categoryName}</span>
-            {tour.rating && (
-              <span className="tc-rating">
-                <FaStar className="star-icon" /> {tour.rating}
-                <span className="tc-rating-label">/5</span>
-              </span>
-            )}
+            <span className="tc-rating">
+              <FaStar className="star-icon" /> {Number(tour.rating || 5).toFixed(1)}
+            </span>
           </div>
 
           <h3 className="tc-title" title={tour.name || tour.tourName}>
             {tour.name || tour.tourName}
           </h3>
 
-          {/* Traveloka Style Features / Chips */}
+          {/* Traveloka Style Features / Chips chống tràn */}
           <div className="tc-amenities-row">
-            {vehicle && (
+            {vehicleText && (
               <span className="tc-amenity-chip" title={vehicle}>
-                {getVehicleIcon(vehicle)} {vehicle.length > 22 ? vehicle.substring(0, 20) + '...' : vehicle}
+                {getVehicleIcon(vehicle)} <span>{vehicleText}</span>
               </span>
             )}
             {hotelStar && (
               <span className="tc-amenity-chip">
-                <FaHotel className="tc-chip-icon" /> KS {hotelStar}★
+                <FaHotel className="tc-chip-icon" /> <span>KS {hotelStar}★</span>
               </span>
             )}
-            <span className="tc-amenity-chip">
-              <FaMapMarkerAlt className="tc-chip-icon" /> {tour.departureLocation || 'Việt Nam'}
+            <span className="tc-amenity-chip" title={`Khởi hành từ ${tour.departureLocation || 'Việt Nam'}`}>
+              <FaMapMarkerAlt className="tc-chip-icon" /> <span>{tour.departureLocation || 'Việt Nam'}</span>
             </span>
           </div>
 
@@ -148,22 +155,27 @@ const TourCard = ({ tour }) => {
                 disabled={seats <= 0}
                 onClick={handleQuickAdd}
               >
-                <FaShoppingCart /> {seats > 0 ? 'Đặt ngay' : 'Hết chỗ'}
+                <FaShoppingCart /> <span>{seats > 0 ? 'Đặt ngay' : 'Hết chỗ'}</span>
               </button>
             </div>
           </div>
         </div>
       </Link>
 
-      {/* Nút lưu tour yêu thích */}
+      {/* Nút lưu tour yêu thích dạng tròn kính cao cấp */}
       <button
         type="button"
         className={`tour-save-btn${saved ? ' is-saved' : ''}`}
         aria-label={saved ? 'Bỏ lưu tour' : 'Lưu tour yêu thích'}
         aria-pressed={saved}
-        onClick={() => toggleSaved(tour)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleSaved(tour);
+        }}
+        title={saved ? 'Đã lưu vào danh sách yêu thích' : 'Lưu tour yêu thích'}
       >
-        <FaHeart aria-hidden="true" /> {saved ? 'Đã lưu' : 'Lưu'}
+        <FaHeart aria-hidden="true" />
       </button>
     </div>
   );

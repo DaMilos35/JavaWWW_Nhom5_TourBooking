@@ -536,7 +536,7 @@ const AdminTourForm = () => {
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {[
                     { label: 'Đà Nẵng Cầu Vàng', url: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800' },
-                    { label: 'Phú Quốc Biển Xanh', url: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800' },
+                    { label: 'Phú Quốc Biển Xanh', url: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800' },
                     { label: 'Hạ Long Kỳ Quan', url: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800' },
                     { label: 'Sa Pa Fansipan', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800' },
                     { label: 'Hà Giang Mã Pí Lèng', url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800' },
