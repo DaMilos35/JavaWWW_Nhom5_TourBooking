@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   FaMapMarkerAlt,
   FaClock,
@@ -23,6 +23,8 @@ import {
 import { tourApi } from '../api/axiosConfig';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext';
+import { getTourImage } from '../utils/tourImages';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import FallbackImage from '../components/common/FallbackImage';
 import { toast } from 'react-toastify';
@@ -35,6 +37,8 @@ const TourDetailPage = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { isSaved, toggleSaved } = useWishlist();
+  const { user } = useAuth();
+  const location = useLocation();
   
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +48,7 @@ const TourDetailPage = () => {
 
   // Tải thông tin chi tiết tour
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     const fetchTour = async () => {
       try {
         const res = await tourApi.getById(id);
@@ -69,12 +74,31 @@ const TourDetailPage = () => {
     fetchTour();
   }, [id, navigate]);
 
+  const handleToggleSaved = () => {
+    if (!user) {
+      toast.info('Vui lòng đăng nhập để lưu tour vào danh sách yêu thích!');
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    toggleSaved(tour);
+  };
+
   const handleAddToCart = () => {
+    if (!user) {
+      toast.info('Vui lòng đăng nhập tài khoản để đặt tour!');
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     tourApi.recordActivity(tour.id, 'ADD_TO_CART');
     addToCart(tour, quantity);
   };
 
   const handleBuyNow = () => {
+    if (!user) {
+      toast.info('Vui lòng đăng nhập tài khoản để tiến hành đặt tour!');
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     tourApi.recordActivity(tour.id, 'ADD_TO_CART');
     if (addToCart(tour, quantity)) {
       navigate('/checkout');
@@ -284,7 +308,7 @@ const TourDetailPage = () => {
               type="button"
               className={`td-save-btn${isSaved(tour) ? ' is-saved' : ''}`}
               aria-pressed={isSaved(tour)}
-              onClick={() => toggleSaved(tour)}
+              onClick={handleToggleSaved}
             >
               <FaHeart aria-hidden="true" />
               {isSaved(tour) ? 'Đã lưu' : 'Lưu tour'}
@@ -314,7 +338,7 @@ const TourDetailPage = () => {
         {/* Hero Image Showcase */}
         <div className="td-gallery mb-4">
           <FallbackImage
-            src={tour.imageUrl}
+            src={getTourImage(tour)}
             alt={tour.name || tour.tourName} 
             className="main-img" 
           />

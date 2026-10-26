@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   FaHeart,
   FaMapMarkerAlt,
@@ -16,6 +16,7 @@ import {
 import FallbackImage from '../common/FallbackImage';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { getTourImage, formatVehicleChip, formatLocationChip } from '../../utils/tourImages';
 import './TourCard.css';
@@ -23,6 +24,9 @@ import './TourCard.css';
 const TourCard = ({ tour }) => {
   const { isSaved, toggleSaved } = useWishlist();
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
@@ -57,11 +61,27 @@ const TourCard = ({ tour }) => {
   const handleQuickAdd = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) {
+      toast.info('Vui lòng đăng nhập tài khoản để đặt tour!');
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     if (seats <= 0) {
       toast.warning('Tour này hiện đã hết chỗ nhận khách');
       return;
     }
     addToCart(tour, 1);
+  };
+
+  const handleToggleSaved = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      toast.info('Vui lòng đăng nhập để lưu tour vào danh sách yêu thích!');
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    toggleSaved(tour);
   };
 
   return (
@@ -170,11 +190,7 @@ const TourCard = ({ tour }) => {
         className={`tour-save-btn${saved ? ' is-saved' : ''}`}
         aria-label={saved ? 'Bỏ lưu tour' : 'Lưu tour yêu thích'}
         aria-pressed={saved}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleSaved(tour);
-        }}
+        onClick={handleToggleSaved}
         title={saved ? 'Đã lưu vào danh sách yêu thích' : 'Lưu tour yêu thích'}
       >
         <FaHeart aria-hidden="true" />

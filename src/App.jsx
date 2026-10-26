@@ -36,6 +36,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 // Guards
 import { PrivateRoute, AdminRoute } from './components/common/PrivateRoute';
 import AiChatWidget from './components/common/AiChatWidget';
+import ScrollToTop from './components/common/ScrollToTop';
 
 import './App.css';
 
@@ -54,6 +55,7 @@ function App() {
       <CartProvider>
         <WishlistProvider>
         <Router>
+          <ScrollToTop />
           <ToastContainer position="top-right" autoClose={3000} />
           <Routes>
             {/* Public User Routes */}
