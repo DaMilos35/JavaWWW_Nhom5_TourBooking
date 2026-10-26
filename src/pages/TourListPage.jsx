@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaSearch, FaFilter, FaRedo } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaRedo, FaTimes } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -116,6 +116,8 @@ const TourListPage = () => {
   if (sortBy === 'price_asc') displayedTours.sort((a, b) => a.price - b.price);
   if (sortBy === 'price_desc') displayedTours.sort((a, b) => b.price - a.price);
 
+  const selectedCategoryObj = categories.find(c => String(c.id || c.categoryId) === String(selectedCategory));
+
   return (
     <div className="tour-list-page">
       <div className="container py-4">
@@ -181,10 +183,9 @@ const TourListPage = () => {
               </div>
 
               <button 
-                className="btn btn-outline w-100 mt-2" 
+                className="btn btn-outline w-100 mt-2 btn-reset-filter" 
                 type="button"
                 onClick={resetFilters}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 <FaRedo /> Đặt lại bộ lọc
               </button>
@@ -197,28 +198,19 @@ const TourListPage = () => {
               <form onSubmit={handleSearch} className="search-form-list">
                 <input 
                   type="search"
-                  className="form-control" 
+                  className="search-input-top" 
                   aria-label="Tìm theo điểm đến, tên tour hoặc thành phố khởi hành"
                   placeholder="Tìm kiếm điểm đến, tên tour hoặc thành phố khởi hành..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    flex: 1,
-                    background: '#0b0f19',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff',
-                    padding: '10px 16px',
-                    borderRadius: '8px',
-                    outline: 'none'
-                  }}
                 />
-                <button type="submit" className="btn btn-primary" aria-label="Tìm tour" style={{ borderRadius: '8px', width: 'auto', padding: '10px 16px' }}>
+                <button type="submit" className="btn btn-primary btn-search-icon" aria-label="Tìm tour">
                   <FaSearch />
                 </button>
               </form>
               
               <select 
-                className="form-control sort-select" 
+                className="sort-select" 
                 aria-label="Sắp xếp danh sách tour"
                 value={sortBy} 
                 onChange={(e) => setSortBy(e.target.value)}
@@ -227,6 +219,33 @@ const TourListPage = () => {
                 <option value="price_asc">Sắp xếp: Giá tăng dần</option>
                 <option value="price_desc">Sắp xếp: Giá giảm dần</option>
               </select>
+            </div>
+
+            {/* Thanh hiển thị kết quả và bộ lọc đang áp dụng */}
+            <div className="filter-summary-row">
+              <div className="result-count-label">
+                Tìm thấy <strong>{displayedTours.length}</strong> hành trình phù hợp
+              </div>
+              <div className="active-filter-chips">
+                {selectedCategoryObj && (
+                  <span className="filter-chip">
+                    {selectedCategoryObj.name || selectedCategoryObj.categoryName}
+                    <button type="button" onClick={() => setSelectedCategory('')} aria-label="Bỏ chọn danh mục"><FaTimes /></button>
+                  </span>
+                )}
+                {priceRange && (
+                  <span className="filter-chip">
+                    {priceRange === 'low' ? 'Dưới 5 triệu' : priceRange === 'mid' ? '5 - 10 triệu' : 'Trên 10 triệu'}
+                    <button type="button" onClick={() => setPriceRange('')} aria-label="Bỏ chọn giá"><FaTimes /></button>
+                  </span>
+                )}
+                {searchTerm && (
+                  <span className="filter-chip">
+                    "{searchTerm}"
+                    <button type="button" onClick={() => setSearchTerm('')} aria-label="Xóa từ khóa"><FaTimes /></button>
+                  </span>
+                )}
+              </div>
             </div>
 
             {loadError && (
@@ -247,7 +266,7 @@ const TourListPage = () => {
             ) : (
               <div className="empty-state card-surface" style={{ borderRadius: '12px' }}>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '8px' }}>Không tìm thấy tour phù hợp!</h3>
-                <p style={{ color: '#94a3b8', marginBottom: '20px' }}>Vui lòng thử điều chỉnh lại từ khóa hoặc xóa bớt tiêu chí lọc.</p>
+                <p style={{ color: '#64748b', marginBottom: '20px' }}>Vui lòng thử điều chỉnh lại từ khóa hoặc xóa bớt tiêu chí lọc.</p>
                 <button className="btn btn-primary" onClick={resetFilters}>
                   Xem tất cả các tour
                 </button>

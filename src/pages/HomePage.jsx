@@ -5,7 +5,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import SelectDropdown from '../components/common/SelectDropdown';
 import FallbackImage from '../components/common/FallbackImage';
 import { tourApi, categoryApi, aiApi } from '../api/axiosConfig';
-import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import { 
   FaSearch, FaMapMarkerAlt, FaRegClock, FaFire, 
   FaHandHoldingUsd, FaShieldAlt, FaPlaneDeparture,
@@ -14,6 +14,7 @@ import {
 import './HomePage.css';
 
 const HomePage = () => {
+  const { user } = useAuth();
   const [tours, setTours] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,9 +30,27 @@ const HomePage = () => {
   const [semanticResults, setSemanticResults] = useState(null);
   const [activeQuery, setActiveQuery] = useState('');
 
-  // Recommendations state
+  // Recommendations state (Chỉ kích hoạt khi user đã đăng nhập)
   const [recommendations, setRecommendations] = useState([]);
+  const [timeLeft, setTimeLeft] = useState('12:45:00');
   const navigate = useNavigate();
+
+  // Đếm ngược thực tế (Live countdown ticker chuẩn OTA)
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      const diff = Math.max(0, endOfDay.getTime() - now.getTime());
+      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+      const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+      const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+      setTimeLeft(`${hours}:${minutes}:${seconds}`);
+    };
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -44,14 +63,19 @@ const HomePage = () => {
       setTours(toursRes.data || []);
       setCategories(catsRes.data || []);
 
-      // Tải gợi ý cá nhân hóa
-      try {
-        const recRes = await tourApi.getRecommendations('', 4);
-        if (recRes.data && Array.isArray(recRes.data)) {
-          setRecommendations(recRes.data);
+      // Tải gợi ý cá nhân hóa CHỈ khi tài khoản đã đăng nhập
+      if (user) {
+        try {
+          const recRes = await tourApi.getRecommendations('', 4);
+          if (recRes.data && Array.isArray(recRes.data)) {
+            setRecommendations(recRes.data);
+          }
+        } catch (err) {
+          console.debug('Không tải được gợi ý homepage:', err);
+          setRecommendations([]);
         }
-      } catch (err) {
-        console.debug('Không tải được gợi ý homepage:', err);
+      } else {
+        setRecommendations([]);
       }
     } catch (error) {
       setLoadError(true);
@@ -62,22 +86,16 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [user]);
 
-  // Tìm kiếm thông minh: Tự động phân tích ý định (Intent Routing)
-  // Nếu câu nhập dài hoặc có tính miêu tả -> Kích hoạt Vector Database ngầm
-  // Nếu chỉ có bộ lọc hoặc từ khóa ngắn -> Tìm kiếm tiêu chuẩn
   const handleSmartSearch = async (e, customQuery) => {
     if (e) e.preventDefault();
     const query = (customQuery !== undefined ? customQuery : searchKeyword).trim();
 
-    // Điều kiện kích hoạt Vector Database ngầm:
-    // Chứa từ ngữ miêu tả trải nghiệm hoặc câu dài >= 3 từ
     const isDescriptiveQuery = query.split(/\s+/).length >= 3 || 
       /du thuyền|nghỉ dưỡng|săn mây|gia đình|trẻ em|lặn|mạo hiểm|leo núi|giá rẻ|cao cấp|5 sao/i.test(query);
 
     if (query && isDescriptiveQuery && !searchCategory && !priceRange) {
-      // Kích hoạt Vector Database Semantic Search ngầm
       setSemanticLoading(true);
       setActiveQuery(query);
       try {
@@ -88,7 +106,6 @@ const HomePage = () => {
           if (el) el.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       } catch (err) {
-        // Fallback sang trang danh sách tour
         const params = new URLSearchParams();
         params.set('keyword', query);
         navigate(`/tours?${params.toString()}`);
@@ -96,7 +113,6 @@ const HomePage = () => {
         setSemanticLoading(false);
       }
     } else {
-      // Tìm kiếm tiêu chuẩn kết hợp bộ lọc
       const params = new URLSearchParams();
       if (query) params.set('keyword', query);
       if (searchCategory) params.set('category', searchCategory);
@@ -210,7 +226,7 @@ const HomePage = () => {
               </button>
             </form>
 
-            {/* Các Gợi Ý Ý Tưởng Tìm Kiếm Nhanh (Được Hỗ Trợ Bởi Vector Database Ngầm) */}
+            {/* Các Gợi Ý Ý Tưởng Tìm Kiếm Nhanh */}
             <div className="smart-search-hints mt-3">
               <span className="hints-label">
                 <FaMagic className="hint-icon" aria-hidden="true" /> Gợi ý tìm kiếm:
@@ -232,7 +248,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Kết Quả Tìm Kiếm Ngữ Nghĩa Vector (Hiển Thị Liền Mạch & Tinh Tế) */}
+      {/* Kết Quả Tìm Kiếm Ngữ Nghĩa Vector */}
       {semanticResults && (
         <section id="semantic-results-section" className="semantic-results-section container animate-fade-in">
           <div className="semantic-results-card">
@@ -285,7 +301,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* Flash Deals / Hot Tours Section */}
+      {/* Flash Deals / Hot Tours Section với Đồng Hồ Đếm Ngược Thực Tế */}
       {flashDeals.length > 0 && (
         <section className="flash-deal-section container">
           <div className="flash-deal-banner">
@@ -298,7 +314,7 @@ const HomePage = () => {
                 </div>
               </div>
               <div className="flash-countdown-pill">
-                <FaRegClock /> Kết thúc sau: <b>12:45:00</b>
+                <FaRegClock /> Kết thúc sau: <b>{timeLeft}</b>
               </div>
             </div>
 
@@ -342,7 +358,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Traveloka Trust & Value Pillars (Nội dung tự nhiên, không thô thiển kỹ thuật) */}
+      {/* Traveloka Trust & Value Pillars */}
       <section className="features-section container">
         <div className="features-grid">
           <div className="feature-box">
@@ -368,16 +384,16 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Personalized Recommendations based on User Activity */}
-      {recommendations && recommendations.length > 0 && (
+      {/* Personalized Recommendations based on User Activity (Chỉ hiển thị khi đã đăng nhập) */}
+      {user && recommendations && recommendations.length > 0 && (
         <section className="featured-tours-section container">
           <div className="section-header">
             <div>
               <div className="personalized-badge">
-                <FaMagic className="mr-1" aria-hidden="true" /> CÁ NHÂN HÓA DÀNH CHO BẠN
+                <FaMagic className="mr-1" aria-hidden="true" /> CÁ NHÂN HÓA CHO @{user.username}
               </div>
               <h2 className="section-title">Gợi Ý Dựa Trên Sở Thích Của Bạn</h2>
-              <p className="section-subtitle">Dựa trên lịch sử tìm kiếm, danh mục và hành vi trải nghiệm của bạn</p>
+              <p className="section-subtitle">Dựa trên lịch sử tìm kiếm và các chuyến đi bạn đã quan tâm</p>
             </div>
           </div>
           <div className="tour-grid">

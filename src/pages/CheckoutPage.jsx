@@ -199,10 +199,30 @@ const CheckoutPage = () => {
   // Bước 1: Tiếp tục đến thanh toán
   const handleProceedToPayment = (e) => {
     e.preventDefault();
-    if (!formData.contactName || !formData.contactPhone || !formData.contactEmail) {
+    if (!formData.contactName?.trim() || !formData.contactPhone?.trim() || !formData.contactEmail?.trim()) {
       toast.error('Vui lòng cung cấp đầy đủ họ tên, số điện thoại và email nhận vé.');
       return;
     }
+
+    const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+    const cleanPhone = formData.contactPhone.replace(/[\s.-]+/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      toast.warning('Số điện thoại không hợp lệ (Vui lòng nhập 10 số di động, VD: 0912345678)');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.contactEmail.trim())) {
+      toast.warning('Địa chỉ email nhận vé điện tử không đúng định dạng.');
+      return;
+    }
+
+    const emptyPassenger = passengers.find(p => !p.fullName?.trim());
+    if (emptyPassenger) {
+      toast.warning('Vui lòng điền đầy đủ tên các hành khách trong danh sách.');
+      return;
+    }
+
     setStep(2);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -212,6 +232,13 @@ const CheckoutPage = () => {
     if (hasExpiredTours) {
       toast.error('Tour đã hết hạn khởi hành. Vui lòng kiểm tra lại giỏ hàng.');
       return;
+    }
+
+    if (paymentMethod === 'CREDIT_CARD') {
+      if (!cardInfo.number?.trim() || !cardInfo.name?.trim() || !cardInfo.expiry?.trim() || !cardInfo.cvv?.trim()) {
+        toast.warning('Vui lòng điền đầy đủ số thẻ, tên chủ thẻ, ngày hết hạn và mã CVV.');
+        return;
+      }
     }
 
     setLoading(true);

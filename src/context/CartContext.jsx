@@ -1,31 +1,57 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { hasTourDatePassed } from '../utils/tourDate';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
-export const CartProvider = ({ children }) => {
-  const [items, setItems] = useState(() => {
-    const savedCart = localStorage.getItem('cart');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
+const getCartStorageKey = (user) => {
+  if (!user) return 'cart_guest';
+  return `cart_${user.id || user.username}`;
+};
 
+export const CartProvider = ({ children }) => {
+  const { user } = useAuth();
+  const [items, setItems] = useState([]);
+
+  // Tải giỏ hàng theo từng tài khoản riêng biệt
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
-  }, [items]);
+    const key = getCartStorageKey(user);
+    try {
+      const savedCart = localStorage.getItem(key);
+      setItems(savedCart ? JSON.parse(savedCart) : []);
+    } catch {
+      setItems([]);
+    }
+  }, [user]);
+
+  // Lưu giỏ hàng theo tài khoản tương ứng
+  useEffect(() => {
+    const key = getCartStorageKey(user);
+    try {
+      localStorage.setItem(key, JSON.stringify(items));
+    } catch (e) {
+      console.error('Không thể lưu giỏ hàng:', e);
+    }
+  }, [items, user]);
 
   const addToCart = (tour, quantity = 1) => {
+    if (!user) {
+      toast.warning('Vui lòng đăng nhập tài khoản để đặt chỗ chuyến đi!');
+      return false;
+    }
+
     const tourId = tour.id || tour.tourId;
     const availableSeats = Number(tour.availableSeats);
     const existingItem = items.find((item) => String(item.tour.id || item.tour.tourId) === String(tourId));
     const nextQuantity = (existingItem?.quantity || 0) + quantity;
 
     if (hasTourDatePassed(tour.startDate || tour.endDate)) {
-      toast.error('Ngày khởi hành của tour đã qua; cần cập nhật lịch trước khi đặt');
+      toast.error('Ngày khởi hành của tour đã qua; vui lòng chọn ngày khác');
       return false;
     }
     if (!Number.isFinite(availableSeats) || availableSeats <= 0) {
-      toast.error('Tour hiện không còn chỗ theo dữ liệu hiện tại');
+      toast.error('Tour hiện không còn chỗ trống');
       return false;
     }
     if (nextQuantity > availableSeats) {
@@ -42,7 +68,7 @@ export const CartProvider = ({ children }) => {
       toast.success('Đã cập nhật số lượng trong giỏ hàng');
     } else {
       setItems((prevItems) => [...prevItems, { tour, quantity }]);
-      toast.success('Đã thêm vào giỏ hàng');
+      toast.success('Đã thêm tour vào giỏ hàng');
     }
     return true;
   };
@@ -74,6 +100,8 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setItems([]);
+    const key = getCartStorageKey(user);
+    localStorage.removeItem(key);
   };
 
   const getTotal = () => {

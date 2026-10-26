@@ -1,4 +1,4 @@
-/* Tour Detail Traveloka Top-Tier Theme */
+/* Tour Detail Modern OTA Theme (Traveloka & Booking.com standard) */
 .tour-detail-page {
   background-color: #f8fafc;
   color: #1e293b;
@@ -12,7 +12,7 @@
 
 .breadcrumb {
   font-size: 0.88rem;
-  color: #94a3b8;
+  color: #64748b;
   margin-bottom: 14px;
 }
 
@@ -26,7 +26,8 @@
 }
 
 .breadcrumb span.active {
-  color: #38bdf8;
+  color: #0194f3;
+  font-weight: 600;
   cursor: default;
 }
 
@@ -67,26 +68,27 @@
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1.5px solid #cbd5e1;
   border-radius: 24px;
-  background: rgba(15, 23, 42, 0.85);
-  color: #ffffff;
+  background: #ffffff;
+  color: #0f172a;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
   transition: all 0.2s;
 }
 
 .td-save-btn:hover {
-  border-color: #38bdf8;
-  color: #38bdf8;
+  border-color: #0194f3;
+  color: #0194f3;
+  background: #f0f9ff;
 }
 
 .td-save-btn.is-saved {
   border-color: #f43f5e;
   color: #f43f5e;
-  background: rgba(244, 63, 94, 0.15);
+  background: #fff1f2;
 }
 
 .td-meta-bar {
@@ -95,12 +97,12 @@
   flex-wrap: wrap;
   gap: 16px;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .badge-cat {
-  background: rgba(14, 165, 233, 0.15);
-  color: #38bdf8;
+  background: #e0f2fe;
+  color: #0369a1;
   padding: 4px 12px;
   border-radius: 20px;
   font-weight: 700;
@@ -116,11 +118,11 @@
 }
 
 .td-provider-tag {
-  color: #cbd5e1;
+  color: #64748b;
 }
 
 .td-provider-tag b {
-  color: #38bdf8;
+  color: #0284c7;
 }
 
 /* Hero Gallery */
@@ -129,7 +131,8 @@
   border-radius: 16px;
   overflow: hidden;
   height: 440px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.12);
+  border: 1px solid #e2e8f0;
 }
 
 .main-img {
@@ -143,8 +146,8 @@
   bottom: 16px;
   right: 16px;
   background: rgba(15, 23, 42, 0.85);
-  color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -161,6 +164,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 20px 24px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
 .hl-item {
@@ -171,7 +175,7 @@
 
 .hl-icon, .hl-icon-vehicle {
   font-size: 1.6rem;
-  color: #38bdf8;
+  color: #0194f3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,7 +188,7 @@
 
 .hl-text span {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -210,10 +214,11 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 24px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
 .sub-title {
-  color: #ffffff;
+  color: #0f172a;
   font-size: 1.15rem;
   font-weight: 700;
   margin: 0 0 16px 0;
@@ -222,7 +227,7 @@
 .highlight-points-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 .highlight-point {
@@ -230,8 +235,8 @@
   align-items: flex-start;
   gap: 10px;
   font-size: 0.95rem;
-  color: #e2e8f0;
-  line-height: 1.5;
+  color: #334155;
+  line-height: 1.55;
 }
 
 .hl-point-icon {
@@ -245,7 +250,7 @@
 .td-nav-tabs {
   display: flex;
   gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid #e2e8f0;
   margin-bottom: 24px;
 }
 
@@ -254,11 +259,12 @@
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  color: #94a3b8;
+  color: #64748b;
   font-weight: 700;
   font-size: 0.98rem;
   cursor: pointer;
   transition: all 0.2s;
+  margin-bottom: -2px;
 }
 
 .td-nav-tab-btn:hover {
@@ -266,8 +272,8 @@
 }
 
 .td-nav-tab-btn.active {
-  color: #38bdf8;
-  border-bottom-color: #38bdf8;
+  color: #0194f3;
+  border-bottom-color: #0194f3;
 }
 
 /* Section inside Tab */
@@ -276,17 +282,18 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 24px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
 .section-tab-heading {
-  color: #ffffff;
+  color: #0f172a;
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 16px 0;
 }
 
 .td-overview-desc {
-  color: #cbd5e1;
+  color: #334155;
   line-height: 1.8;
   font-size: 0.98rem;
   margin: 0;
@@ -302,14 +309,22 @@
 .itinerary-day-card {
   display: flex;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 18px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.itinerary-day-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
 }
 
 .itinerary-day-badge {
-  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  background: linear-gradient(135deg, #0194f3, #0284c7);
   color: #ffffff;
   font-weight: 800;
   font-size: 0.78rem;
@@ -324,14 +339,14 @@
 }
 
 .itinerary-day-title {
-  color: #ffffff;
+  color: #0f172a;
   font-size: 1.05rem;
   font-weight: 700;
   margin: 0 0 8px 0;
 }
 
 .itinerary-day-text {
-  color: #94a3b8;
+  color: #475569;
   font-size: 0.92rem;
   line-height: 1.65;
 }
@@ -348,6 +363,7 @@
   border-radius: 14px;
   padding: 24px;
   border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
 .included-box {
@@ -368,11 +384,11 @@
 }
 
 .title-inclusions {
-  color: #34d399;
+  color: #059669;
 }
 
 .title-exclusions {
-  color: #f87171;
+  color: #dc2626;
 }
 
 .service-list {
@@ -389,7 +405,7 @@
   align-items: flex-start;
   gap: 10px;
   font-size: 0.9rem;
-  color: #cbd5e1;
+  color: #334155;
   line-height: 1.5;
 }
 
@@ -413,10 +429,11 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 24px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
 .policy-heading {
-  color: #f59e0b;
+  color: #b45309;
   font-size: 1.15rem;
   font-weight: 700;
   display: flex;
@@ -426,7 +443,7 @@
 }
 
 .policy-list {
-  color: #cbd5e1;
+  color: #334155;
   line-height: 1.8;
   font-size: 0.92rem;
   display: flex;
@@ -445,80 +462,82 @@
 
 .booking-card {
   background: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1.5px solid #e2e8f0;
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
 }
 
-.price-box {
+.booking-card-header {
   margin-bottom: 20px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.sidebar-original-row {
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.booking-card .price {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ff5e1f;
+  line-height: 1;
+}
+
+.unit {
+  font-size: 0.88rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.original-price-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-top: 4px;
 }
 
-.sidebar-original-price {
-  font-size: 0.92rem;
+.orig-price {
+  font-size: 0.9rem;
   color: #94a3b8;
   text-decoration: line-through;
 }
 
-.sidebar-discount-pill {
-  font-size: 0.72rem;
-  font-weight: 800;
+.discount-badge {
+  background: #fee2e2;
   color: #ef4444;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid #fecaca;
+  font-size: 0.75rem;
+  font-weight: 800;
   padding: 2px 6px;
   border-radius: 4px;
 }
 
-.sidebar-price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.price {
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: #38bdf8;
-  line-height: 1;
-}
-
-.price-unit {
-  font-size: 0.88rem;
-  color: #94a3b8;
-}
-
-.quantity-box {
+.qty-control-wrap {
   margin-bottom: 20px;
 }
 
-.quantity-box label {
+.qty-control-wrap label {
   display: block;
   font-size: 0.82rem;
-  color: #94a3b8;
-  margin-bottom: 8px;
-  text-transform: uppercase;
   font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
 
 .qty-controls {
   display: flex;
   align-items: center;
-  background: #ffffff; border: 1px solid #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1.5px solid #cbd5e1;
   border-radius: 10px;
   overflow: hidden;
   height: 44px;
+  background: #ffffff;
 }
 
 .qty-controls button {
@@ -533,7 +552,7 @@
 }
 
 .qty-controls button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
+  background: #e2e8f0;
 }
 
 .qty-controls button:disabled {
@@ -544,25 +563,25 @@
 .qty-controls input {
   flex: 1;
   text-align: center;
-  background: transparent;
+  background: #ffffff;
   border: none;
-  color: #ffffff;
+  color: #0f172a;
   font-size: 1.1rem;
   font-weight: 700;
   outline: none;
 }
 
 .seats-indicator-text {
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.82rem;
   margin-top: 6px;
   display: block;
 }
 
 .b2b-discount-alert {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #34d399;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 0.82rem;
@@ -570,6 +589,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  font-weight: 600;
 }
 
 .total-box {
@@ -578,43 +598,59 @@
   align-items: center;
   margin-bottom: 20px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #e2e8f0;
 }
 
 .total-box span {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #475569;
 }
 
 .total-price {
-  font-size: 1.45rem;
+  font-size: 1.55rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: #ff5e1f;
 }
 
 .btn-buy-now {
-  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  background: linear-gradient(135deg, #ff5e1f 0%, #ea580c 100%);
   color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  box-shadow: 0 4px 14px rgba(255, 94, 31, 0.35);
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
 }
 
 .btn-buy-now:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0369a1, #0284c7);
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
   transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255, 94, 31, 0.45);
 }
 
 .btn-add-cart {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #0f172a;
   font-weight: 600;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
 .btn-add-cart:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: #f0f9ff;
+  border-color: #0194f3;
+  color: #0194f3;
 }
 
 .trust-bullets {
@@ -623,13 +659,15 @@
   gap: 6px;
   text-align: left;
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #64748b;
+  margin-top: 16px;
 }
 
 /* Recommendations */
 .td-recommendations {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #e2e8f0;
   padding-top: 40px;
+  margin-top: 40px;
 }
 
 .rec-header {
@@ -637,7 +675,7 @@
 }
 
 .rec-title {
-  color: #ffffff;
+  color: #0f172a;
   font-size: 1.35rem;
   font-weight: 700;
   margin: 0;
@@ -647,7 +685,7 @@
 }
 
 .rec-subtitle {
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.88rem;
   margin: 4px 0 0 0;
 }

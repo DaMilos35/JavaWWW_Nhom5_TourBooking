@@ -68,8 +68,15 @@ export const AuthProvider = ({ children }) => {
     } catch (_) {
       // bỏ qua lỗi mạng
     } finally {
-      setUser(null);
+      if (user) {
+        localStorage.removeItem(`tour-wishlist_${user.id || user.username}`);
+        localStorage.removeItem(`cart_${user.id || user.username}`);
+      }
       localStorage.removeItem('user_display');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('tour-wishlist');
+      localStorage.removeItem('cart_guest');
+      setUser(null);
     }
   };
 

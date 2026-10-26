@@ -1,5 +1,6 @@
 .tour-list-page {
-  padding: 40px 0 80px;
+  padding: 32px 0 80px;
+  background-color: var(--bg-main, #f8fafc);
 }
 
 .layout-grid {
@@ -12,21 +13,28 @@
 .sidebar {
   height: fit-content;
   position: sticky;
-  top: 100px;
+  top: 90px;
 }
 
 .filter-card {
   padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
 }
 
 .filter-title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 800;
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 14px;
+  color: #0f172a;
+  letter-spacing: -0.2px;
 }
 
 .filter-group {
@@ -34,38 +42,41 @@
 }
 
 .filter-group h4 {
-  font-size: 0.95rem;
-  margin-bottom: 16px;
-  color: var(--text-pure);
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #0f172a;
 }
 
 .radio-label {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 10px;
   cursor: pointer;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  transition: color 0.2s;
+  color: #475569;
+  font-size: 0.92rem;
+  transition: color 0.15s;
 }
+
 .radio-label:hover {
-  color: var(--text-pure);
+  color: #0194f3;
 }
 
 .radio-label input[type="radio"] {
   appearance: none;
   width: 18px;
   height: 18px;
-  border: 2px solid var(--border-subtle);
+  border: 2px solid #cbd5e1;
   border-radius: 50%;
   outline: none;
-  background: var(--bg-main);
+  background: #ffffff;
   position: relative;
+  cursor: pointer;
 }
 
 .radio-label input[type="radio"]:checked {
-  border-color: var(--accent-blue);
+  border-color: #0194f3;
 }
 
 .radio-label input[type="radio"]:checked::after {
@@ -76,12 +87,19 @@
   transform: translate(-50%, -50%);
   width: 8px;
   height: 8px;
-  background: var(--accent-blue);
+  background: #0194f3;
   border-radius: 50%;
 }
 
-.w-100 {
+.btn-reset-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
+  padding: 10px;
+  font-weight: 600;
+  border-radius: 10px;
 }
 
 /* Main Content */
@@ -89,53 +107,130 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  padding: 16px 24px;
-  margin-bottom: 32px;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
 }
 
 .search-form-list {
   display: flex;
   flex: 1;
-  gap: 12px;
+  gap: 10px;
 }
 
-.search-form-list .form-control {
-  border-radius: var(--radius-pill);
+.search-input-top {
+  flex: 1;
+  padding: 11px 16px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-.search-form-list .btn {
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
+.search-input-top:focus {
+  border-color: #0194f3;
+  box-shadow: 0 0 0 3px rgba(1, 148, 243, 0.15);
+}
+
+.btn-search-icon {
+  width: 44px;
+  height: 44px;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
   flex-shrink: 0;
+  background: #ff5e1f;
+  border: none;
+  color: #fff;
+  cursor: pointer;
 }
 
 .sort-select {
-  width: 200px;
-  padding: 10px 36px 10px 14px;
+  width: 210px;
+  padding: 11px 36px 11px 14px;
   border: 1.5px solid #cbd5e1;
-  border-radius: var(--radius-pill);
+  border-radius: 10px;
   color: #0f172a;
   background-color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  color-scheme: light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%23475569' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-position: right 14px center;
   background-repeat: no-repeat;
   background-size: 16px;
 }
 
-.sort-select option {
-  color: var(--text-pure);
-  background-color: var(--bg-surface);
+.sort-select:focus {
+  outline: 2px solid #0194f3;
+  outline-offset: 1px;
 }
 
-.sort-select:focus-visible {
-  outline: 2px solid var(--accent-blue);
-  outline-offset: 2px;
+/* Filter Summary Row */
+.filter-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.result-count-label {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.result-count-label strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.active-filter-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid #bae6fd;
+}
+
+.filter-chip button {
+  background: transparent;
+  border: none;
+  color: #0369a1;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.filter-chip button:hover {
+  color: #dc2626;
 }
 
 .tours-grid-list {
@@ -147,61 +242,62 @@
 .empty-state {
   padding: 60px 20px;
   text-align: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
 }
 
 .empty-state h3 {
-  color: var(--text-pure);
+  color: #0f172a;
   margin-bottom: 12px;
 }
 
 .filter-error {
   display: grid;
-  gap: 8px;
-  color: #fca5a5;
+  gap: 6px;
+  color: #dc2626;
   font-size: 0.85rem;
+  margin-top: 8px;
 }
 
 .filter-error button {
-  width: fit-content;
-  padding: 0;
-  border: 0;
   background: transparent;
-  color: #38bdf8;
+  border: none;
+  color: #0194f3;
+  font-weight: 600;
   cursor: pointer;
-  font: inherit;
-  text-decoration: underline;
+  text-align: left;
 }
 
 .load-error {
-  margin-bottom: 24px;
-  color: #fca5a5;
+  color: #dc2626;
+  font-size: 0.95rem;
 }
 
-.load-error p {
-  margin-bottom: 16px;
-}
-
-@media (max-width: 992px) {
-  .layout-grid {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    position: relative;
-    top: 0;
-  }
-  .search-bar-top {
-    flex-direction: column;
-  }
-  .sort-select {
-    width: 100%;
-  }
+@media (max-width: 1200px) {
   .tours-grid-list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
   .tours-grid-list {
     grid-template-columns: 1fr;
+  }
+  .search-bar-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sort-select {
+    width: 100%;
   }
 }

@@ -54,7 +54,6 @@ const TourCard = ({ tour }) => {
       return;
     }
     addToCart(tour, 1);
-    toast.success(`Đã thêm "${tour.name || tour.tourName}" vào giỏ hàng!`);
   };
 
   return (

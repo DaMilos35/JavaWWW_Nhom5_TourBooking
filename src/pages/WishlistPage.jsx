@@ -1,23 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart, FaTrashAlt, FaCompass } from 'react-icons/fa';
 import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext';
 import TourCard from '../components/tours/TourCard';
 import './WishlistPage.css';
 
 const WishlistPage = () => {
-  const { savedTours } = useWishlist();
+  const { savedTours, clearWishlist } = useWishlist();
+  const { user } = useAuth();
 
   return (
     <section className="wishlist-page">
       <div className="container">
         <header className="wishlist-header">
           <div>
-            <p className="wishlist-eyebrow">Danh sách cá nhân</p>
-            <h1>Tour đã lưu</h1>
-            <p>Những hành trình bạn muốn xem lại được lưu trên thiết bị này.</p>
+            <p className="wishlist-eyebrow">Tài khoản @{user?.username || 'Cá nhân'}</p>
+            <h1>Danh Sách Tour Đã Lưu</h1>
+            <p>Những chuyến đi bạn quan tâm và lưu riêng cho tài khoản của mình.</p>
           </div>
-          <span className="wishlist-count">{savedTours.length} tour</span>
+          <div className="wishlist-header-actions">
+            <span className="wishlist-count">{savedTours.length} tour</span>
+            {savedTours.length > 0 && (
+              <button 
+                type="button" 
+                className="btn btn-outline btn-clear-all" 
+                onClick={clearWishlist}
+                title="Xóa toàn bộ tour đã lưu"
+              >
+                <FaTrashAlt /> Xóa tất cả
+              </button>
+            )}
+          </div>
         </header>
 
         {savedTours.length ? (
@@ -27,11 +41,15 @@ const WishlistPage = () => {
             ))}
           </div>
         ) : (
-          <div className="wishlist-empty">
-            <FaHeart aria-hidden="true" />
-            <h2>Chưa có tour nào được lưu</h2>
-            <p>Chọn “Lưu tour” trên thẻ tour để tạo danh sách những hành trình bạn đang cân nhắc.</p>
-            <Link className="btn btn-primary" to="/tours">Khám phá tour</Link>
+          <div className="wishlist-empty card-surface">
+            <div className="empty-heart-icon">
+              <FaHeart aria-hidden="true" />
+            </div>
+            <h2>Bạn chưa lưu tour nào</h2>
+            <p>Nhấn vào biểu tượng “Lưu” trên bất kỳ tour nào để đánh dấu các chuyến đi yêu thích của riêng bạn.</p>
+            <Link className="btn btn-primary" to="/tours">
+              <FaCompass /> Khám phá tour ngay
+            </Link>
           </div>
         )}
       </div>
