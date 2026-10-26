@@ -43,3 +43,9 @@ Thumbs.db
 # Test & Demo documentation (Private, do not push)
 *.docx
 docs_demo/
+
+# Python cache & temporary scratch files
+__pycache__/
+*.py[cod]
+*$py.class
+scratch/

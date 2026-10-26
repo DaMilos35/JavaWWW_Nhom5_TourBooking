@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "start": "vite preview",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node scripts/comprehensive_test_suite.cjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
