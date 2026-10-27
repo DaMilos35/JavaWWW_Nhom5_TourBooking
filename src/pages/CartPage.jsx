@@ -85,8 +85,14 @@ const CartPage = () => {
                       </td>
                       <td className="item-total">{formatPrice(item.tour.price * item.quantity)}</td>
                       <td>
-                        <button className="btn-delete" onClick={() => removeFromCart(item.tour.id || item.tour.tourId)}>
-                          <FaTrash color="red" />
+                        <button
+                          type="button"
+                          className="btn-delete"
+                          aria-label="Xóa tour khỏi giỏ hàng"
+                          title="Xóa tour khỏi giỏ hàng"
+                          onClick={() => removeFromCart(item.tour.id || item.tour.tourId)}
+                        >
+                          <FaTrash aria-hidden="true" />
                         </button>
                       </td>
                     </tr>

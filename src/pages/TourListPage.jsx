@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaSearch, FaFilter, FaRedo, FaTimes } from 'react-icons/fa';
 import { tourApi, categoryApi } from '../api/axiosConfig';
 import TourCard from '../components/tours/TourCard';
 import { TourGridSkeleton } from '../components/common/TourCardSkeleton';
+import useScrollReveal from '../hooks/useScrollReveal';
 import './TourListPage.css';
 
 const TourListPage = () => {
@@ -25,6 +26,10 @@ const TourListPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(paramCategory || '');
   const [priceRange, setPriceRange] = useState(paramPrice || '');
   const [sortBy, setSortBy] = useState('newest');
+  const searchDebounceTimer = useRef(null);
+
+  // Kích hoạt animation khi danh sách tour render
+  useScrollReveal([tours.length, loading, selectedCategory, priceRange]);
 
   useEffect(() => {
     fetchCategories();
@@ -69,8 +74,26 @@ const TourListPage = () => {
     }
   };
 
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    if (searchDebounceTimer.current) {
+      clearTimeout(searchDebounceTimer.current);
+    }
+    searchDebounceTimer.current = setTimeout(() => {
+      const params = new URLSearchParams(location.search);
+      if (value.trim()) {
+        params.set('keyword', value.trim());
+      } else {
+        params.delete('keyword');
+      }
+      const newQuery = params.toString();
+      navigate(newQuery ? `/tours?${newQuery}` : '/tours', { replace: true });
+    }, 350);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
+    if (searchDebounceTimer.current) clearTimeout(searchDebounceTimer.current);
     const params = new URLSearchParams();
     if (searchTerm.trim()) params.set('keyword', searchTerm.trim());
     if (selectedCategory) params.set('category', selectedCategory);
@@ -202,7 +225,7 @@ const TourListPage = () => {
                   aria-label="Tìm theo điểm đến, tên tour hoặc thành phố khởi hành"
                   placeholder="Tìm kiếm điểm đến, tên tour hoặc thành phố khởi hành..." 
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                 />
                 <button type="submit" className="btn btn-primary btn-search-icon" aria-label="Tìm tour">
                   <FaSearch />
@@ -258,7 +281,7 @@ const TourListPage = () => {
             {loading ? (
               <TourGridSkeleton count={6} />
             ) : loadError ? null : displayedTours.length > 0 ? (
-              <div className="tours-grid-list">
+              <div className="tours-grid-list stagger-children">
                 {displayedTours.map(tour => (
                   <TourCard key={tour.id || tour.tourId} tour={tour} />
                 ))}

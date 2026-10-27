@@ -72,6 +72,7 @@ Hệ thống **Du Lịch Việt (TourBooking)** là nền tảng thương mại 
 > Sơ đồ được phân rã thành 2 phân hệ độc lập: **Phân hệ Khách hàng & Trải nghiệm Đặt Tour** và **Phân hệ Đối tác & Quản trị Hệ thống**. Toàn bộ luồng dữ liệu di chuyển song song trực giao từ trái sang phải (`direction LR`), triệt tiêu 100% tình trạng chồng chéo cạnh (edge crossing) hay đè chữ giữa các tác nhân.
 
 ```mermaid
+%%{init: {'flowchart': {'curve': 'linear', 'nodeSpacing': 40, 'rankSpacing': 45}}}%%
 flowchart TD
     %% ==========================================================
     %% 1. PHÂN HỆ KHÁCH HÀNG & TRẢI NGHIỆM ĐẶT TOUR
@@ -196,6 +197,7 @@ flowchart TD
 > Sơ đồ kiến trúc được tổ chức thành 4 tầng phân lớp độc lập, trong đó các thành phần nội tầng được liên kết song song trực giao (`direction LR`), và liên kết liên tầng sử dụng đường dẫn hợp nhất dạng bus dọc (`Tier1 ==> Tier2 ==> Tier3 ==> Tier4`). Tuyệt đối không có cạnh chéo bắc cầu giữa các tầng, loại bỏ 100% tình trạng đè cạnh hay cắt ngang nhãn.
 
 ```mermaid
+%%{init: {'flowchart': {'curve': 'linear', 'nodeSpacing': 30, 'rankSpacing': 40}}}%%
 flowchart TD
     %% Tầng 1: Client
     subgraph Tier1["TẦNG TRÌNH DUYỆT KHÁCH HÀNG (PRESENTATION TIER - REACT 18 SPA)"]
