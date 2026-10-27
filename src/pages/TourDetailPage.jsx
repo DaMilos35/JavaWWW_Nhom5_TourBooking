@@ -361,10 +361,10 @@ const TourDetailPage = () => {
           </div>
         </div>
 
-        {/* Modern Traveloka Bento Media Mosaic Gallery with Carousel, Video & Lightbox */}
+        {/* Bộ sưu tập ảnh Bento Mosaic, Video trải nghiệm và Lightbox */}
         <TourGalleryBento tour={tour} gallery={getTourGallery(tour)} />
 
-        {/* Quick Traveloka Highlights Strip */}
+        {/* Thông tin nhanh: Thời lượng, phương tiện, khách sạn, số chỗ */}
         <div className="td-highlights mb-4">
           <div className="hl-item">
             <FaClock className="hl-icon" /> 

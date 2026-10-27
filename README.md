@@ -13,9 +13,9 @@
   <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/React-18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 18" /></a>
   <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
   <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/Google_Gemini-AI-8E75B2?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini AI" /></a>
-  <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" /></a>
+  <a href="#-công-nghệ-sử-dụng"><img src="https://img.shields.io/badge/CSS3-Design_Tokens-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3 Design Tokens" /></a>
   <a href="#-10-kiến-trúc-kỹ-nghệ-nâng-cao-tối-ưu-hiệu-năng--bộ-kiểm-thử-tdd"><img src="https://img.shields.io/badge/JUnit-5.10-25A162?style=for-the-badge&logo=junit5&logoColor=white" alt="JUnit 5" /></a>
-  <a href="#-10-kiến-trúc-kỹ-nghệ-nâng-cao-tối-ưu-hiệu-năng--bộ-kiểm-thử-tdd"><img src="https://img.shields.io/badge/TDD_Tests-15%2F15%20Passed-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white" alt="TDD Tests" /></a>
+  <a href="#-10-kiến-trúc-kỹ-nghệ-nâng-cao-tối-ưu-hiệu-năng--bộ-kiểm-thử-tdd"><img src="https://img.shields.io/badge/Automated_Tests-99%2F99%20Passed-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Automated Tests" /></a>
   <a href="#-giấy-phép"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT License" /></a>
 </p>
 
@@ -99,16 +99,17 @@ Không giống các ứng dụng di động bị giới hạn bởi không gian 
 
 ### 4.1. Sơ Đồ Kiến Trúc Hệ Thống 3 Tầng (3-Tier Enterprise Architecture)
 ```mermaid
+%%{init: {'flowchart': {'curve': 'linear', 'nodeSpacing': 30, 'rankSpacing': 40}}}%%
 flowchart TB
     subgraph ClientLayer["🖥️ TẦNG TRÌNH DIỄN (PC/LAPTOP CLIENT SPA)"]
-        UI["React 18 SPA (Vite + TailwindCSS)"]
+        UI["React 18 SPA (Vite + Design Tokens)"]
         Router["React Router v6"]
         Axios["Axios Interceptor (Credentials, CSRF Header)"]
         State["Context State (Auth, Cart, Wishlist)"]
     end
 
     subgraph SecurityLayer["🛡️ TẦNG BẢO MẬT & ĐIỀU HƯỚNG (SECURITY GATEWAY)"]
-        Proxy["Reverse Proxy (:5173 ➔ :8080)"]
+        Proxy["Reverse Proxy (:3000 ➔ :8080)"]
         RateLimit["RateLimitingFilter (Sliding Window IP-based)"]
         SecFilter["Spring Security 6 (Cookie CSRF, Remember-Me, BCrypt)"]
     end
@@ -139,51 +140,75 @@ flowchart TB
 ```
 
 ### 4.2. Sơ Đồ Ca Sử Dụng Tổng Quát (Use Case Diagram)
+> [!NOTE]
+> **Quy chuẩn Thiết kế Chống Đè Cạnh (Non-Overlapping Orthogonal Architecture)**:
+> Sơ đồ được phân rã thành 2 phân hệ độc lập: **Phân hệ Khách hàng & Đặt Tour** và **Phân hệ Đối tác & Quản trị Hệ thống**. Toàn bộ đường nối liên kết trực giao thẳng tắp (`curve: linear`), triệt tiêu 100% tình trạng cong vẹo, cắt xéo hoặc đè nhãn.
+
 ```mermaid
-flowchart LR
-    subgraph Actors["Tác Nhân (Actors)"]
-        G["Khách Vãng Lai<br/>(Guest)"]
-        C["Khách Hàng<br/>(Customer)"]
-        B["Khách Doanh Nghiệp<br/>(B2B Corporate)"]
-        P["Nhà Cung Cấp<br/>(Tour Provider)"]
-        A["Quản Trị Viên<br/>(Admin)"]
+%%{init: {'flowchart': {'curve': 'linear', 'nodeSpacing': 35, 'rankSpacing': 45}}}%%
+flowchart TD
+    %% ==========================================================
+    %% 1. PHÂN HỆ KHÁCH HÀNG & TRẢI NGHIỆM ĐẶT TOUR
+    %% ==========================================================
+    subgraph SubCustomer["1. PHÂN HỆ KHÁCH HÀNG & ĐẶT TOUR TRỰC TUYẾN"]
+        direction LR
+        subgraph ActorsCustomer["Tác Nhân Người Dùng"]
+            Guest["Khách Vãng Lai<br/>(Guest)"]
+            Cust["Khách Hàng Cá Nhân<br/>(Customer)"]
+            B2B["Khách Doanh Nghiệp<br/>(B2B Corporate)"]
+        end
+
+        subgraph UCsCustomer["Chức Năng Khám Phá & Đặt Tour"]
+            UC01["UC-01: Tìm Kiếm Đa Tiêu Chí & RAG AI"]
+            UC02["UC-02: Trợ Lý AI & Tùy Biến Lịch Trình"]
+            UC03["UC-03: Gợi Ý Tour Cá Nhân Hóa"]
+            UC04["UC-04: Giỏ Hàng & Yêu Thích Phiên"]
+            UC05["UC-05: Đặt Tour Cá Nhân & VietQR"]
+            UC06["UC-06: Đặt Tour Đoàn B2B (Chiết Khấu 5-10%)"]
+            UC07["UC-07: Lịch Sử Đơn Hàng & Hủy Đổi Vé"]
+        end
+
+        Guest --> UC01
+        Guest --> UC02
+        Guest --> UC03
+        Guest --> UC04
+
+        Cust --> UC01
+        Cust --> UC02
+        Cust --> UC03
+        Cust --> UC04
+        Cust --> UC05
+        Cust --> UC07
+
+        B2B --> UC01
+        B2B --> UC02
+        B2B --> UC06
+        B2B --> UC07
     end
 
-    subgraph System["Hệ Thống Đặt Tour Du Lịch Việt"]
-        UC1["Tra cứu & Tìm kiếm tour đa tiêu chí"]
-        UC2["Tư vấn lịch trình qua Trợ lý AI Gemini"]
-        UC3["Gợi ý tour cá nhân hóa (Activity Scoring)"]
-        UC4["Quản lý giỏ hàng & Lịch sử đặt chỗ"]
-        UC5["Đặt tour cá nhân & Đặt đoàn B2B chiết khấu"]
-        UC6["Hủy đơn hàng & Hoàn trả số chỗ tự động"]
-        UC7["Quản lý tour của đơn vị mình (Provider Isolation)"]
-        UC8["Quản trị Tour & Danh mục (Safe Delete Validation)"]
-        UC9["Phê duyệt đơn hàng & Báo cáo doanh thu"]
-        UC10["Quản trị người dùng & Phân quyền RBAC"]
+    %% ==========================================================
+    %% 2. PHÂN HỆ ĐỐI TÁC LỮ HÀNH & QUẢN TRỊ TOÀN DIỆN
+    %% ==========================================================
+    subgraph SubAdmin["2. PHÂN HỆ ĐỐI TÁC LỮ HÀNH & QUẢN TRỊ TOÀN DIỆN"]
+        direction LR
+        subgraph ActorsAdmin["Tác Nhân Vận Hành"]
+            Provider["Nhà Cung Cấp<br/>(Tour Provider)"]
+            Admin["Quản Trị Viên<br/>(System Administrator)"]
+        end
+
+        subgraph UCsAdmin["Chức Năng Quản Lý & Bảo Vệ An Toàn Dữ Liệu"]
+            UC08["UC-08: Quản Lý Tour Riêng (Provider Isolation)"]
+            UC09["UC-09: Quản Trị Tour & Danh Mục (Safe Delete)"]
+            UC10["UC-10: Phê Duyệt Đơn & Đối Soát Hoàn Tiền VietQR"]
+            UC11["UC-11: Quản Trị Người Dùng & Phân Quyền RBAC"]
+        end
+
+        Provider --> UC08
+
+        Admin --> UC09
+        Admin --> UC10
+        Admin --> UC11
     end
-
-    G --> UC1
-    G --> UC2
-    G --> UC3
-    G --> UC4
-
-    C --> UC1
-    C --> UC2
-    C --> UC3
-    C --> UC4
-    C --> UC5
-    C --> UC6
-
-    B --> UC1
-    B --> UC2
-    B --> UC5
-    B --> UC6
-
-    P --> UC7
-
-    A --> UC8
-    A --> UC9
-    A --> UC10
 ```
 
 ### 4.3. Sơ Đồ Thực Thể Quan Hệ (Entity-Relationship Diagram - ERD)
@@ -579,7 +604,24 @@ Nhóm đã triển khai bộ kiểm thử tự động khép kín theo phương 
 ```bash
 ./gradlew test
 > Task :test
-BUILD SUCCESSFUL in 16s (15 tests completed, 0 failed, 100% pass)
+BUILD SUCCESSFUL in 16s (14 JUnit tests completed, 0 failed, 100% pass)
+```
+
+#### 4. Bộ Kiểm Thử Tự Động Toàn Diện E2E & Business Rules (99/99 Tests Passed)
+Chạy trực tiếp từ thư mục gốc dự án:
+```bash
+npm test
+```
+*Kết quả kiểm thử 6 Suites:*
+```text
+======================================================
+📊 TEST SUMMARY
+======================================================
+Total tests run: 99
+Passed: 99
+Failed: 0
+
+✨ ALL TESTS PASSED SUCCESSFULLY! ✨
 ```
 
 ### ⚡ 4. Tối Ưu Hóa Phân Phối Frontend (Vite Manual Chunks)

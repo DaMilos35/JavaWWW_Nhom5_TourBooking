@@ -11,6 +11,7 @@ import {
   FaHandHoldingUsd, FaShieldAlt, FaPlaneDeparture,
   FaChevronRight, FaMagic, FaTimes
 } from 'react-icons/fa';
+import useScrollReveal from '../hooks/useScrollReveal';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -34,6 +35,9 @@ const HomePage = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [timeLeft, setTimeLeft] = useState('12:45:00');
   const navigate = useNavigate();
+
+  // Scroll reveal trigger
+  useScrollReveal([tours.length, categories.length, semanticResults]);
 
   // Đếm ngược thực tế (Live countdown ticker chuẩn OTA)
   useEffect(() => {
@@ -155,19 +159,19 @@ const HomePage = () => {
 
   return (
     <div className="homepage">
-      {/* Traveloka Hero Section with Seamless Smart Search */}
+      {/* Hero Section & Tìm kiếm thông minh */}
       <section className="hero-section">
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <div className="hero-top-badge">
             <span className="live-dot"></span> Sàn Thương Mại Điện Tử Du Lịch Hàng Đầu Việt Nam
           </div>
-          <h1 className="hero-title">Khám Phá Việt Nam & Thế Giới<br />Trọn Vẹn Từng Trải Nghiệm</h1>
+          <h1 className="hero-title text-gradient-animated">Khám Phá Việt Nam & Thế Giới<br />Trọn Vẹn Từng Trải Nghiệm</h1>
           <p className="hero-subtitle">
             Hơn 40 hành trình chọn lọc từ Vietravel, Saigontourist, xác nhận vé điện tử tức thì và hỗ trợ tìm kiếm bằng công nghệ AI thông minh.
           </p>
 
-          {/* Thanh Tìm Kiếm Hợp Nhất Thông Minh (Lồng Vector Search Ngầm) */}
+          {/* Thanh tìm kiếm điểm đến và phân loại */}
           <div className="hero-search-container">
             <form className="search-widget-wrapper" onSubmit={handleSmartSearch}>
               <div className="search-field field-destination">
@@ -311,7 +315,7 @@ const HomePage = () => {
 
       {/* Flash Deals / Hot Tours Section với Đồng Hồ Đếm Ngược Thực Tế */}
       {flashDeals.length > 0 && (
-        <section className="flash-deal-section container">
+        <section className="flash-deal-section container reveal">
           <div className="flash-deal-banner">
             <div className="flash-deal-header">
               <div className="flash-title-wrap">
@@ -326,7 +330,7 @@ const HomePage = () => {
               </div>
             </div>
 
-            <div className="tour-grid">
+            <div className="tour-grid stagger-children">
               {flashDeals.map(tour => (
                 <TourCard key={`flash-${tour.id || tour.tourId}`} tour={tour} />
               ))}
@@ -336,7 +340,7 @@ const HomePage = () => {
       )}
 
       {/* Category Grid Section */}
-      <section className="categories-section container">
+      <section className="categories-section container reveal">
         <div className="section-header">
           <div>
             <span className="section-kicker">DANH MỤC ĐIỂM ĐẾN</span>
@@ -348,7 +352,7 @@ const HomePage = () => {
           </Link>
         </div>
 
-        <div className="category-grid">
+        <div className="category-grid stagger-children">
           {categories.map((cat) => (
             <Link to={`/tours?category=${cat.id || cat.categoryId}`} key={cat.id || cat.categoryId} className="category-card">
               <FallbackImage
@@ -366,9 +370,9 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Traveloka Trust & Value Pillars */}
-      <section className="features-section container">
-        <div className="features-grid">
+      {/* Cam kết chất lượng và an tâm chuyến đi */}
+      <section className="features-section container reveal">
+        <div className="features-grid stagger-children">
           <div className="feature-box">
             <div className="feature-icon-wrapper feat-ai"><FaMagic /></div>
             <h3>Gợi Ý Thông Minh Bằng AI</h3>
@@ -394,7 +398,7 @@ const HomePage = () => {
 
       {/* Personalized Recommendations based on User Activity (Chỉ hiển thị khi đã đăng nhập) */}
       {user && recommendations && recommendations.length > 0 && (
-        <section className="featured-tours-section container">
+        <section className="featured-tours-section container reveal">
           <div className="section-header">
             <div>
               <div className="personalized-badge">
@@ -404,7 +408,7 @@ const HomePage = () => {
               <p className="section-subtitle">Dựa trên lịch sử tìm kiếm và các chuyến đi bạn đã quan tâm</p>
             </div>
           </div>
-          <div className="tour-grid">
+          <div className="tour-grid stagger-children">
             {recommendations.map(tour => (
               <TourCard key={`rec-${tour.id || tour.tourId}`} tour={tour} />
             ))}
@@ -413,7 +417,7 @@ const HomePage = () => {
       )}
 
       {/* Main Tour Showcase Grid */}
-      <section className="featured-tours-section container" style={{ marginBottom: '100px' }}>
+      <section className="featured-tours-section container reveal" style={{ marginBottom: '100px' }}>
         <div className="section-header">
           <div>
             <span className="section-kicker">DANH SÁCH MỞ BÁN</span>
@@ -425,7 +429,7 @@ const HomePage = () => {
           </Link>
         </div>
 
-        <div className="tour-grid">
+        <div className="tour-grid stagger-children">
           {tours.slice(0, 8).map(tour => (
             <TourCard key={tour.id || tour.tourId} tour={tour} />
           ))}
