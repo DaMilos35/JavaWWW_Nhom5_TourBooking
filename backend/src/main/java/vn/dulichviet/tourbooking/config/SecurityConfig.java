@@ -48,12 +48,14 @@ public class SecurityConfig {
                     "/api/users", "/api/users/**",
                     "/api/admin", "/api/admin/**",
                     "/api/ai", "/api/ai/**",
-                    "/api/activity", "/api/activity/**"))
+                    "/api/activity", "/api/activity/**",
+                    "/api/corporate", "/api/corporate/**"))
             .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/**", "/api/ai", "/api/ai/**", "/api/activity", "/api/activity/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/ai", "/api/ai/**", "/api/activity", "/api/activity/**",
+                        "/api/corporate/**").permitAll()
                 .requestMatchers("/api/payment/vnpay/return").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**", "/api/tours", "/api/tours/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/activity", "/api/activity/**").permitAll()

@@ -32,6 +32,7 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminB2B from './pages/admin/AdminB2B';
 
 // Guards
 import { PrivateRoute, AdminRoute } from './components/common/PrivateRoute';
@@ -86,6 +87,7 @@ function App() {
               <Route path="orders" element={<AdminOrders />} />
               <Route path="orders/:id" element={<AdminOrderDetail />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="b2b" element={<AdminB2B />} />
             </Route>
           </Routes>
         </Router>

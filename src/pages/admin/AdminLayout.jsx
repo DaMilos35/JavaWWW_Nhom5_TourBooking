@@ -11,7 +11,8 @@ import {
   FaCompass, 
   FaBell, 
   FaUserShield,
-  FaHome
+  FaHome,
+  FaBuilding
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { adminApi } from '../../api/axiosConfig';
@@ -63,6 +64,7 @@ const AdminLayout = () => {
       badge: pendingOrdersCount > 0 ? pendingOrdersCount : null 
     },
     { path: '/admin/users', name: 'Khách Hàng', icon: <FaUsers /> },
+    { path: '/admin/b2b', name: 'B2B Doanh Nghiệp', icon: <FaBuilding /> },
   ];
 
   const getInitial = (name) => name ? name.charAt(0).toUpperCase() : 'A';

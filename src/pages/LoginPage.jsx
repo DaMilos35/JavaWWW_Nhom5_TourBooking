@@ -11,7 +11,9 @@ import {
   FaEye, 
   FaEyeSlash, 
   FaBuilding, 
-  FaUserTie 
+  FaUserTie,
+  FaCheckCircle,
+  FaBolt
 } from 'react-icons/fa';
 import './AuthPages.css';
 
