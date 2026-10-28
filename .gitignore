@@ -49,3 +49,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 scratch/
+
+*.tsv
+database/*.tsv

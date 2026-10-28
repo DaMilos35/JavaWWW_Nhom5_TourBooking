@@ -1,0 +1,19 @@
+version: '3.8'
+
+# ==============================================================================
+# CẤU HÌNH HORIZONTAL SCALING (MỞ RỘNG CỤM BACKEND CHO 1.000.000 CCU)
+# Sử dụng: docker compose -f docker-compose.yml -f docker-compose.scale.yml up -d --scale backend=4
+# ==============================================================================
+
+services:
+  backend:
+    container_name: "" # Bỏ tên cố định để Docker Compose tự động sinh backend_1, backend_2, backend_3, backend_4
+    deploy:
+      replicas: 4
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M

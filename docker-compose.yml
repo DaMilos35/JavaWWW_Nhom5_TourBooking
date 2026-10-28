@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # 1. DATABASE SERVICE (MariaDB Enterprise 11.4 LTS - Tuned for 10M rows)
+  # ============================================================================
+  db:
+    image: mariadb:11.4
+    container_name: tourbooking-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-12345678}
+      MYSQL_DATABASE: tourbookingdb
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/data.sql:/docker-entrypoint-initdb.d/02_data.sql:ro
+      - ./database/b2b_migration.sql:/docker-entrypoint-initdb.d/03_b2b.sql:ro
+      - ./database/high_concurrency_indexes.sql:/docker-entrypoint-initdb.d/04_indexes.sql:ro
+    ports:
+      - "3306:3306"
+    networks:
+      - tourbooking-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ============================================================================
+  # 2. CACHE TIER (Redis 7 In-Memory Cache - 1M CCU Shock Absorber)
+  # ============================================================================
+  redis:
+    image: redis:7.4-alpine
+    container_name: tourbooking-redis
+    restart: always
+    command: >
+      redis-server 
+      --maxmemory 1024mb 
+      --maxmemory-policy allkeys-lru 
+      --tcp-backlog 2048 
+      --timeout 0 
+      --tcp-keepalive 300
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tourbooking-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # ============================================================================
+  # 3. BACKEND API SERVICE (Spring Boot 3 + JDK 17 G1GC)
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tourbooking-backend
+    restart: always
+    environment:
+      DB_URL: jdbc:mariadb://db:3306/tourbookingdb?useUnicode=true&characterEncoding=utf8
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-12345678}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CACHE_TYPE: redis
+      CORS_ORIGIN: http://localhost,http://localhost:80,http://localhost:3000
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tourbooking-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/tours?page=0&size=1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ============================================================================
+  # 4. FRONTEND & REVERSE PROXY (Nginx Load Balancer + React SPA)
+  # ============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tourbooking-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - tourbooking-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+# ==============================================================================
+# VOLUMES & NETWORKS
+# ==============================================================================
+volumes:
+  db_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  tourbooking-network:
+    driver: bridge
