@@ -2093,65 +2093,92 @@
   {
     "tour_id": 40,
     "category_id": 8,
-    "provider_id": 3,
-    "tour_name": "Đài Loan: Đài Bắc - Đài Trung - Hồ Nhật Nguyệt - Làng Cổ Thập Phần 5N4Đ",
-    "description": "Thưởng ngoạn hòn đảo ngọc Formosa trù phú: du thuyền ngắm cảnh Hồ Nhật Nguyệt mộng mơ, thả đèn trời ước nguyện tại Phố cổ Thập Phần, chụp ảnh Tòa tháp Taipei 101 biểu tượng.",
-    "price": 12900000.0,
-    "original_price": 15500000.0,
-    "duration": 5,
-    "departure_location": "TP. Hồ Chí Minh",
-    "image_url": "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1200&q=80",
-    "available_seats": 300,
+    "provider_id": 4,
+    "tour_name": "Châu Âu 4 Nước: Pháp - Thụy Sĩ - Ý - Vatican 10N9Đ: Tháp Eiffel - Đỉnh Núi Titlis - Đấu Trường Colosseum",
+    "description": "Hành trình trong mơ khám phá trái tim Châu Âu cổ kính và hoa lệ: chiêm ngưỡng Tháp Eiffel biểu tượng và du thuyền sông Seine thơ mộng tại Paris, chinh phục đỉnh tuyết vĩnh cửu Titlis Thụy Sĩ bằng cáp treo xoay 360 độ, dạo thuyền Gondola tại Venice và ngắm Đấu trường Colosseum La Mã.",
+    "price": 68900000.0,
+    "original_price": 76000000.0,
+    "duration": 10,
+    "departure_location": "TP. Hồ Chí Minh / Hà Nội",
+    "image_url": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80",
+    "available_seats": 240,
     "start_date": "2026-10-21",
-    "end_date": "2026-10-26",
+    "end_date": "2026-10-31",
     "status": "ACTIVE",
-    "rating": 4.9,
-    "vehicle": "Máy bay khứ hồi China Airlines / Eva Air 5 sao",
+    "rating": 4.95,
+    "vehicle": "Máy bay khứ hồi hàng không 5 sao Qatar Airways / Turkish Airlines bao gồm 30kg ký gửi",
     "hotel_star": 4,
-    "badge": "GIÁ TỐT NHẤT",
+    "badge": "TOUR CAO CẤP",
     "highlights": [
-      "Đi du thuyền thưởng ngoạn vẻ đẹp sơn thủy hữu tình trên Hồ Nhật Nguyệt",
-      "Thả đèn trời bốn mặt cầu bình an may mắn tại Tuyến đường sắt Cổ Thập Phần",
-      "Check-in Tòa tháp Taipei 101 từng là tòa nhà cao nhất thế giới",
-      "Thưởng thức ẩm thực chợ đêm Phùng Giáp và trà sữa trân châu chính gốc"
+      "Chụp ảnh lưu niệm tại Tháp Eiffel biểu tượng và du thuyền trên dòng sông Seine Paris",
+      "Chinh phục đỉnh núi tuyết Titlis Thụy Sĩ cao 3.020m bằng cáp treo xoay Rotair 360 độ",
+      "Du ngoạn thành phố nổi Venice lãng mạn trên những chiếc thuyền Gondola truyền thống",
+      "Chiêm ngưỡng Đấu trường La Mã Colosseum và Quảng trường Thánh Peter tại Vatican"
     ],
     "itinerary": [
       {
         "day": 1,
-        "title": "TP.HCM - Sân Bay Đào Viên Đài Bắc - Đài Trung",
-        "content": "Bay đến Đài Bắc. Xe đưa đoàn về thành phố Đài Trung. Khám phá Chợ đêm Phùng Giáp (Fengjia) - thiên đường ăn vặt với đậu hũ thối, trà sữa trân châu."
+        "title": "TP.HCM / Hà Nội - Paris (Pháp)",
+        "content": "Đoàn tập trung tại sân bay quốc tế Tân Sơn Nhất / Nội Bài làm thủ tục đáp chuyến bay thẳng hoặc quá cảnh 5 sao đi Paris. Nghỉ đêm trên máy bay."
       },
       {
         "day": 2,
-        "title": "Hồ Nhật Nguyệt - Miếu Văn Võ - Làng Cầu Vồng Rainbow Village",
-        "content": "Du thuyền ngắm cảnh Hồ Nhật Nguyệt. Viếng Miếu Văn Võ uy nghiêm. Thăm Làng Cầu Vồng rực rỡ sắc màu tranh vẽ của cụ ông Huang Yung-fu. Về Đài Bắc."
+        "title": "Kinh Đô Ánh Sáng Paris - Khải Hoàn Môn - Tháp Eiffel - Du Thuyền Sông Seine",
+        "content": "Đến Paris hoa lệ. Xe đón đoàn tham quan Khải Hoàn Môn (Arc de Triomphe), Đại lộ Champs-Élysées danh tiếng. Chụp ảnh tại Tháp Eiffel biểu tượng nước Pháp. Chiều trải nghiệm du thuyền Bateaux Mouches lướt êm trên dòng sông Seine ngắm toàn cảnh các cây cầu cổ kính."
       },
       {
         "day": 3,
-        "title": "Làng Cổ Cửu Phần Jiufen - Thác Nước Thập Phần - Thả Đèn Trời",
-        "content": "Khám phá Làng Cổ Cửu Phần lồng đèn đỏ (cảm hứng phim Vùng Đất Linh Hồn). Đến Phố cổ Thập Phần thả đèn trời ước nguyện dọc đường ray tàu hỏa cổ."
+        "title": "Bảo Tàng Louvre - Nhà Thờ Đức Bà Paris - Di Chuyển Đi Thụy Sĩ",
+        "content": "Chiêm ngưỡng Kim Tự Tháp kính tại Bảo tàng Louvre, chụp ảnh bên ngoài Nhà Thờ Đức Bà Paris. Khởi hành bằng tàu cao tốc TGV xuyên biên giới sang thị trấn cổ tích Thụy Sĩ."
       },
       {
         "day": 4,
-        "title": "Đài Tưởng Niệm Tưởng Giới Thạch - Tòa Tháp Taipei 101",
-        "content": "Thăm Nhà tưởng niệm Tưởng Giới Thạch xem đổi gác trang nghiêm. Check-in Tháp Taipei 101. Tự do mua sắm bánh dứa Phụng Lê đặc sản."
+        "title": "Thụy Sĩ: Engelberg - Chinh Phục Đỉnh Núi Tuyết Titlis - Lucerne",
+        "content": "Trải nghiệm cáp treo xoay 360 độ Titlis Rotair đầu tiên trên thế giới lên đỉnh Titlis tuyết trắng vĩnh cửu ở độ cao 3.020m. Về thành phố Lucerne thơ mộng: check-in Cầu Gỗ Chapel cổ kính và Tượng đài Sư tử đá Lion Monument."
       },
       {
         "day": 5,
-        "title": "Chùa Long Sơn - Sân Bay Đào Viên Về TP.HCM",
-        "content": "Viếng Chùa Long Sơn cổ tự linh thiêng bậc nhất Đài Loan. Mua sắm hàng miễn thuế. Xe tiễn sân bay Đào Viên về lại TP.HCM."
+        "title": "Lucerne - Milan Kinh Đô Thời Trang Ý - Nhà Thờ Duomo",
+        "content": "Khởi hành sang nước Ý đến Milan. Chiêm ngưỡng vẻ đẹp kiến trúc Gothic kỳ vĩ của Nhà thờ chính tòa Duomo Milan và dạo bước trong trung tâm mua sắm Galleria Vittorio Emanuele II."
+      },
+      {
+        "day": 6,
+        "title": "Milan - Thành Phố Kênh Đào Venice Lãng Mạn",
+        "content": "Đi tàu ra Đảo Venice - thành phố nổi kỳ diệu trên biển Adriatic. Tham quan Quảng trường Thánh Mark, Cầu Than Thở (Bridge of Sighs), xưởng chế tác thủy tinh Murano và trải nghiệm ngồi thuyền Gondola ngắm nhìn những dãy phố cổ kính."
+      },
+      {
+        "day": 7,
+        "title": "Venice - Tháp Nghiêng Pisa Kỳ Diệu",
+        "content": "Khởi hành đến thành phố Pisa vùng Tuscany. Chiêm ngưỡng Quần thể Quảng trường Màu Nhiệm (Piazza dei Miracoli) và Tháp Nghiêng Pisa - một trong những kỳ quan kiến trúc thế giới độc đáo nhất."
+      },
+      {
+        "day": 8,
+        "title": "Pisa - Thủ Đô Rome Cổ Kính - Đấu Trường Colosseum",
+        "content": "Đến thủ đô Rome lịch sử nghìn năm. Tham quan bên ngoài Đấu Trường La Mã Colosseum vĩ đại, Đài Phun Nước Trevi ném đồng xu ước nguyện quay lại thành Rome và Bậc Thang Tây Ban Nha."
+      },
+      {
+        "day": 9,
+        "title": "Vương Quốc Vatican - Quảng Trường Thánh Peter - Sân Bay Rome",
+        "content": "Viếng thăm Quốc gia nhỏ nhất thế giới Vatican, chiêm ngưỡng Vương Cung Thánh Đường Thánh Peter tráng lệ tuyệt mỹ. Mua sắm đồ lưu niệm. Xe tiễn đoàn ra sân bay Rome Fiumicino đáp chuyến bay về Việt Nam."
+      },
+      {
+        "day": 10,
+        "title": "Về Đến TP.HCM / Hà Nội",
+        "content": "Máy bay hạ cánh an toàn tại sân bay Tân Sơn Nhất / Nội Bài. Kết thúc hành trình 10 ngày 9 đêm khám phá Châu Âu tuyệt đẹp đầy kỷ niệm đáng nhớ."
       }
     ],
     "inclusions": [
-      "Vé máy bay khứ hồi hãng 5 sao",
-      "Khách sạn 4 sao suốt hành trình",
-      "Visa Quan Hồng tiện lợi",
-      "Bao gồm vé thả đèn trời (4 khách/đèn)"
+      "Vé máy bay quốc tế khứ hồi hàng không 5 sao Qatar Airways / Turkish Airlines (bao gồm 30kg ký gửi + 7kg xách tay)",
+      "Khách sạn 4 sao tiêu chuẩn quốc tế Châu Âu suốt hành trình (2 khách/phòng)",
+      "Lệ phí visa Schengen và dịch thuật hồ sơ công chứng trọn gói",
+      "Vé cáp treo xoay 360 độ chinh phục Đỉnh Núi Tuyết Titlis Thụy Sĩ",
+      "Vé du thuyền sông Seine Paris và thuyền Gondola Venice",
+      "Bảo hiểm du lịch quốc tế hạn mức bồi thường lên tới 1.050.000.000 VNĐ"
     ],
     "exclusions": [
-      "Vé lên đài quan sát tầng 89 Taipei 101",
-      "Tiền tip cho HDV và tài xế (5 USD/khách/ngày)",
-      "Chi tiêu cá nhân"
+      "Hộ chiếu còn hạn trên 6 tháng tính từ ngày kết thúc tour",
+      "Tiền tip quy định bắt buộc cho Hướng dẫn viên và Tài xế Châu Âu (8 EUR/khách/ngày)",
+      "Chi phí cá nhân ngoài chương trình (giặt ủi, điện thoại, mua sắm)"
     ]
   }
 ]

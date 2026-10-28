@@ -117,7 +117,10 @@ function normalizeSearchKeyword(keyword) {
     'giare': 'gia re',
     'sanmay': 'san may',
     'nghimat': 'nghi mat',
-    'ksan': 'khach san'
+    'ksan': 'khach san',
+    'chauau': 'chau au',
+    'triue': 'trieu',
+    'chiphi': 'chi phi'
   };
   for (const [typo, fixed] of Object.entries(typos)) {
     if (s.includes(typo)) s = s.split(typo).join(fixed);

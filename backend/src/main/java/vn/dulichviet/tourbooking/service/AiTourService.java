@@ -169,16 +169,14 @@ public class AiTourService {
      */
     private String callGeminiRagApi(String userMessage, List<Tour> relevantTours, Map<Integer, Double> similarityMap) throws Exception {
         StringBuilder ragContext = new StringBuilder();
-        ragContext.append("CÁC TOUR ĐƯỢC VECTOR DATABASE TRÍCH XUẤT THEO ĐỘ PHÙ HỢP NGỮ NGHĨA (RAG RETRIEVAL):\n");
+        ragContext.append("DANH SÁCH TOUR DU LỊCH TRÊN HỆ THỐNG DU LỊCH VIỆT:\n");
 
         if (relevantTours.isEmpty()) {
-            ragContext.append("(Không tìm thấy tour cụ thể khớp với truy vấn, hãy tư vấn chung về các điểm đến nổi tiếng tại Việt Nam).\n");
+            ragContext.append("(Không tìm thấy tour cụ thể khớp với truy vấn, hãy tư vấn nhiệt tình các hành trình du lịch nổi bật của Du Lịch Việt).\n");
         } else {
             for (Tour t : relevantTours) {
-                Double sim = similarityMap.get(t.getId());
-                String simText = sim != null ? String.format(" [Độ tương đồng Vector: %.1f%%]", sim * 100) : "";
-                ragContext.append(String.format("- ID: %d | Tên: %s%s | Danh mục: %s | Giá: %s VNĐ | Thời lượng: %d ngày | Khởi hành: %s | Đánh giá: %s*\n  Mô tả: %s\n",
-                        t.getId(), t.getName(), simText,
+                ragContext.append(String.format("- ID: %d | Tên: %s | Danh mục: %s | Giá: %s VNĐ | Thời lượng: %d ngày | Khởi hành: %s | Đánh giá: %s*\n  Mô tả: %s\n",
+                        t.getId(), t.getName(),
                         t.getCategory() != null ? t.getCategory().getName() : "Du lịch",
                         t.getPrice().toPlainString(), t.getDuration(),
                         t.getDepartureLocation() != null ? t.getDepartureLocation() : "Toàn quốc",
@@ -187,14 +185,19 @@ public class AiTourService {
             }
         }
 
-        String systemPrompt = "Bạn là Chuyên viên Tư vấn Du lịch trực tuyến cao cấp, tận tâm của 'Du Lịch Việt' (luôn xưng là 'em' hoặc 'Du Lịch Việt' và gọi khách hàng là 'anh/chị' hoặc 'quý khách').\n" +
+        String systemPrompt = "Bạn là Chuyên viên Tư vấn Du lịch cao cấp, tận tâm của 'Du Lịch Việt' (luôn xưng 'em' hoặc 'Du Lịch Việt' và gọi khách là 'anh/chị' hoặc 'quý khách').\n" +
                 "Khách hàng có thể gõ tiếng Việt không dấu (ví dụ: 'tim tour nha trang', 'da lat 3 ngay', 'gia re') hoặc gõ tắt, gõ nhầm lỗi telex, lỗi chính tả.\n" +
                 "Nhiệm vụ:\n" +
                 "1. Luôn thấu hiểu chính xác ý định của khách hàng, ngầm hiểu và tự động sửa các lỗi chính tả/gõ không dấu của khách.\n" +
                 "2. Trả lời bằng tiếng Việt chuẩn mực, có dấu đầy đủ, giọng điệu niềm nở, ân cần, hiếu khách và chuyên nghiệp như một tư vấn viên lâu năm.\n" +
-                "3. Giới thiệu nhiệt tình các tour du lịch được hệ thống gợi ý ở trên phù hợp nhất với mong muốn của khách (nêu rõ điểm nổi bật, giá vé ưu đãi, số ngày).\n" +
-                "4. Nhắc khách hàng có thể bấm trực tiếp vào thẻ tour bên dưới để xem hình ảnh thực tế, lịch trình chi tiết và giữ chỗ.\n" +
-                "5. Tuyệt đối KHÔNG tự xưng là 'AI', 'mô hình ngôn ngữ', 'bot' hay đề cập đến các thuật toán/công nghệ.";
+                "3. ĐẶC BIỆT VỀ ĐỌC HIỂU ĐIỂM ĐẾN & NGÂN SÁCH THỰC TẾ:\n" +
+                "   - Nếu khách hàng hỏi về các điểm đến quốc tế xa xôi (như Châu Âu, Mỹ, Úc) với ngân sách không thực tế (ví dụ: 'chuyến du lịch đến các nước châu Âu chi phí dưới 10 triệu cho 2 người', trong khi thực tế tour Châu Âu trọn gói thường từ 55 - 85 triệu đồng/khách và riêng vé máy bay khứ hồi quốc tế đã trên 20 triệu/vé):\n" +
+                "     + Hãy giải thích thật khéo léo, nhã nhặn và thực tế cho khách hiểu rõ mặt bằng chi phí (vé máy bay quốc tế, thị thực Schengen, chi phí lưu trú tại Châu Âu).\n" +
+                "     + Tuyệt đối KHÔNG gán ghép hoặc gượng ép giới thiệu các tour nội địa (du thuyền sông Sài Gòn, trekking) thành tour đi Châu Âu chỉ vì có chữ 'châu âu' trong phong cách hay mô tả.\n" +
+                "     + Giới thiệu tour Châu Âu thực tế nếu khách muốn tham khảo dài hạn (như Tour Châu Âu 4 nước Pháp - Thụy Sĩ - Ý - Vatican 10N9Đ giá 68.900.000đ/khách), đồng thời tư vấn phương án thay thế phù hợp với ngân sách 10 triệu cho 2 người (như tour Thái Lan khoảng 6.990.000đ/khách hoặc các tour nghỉ dưỡng biển đảo Phú Quốc, Nha Trang).\n" +
+                "4. Giới thiệu nhiệt tình các tour du lịch phù hợp nhất trong danh sách ở trên (nêu rõ điểm nổi bật, giá vé ưu đãi, số ngày).\n" +
+                "5. Nhắc khách hàng có thể bấm trực tiếp vào thẻ tour bên dưới để xem hình ảnh thực tế, lịch trình chi tiết và giữ chỗ.\n" +
+                "6. Tuyệt đối KHÔNG tự xưng là 'AI', 'mô hình ngôn ngữ', 'bot'. Tuyệt đối KHÔNG sử dụng các thuật ngữ kỹ thuật như 'vector database', 'embedding', 'cosine similarity', 'cơ sở dữ liệu vector', 'thuật toán', 'RAG', 'trích xuất'.";
 
         Map<String, Object> payload = Map.of(
                 "contents", List.of(
@@ -323,6 +326,10 @@ public class AiTourService {
             else if (unaccented.contains("quang binh") && textUnaccented.contains("quang binh")) matches.add(t);
             else if (unaccented.contains("thai lan") && textUnaccented.contains("thai lan")) matches.add(t);
             else if (unaccented.contains("singapore") && textUnaccented.contains("singapore")) matches.add(t);
+            else if ((unaccented.contains("chau au") || unaccented.contains("phap") || unaccented.contains("thuy si") || unaccented.contains("italy") || unaccented.contains("vatican") || unaccented.contains("eiffel") || unaccented.contains("paris") || unaccented.contains("rome") || unaccented.contains("titlis") || unaccented.contains("colosseum"))
+                    && (textUnaccented.contains("chau au") || textUnaccented.contains("phap") || textUnaccented.contains("thuy si") || textUnaccented.contains("vatican") || textUnaccented.contains("eiffel") || textUnaccented.contains("paris") || textUnaccented.contains("rome") || textUnaccented.contains("titlis") || textUnaccented.contains("colosseum"))) {
+                matches.add(t);
+            }
         }
 
         // Lọc ngân sách nếu có (hỗ trợ có dấu và không dấu: gia re, tiet kiem, duoi 5 trieu, ...)
@@ -344,7 +351,10 @@ public class AiTourService {
         if (filterBudget) {
             BigDecimal finalMax = maxPrice;
             BigDecimal finalMin = minPrice;
+            // Nếu khách hỏi về Châu Âu nhưng kèm ngân sách thấp, giữ lại cả tour Châu Âu thực tế và các tour ngân sách thay thế
+            boolean queryEurope = unaccented.contains("chau au") || unaccented.contains("phap") || unaccented.contains("thuy si");
             matches = tours.stream().filter(t -> {
+                if (queryEurope && t.getName().toLowerCase(Locale.ROOT).contains("châu âu")) return true;
                 if (finalMax != null && t.getPrice().compareTo(finalMax) > 0) return false;
                 if (finalMin != null && t.getPrice().compareTo(finalMin) < 0) return false;
                 return true;
@@ -405,6 +415,10 @@ public class AiTourService {
 
         boolean isAdventure = unaccented.contains("tham hiem") || unaccented.contains("hang dong") || unaccented.contains("mao hiem")
                 || unaccented.contains("cam trai") || unaccented.contains("tu lan") || unaccented.contains("phong nha");
+
+        boolean isEurope = unaccented.contains("chau au") || unaccented.contains("phap") || unaccented.contains("thuy si")
+                || unaccented.contains("italy") || unaccented.contains("vatican") || unaccented.contains("paris") || unaccented.contains("rome")
+                || unaccented.contains("eiffel") || unaccented.contains("titlis") || unaccented.contains("colosseum");
 
         if (isGreeting && matchedTours.isEmpty()) {
             sb.append("Xin chào quý khách! Em là chuyên viên tư vấn du lịch của Du Lịch Việt, rất vui được hỗ trợ anh/chị chọn chuyến đi lý tưởng nhất.\n\n");
@@ -484,8 +498,30 @@ public class AiTourService {
             return sb.toString();
         }
 
+        if (isEurope) {
+            boolean isLowBudget = unaccented.contains("duoi 10") || unaccented.contains("10 trieu") || unaccented.contains("duoi 5")
+                    || unaccented.contains("gia re") || unaccented.contains("tiet kiem") || unaccented.contains("sinh vien");
+            if (isLowBudget) {
+                sb.append("Dạ em chào anh/chị ạ! Về kế hoạch du lịch đến các nước Châu Âu cho 2 người, em xin phép được tư vấn chi tiết và thực tế về chi phí để anh/chị cân nhắc ạ:\n\n");
+                sb.append("✈️ **Về chi phí thực tế đi Châu Âu:** Hiện nay các tour du lịch Châu Âu trọn gói (Pháp - Thụy Sĩ - Ý - Vatican...) thường dao động từ **55.000.000đ - 75.000.000đ/khách**. Riêng chi phí vé máy bay quốc tế khứ hồi và thủ tục visa Schengen đã khoảng 25 - 35 triệu đồng/người. Do đó, với ngân sách dưới 10 triệu đồng cho 2 người (khoảng 4 - 5 triệu/khách), hiện chưa có tour trọn gói đi Châu Âu khả thi ạ.\n\n");
+                sb.append("💡 **Giải pháp du lịch tuyệt vời với ngân sách 10 triệu/2 người:**\n");
+                sb.append("• **Khám phá Thái Lan trọn gói:** Chỉ từ 6.990.000đ/khách (5N4Đ bay máy bay, khách sạn 4 sao, tắm biển đảo Coral và xem show hoành tráng) - trải nghiệm xuất ngoại cực kỳ hấp dẫn và vừa tầm chi phí.\n");
+                sb.append("• **Nghỉ dưỡng biển đảo cao cấp trong nước:** Tour Phú Quốc resort 4 sao (khoảng 3.890.000đ/khách) hoặc Tour Nha Trang vịnh biển (3.490.000đ/khách), hoàn toàn phù hợp và thoải mái cho 2 người.\n");
+                sb.append("• **Tham khảo tour Châu Âu tiêu chuẩn:** Nếu anh/chị muốn lên kế hoạch dài hạn hơn cho chuyến đi Châu Âu trong mơ, em xin gửi thông tin hành trình **Châu Âu 4 Nước (Pháp - Thụy Sĩ - Ý - Vatican 10N9Đ)** bên dưới để anh/chị tham khảo chi tiết lịch trình nhé!");
+                return sb.toString();
+            } else {
+                sb.append("Dạ em chào anh/chị! Khám phá Châu Âu cổ kính và hoa lệ luôn là hành trình mơ ước của mọi tín đồ du lịch. Du Lịch Việt xin trân trọng giới thiệu hành trình **Châu Âu 4 Nước: Pháp - Thụy Sĩ - Ý - Vatican 10N9Đ** đẳng cấp hàng đầu:\n\n");
+                sb.append("🏰 **Những trải nghiệm đỉnh cao trong hành trình:**\n");
+                sb.append("• **Paris (Pháp):** Check-in Tháp Eiffel rực rỡ, du thuyền lướt êm trên dòng sông Seine thơ mộng và chiêm ngưỡng Kim Tự Tháp kính tại Bảo tàng Louvre.\n");
+                sb.append("• **Thụy Sĩ cổ tích:** Chinh phục Đỉnh Núi Tuyết Titlis cao 3.020m bằng cáp treo xoay Rotair 360 độ đầu tiên trên thế giới và check-in Cầu Gỗ Chapel Lucerne.\n");
+                sb.append("• **Nước Ý & Vatican:** Dạo thuyền Gondola tại thành phố nổi Venice, ngắm Tháp Nghiêng Pisa, Đấu Trường La Mã Colosseum và Vương Cung Thánh Đường Vatican tráng lệ.\n\n");
+                sb.append("💡 Anh/chị có thể bấm trực tiếp vào thẻ tour bên dưới để xem chi tiết lịch trình từng ngày và ưu đãi đặt sớm nhé!");
+                return sb.toString();
+            }
+        }
+
         // Câu trả lời tổng quát dựa trên kết quả trích xuất ngữ nghĩa cụ thể
-        sb.append(String.format("Chào anh/chị! Dựa trên tìm kiếm **\"%s\"**, Trợ lý Du Lịch AI đã phân tích tương đồng ngữ nghĩa bằng Vector Database và trích xuất những hành trình phù hợp nhất:\n\n", query));
+        sb.append(String.format("Dạ em chào anh/chị! Du Lịch Việt rất hân hạnh được hỗ trợ anh/chị. Dựa trên mong muốn tìm kiếm **\"%s\"**, em xin phép gửi đến anh/chị những hành trình phù hợp và nổi bật nhất:\n\n", query));
         sb.append("🌟 **Những điểm đến gợi ý hàng đầu:**\n");
         int count = 0;
         for (TourDto t : matchedTours) {

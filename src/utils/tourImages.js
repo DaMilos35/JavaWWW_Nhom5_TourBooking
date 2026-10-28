@@ -360,6 +360,33 @@ export const DESTINATION_GALLERIES = {
       2: [{ url: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=800', title: 'Mặc Hanbok check-in Cung điện Gyeongbokgung', tag: 'Văn hóa' }]
     }
   },
+  chauau: {
+    name: 'Châu Âu: Pháp - Thụy Sĩ - Ý - Vatican',
+    video: {
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      title: 'Hành trình khám phá Châu Âu cổ kính và hoa lệ 4K',
+      duration: '03:45'
+    },
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200', title: 'Tháp Eiffel biểu tượng ánh sáng rực rỡ bên dòng sông Seine', tag: 'Điểm nhấn' },
+      { url: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=1200', title: 'Đỉnh núi tuyết vĩnh cửu Titlis Thụy Sĩ ngắm biển mây ngút ngàn', tag: 'Kỳ quan' },
+      { url: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?q=80&w=1200', title: 'Dạo thuyền Gondola lãng mạn qua các kênh đào Venice nước Ý', tag: 'Trải nghiệm' },
+      { url: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1200', title: 'Đấu trường La Mã Colosseum nghìn năm lịch sử tại Rome', tag: 'Di sản' },
+      { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200', title: 'Khách sạn 4 sao phong cách cổ điển Châu Âu sang trọng', tag: 'Lưu trú' },
+      { url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200', title: 'Ẩm thực vang Pháp và ẩm thực Ý pizza pasta hảo hạng', tag: 'Ẩm thực' }
+    ],
+    dayPhotos: {
+      1: [{ url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800', title: 'Khởi hành chuyến bay quốc tế 5 sao đến Paris', tag: 'Bắt đầu' }],
+      2: [{ url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800', title: 'Check-in Tháp Eiffel & Du thuyền sông Seine', tag: 'Điểm nhấn' }],
+      3: [{ url: 'https://images.unsplash.com/photo-1509356843151-3e7d96241e11?q=80&w=800', title: 'Bảo tàng Louvre & Tàu cao tốc TGV sang Thụy Sĩ', tag: 'Tham quan' }],
+      4: [{ url: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=800', title: 'Chinh phục Đỉnh Núi Tuyết Titlis cáp treo 360 độ', tag: 'Kỳ quan' }],
+      5: [{ url: 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd?q=80&w=800', title: 'Kinh đô thời trang Milan & Nhà thờ Duomo', tag: 'Kiến trúc' }],
+      6: [{ url: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?q=80&w=800', title: 'Thuyền Gondola thành phố nổi Venice lãng mạn', tag: 'Trải nghiệm' }],
+      7: [{ url: 'https://images.unsplash.com/photo-1543429776-2782fc8e1acd?q=80&w=800', title: 'Tháp nghiêng Pisa kỳ quan kiến trúc thế giới', tag: 'Di sản' }],
+      8: [{ url: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=800', title: 'Đấu trường Colosseum & Đài phun nước Trevi Rome', tag: 'Lịch sử' }],
+      9: [{ url: 'https://images.unsplash.com/photo-1531572753322-ad063cecc140?q=80&w=800', title: 'Vương Quốc Vatican & Quảng trường Thánh Peter', tag: 'Tâm linh' }]
+    }
+  },
   dailoan: {
     name: 'Đài Loan: Taipei 101 - Cửu Phần Jiufen',
     video: {
@@ -429,6 +456,7 @@ export function getDestinationKey(tour) {
   if (text.includes('singapore') || text.includes('malaysia')) return 'singapore';
   if (text.includes('nhật bản') || text.includes('tokyo') || text.includes('phú sĩ') || text.includes('kyoto') || text.includes('osaka')) return 'nhatban';
   if (text.includes('hàn quốc') || text.includes('seoul') || text.includes('nami') || text.includes('lotte')) return 'hanquoc';
+  if (text.includes('châu âu') || text.includes('chau au') || text.includes('pháp') || text.includes('thụy sĩ') || text.includes('vatican') || text.includes('eiffel') || text.includes('paris') || text.includes('colosseum') || text.includes('titlis') || text.includes('rome') || text.includes('venice')) return 'chauau';
   if (text.includes('đài loan') || text.includes('đài bắc') || text.includes('jiufen') || text.includes('taipei')) return 'dailoan';
   
   return 'fallback';

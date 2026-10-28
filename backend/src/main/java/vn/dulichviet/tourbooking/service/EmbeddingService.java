@@ -124,6 +124,24 @@ public class EmbeddingService {
         DESTINATION_COORDS.put("ninh bình", new int[]{100, 101, 30, 31});
         DESTINATION_COORDS.put("quảng bình", new int[]{102, 103, 32, 33});
         DESTINATION_COORDS.put("phong nha", new int[]{104, 105, 34, 35});
+
+        // 9. Quốc tế & Châu Âu -> Trục chiều [106..113]
+        SEMANTIC_CLUSTERS.put("INTERNATIONAL_EUROPE", new int[]{106, 107, 108, 109, 110, 111, 112, 113});
+        CLUSTER_KEYWORDS.put("INTERNATIONAL_EUROPE", List.of(
+                "châu âu", "pháp", "thụy sĩ", "ý", "italy", "vatican", "paris", "rome", "eiffel",
+                "titlis", "colosseum", "venice", "thái lan", "singapore", "nhật bản", "hàn quốc", "quốc tế", "xuất ngoại"
+        ));
+
+        DESTINATION_COORDS.put("châu âu", new int[]{106, 107, 108, 109});
+        DESTINATION_COORDS.put("pháp", new int[]{106, 107, 110, 111});
+        DESTINATION_COORDS.put("thụy sĩ", new int[]{108, 109, 112, 113});
+        DESTINATION_COORDS.put("ý", new int[]{106, 108, 110, 112});
+        DESTINATION_COORDS.put("italy", new int[]{106, 108, 110, 112});
+        DESTINATION_COORDS.put("vatican", new int[]{107, 109, 111, 113});
+        DESTINATION_COORDS.put("thái lan", new int[]{114, 115, 0, 48});
+        DESTINATION_COORDS.put("nhật bản", new int[]{116, 117, 8, 40});
+        DESTINATION_COORDS.put("hàn quốc", new int[]{118, 119, 8, 56});
+        DESTINATION_COORDS.put("singapore", new int[]{120, 121, 40, 48});
     }
 
     public EmbeddingService(@Value("${gemini.api.key:}") String geminiApiKey) {
@@ -347,7 +365,10 @@ public class EmbeddingService {
              .replace("giare", "gia re")
              .replace("sanmay", "san may")
              .replace("nghimat", "nghi mat")
-             .replace("ksan", "khach san");
+             .replace("ksan", "khach san")
+             .replace("chauau", "chau au")
+             .replace("triue", "trieu")
+             .replace("chiphi", "chi phi");
         return s;
     }
 

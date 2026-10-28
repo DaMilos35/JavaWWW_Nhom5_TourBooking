@@ -86,7 +86,13 @@ const AiChatWidget = () => {
         const unaccented = removeVietnameseTones(textToSend);
 
         let replyIntro = 'Em xin gợi ý những hành trình phù hợp nhất với mong muốn của anh/chị:';
-        if (unaccented.includes('da lat') || unaccented.includes('san may')) {
+        if (unaccented.includes('chau au') || unaccented.includes('phap') || unaccented.includes('thuy si') || unaccented.includes('italy') || unaccented.includes('rome') || unaccented.includes('paris')) {
+          if (unaccented.includes('duoi 10') || unaccented.includes('10 trieu') || unaccented.includes('gia re') || unaccented.includes('sinh vien')) {
+            replyIntro = 'Dạ về kế hoạch du lịch các nước Châu Âu cho 2 người, thông thường tour Châu Âu trọn gói dao động từ 55 - 75 triệu/khách (vé máy bay khứ hồi và visa Schengen đã khoảng 25 - 35 triệu/người). Với ngân sách khoảng 10 triệu cho 2 người, em xin phép gợi ý anh/chị tham khảo các tour nghỉ dưỡng biển đảo cao cấp (Phú Quốc, Nha Trang) hoặc tour Thái Lan trọn gói (6.990.000đ/khách), đồng thời có thể tham khảo thêm hành trình Châu Âu 4 nước bên dưới để lên kế hoạch trong tương lai nhé:';
+          } else {
+            replyIntro = 'Khám phá Châu Âu cổ kính và hoa lệ luôn là hành trình mơ ước của mọi du khách! Du Lịch Việt trân trọng gửi đến anh/chị hành trình Châu Âu 4 Nước: Pháp - Thụy Sĩ - Ý - Vatican 10N9Đ tiêu chuẩn hàng không 5 sao:';
+          }
+        } else if (unaccented.includes('da lat') || unaccented.includes('san may')) {
           replyIntro = 'Đà Lạt luôn là điểm đến tuyệt vời với khí hậu se lạnh và cảnh sắc ngàn hoa mộng mơ. Dưới đây là các tour Đà Lạt - Lâm Đồng được yêu thích nhất:';
         } else if (unaccented.includes('phu quoc') || unaccented.includes('nha trang') || unaccented.includes('bien')) {
           replyIntro = 'Một chuyến nghỉ mát biển đảo với làn nước trong xanh và hải sản tươi ngon là lựa chọn tuyệt vời! Dưới đây là các tour biển đảo hấp dẫn nhất:';
