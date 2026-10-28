@@ -104,6 +104,33 @@ public class TourService {
         return sqlResults;
     }
 
+    /**
+     * Tim kiem va loc da tieu chi thong minh bang Spring Data JPA Specification & Criteria API
+     */
+    public List<TourDto> filterTours(vn.dulichviet.tourbooking.dto.TourFilterRequest filter) {
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(
+                org.springframework.data.domain.Sort.Direction.DESC, "rating")
+                .and(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
+
+        if (filter.sortBy() != null && !filter.sortBy().isBlank()) {
+            switch (filter.sortBy().toLowerCase()) {
+                case "price_asc" -> sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "price");
+                case "price_desc" -> sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "price");
+                case "rating_desc" -> sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "rating");
+                case "duration_asc" -> sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "duration");
+                case "duration_desc" -> sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "duration");
+                case "newest" -> sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id");
+                case "bestseller" -> sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "rating")
+                        .and(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "price"));
+            }
+        }
+
+        var spec = vn.dulichviet.tourbooking.specification.TourSpecification.withFilter(filter);
+        return tourRepository.findAll(spec, sort).stream()
+                .map(TourDto::from)
+                .collect(Collectors.toList());
+    }
+
     public List<TourDto> findByCategoryId(Integer categoryId) {
         return tourRepository.findByCategoryId(categoryId).stream()
                 .map(TourDto::from)

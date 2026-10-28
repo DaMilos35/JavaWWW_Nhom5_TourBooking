@@ -3528,5 +3528,920 @@
       "Vé đi cầu kính Skywalk tại Grand Canyon (nếu tham gia)",
       "Chi tiêu cá nhân ngoài chương trình"
     ]
+  },
+  {
+    "tour_id": 65,
+    "category_id": 1,
+    "provider_id": 231,
+    "tour_name": "Hà Nội - Cao Bằng - Thác Bản Giốc - Hồ Ba Bể - Động Ngườm Ngao 3N2Đ",
+    "description": "Hành trình khám phá non nước Cao Bằng hùng vĩ: chiêm ngưỡng thác nước tự nhiên lớn thứ 4 thế giới Bản Giốc, dạo thuyền thong dong ngắm hồ Ba Bể nguyên sơ và khám phá kỳ quan thạch nhũ động Ngườm Ngao.",
+    "price": 3490000,
+    "original_price": 4290000,
+    "duration": 3,
+    "departure_location": "Hà Nội",
+    "vehicle": "Xe Universe 45 chỗ & Thuyền máy Ba Bể",
+    "hotel_star": 3,
+    "badge": "ĐIỂM ĐẾN HẤP DẪN",
+    "highlights": [
+      "Chiêm ngưỡng vẻ đẹp kỳ vĩ của Thác Bản Giốc - thác nước biên giới lớn nhất Đông Nam Á",
+      "Khám phá Động Ngườm Ngao với hệ thống nhũ đá lung linh ngàn năm tuổi",
+      "Du thuyền trên lòng Hồ Ba Bể phẳng lặng như gương soi bóng mây trời",
+      "Thưởng thức đặc sản vịt quay 7 vị Cao Bằng, xôi trám đen và cá suối nướng"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Hà Nội - Thái Nguyên - Cao Bằng - Đèo Gió",
+        "content": "Xe Universe đón đoàn tại điểm hẹn trung tâm Hà Nội, khởi hành đi Cao Bằng theo quốc lộ 3. Dừng chân ngắm cảnh đèo Gió, thưởng thức bánh dứa Đèo Khau Khang. Chiều đến Cao Bằng nhận phòng khách sạn, tự do khám phá phố đi bộ Kim Đồng."
+      },
+      {
+        "day": 2,
+        "title": "Thác Bản Giốc - Động Ngườm Ngao - Làng Rèn Phúc Sen",
+        "content": "Khởi hành tham quan Thác Bản Giốc trên sông Quây Sơn. Đi bè mảng ngắm từng tầng thác đổ trắng xóa. Chiều khám phá Động Ngườm Ngao kỳ vĩ, ghé thăm làng rèn dao thủ công Phúc Sen nổi tiếng của người Nùng An."
+      },
+      {
+        "day": 3,
+        "title": "Vườn Quốc Gia Hồ Ba Bể - Đảo Bà Góa - Trở Về Hà Nội",
+        "content": "Di chuyển sang Bắc Kạn, xuống thuyền khám phá hồ Ba Bể: Ao Tiên, Đền An Mạ, Đảo Bà Góa. Thưởng thức bữa trưa cá hồ và rau rừng tại bản Pác Ngòi. Chiều khởi hành về lại Hà Nội, kết thúc chuyến đi tuyệt vời."
+      }
+    ],
+    "inclusions": [
+      "Xe du lịch Universe đời mới máy lạnh đưa đón suốt hành trình",
+      "Khách sạn 3 sao tiện nghi trung tâm TP Cao Bằng và Ba Bể",
+      "Vé tham quan Thác Bản Giốc, Động Ngườm Ngao, thuyền tham quan Hồ Ba Bể",
+      "Bảo hiểm du lịch nội địa mức bồi thường 100.000.000 VNĐ/khách",
+      "Hướng dẫn viên chuyên tuyến Đông Bắc thuyết minh nhiệt tình"
+    ],
+    "exclusions": [
+      "Bè mảng ngắm thác Bản Giốc cự ly gần (50.000đ/người)",
+      "Chi phí cá nhân ngoài chương trình (giặt là, đồ uống)",
+      "Tiền bồi dưỡng (tip) cho lái xe và hướng dẫn viên",
+      "Thuế VAT 8% (nếu yêu cầu xuất hóa đơn đỏ)"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1528127269322-539801943592?w=800",
+    "available_seats": 280,
+    "start_date": "2026-11-05",
+    "end_date": "2026-11-07",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 66,
+    "category_id": 1,
+    "provider_id": 232,
+    "tour_name": "Hà Nội - Mù Cang Chải - Suối Khoáng Nóng Trạm Tấu - Đèo Khau Phạ 3N2Đ",
+    "description": "Chinh phục vẻ đẹp kỳ ảo của kiệt tác ruộng bậc thang Mù Cang Chải: ngắm sóng lúa Mâm Xôi, Móng Ngựa, vượt đèo Khau Phạ hiểm trở và thư giãn ngâm mình trong suối khoáng nóng tự nhiên Trạm Tấu.",
+    "price": 2990000,
+    "original_price": 3690000,
+    "duration": 3,
+    "departure_location": "Hà Nội",
+    "vehicle": "Xe Universe 29 - 35 chỗ cao cấp",
+    "hotel_star": 3,
+    "badge": "SĂN MÂY TÂY BẮC",
+    "highlights": [
+      "Check-in danh thắng Ruộng bậc thang Đồi Mâm Xôi và Đồi Móng Ngựa trứ danh",
+      "Chinh phục Đèo Khau Phạ - một trong \"Tứ đại đỉnh đèo\" Tây Bắc hùng vĩ",
+      "Thư giãn tắm suối khoáng nóng tự nhiên Trạm Tấu ngắm view thung lũng mây",
+      "Thưởng thức lẩu gà đen vùng cao, xôi ngũ sắc nếp nương Tú Lệ ngào ngạt hương thơm"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Hà Nội - Thị Xã Nghĩa Lộ - Suối Khoáng Nóng Trạm Tấu",
+        "content": "Xe đón đoàn từ Nhà Hát Lớn Hà Nội xuất phát đi Yên Bái. Trưa đến Nghĩa Lộ thưởng thức ẩm thực Thái Mường Lò. Chiều đến Trạm Tấu nhận bungalow, tự do ngâm tắm khoáng nóng thư giãn giữa núi rừng xanh mát."
+      },
+      {
+        "day": 2,
+        "title": "Đèo Khau Phạ - Đồi Mâm Xôi - Mù Cang Chải",
+        "content": "Vượt đỉnh đèo Khau Phạ bồng bềnh mây trắng, ngắm thung lũng Cao Phạ rực rỡ lúa vàng. Chiều di chuyển xe ôm bản địa lên đồi Mâm Xôi check-in kiệt tác ruộng bậc thang. Tối thưởng thức giao lưu văn nghệ bản Lìm Mông."
+      },
+      {
+        "day": 3,
+        "title": "Đồi Móng Ngựa - Thung Lũng Tú Lệ - Mua Cốm - Hà Nội",
+        "content": "Sáng sớm săn bình minh tại Đồi Móng Ngựa. Sau đó về Tú Lệ ghé chợ quê mua cốm non và xôi nếp Tú Lệ nức tiếng. Xe đưa đoàn về lại Hà Nội vào chiều tối."
+      }
+    ],
+    "inclusions": [
+      "Xe du lịch đời mới máy lạnh đưa đón Hà Nội - Mù Cang Chải - Hà Nội",
+      "1 đêm nghỉ dưỡng bungalow khoáng nóng Trạm Tấu + 1 đêm khách sạn Mù Cang Chải",
+      "Vé vào cổng các điểm tham quan theo chương trình",
+      "Vé tắm khoáng nóng không giới hạn tại Trạm Tấu",
+      "Bảo hiểm du lịch nội địa 100.000.000 VNĐ/vụ"
+    ],
+    "exclusions": [
+      "Xe ôm địa phương lên đồi Mâm Xôi và đồi Móng Ngựa",
+      "Chi phí dù lượn lướt sóng Mù Cang Chải trên đèo Khau Phạ",
+      "Đồ uống trong các bữa ăn và chi phí cá nhân ngoài hành trình"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800",
+    "available_seats": 250,
+    "start_date": "2026-11-06",
+    "end_date": "2026-11-08",
+    "status": "ACTIVE",
+    "rating": 4.8
+  },
+  {
+    "tour_id": 67,
+    "category_id": 2,
+    "provider_id": 2,
+    "tour_name": "Đà Nẵng - Cù Lao Chàm - Phố Cổ Hội An - Cầu Vàng Bà Nà 3N2Đ",
+    "description": "Chuyến du ngoạn biển xanh và di sản văn hóa: lặn ngắm san hô tại khu dự trữ sinh quyển thế giới Cù Lao Chàm, thả đèn hoa đăng sông Hoài thơ mộng và sải bước trên Cầu Vàng Bà Nà Hills tráng lệ.",
+    "price": 3990000,
+    "original_price": 4990000,
+    "duration": 3,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Máy bay khứ hồi & Cano cao tốc",
+    "hotel_star": 4,
+    "badge": "TOUR NỔI BẬT",
+    "highlights": [
+      "Lướt sóng cano cao tốc ra Đảo Cù Lao Chàm, lặn ngắm rạn san hô rực rỡ sắc màu",
+      "Check-in Cầu Vàng bàn tay khổng lồ và ngắm toàn cảnh đỉnh núi Chúa Bà Nà",
+      "Thả đèn hoa đăng cầu an và du thuyền trên sông Hoài phố cổ Hội An về đêm",
+      "Khách sạn 4 sao sát biển Mỹ Khê với bể bơi vô cực ngắm bình minh đại dương"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM / Hà Nội - Đà Nẵng - Cù Lao Chàm - Hội An",
+        "content": "Đáp chuyến bay sáng đến Đà Nẵng. Xe đón đoàn ra cảng Cửa Đại lên cano cao tốc đi Cù Lao Chàm: thăm Chùa Hải Tạng, Giếng cổ Chăm, tắm biển Bãi Ông và lặn ngắm san hô. Chiều về nhận phòng, tối dạo phố cổ Hội An rực rỡ ánh đèn lồng."
+      },
+      {
+        "day": 2,
+        "title": "Sun World Ba Na Hills - Check-in Cầu Vàng Biểu Tượng",
+        "content": "Đi cáp treo Bà Nà đạt kỷ lục thế giới. Dạo bước trên Cầu Vàng vươn giữa mây trời, khám phá Làng Pháp, Hầm rượu Debay và Vườn hoa Le Jardin D'Amour. Tối tự do ngắm cầu Rồng phun lửa tại Đà Nẵng."
+      },
+      {
+        "day": 3,
+        "title": "Bán Đảo Sơn Trà - Chợ Hàn Mua Quà - Tiễn Sân Bay",
+        "content": "Viếng Chùa Linh Ứng Bãi Bụt chiêm ngưỡng tượng Phật Bà 67m. Mua sắm đặc sản chả bò, mực rim me tại chợ Hàn. Xe tiễn đoàn ra sân bay Đà Nẵng về lại điểm đón."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay khứ hồi các hãng hàng không hàng đầu (kèm 20kg ký gửi)",
+      "Khách sạn 4 sao gần biển Mỹ Khê (2 người/phòng)",
+      "Vé cano cao tốc + vé tham quan sinh thái Cù Lao Chàm + lặn ngắm san hô",
+      "Vé cáp treo Bà Nà Hills và buffet trưa thượng hạng",
+      "Xe du lịch máy lạnh đời mới Universe và bảo hiểm du lịch 100M"
+    ],
+    "exclusions": [
+      "Vé Bảo tàng Tượng sáp và hầm rượu Debay cao cấp",
+      "Chi phí cá nhân ngoài chương trình, đồ uống minibar",
+      "Tiền tip hướng dẫn viên và lái xe"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800",
+    "available_seats": 300,
+    "start_date": "2026-11-10",
+    "end_date": "2026-11-12",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 68,
+    "category_id": 2,
+    "provider_id": 230,
+    "tour_name": "Quy Nhơn - Kỳ Co - Eo Gió - Ghềnh Ráng Tiên Sa - Đảo Hòn Khô 3N2Đ",
+    "description": "Chiêm ngưỡng thiên đường Maldives của Việt Nam với bãi cát vàng mịn và làn nước trong vắt tại bãi tắm Kỳ Co, đón luồng gió lộng mát rượi tại Eo Gió và viếng mộ thi sĩ Hàn Mặc Tử bên bờ biển Quy Nhơn.",
+    "price": 3290000,
+    "original_price": 4190000,
+    "duration": 3,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Máy bay khứ hồi & Cano siêu tốc",
+    "hotel_star": 4,
+    "badge": "THIÊN ĐƯỜNG BIỂN XANH",
+    "highlights": [
+      "Tắm biển và lặn ngắm san hô Bãi Kỳ Co - thiên đường biển trong vắt nhìn tận đáy",
+      "Dạo bước trên con đường ven vách đá hùng vĩ tại Eo Gió - nơi ngắm hoàng hôn đẹp nhất VN",
+      "Viếng mộ thi sĩ Hàn Mặc Tử, Bãi Trứng Hoàng Hậu tại danh thắng Ghềnh Ráng",
+      "Thưởng thức đại tiệc hải sản tươi sống Nhơn Lý: ốc vú nàng, cua huỳnh đế, mực một nắng"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Quy Nhơn - Ghềnh Ráng Tiên Sa - Tháp Đôi",
+        "content": "Bay đến sân bay Phù Cát Quy Nhơn. Xe đón đoàn viếng Ghềnh Ráng Tiên Sa, viếng mộ nhà thơ Hàn Mặc Tử, Bãi tắm Hoàng Hậu với hàng triệu viên đá cuội nhẵn bóng. Chiều thăm Tháp Đôi Chăm Pa cổ kính."
+      },
+      {
+        "day": 2,
+        "title": "Cầu Thị Nại - Cano Siêu Tốc Đi Kỳ Co - Eo Gió",
+        "content": "Vượt cầu vượt biển Thị Nại dài gần 2,5km sang bán đảo Phương Mai. Cano cao tốc đưa đoàn ra Bãi Kỳ Co tắm biển, lặn ngắm san hô Hòn Sẹo. Chiều dạo bước trên cung đường đi bộ ven biển Eo Gió hùng vĩ."
+      },
+      {
+        "day": 3,
+        "title": "Làng Chài Nhơn Hải - Đảo Hòn Khô - Mua Sắm - Tiễn Bay",
+        "content": "Khám phá con đường đi bộ xuyên biển tại Hòn Khô. Mua sắm đặc sản bánh ít lá gai, nem Chợ Huyện, mực rim tỏi ớt. Xe tiễn đoàn ra sân bay về lại TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay khứ hồi kèm hành lý ký gửi",
+      "Khách sạn 4 sao trung tâm view biển Quy Nhơn",
+      "Cano cao tốc tham quan Kỳ Co và dụng cụ lặn ngắm san hô",
+      "Các bữa ăn hải sản tiêu chuẩn cao theo thực đơn địa phương",
+      "Bảo hiểm du lịch bồi thường 100.000.000 VNĐ"
+    ],
+    "exclusions": [
+      "Dịch vụ lặn bình khí oxy chuyên nghiệp (Scuba diving)",
+      "Xe điện tham quan đồi cát Phương Mai",
+      "Chi phí chi tiêu cá nhân ngoài chương trình"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+    "available_seats": 260,
+    "start_date": "2026-11-12",
+    "end_date": "2026-11-14",
+    "status": "ACTIVE",
+    "rating": 4.8
+  },
+  {
+    "tour_id": 69,
+    "category_id": 3,
+    "provider_id": 4,
+    "tour_name": "TP.HCM - Tây Ninh - Đỉnh Núi Bà Đen - Chùa Gò Kén - Tòa Thánh 1 Ngày",
+    "description": "Chuyến hành hương tâm linh và chinh phục nóc nhà Nam Bộ: trải nghiệm cáp treo Sun World núi Bà Đen chiêm bái Đại tượng Phật Bà Tây Bổ Đà Sơn cao nhất Châu Á, viếng Tòa Thánh Cao Đài và Chùa Gò Kén thanh tịnh.",
+    "price": 890000,
+    "original_price": 1190000,
+    "duration": 1,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Xe Limousine VIP 18 chỗ",
+    "hotel_star": 4,
+    "badge": "HÀNH HƯƠNG TÂM LINH",
+    "highlights": [
+      "Chinh phục đỉnh Núi Bà Đen cao 986m bồng bềnh mây trắng",
+      "Chiêm bái Đại tượng Phật Bà Tây Bổ Đà Sơn bằng đồng cao nhất Châu Á trên đỉnh núi",
+      "Viếng Tòa Thánh Tây Ninh - công trình kiến trúc tôn giáo độc nhất vô nhị",
+      "Thưởng thức đặc sản bò tơ Tây Ninh nướng tảng thơm lừng và bánh canh Trảng Bàng"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Tòa Thánh Tây Ninh - Đỉnh Núi Bà Đen - Trở Về",
+        "content": "06h00 đón khách tại trung tâm Quận 1 khởi hành đi Tây Ninh. Thưởng thức bữa sáng bánh canh Trảng Bàng. Đến núi Bà Đen đi cáp treo lên đỉnh chiêm ngưỡng tượng Phật Bà và ngắm biển mây ngút ngàn. Thưởng thức buffet trưa trên đỉnh núi. Chiều viếng Tòa Thánh Tây Ninh và Chùa Gò Kén cổ tự. 18h30 về lại TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Xe du lịch Limousine cao cấp đưa đón trọn ngày từ TP.HCM",
+      "Vé cáp treo tuyến đỉnh Vân Sơn khứ hồi Núi Bà Đen",
+      "Bữa trưa buffet ẩm thực trên đỉnh núi Bà Đen",
+      "Bữa sáng bánh canh Trảng Bàng đặc sản",
+      "Bảo hiểm du lịch nội địa 100.000.000 VNĐ/khách"
+    ],
+    "exclusions": [
+      "Vé cáp treo tuyến Chùa Hang (nếu khách đi thêm)",
+      "Mua sắm muối tôm Tây Ninh, mãng cầu Bà Đen",
+      "Chi phí cá nhân ngoài hành trình"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800",
+    "available_seats": 350,
+    "start_date": "2026-11-08",
+    "end_date": "2026-11-08",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 70,
+    "category_id": 3,
+    "provider_id": 3,
+    "tour_name": "TP.HCM - Hồ Tràm Resort 5 Sao - Suối Khoáng Nóng Minera Bình Châu 2N1Đ",
+    "description": "Chuyến nghỉ dưỡng tái tạo năng lượng đẳng cấp 5 sao: ngâm khoáng nóng tự nhiên chuẩn Nhật Bản tại Minera Hot Springs Bình Châu, dạo bộ giữa rừng nguyên sinh và tận hưởng kỳ nghỉ bên bờ biển Hồ Tràm thanh bình.",
+    "price": 2790000,
+    "original_price": 3590000,
+    "duration": 2,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Xe Limousine VIP 18 chỗ",
+    "hotel_star": 5,
+    "badge": "NGHỈ DƯỠNG ONSEN",
+    "highlights": [
+      "Thư giãn ngâm khoáng nóng tự nhiên tại Minera Hot Springs Bình Châu - nguồn khoáng quý giá Nam Bộ",
+      "Trải nghiệm luộc trứng trường thọ 82 độ C ngắm bình minh hồ nước khoáng sôi",
+      "Nghỉ dưỡng resort 5 sao mặt biển Hồ Tràm với bãi cát dài êm đềm không ồn ào",
+      "Thưởng thức đại tiệc hải sản ghẹ rang me, tôm sú nướng bơ tỏi tại làng chài Phước Hải"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Suối Khoáng Minera Bình Châu - Luộc Trứng Khoáng",
+        "content": "Xe Limousine đón đoàn khởi hành theo cao tốc Long Thành - Dầu Giây. Đến Bình Châu, khám phá công viên rừng Minera Forest, ngâm mình trong hồ khoáng nóng Onsen lộ thiên, trải nghiệm luộc trứng lòng đào trong giếng khoáng sôi. Chiều về nhận phòng resort 5 sao Hồ Tràm tắm biển."
+      },
+      {
+        "day": 2,
+        "title": "Cầu Ngắm Biển Hamptons Pier - Hải Sản Phước Hải - TP.HCM",
+        "content": "Thưởng thức buffet sáng chuẩn quốc tế. Tự do tắm hồ bơi vô cực hoặc check-in Cầu đi bộ ngắm biển Hamptons Pier dài nhất Châu Á. Trưa trả phòng ghé làng chài Phước Hải thưởng thức hải sản tươi rói. Chiều khởi hành về lại TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Xe Limousine VIP cao cấp đưa đón khứ hồi TP.HCM - Hồ Tràm",
+      "1 đêm nghỉ dưỡng tại Resort 5 sao mặt biển Hồ Tràm (Melia hoặc The Grand)",
+      "Gói vé ngâm khoáng nóng Onsen và luộc trứng tại Minera Hot Springs",
+      "Bữa sáng buffet cao cấp tại resort + 2 bữa chính ẩm thực hải sản",
+      "Bảo hiểm du lịch cao cấp mức 100.000.000 VNĐ"
+    ],
+    "exclusions": [
+      "Dịch vụ spa trị liệu chuyên sâu và tắm bùn khoáng nóng",
+      "Chi phí mini bar, giặt là phòng khách sạn",
+      "Thuế VAT 8% (nếu cần xuất hóa đơn tài chính)"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+    "available_seats": 240,
+    "start_date": "2026-11-14",
+    "end_date": "2026-11-15",
+    "status": "ACTIVE",
+    "rating": 4.8
+  },
+  {
+    "tour_id": 71,
+    "category_id": 4,
+    "provider_id": 230,
+    "tour_name": "Cần Thơ - Chợ Nổi Cái Răng - Rừng Tràm Trà Sư - Làng Cá Bè Châu Đốc 2N1Đ",
+    "description": "Hành trình đậm chất phù sa sông nước miền Tây: lênh đênh chợ nổi Cái Răng tấp nập buổi sớm, chèo xuồng ba lá len lỏi thảm bèo xanh mướt rừng tràm Trà Sư và viếng Miếu Bà Chúa Xứ núi Sam linh thiêng.",
+    "price": 1890000,
+    "original_price": 2490000,
+    "duration": 2,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Xe Universe 45 chỗ & Tàu du lịch Cần Thơ",
+    "hotel_star": 3,
+    "badge": "SÔNG NƯỚC MIỀN TÂY",
+    "highlights": [
+      "Trải nghiệm văn hóa chợ nổi Cái Răng - thưởng thức hủ tiếu thuyền và cà phê kho trên sông",
+      "Chèo xuồng ba lá lướt trên thảm bèo hoa dâu xanh mướt của Rừng Tràm Trà Sư",
+      "Viếng Miếu Bà Chúa Xứ Núi Sam linh ứng bậc nhất vùng Thất Sơn An Giang",
+      "Thưởng thức lẩu mắm cá linh bông điên điển, cá lóc nướng trui cuốn lá sen non"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Đồng Tháp Mười - Rừng Tràm Trà Sư - Châu Đốc",
+        "content": "Xe đón đoàn qua cầu Mỹ Thuận sang An Giang. Trưa đến Rừng Tràm Trà Sư đi tắc ráng và xuồng ba lá ngắm các loài chim quý trú ngụ. Chiều về Châu Đốc viếng Miếu Bà Chúa Xứ núi Sam, Lăng Thoại Ngọc Hầu và Tây An Cổ Tự. Tối nghỉ ngơi tại TP. Châu Đốc."
+      },
+      {
+        "day": 2,
+        "title": "Cần Thơ - Chợ Nổi Cái Răng - Lò Hủ Tiếu - Về TP.HCM",
+        "content": "Sáng sớm lên thuyền du ngoạn Chợ nổi Cái Răng, chiêm ngưỡng \"cây bẹo\" rao hàng độc đáo. Ghé lò hủ tiếu truyền thống thưởng thức pizza hủ tiếu giòn tan. Trưa ăn lẩu mắm Miền Tây tại Cần Thơ. Chiều khởi hành theo cao tốc Trung Lương về lại TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Xe du lịch đời mới máy lạnh Universe đưa đón toàn tuyến",
+      "Khách sạn 3 sao tiện nghi trung tâm Châu Đốc",
+      "Tàu du lịch chợ nổi Cái Răng và vé xuồng ba lá Rừng Tràm Trà Sư",
+      "Các bữa ăn đặc sản Nam Bộ theo chương trình",
+      "Bảo hiểm du lịch bồi thường tối đa 100.000.000 VNĐ"
+    ],
+    "exclusions": [
+      "Lễ vật dâng Miếu Bà Chúa Xứ và đồ cúng tâm linh",
+      "Mua sắm mắm Châu Đốc, đường thốt nốt mang về",
+      "Chi phí chi tiêu cá nhân và tiền tip"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1528181304800-259b08848526?w=800",
+    "available_seats": 280,
+    "start_date": "2026-11-15",
+    "end_date": "2026-11-16",
+    "status": "ACTIVE",
+    "rating": 4.8
+  },
+  {
+    "tour_id": 72,
+    "category_id": 4,
+    "provider_id": 2,
+    "tour_name": "TP.HCM - Bạc Liêu - Nhà Công Tử Bạc Liêu - Mũi Cà Mau Cực Nam 3N2Đ",
+    "description": "Chạm tay vào cột mốc tọa độ quốc gia cực Nam Tổ quốc: thăm dinh thự lộng lẫy của Công tử Bạc Liêu, ngắm cánh đồng điện gió Bạc Liêu trải dài trên biển và viếng Đền thờ Mẹ Nam Hải linh thiêng.",
+    "price": 3190000,
+    "original_price": 3990000,
+    "duration": 3,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Xe Universe 45 chỗ đời mới & Vỏ lãi Mũi Cà Mau",
+    "hotel_star": 4,
+    "badge": "CỰC NAM TỔ QUỐC",
+    "highlights": [
+      "Chạm tay vào Cột mốc tọa độ Quốc gia GPS 0001 tại Đất Mũi Cà Mau",
+      "Tham quan Nhà Công tử Bạc Liêu với kiến trúc Pháp cổ tráng lệ và nghe giai thoại đốt tiền",
+      "Check-in Cánh đồng Điện Gió Bạc Liêu với hàng chục trụ tuabin khổng lồ trên biển",
+      "Thưởng thức cua Cà Mau chính gốc chắc thịt ngọt lịm, vọp nướng mỡ hành thơm phức"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Sóc Trăng - Chùa Dơi - Bạc Liêu - Điện Gió",
+        "content": "Xe đón đoàn từ TP.HCM đi Sóc Trăng viếng Chùa Dơi, Chùa Chén Kiểu kiến trúc Khmer độc đáo. Chiều đến Bạc Liêu check-in Cánh đồng Điện Gió trên biển tuyệt đẹp. Tối thăm Nhà Công tử Bạc Liêu."
+      },
+      {
+        "day": 2,
+        "title": "Bạc Liêu - Năm Căn - Đất Mũi Cà Mau - Rừng Ngập Mặn",
+        "content": "Di chuyển xuống Năm Căn, lên cano lướt sóng xuyên rừng ngập mặn ra Mũi Cà Mau. Chụp hình tại Mốc tọa độ quốc gia GPS 0001, ngắm biểu tượng Con Tàu hướng ra biển Đông. Chiều về TP Cà Mau nhận phòng 4 sao nghỉ ngơi."
+      },
+      {
+        "day": 3,
+        "title": "Nhà Thờ Tắc Sậy (Cha Diệp) - Tiễn Về Lại TP.HCM",
+        "content": "Sáng viếng Nhà thờ Tắc Sậy cầu bình an tại mộ phần Cha Trương Bửu Diệp. Ghé mua đặc sản tôm khô Cà Mau, bánh phồng tôm Năm Căn. Chiều khởi hành về lại TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Xe Universe đời mới máy lạnh đón tiễn trọn vẹn lịch trình",
+      "Khách sạn 4 sao tiêu chuẩn quốc tế tại TP. Cà Mau và Bạc Liêu",
+      "Cano cao tốc tham quan Công viên Văn hóa Mũi Cà Mau",
+      "Bữa tiệc hải sản cua gạch Cà Mau và tôm sú nướng than hoa",
+      "Bảo hiểm du lịch nội địa 100.000.000 VNĐ"
+    ],
+    "exclusions": [
+      "Đồ uống trong bữa ăn và minibar khách sạn",
+      "Lễ vật dâng Cha Diệp và cúng dường Chùa",
+      "Chi phí mua sắm hải sản khô đem về"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800",
+    "available_seats": 270,
+    "start_date": "2026-11-20",
+    "end_date": "2026-11-22",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 73,
+    "category_id": 5,
+    "provider_id": 3,
+    "tour_name": "Khám Phá Thiên Đường Đảo Ngọc Phú Quốc - Grand World - Cáp Treo Hòn Thơm 3N2Đ",
+    "description": "Trải nghiệm thiên đường nghỉ dưỡng hàng đầu thế giới: lướt cáp treo vượt biển 3 dây dài nhất thế giới Hòn Thơm, hòa mình vào không khí sôi động của thành phố không ngủ Grand World và tắm biển Bãi Sao tuyệt mỹ.",
+    "price": 5490000,
+    "original_price": 6890000,
+    "duration": 3,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Máy bay khứ hồi Vietnam Airlines / Bamboo",
+    "hotel_star": 4,
+    "badge": "ĐẢO NGỌC QUYẾN RŨ",
+    "highlights": [
+      "Trải nghiệm Cáp treo vượt biển Hòn Thơm dài gần 7,9km ngắm toàn cảnh Nam đảo ngọc",
+      "Khám phá Thành phố không ngủ Grand World và xem show diễn triệu đô Sắc Màu Venice",
+      "Tắm biển tại Bãi Sao với dải cát trắng mịn màng uốn cong hình vầng trăng khuyết",
+      "Thưởng thức buffet hải sản tươi sống và món gỏi cá trích Phú Quốc trứ danh"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Phú Quốc - Grand World - Show Sắc Màu Venice",
+        "content": "Bay đến Phú Quốc. Xe đưa đoàn về resort 4 sao bãi Dài nhận phòng. Chiều khám phá Grand World, dạo thuyền Gondola kênh Venice, thăm Bảo tàng Gấu Teddy. Tối thưởng thức show nhạc nước ánh sáng đỉnh cao."
+      },
+      {
+        "day": 2,
+        "title": "Cáp Treo Hòn Thơm - Sunset Town - Cầu Hôn Kiss Bridge",
+        "content": "Sáng đi cáp treo vượt biển sang Sun World Hòn Thơm tắm công viên nước Aquatopia. Chiều về Thị trấn Hoàng Hôn Sunset Town check-in Cầu Hôn Kiss Bridge tráng lệ. Tối dạo chợ đêm Vui Phết."
+      },
+      {
+        "day": 3,
+        "title": "Nhà Thùng Nước Mắm - Cơ Sở Ngọc Trai - Tiễn Bay",
+        "content": "Khám phá quy trình ủ chượp nước mắm cá cơm Khải Hoàn trăm năm tuổi và nuôi cấy ngọc trai Phú Quốc. Xe đưa đoàn ra sân bay Phú Quốc về lại đất liền."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay khứ hồi các hãng hàng không 4 sao có 20kg ký gửi",
+      "Resort 4-5 sao mặt biển sang trọng có hồ bơi lớn",
+      "Vé cáp treo Hòn Thơm khứ hồi và công viên nước Aquatopia",
+      "Các bữa ăn hải sản tiêu chuẩn cao suốt hành trình",
+      "Bảo hiểm du lịch toàn diện 100.000.000 VNĐ"
+    ],
+    "exclusions": [
+      "Show diễn Tinh Hoa Việt Nam (ban đêm)",
+      "Thuyền Gondola sông Venice (200.000đ/người)",
+      "Chi tiêu cá nhân ngoài chương trình"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+    "available_seats": 320,
+    "start_date": "2026-11-18",
+    "end_date": "2026-11-20",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 74,
+    "category_id": 5,
+    "provider_id": 4,
+    "tour_name": "Hành Trình Linh Thiêng Côn Đảo - Viếng Mộ Cô Sáu - Nghĩa Trang Hàng Dương 3N2Đ",
+    "description": "Hành trình hướng về cội nguồn linh thiêng kết hợp nghỉ dưỡng biển hoang sơ: dâng hương viếng mộ nữ anh hùng Võ Thị Sáu vào ban đêm tại Nghĩa trang Hàng Dương, tham quan di tích Chuồng Cọp và tắm biển bãi Đầm Trầu.",
+    "price": 6890000,
+    "original_price": 8290000,
+    "duration": 3,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Máy bay khứ hồi VASCO / Bamboo Airways",
+    "hotel_star": 4,
+    "badge": "LINH THIÊNG CÔN ĐẢO",
+    "highlights": [
+      "Nghi lễ dâng hương trang nghiêm viếng mộ Cô Sáu tại Nghĩa Trang Hàng Dương lúc 23h00 đêm",
+      "Khám phá hệ thống Nhà tù Côn Đảo - \"Địa ngục trần gian\" thời Pháp - Mỹ",
+      "Tắm biển Bãi Đầm Trầu tuyệt đẹp và trải nghiệm ngắm máy bay hạ cánh ngay trên bãi cát",
+      "Thưởng thức hạt bàng rang muối, ốc vú nàng và cá mú đỏ nướng mọi Côn Đảo"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Sân Bay Cỏ Ống - Đỉnh Tình Yêu - Viếng Mộ Cô Sáu",
+        "content": "Bay đến Côn Đảo. Xe đưa đoàn về khách sạn 4 sao trung tâm thị trấn Côn Đảo. Chiều viếng Miếu Bà Phi Yến (An Sơn Miếu), ngắm cảnh Đỉnh Tình Yêu bãi Nhát. 23h00 xe đưa đoàn tham gia lễ viếng mộ Cô Sáu tại Nghĩa trang Hàng Dương."
+      },
+      {
+        "day": 2,
+        "title": "Di Tích Trại Phú Hải - Chuồng Cọp Pháp - Bãi Đầm Trầu",
+        "content": "Tham quan Trại tù Phú Hải, Chuồng cọp Pháp, Chuồng cọp Mỹ, Cầu tàu 914 lịch sử. Chiều đến Bãi Đầm Trầu tắm biển trong xanh ngắm phi cơ hạ cánh sát mặt nước. Tối tự do khám phá phố đêm đảo."
+      },
+      {
+        "day": 3,
+        "title": "Chợ Côn Đảo Mua Đặc Sản - Tiễn Sân Bay Về TP.HCM",
+        "content": "Dạo chợ mua mứt hạt bàng đặc sản, mực một nắng, hải sản tươi. Xe đưa đoàn ra sân bay Cỏ Ống đáp chuyến bay về lại TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay khứ hồi chặng TP.HCM - Côn Đảo - TP.HCM (kèm 15-20kg hành lý)",
+      "Khách sạn 4 sao sang trọng The Secret Con Dao / Marina Hotel",
+      "Xe du lịch máy lạnh đưa đón viếng nghĩa trang ban đêm",
+      "Bộ lễ dâng hương chu đáo chuẩn bị theo nghi thức truyền thống",
+      "Bảo hiểm du lịch tối đa 100.000.000 VNĐ/khách"
+    ],
+    "exclusions": [
+      "Lễ vật dâng cúng cá nhân thêm ngoài gói",
+      "Đồ uống trong bữa ăn và phí giặt là",
+      "Tiền tip cho hướng dẫn viên địa phương"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800",
+    "available_seats": 250,
+    "start_date": "2026-11-22",
+    "end_date": "2026-11-24",
+    "status": "ACTIVE",
+    "rating": 5
+  },
+  {
+    "tour_id": 75,
+    "category_id": 6,
+    "provider_id": 2,
+    "tour_name": "Bắc Kinh - Vạn Lý Trường Thành - Tử Cấm Thành - Di Hòa Viên 5N4Đ",
+    "description": "Khám phá thủ đô ngàn năm văn hiến Trung Hoa: chinh phục kỳ quan thế giới Vạn Lý Trường Thành hùng vĩ uốn lượn lưng chừng núi, bước vào hoàng cung Tử Cấm Thành nguy nga tráng lệ và dạo thuyền Di Hòa Viên thơ mộng.",
+    "price": 16990000,
+    "original_price": 19990000,
+    "duration": 5,
+    "departure_location": "Hà Nội",
+    "vehicle": "Máy bay khứ hồi Vietnam Airlines / Air China",
+    "hotel_star": 4,
+    "badge": "KỲ QUAN THẾ GIỚI",
+    "highlights": [
+      "Đặt chân lên Vạn Lý Trường Thành - kỳ quan kiến trúc vĩ đại trường tồn cùng thời gian",
+      "Tham quan Cố Cung Tử Cấm Thành - quần thể cung điện hoàng gia gỗ lớn nhất thế giới",
+      "Dạo bước Di Hòa Viên - cung điện mùa hè nguy nga của Từ Hi Thái Hậu bên hồ Côn Minh",
+      "Thưởng thức Vịt quay Bắc Kinh trứ danh với lớp da giòn rụm và lẩu cừu truyền thống"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Hà Nội - Bắc Kinh - Quảng Trường Thiên An Môn",
+        "content": "Bay đến Bắc Kinh. Xe đón đoàn tham quan Quảng trường Thiên An Môn rộng lớn nhất thế giới. Nhận phòng khách sạn 4 sao nghỉ ngơi, thưởng thức bữa tối lẩu cừu Mông Cổ."
+      },
+      {
+        "day": 2,
+        "title": "Cố Cung Tử Cấm Thành - Cảnh Sơn Park",
+        "content": "Dành trọn buổi sáng khám phá Điện Thái Hòa, Trung Hòa, Bảo Hòa và Ngự Hoa Viên trong Tử Cấm Thành. Chiều lên công viên Cảnh Sơn ngắm toàn cảnh mái ngói vàng hoàng cung."
+      },
+      {
+        "day": 3,
+        "title": "Vạn Lý Trường Thành (Bát Đạt Lĩnh) - Sân Vận Động Tổ Chim",
+        "content": "Chinh phục đoạn Bát Đạt Lĩnh của Vạn Lý Trường Thành. Chiều về tham quan bên ngoài SVĐ Tổ Chim Olympic 2008 và Thủy Lập Phương lung linh về đêm."
+      },
+      {
+        "day": 4,
+        "title": "Di Hòa Viên - Thiên Đàn (Đàn Tế Trời) - Phố Vương Phủ Tỉnh",
+        "content": "Khám phá Cung điện Mùa hè Di Hòa Viên và Điện Kỳ Niên tại Thiên Đàn. Tối tự do mua sắm và thưởng thức ẩm thực đường phố Vương Phủ Tỉnh sầm uất."
+      },
+      {
+        "day": 5,
+        "title": "Mua Sắm Đặc Sản Bắc Kinh - Tiễn Sân Bay Về Hà Nội",
+        "content": "Mua sắm trà Long Tỉnh, ngọc bích phong thủy Bắc Kinh. Xe đưa đoàn ra sân bay thủ đô đáp chuyến bay về lại Hà Nội."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay quốc tế khứ hồi bao gồm 23kg hành lý ký gửi",
+      "Visa đoàn nhập cảnh Trung Quốc nhanh chóng",
+      "Khách sạn 4 sao tiêu chuẩn quốc tế tại Bắc Kinh (2 khách/phòng)",
+      "Các bữa ăn cao cấp gồm Vịt quay Bắc Kinh và lẩu cừu chính gốc",
+      "Bảo hiểm du lịch quốc tế hạn mức 50.000 USD/người"
+    ],
+    "exclusions": [
+      "Tiền bồi dưỡng bắt buộc cho HDV và lái xe (5 USD/ngày/khách)",
+      "Chi phí làm hộ chiếu và chi tiêu mua sắm cá nhân"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800",
+    "available_seats": 290,
+    "start_date": "2026-11-25",
+    "end_date": "2026-11-29",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 76,
+    "category_id": 6,
+    "provider_id": 232,
+    "tour_name": "Hàn Quốc - Seoul - Đảo Nami - Công Viên Lotte World - Tháp Namsan 5N4Đ",
+    "description": "Hành trình lãng mạn xứ sở Kim Chi: dạo bước dưới hàng cây ngân hạnh rực rỡ tại đảo Nami thiên đường của \"Bản tình ca mùa đông\", vui chơi hết mình tại Lotte World và ngắm hoàng hôn khóa tình yêu tháp Namsan.",
+    "price": 15490000,
+    "original_price": 18990000,
+    "duration": 5,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Máy bay khứ hồi Vietnam Airlines / Asiana",
+    "hotel_star": 4,
+    "badge": "MÙA THU XỨ HÀN",
+    "highlights": [
+      "Khám phá Đảo Nami xinh đẹp - phim trường huyền thoại của \"Bản Tình Ca Mùa Đông\"",
+      "Chinh phục Tháp Namsan Seoul Tower và gắn ổ khóa tình yêu vĩnh cửu",
+      "Trải nghiệm công viên giải trí trong nhà lớn nhất thế giới Lotte World",
+      "Thưởng thức ẩm thực Hàn Quốc chuẩn vị: thịt nướng Samgyeopsal, gà hầm sâm, lẩu nấm"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Sân Bay Incheon - Khám Phá Seoul",
+        "content": "Dáp chuyến bay đêm đến Incheon. Xe đón đoàn dùng bữa sáng súp bò tuyết ấm áp. Thăm Cung điện Gyeongbokgung cổ kính, mặc Hanbok chụp ảnh lưu niệm, thăm Nhà Xanh Blue House."
+      },
+      {
+        "day": 2,
+        "title": "Đảo Nami Lãng Mạn - Làng Cổ Bukchon Hanok",
+        "content": "Đi phà sang đảo Nami dạo bước dưới hàng cây ngân hạnh vàng rực và cây linh sam thẳng tắp. Chiều về Seoul dạo phố cổ Bukchon Hanok rêu phong."
+      },
+      {
+        "day": 3,
+        "title": "Công Viên Lotte World - Tháp Truyền Hình Namsan",
+        "content": "Thỏa sức trải nghiệm các trò chơi cảm giác mạnh tại Lotte World và thủy cung Aquarium. Chiều lên đỉnh Tháp Namsan ngắm toàn cảnh Seoul lung linh ánh đèn."
+      },
+      {
+        "day": 4,
+        "title": "Trung Tâm Nhân Sâm Chính Phủ - Phố Myeongdong",
+        "content": "Tìm hiểu tinh hoa nhân sâm hoàng gia và mỹ phẩm nội địa Hàn Quốc. Tối tự do săn hàng hiệu và thưởng thức street food tại thiên đường Myeongdong."
+      },
+      {
+        "day": 5,
+        "title": "Siêu Thị Miễn Thuế - Tiễn Sân Bay Incheon Về TP.HCM",
+        "content": "Mua sắm dâu tây Hàn Quốc, rong biển, bánh gạo kẹo sâm. Xe đưa đoàn ra sân bay Incheon làm thủ tục hoàn thuế và bay về TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay khứ hồi các hãng 4-5 sao (gồm hành lý ký gửi 23kg)",
+      "Phí xin visa nhập cảnh Hàn Quốc",
+      "Khách sạn 4 sao tiêu chuẩn quốc tế tại thủ đô Seoul",
+      "Vé vào cổng đảo Nami, Lotte World và trang phục Hanbok chụp ảnh",
+      "Bảo hiểm du lịch quốc tế mức 50.000 USD"
+    ],
+    "exclusions": [
+      "Tiền tip HDV và lái xe Hàn Quốc (6 USD/người/ngày)",
+      "Vé lên đài quan sát kính tháp Namsan",
+      "Chi phí tiêu dùng cá nhân"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800",
+    "available_seats": 310,
+    "start_date": "2026-11-26",
+    "end_date": "2026-11-30",
+    "status": "ACTIVE",
+    "rating": 4.8
+  },
+  {
+    "tour_id": 77,
+    "category_id": 7,
+    "provider_id": 230,
+    "tour_name": "Khám Phá Bờ Tây Nước Mỹ: Los Angeles - Las Vegas - Đại Vực Grand Canyon 7N6Đ",
+    "description": "Hiện thực hóa giấc mơ Mỹ qua những biểu tượng lẫy lừng thế giới: check-in Đại lộ danh vọng Hollywood, phim trường Universal Studios, thiên đường giải trí xa hoa Las Vegas và đại vực Grand Canyon hùng vĩ bậc nhất hành tinh.",
+    "price": 65900000,
+    "original_price": 75900000,
+    "duration": 7,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Máy bay quốc tế 5 sao EVA Air / ANA",
+    "hotel_star": 4,
+    "badge": "GIẤC MƠ NƯỚC MỸ",
+    "highlights": [
+      "Sải bước trên Đại lộ Danh vọng Hollywood Walk of Fame và Nhà hát Dolby lộng lẫy",
+      "Khám phá Đại kỳ quan thiên nhiên thế giới - Hẻm vực khổng lồ Grand Canyon",
+      "Trải nghiệm đêm không ngủ tại thủ phủ giải trí Las Vegas bên Đại lộ The Strip",
+      "Thưởng thức tôm hùm Maine nướng bơ tỏi, bò bít tết Angus Mỹ hảo hạng"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Quá Cảnh Taipei - Los Angeles (Thành Phố Thiên Thần)",
+        "content": "Bay đến Los Angeles. Nhận phòng khách sạn 4 sao nghỉ ngơi, dạo bến tàu Santa Monica Pier lịch sử ngắm biển Thái Bình Dương."
+      },
+      {
+        "day": 2,
+        "title": "Hollywood Walk Of Fame - Phim Trường Universal Studios",
+        "content": "Tham quan Đại lộ Danh vọng, Nhà hát Trung Hoa Mann's, Đồi Beverly Hills nơi ở của các siêu sao thế giới. Chiều khám phá phim trường Universal Studios Hollywood với các kỹ xảo điện ảnh đỉnh cao."
+      },
+      {
+        "day": 3,
+        "title": "Los Angeles - Sa Mạc Mojave - Las Vegas Rực Rỡ",
+        "content": "Xe đưa đoàn xuyên qua sa mạc Mojave đến Las Vegas. Check-in khách sạn Bellagio / Caesars Palace. Tối dạo bước ngắm đài phun nước Bellagio và quả cầu ánh sáng MSG Sphere."
+      },
+      {
+        "day": 4,
+        "title": "Đại Vực Grand Canyon - Đập Thủy Điện Hoover Dam",
+        "content": "Khám phá kỳ quan hẻm vực Grand Canyon sừng sững qua hàng triệu năm kiến tạo địa chất. Chiêm ngưỡng đập thủy điện Hoover Dam đồ sộ và hồ Mead trong xanh."
+      },
+      {
+        "day": 5,
+        "title": "Las Vegas - Mua Sắm Hàng Hiệu Premium Outlets",
+        "content": "Thỏa sức săn hàng hiệu giảm giá tại Las Vegas North Premium Outlets: Coach, Michael Kors, Nike, Tommy Hilfiger với mức sale khủng."
+      },
+      {
+        "day": 6,
+        "title": "Los Angeles - Little Saigon - Tiễn Sân Bay LAX",
+        "content": "Ghé thăm khu Little Saigon Phước Lộc Thọ thưởng thức ẩm thực Việt kiều. Chiều ra sân bay quốc tế Los Angeles đáp chuyến bay về Việt Nam."
+      },
+      {
+        "day": 7,
+        "title": "Quá Cảnh - Về Đến Sân Bay Tân Sơn Nhất TP.HCM",
+        "content": "Đến sân bay Tân Sơn Nhất, hoàn tất thủ tục nhập cảnh. Kết thúc tour khám phá nước Mỹ tráng lệ."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay quốc tế khứ hồi các hãng 5 sao kèm 2 kiện hành lý 23kg",
+      "Thư mời bảo lãnh visa Mỹ và hỗ trợ luyện phỏng vấn 1 kèm 1",
+      "Khách sạn 4-5 sao chuẩn Mỹ tại trung tâm Los Angeles và Las Vegas",
+      "Vé vào cổng Đại vực Grand Canyon và phim trường Universal Studios",
+      "Bảo hiểm du lịch quốc tế hạn mức bồi thường 100.000 USD"
+    ],
+    "exclusions": [
+      "Lệ phí phỏng vấn visa Mỹ (nộp Đại sứ quán: 185 USD)",
+      "Tiền tip HDV và lái xe địa phương (10 USD/người/ngày)",
+      "Trực thăng ngắm cảnh Grand Canyon hoặc Skywalk kính"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800",
+    "available_seats": 200,
+    "start_date": "2026-12-01",
+    "end_date": "2026-12-07",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 78,
+    "category_id": 7,
+    "provider_id": 231,
+    "tour_name": "Tour Châu Úc: Sydney - Melbourne - Nhà Hát Con Sò Opera House 6N5Đ",
+    "description": "Chinh phục xứ sở chuột túi tươi đẹp: chiêm ngưỡng biểu tượng Nhà hát Con Sò Sydney Opera House, ngắm toàn cảnh vịnh cảng từ Cầu Cảng Sydney Harbour, khám phá thung lũng rượu vang Yarra Valley và cung đường Great Ocean Road.",
+    "price": 48900000,
+    "original_price": 56900000,
+    "duration": 6,
+    "departure_location": "Hà Nội",
+    "vehicle": "Máy bay quốc tế Vietnam Airlines Boeing 787",
+    "hotel_star": 4,
+    "badge": "XỨ SỞ CHUỘT TÚI",
+    "highlights": [
+      "Check-in biểu tượng thế giới Nhà Hát Con Sò Sydney Opera House và Cầu Cảng Sydney",
+      "Chinh phục cung đường ven biển đẹp nhất hành tinh Great Ocean Road và Mười Hai Vị Tông Đồ",
+      "Tương tác gần gũi và chụp ảnh cùng những chú Kangaroo và Gấu Koala đáng yêu",
+      "Thưởng thức rượu vang thượng hạng Yarra Valley và món bò Wagyu nướng sốt nấm"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Hà Nội - Bay Thẳng Đến Thành Phố Cảng Sydney",
+        "content": "Đoàn tập trung tại sân bay Nội Bài đáp chuyến bay thẳng của Vietnam Airlines đi Sydney. Nghỉ đêm trên máy bay tiêu chuẩn 4 sao."
+      },
+      {
+        "day": 2,
+        "title": "Khám Phá Sydney - Nhà Hát Con Sò - Du Thuyền Vịnh Cảng",
+        "content": "Hạ cánh Sydney. Tham quan Sydney Opera House, dạo bước khu phố cổ The Rocks, ghé Ghế đá Quý bà Macquarie ngắm vịnh. Ăn trưa buffet trên du thuyền ngắm Sydney Harbour."
+      },
+      {
+        "day": 3,
+        "title": "Công Viên Động Vật Hoang Dã Featherdale - Blue Mountains",
+        "content": "Thăm công viên bảo tồn thú hoang dã Featherdale chụp hình cùng Koala và cho Kangaroo ăn. Chiều đi cáp treo ngắm dãy núi xanh Blue Mountains và mỏm đá Ba Chị Em huyền thoại."
+      },
+      {
+        "day": 4,
+        "title": "Sydney - Bay Nội Địa Đi Melbourne - Phố Nghệ Thuật Graffiti",
+        "content": "Bay sang thành phố nghệ thuật Melbourne. Dạo bước ngõ hẻm tranh tường Hosier Lane, thăm Nhà thờ thánh Patrick và Vườn bách thảo hoàng gia Royal Botanic Gardens."
+      },
+      {
+        "day": 5,
+        "title": "Cung Đường Ven Biển Great Ocean Road - Mười Hai Tông Đồ",
+        "content": "Khám phá cung đường Great Ocean Road uốn lượn ven biển Nam Đại Dương. Chiêm ngưỡng các cột đá vôi khổng lồ Twelve Apostles sừng sững giữa sóng bạc."
+      },
+      {
+        "day": 6,
+        "title": "Mua Sắm Queen Victoria Market - Bay Về Lại Hà Nội",
+        "content": "Mua sắm kem dưỡng nhau thai cừu, mật ong Manuka tại chợ Nữ Hoàng Victoria. Xe tiễn đoàn ra sân bay Melbourne đáp chuyến bay về lại Hà Nội."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay khứ hồi quốc tế & chặng nội địa Úc (Sydney - Melbourne)",
+      "Thư mời và phí visa nhập cảnh Australia điện tử",
+      "Khách sạn 4 sao trung tâm Sydney và Melbourne",
+      "Du thuyền ngắm vịnh cảng Sydney có phục vụ buffet trưa",
+      "Bảo hiểm du lịch quốc tế toàn cầu mức 100.000 USD"
+    ],
+    "exclusions": [
+      "Tiền tip HDV và lái xe bản địa (8 USD/người/ngày)",
+      "Phí dịch thuật và công chứng hồ sơ cá nhân",
+      "Chi tiêu cá nhân ngoài thực đơn"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800",
+    "available_seats": 220,
+    "start_date": "2026-12-05",
+    "end_date": "2026-12-10",
+    "status": "ACTIVE",
+    "rating": 4.9
+  },
+  {
+    "tour_id": 79,
+    "category_id": 8,
+    "provider_id": 3,
+    "tour_name": "Kỳ Nghỉ Thượng Lưu Amanoi Vĩnh Hy Ninh Thuận - Biệt Thự Hướng Vịnh 3N2Đ",
+    "description": "Kỳ nghỉ tĩnh dưỡng xa xỉ tại khu nghỉ dưỡng 6 sao đắt giá nhất Việt Nam Amanoi: villa riêng biệt ôm trọn vịnh Vĩnh Hy thơ mộng, hồ bơi vô cực trên vách đá, quản gia riêng 24/7 và liệu trình Spa Hydrotherapy đỉnh cao.",
+    "price": 42500000,
+    "original_price": 48500000,
+    "duration": 3,
+    "departure_location": "TP. Hồ Chí Minh",
+    "vehicle": "Xe Mercedes-Benz Maybach đón tiễn & Vé máy bay Hạng Thương Gia",
+    "hotel_star": 5,
+    "badge": "SIÊU SANG TRỌNG",
+    "highlights": [
+      "Nghỉ dưỡng tại Amanoi Resort 6 sao - Top 33 khu nghỉ dưỡng tốt nhất hành tinh",
+      "Biệt thự Pavilion riêng biệt view toàn cảnh vịnh Vĩnh Hy và vườn quốc gia Núi Chúa",
+      "Thưởng thức đại tiệc nướng BBQ hải sản cao cấp tư gia bên hồ bơi riêng biệt",
+      "Liệu trình chăm sóc sức khỏe Spa Thủy Liệu Pháp Hydrotherapy độc quyền Aman"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "TP.HCM - Bay Thương Gia Đến Cam Ranh - Maybach Về Amanoi",
+        "content": "Bay hạng thương gia Vietnam Airlines đến Cam Ranh. Xe riêng Mercedes Maybach đón đoàn về Amanoi Resort Vĩnh Hy. Nhận biệt thự riêng tư, thưởng thức trà chiều thượng hạng ngắm hoàng hôn vịnh biển."
+      },
+      {
+        "day": 2,
+        "title": "Du Thuyền Riêng Ngắm Vịnh Vĩnh Hy - Spa Trị Liệu Aman",
+        "content": "Sáng trải nghiệm du thuyền tư nhân lướt vịnh ngắm các rạn san hô nguyên sinh. Chiều tận hưởng liệu trình spa hồi phục năng lượng độc bản. Tối thưởng thức bữa tối lãng mạn dưới ánh nến tại nhà hàng vách đá The Restaurant."
+      },
+      {
+        "day": 3,
+        "title": "Yoga Đón Bình Minh Trên Vách Núi - Tiễn Sân Bay Về TP.HCM",
+        "content": "Tham gia lớp Yoga thiền định buổi sáng tại hồ sen thanh tịnh. Thưởng thức bữa trưa tinh tế. Xe Maybach tiễn đoàn ra sân bay Cam Ranh về lại TP.HCM."
+      }
+    ],
+    "inclusions": [
+      "Vé máy bay Hạng Thương Gia (Business Class) khứ hồi",
+      "Xe riêng hạng sang Mercedes Maybach đón tiễn sân bay Cam Ranh - Amanoi",
+      "2 đêm nghỉ tại Biệt thự Ocean Pavilion view vịnh Vĩnh Hy",
+      "Quản gia riêng phục vụ 24/7 và bữa ăn thượng hạng theo menu bếp trưởng Michelin",
+      "1 liệu trình Spa Thủy Liệu Pháp cao cấp 90 phút/khách"
+    ],
+    "exclusions": [
+      "Rượu vang cao cấp danh mục Grand Cru vintage",
+      "Dịch vụ trực thăng đón tiễn theo yêu cầu riêng",
+      "Chi tiêu mua sắm ngoài danh mục phục vụ của resort"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+    "available_seats": 210,
+    "start_date": "2026-12-08",
+    "end_date": "2026-12-10",
+    "status": "ACTIVE",
+    "rating": 5
+  },
+  {
+    "tour_id": 80,
+    "category_id": 8,
+    "provider_id": 4,
+    "tour_name": "Du Thuyền 6 Sao Ambassador Cruise Vịnh Lan Hạ - Trực Thăng Ngắm Cảnh 3N2Đ",
+    "description": "Hải trình quý tộc trên siêu du thuyền Ambassador lớn nhất Vịnh Hạ Long - Lan Hạ: trải nghiệm ngắm vịnh di sản từ trực thăng Bell 505 hiện đại, phòng Suite có ban công riêng view kỳ quan triệu năm và tiệc tôm hùm không giới hạn.",
+    "price": 21900000,
+    "original_price": 26900000,
+    "duration": 3,
+    "departure_location": "Hà Nội",
+    "vehicle": "Xe Limousine President & Du thuyền 6 sao & Trực thăng Bell 505",
+    "hotel_star": 5,
+    "badge": "DU THUYỀN 6 SAO",
+    "highlights": [
+      "Bay trực thăng ngắm toàn cảnh Vịnh Hạ Long - kỳ quan thiên nhiên thế giới từ trên cao",
+      "Trải nghiệm 2 đêm trên Siêu Du Thuyền 6 Sao Ambassador với bể sục Jacuzzi ngoài trời cực đại",
+      "Cabin hạng Tổng thống Presidential Suite với ban công kính 360 độ ngắm vịnh",
+      "Đại tiệc Buffet Tôm Hùm không giới hạn và nhạc Jazz acoustic sống động hàng đêm"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Hà Nội - Trực Thăng Ngắm Vịnh - Lên Du Thuyền Ambassador",
+        "content": "Xe Limousine President đón khách từ Hà Nội đến cảng quốc tế Tuần Châu. Trải nghiệm bay trực thăng Bell 505 ngắm trọn vẹn vịnh Hạ Long. Lên du thuyền Ambassador thưởng thức cocktail chào mừng và nhận phòng Suite cao cấp."
+      },
+      {
+        "day": 2,
+        "title": "Vịnh Lan Hạ - Hang Sáng Tối - Chèo Thuyền Kayak - Tiệc Sunset",
+        "content": "Tập Thái Cực Quyền đón bình minh. Chèo thuyền kayak len lỏi qua Hang Sáng Tối khám phá đầm phá biệt lập giữa biển. Chiều tham gia lớp học nấu ăn và tiệc Sundowner Party tại quầy bar tầng thượng."
+      },
+      {
+        "day": 3,
+        "title": "Hang Sửng Sốt - Đảo Ti Tốp - Trở Về Thủ Đô Hà Nội",
+        "content": "Thăm Hang Sửng Sốt kỳ vĩ hoặc chinh phục đỉnh đảo Ti Tốp ngắm bao quát vịnh. Dùng bữa trưa buffet sớm trên du thuyền trong khi tàu cập bến Tuần Châu. Xe Limousine đưa đoàn về lại Hà Nội."
+      }
+    ],
+    "inclusions": [
+      "Xe Limousine President cao cấp đón tiễn khứ hồi Hà Nội - Hạ Long",
+      "Vé bay trực thăng ngắm cảnh 12 phút cùng phi công chuyên nghiệp",
+      "2 đêm nghỉ phòng Ambassador Suite có ban công riêng biệt view vịnh",
+      "Trọn gói các bữa ăn Michelin và tiệc hải sản tôm hùm không giới hạn",
+      "Bảo hiểm du thuyền cao cấp mức bồi thường 150.000.000 VNĐ"
+    ],
+    "exclusions": [
+      "Đồ uống có cồn nhập khẩu tại Sunset Bar",
+      "Dịch vụ massage spa trị liệu trên du thuyền",
+      "Chi tiêu quà lưu niệm cá nhân"
+    ],
+    "image_url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+    "available_seats": 230,
+    "start_date": "2026-12-12",
+    "end_date": "2026-12-14",
+    "status": "ACTIVE",
+    "rating": 4.9
   }
 ]

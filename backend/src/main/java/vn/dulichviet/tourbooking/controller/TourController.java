@@ -59,8 +59,31 @@ public class TourController {
         return ResponseEntity.ok().build();
     }
 
+/** Công khai: Lọc tour thông minh theo đa tiêu chí (Specification) */
+    @GetMapping("/filter")
+    public ResponseEntity<List<TourDto>> filterTours(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Integer providerId,
+            @RequestParam(required = false) String departureLocation,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(required = false) Integer minDuration,
+            @RequestParam(required = false) Integer maxDuration,
+            @RequestParam(required = false) Integer hotelStar,
+            @RequestParam(required = false) String vehicle,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false, defaultValue = "bestseller") String sortBy
+    ) {
+        vn.dulichviet.tourbooking.dto.TourFilterRequest filter = new vn.dulichviet.tourbooking.dto.TourFilterRequest(
+                keyword, categoryId, providerId, departureLocation, minPrice, maxPrice,
+                minDuration, maxDuration, hotelStar, vehicle, status, sortBy
+        );
+        return ResponseEntity.ok(tourService.filterTours(filter));
+    }
+
     /** Công khai: lấy chi tiết 1 tour */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]+}")
     public ResponseEntity<TourDto> getById(
             @PathVariable Integer id,
             @RequestParam(required = false) String sessionId,

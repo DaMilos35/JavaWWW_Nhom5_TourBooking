@@ -36,13 +36,16 @@ import {
   FaPen,
   FaChild,
   FaCalendarCheck,
-  FaBuilding
+  FaBuilding,
+  FaPhoneAlt,
+  FaExternalLinkAlt
 } from 'react-icons/fa';
 import { tourApi } from '../api/axiosConfig';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { getTourImage, getTourGallery, getItineraryDayPhotos } from '../utils/tourImages';
+import { getProviderInfo } from '../utils/providerData';
 import TourGalleryBento from '../components/tours/TourGalleryBento';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import FallbackImage from '../components/common/FallbackImage';
@@ -354,6 +357,7 @@ const TourDetailPage = () => {
   const subtotal = price * quantity;
   const discountAmount = subtotal * b2bDiscountRate;
   const finalTotal = subtotal - discountAmount;
+  const providerInfo = getProviderInfo(tour.providerId || tour.provider?.id || tour.provider_id, tour.providerName || tour.provider?.fullName || tour.provider?.username);
 
   const getVehicleIcon = (v) => {
     if (!v) return <FaBus />;
@@ -553,11 +557,11 @@ const TourDetailPage = () => {
             <span className="location">
               <FaMapMarkerAlt /> Khởi hành: <b>{tour.departureLocation || 'TP. Hồ Chí Minh'}</b>
             </span>
-            {tour.provider && (
-              <span className="td-provider-tag">
-                Đối tác: <b>{tour.provider.fullName || tour.provider.username}</b>
-              </span>
-            )}
+            <span className="td-provider-tag" style={{ borderColor: `${providerInfo.brandColor}40`, color: providerInfo.brandColor, background: `${providerInfo.brandColor}0d` }}>
+              <FaBuilding style={{ marginRight: '5px' }} />
+              Đơn vị tổ chức: <b>{providerInfo.shortName}</b>
+              <FaCheckCircle style={{ color: '#059669', marginLeft: '5px' }} title="Đối tác lữ hành chính thức được kiểm duyệt bởi Du Lịch Việt" />
+            </span>
           </div>
         </div>
 
@@ -612,6 +616,73 @@ const TourDetailPage = () => {
                     <span>{item}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* THẺ ĐƠN VỊ TỔ CHỨC & ĐIỀU HÀNH TOUR (Multi-Vendor Partner Card) */}
+            <div className="tour-organizer-card mb-4">
+              <div className="organizer-header">
+                <div className="organizer-brand-box" style={{ borderColor: `${providerInfo.brandColor}33` }}>
+                  <div className="organizer-logo-avatar" style={{ backgroundColor: providerInfo.brandColor }}>
+                    <FaBuilding className="organizer-icon" />
+                  </div>
+                  <div className="organizer-info">
+                    <div className="organizer-top-row">
+                      <span className="organizer-kicker">Đơn vị tổ chức & điều hành tour</span>
+                      <span className="organizer-verified-badge">
+                        <FaCheckCircle className="check-icon" /> Đã xác thực OTA
+                      </span>
+                    </div>
+                    <h4 className="organizer-name">{providerInfo.name}</h4>
+                    <div className="organizer-meta-chips">
+                      <span className="organizer-chip chip-badge">{providerInfo.badgeText}</span>
+                      <span className="organizer-chip chip-rating">
+                        <FaStar className="star-sm" /> <b>{providerInfo.rating}</b> ({providerInfo.reviewCount.toLocaleString()} đánh giá)
+                      </span>
+                      <span className="organizer-chip chip-exp">Kinh nghiệm từ {providerInfo.establishedYear}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="organizer-body">
+                <p className="organizer-desc">{providerInfo.description}</p>
+                <div className="organizer-credentials-grid">
+                  <div className="cred-item">
+                    <FaAward className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Giấy phép Lữ Hành Quốc Tế</span>
+                      <b className="cred-val">{providerInfo.license}</b>
+                    </div>
+                  </div>
+                  <div className="cred-item">
+                    <FaPhoneAlt className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Hotline điều hành 24/7</span>
+                      <b className="cred-val">{providerInfo.hotline}</b>
+                    </div>
+                  </div>
+                  <div className="cred-item">
+                    <FaMapMarkerAlt className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Trụ sở điều hành</span>
+                      <b className="cred-val">{providerInfo.address}</b>
+                    </div>
+                  </div>
+                  <div className="cred-item">
+                    <FaShieldAlt className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Chính sách bảo trợ</span>
+                      <b className="cred-val">Bảo lãnh chất lượng bởi Du Lịch Việt</b>
+                    </div>
+                  </div>
+                </div>
+                <div className="organizer-action-row">
+                  <Link to={`/tours?provider=${providerInfo.id}`} className="btn-provider-tours">
+                    Xem tất cả tour do {providerInfo.shortName} tổ chức
+                    <FaChevronRight style={{ fontSize: '0.75rem', marginLeft: '6px' }} />
+                  </Link>
+                </div>
               </div>
             </div>
 

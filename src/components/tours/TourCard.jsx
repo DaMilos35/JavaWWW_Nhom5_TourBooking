@@ -12,7 +12,9 @@ import {
   FaHotel,
   FaBolt,
   FaFire,
-  FaImages
+  FaImages,
+  FaBuilding,
+  FaCheckCircle
 } from 'react-icons/fa';
 import FallbackImage from '../common/FallbackImage';
 import { useWishlist } from '../../context/WishlistContext';
@@ -20,6 +22,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { getTourImage, formatVehicleChip, formatLocationChip } from '../../utils/tourImages';
+import { getProviderInfo } from '../../utils/providerData';
 import './TourCard.css';
 
 const TourCard = ({ tour }) => {
@@ -46,6 +49,7 @@ const TourCard = ({ tour }) => {
   const vehicleText = formatVehicleChip(vehicle);
   const locationText = formatLocationChip(tour.departureLocation);
   const imageUrl = getTourImage(tour);
+  const provider = getProviderInfo(tour.providerId || tour.provider_id, tour.providerName || tour.provider?.fullName || tour.provider?.username);
 
   const getVehicleIcon = (v) => {
     if (!v) return null;
@@ -136,6 +140,16 @@ const TourCard = ({ tour }) => {
             <span className="tc-category-tag">{categoryName}</span>
             <span className="tc-rating">
               <FaStar className="star-icon" /> {Number(tour.rating || 5).toFixed(1)}
+            </span>
+          </div>
+
+          <div className="tc-provider-row">
+            <span className="tc-provider-badge" style={{ borderColor: `${provider.brandColor}33`, color: provider.brandColor, background: `${provider.brandColor}0d` }}>
+              <FaBuilding style={{ fontSize: '0.62rem', marginRight: '4px' }} />
+              {provider.shortName}
+            </span>
+            <span className="tc-provider-verified" title="Đối tác lữ hành chính thức được kiểm duyệt bởi Du Lịch Việt">
+              <FaCheckCircle style={{ color: '#059669', fontSize: '0.65rem' }} />
             </span>
           </div>
 

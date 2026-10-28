@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { 
   FaChevronDown, FaChevronUp, FaShoppingBag, FaTimesCircle, FaPrint, 
   FaCreditCard, FaQrcode, FaCheckCircle, FaExclamationTriangle, FaCopy, FaUndo,
-  FaUniversity, FaClock, FaShieldAlt
+  FaUniversity, FaClock, FaShieldAlt, FaPlane, FaMapMarkerAlt, FaHeadset, FaAward, FaBuilding
 } from 'react-icons/fa';
 import './MyOrdersPage.css';
 

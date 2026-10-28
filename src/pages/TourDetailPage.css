@@ -1644,3 +1644,205 @@
   border-color: #0194f3;
   color: #0194f3;
 }
+
+/* ==========================================================================
+   Multi-Vendor Tour Organizer & Certified Partner Trust Card
+   ========================================================================== */
+.tour-organizer-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.25s ease;
+}
+
+.tour-organizer-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+}
+
+.organizer-header {
+  padding: 20px 24px;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.organizer-brand-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.organizer-logo-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.organizer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.organizer-top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.organizer-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.organizer-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.organizer-verified-badge .check-icon {
+  font-size: 0.68rem;
+}
+
+.organizer-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.organizer-meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.organizer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.organizer-chip.chip-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.organizer-chip.chip-rating {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.organizer-chip.chip-rating .star-sm {
+  color: #f59e0b;
+}
+
+.organizer-chip.chip-exp {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.organizer-body {
+  padding: 20px 24px;
+}
+
+.organizer-desc {
+  font-size: 0.92rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.organizer-credentials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.cred-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.cred-icon {
+  color: #0194f3;
+  font-size: 1.1rem;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.cred-label {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.cred-val {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.organizer-action-row {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+}
+
+.btn-provider-tours {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0284c7;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  transition: all 0.2s ease;
+}
+
+.btn-provider-tours:hover {
+  background: #0284c7;
+  color: #ffffff;
+}

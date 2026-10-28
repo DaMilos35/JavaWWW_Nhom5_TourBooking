@@ -98,6 +98,22 @@ export const tourApi = {
       return await realTourApi.getByCategory(categoryId);
     }
   },
+  filter: async (params = {}) => {
+    try {
+      const query = new URLSearchParams();
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          query.append(k, v);
+        }
+      });
+      const res = await api.get('/tours/filter?' + query.toString());
+      if (res.data && Array.isArray(res.data)) return res;
+      return await realTourApi.filter(params);
+    } catch (e) {
+      console.warn('Backend Filter API fallback to client-side Specification filter:', e.message);
+      return await realTourApi.filter(params);
+    }
+  },
   search: async (keyword) => {
     try {
       const res = await api.get('/tours/search?keyword=' + encodeURIComponent(keyword));

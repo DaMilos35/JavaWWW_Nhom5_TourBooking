@@ -72,7 +72,13 @@ function getProviderName(pid) {
   const names = {
     2: 'Công Ty Cổ Phần Du Lịch Vietravel',
     3: 'Tổng Công Ty Du Lịch Sài Gòn (Saigontourist)',
-    4: 'Công Ty Cổ Phần Truyền Thông Du Lịch Việt'
+    4: 'Công Ty Cổ Phần Truyền Thông Du Lịch Việt',
+    5: 'Công Ty Cổ Phần Dịch Vụ Du Lịch Bến Thành',
+    6: 'Tổng Công Ty Du Lịch Hà Nội (Hanoitourist)',
+    7: 'Công Ty Cổ Phần Du Lịch BestPrice',
+    230: 'Công Ty Cổ Phần Dịch Vụ Du Lịch Bến Thành',
+    231: 'Tổng Công Ty Du Lịch Hà Nội (Hanoitourist)',
+    232: 'Công Ty Cổ Phần Du Lịch BestPrice'
   };
   return names[pid] || 'Du Lịch Việt';
 }
@@ -165,6 +171,89 @@ export const realTourApi = {
     });
 
     return { data: filtered.length > 0 ? filtered : REAL_TOURS.slice(0, 8) };
+  },
+
+  filter: async (filterParams = {}) => {
+    let result = [...REAL_TOURS];
+    // status
+    if (filterParams.status && filterParams.status !== 'ALL') {
+      result = result.filter(t => (t.status || 'ACTIVE').toUpperCase() === filterParams.status.toUpperCase());
+    } else {
+      result = result.filter(t => (t.status || 'ACTIVE').toUpperCase() === 'ACTIVE');
+    }
+    // keyword
+    if (filterParams.keyword) {
+      const rawKw = filterParams.keyword.toLowerCase().trim();
+      const cleanKw = normalizeSearchKeyword(filterParams.keyword);
+      result = result.filter(t => {
+        const text = (t.name + ' ' + (t.description || '') + ' ' + (t.departureLocation || '')).toLowerCase();
+        return text.includes(rawKw) || removeVietnameseTones(text).includes(cleanKw);
+      });
+    }
+    // categoryId
+    if (filterParams.categoryId) {
+      result = result.filter(t => Number(t.categoryId) === Number(filterParams.categoryId));
+    }
+    // providerId
+    if (filterParams.providerId) {
+      result = result.filter(t => Number(t.providerId) === Number(filterParams.providerId));
+    }
+    // departureLocation
+    if (filterParams.departureLocation && filterParams.departureLocation !== 'ALL') {
+      const dep = filterParams.departureLocation.toLowerCase().trim();
+      result = result.filter(t => (t.departureLocation || '').toLowerCase().includes(dep));
+    }
+    // minPrice / maxPrice
+    if (filterParams.minPrice != null) {
+      result = result.filter(t => t.price >= Number(filterParams.minPrice));
+    }
+    if (filterParams.maxPrice != null) {
+      result = result.filter(t => t.price <= Number(filterParams.maxPrice));
+    }
+    // minDuration / maxDuration
+    if (filterParams.minDuration != null) {
+      result = result.filter(t => t.duration >= Number(filterParams.minDuration));
+    }
+    if (filterParams.maxDuration != null) {
+      result = result.filter(t => t.duration <= Number(filterParams.maxDuration));
+    }
+    // hotelStar
+    if (filterParams.hotelStar != null) {
+      result = result.filter(t => (t.hotelStar || 3) >= Number(filterParams.hotelStar));
+    }
+    // vehicle
+    if (filterParams.vehicle) {
+      const v = filterParams.vehicle.toLowerCase().trim();
+      result = result.filter(t => (t.vehicle || '').toLowerCase().includes(v));
+    }
+    // sortBy
+    if (filterParams.sortBy) {
+      switch (filterParams.sortBy.toLowerCase()) {
+        case 'price_asc':
+          result.sort((a, b) => a.price - b.price);
+          break;
+        case 'price_desc':
+          result.sort((a, b) => b.price - a.price);
+          break;
+        case 'rating_desc':
+          result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          break;
+        case 'duration_asc':
+          result.sort((a, b) => a.duration - b.duration);
+          break;
+        case 'duration_desc':
+          result.sort((a, b) => b.duration - a.duration);
+          break;
+        case 'newest':
+          result.sort((a, b) => b.id - a.id);
+          break;
+        case 'bestseller':
+        default:
+          result.sort((a, b) => (b.rating || 0) - (a.rating || 0) || a.price - b.price);
+          break;
+      }
+    }
+    return { data: result };
   },
 
   getRecommendations: async (_sessionId, limit = 4) => {

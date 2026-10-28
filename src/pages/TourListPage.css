@@ -24,6 +24,37 @@
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
 }
 
+.filter-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 14px;
+}
+
+.filter-card-header .filter-title {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.btn-quick-clear {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-quick-clear:hover {
+  background: #fef2f2;
+}
+
 .filter-title {
   font-size: 1.05rem;
   font-weight: 800;
@@ -39,6 +70,25 @@
 
 .filter-group {
   margin-bottom: 24px;
+}
+
+.filter-group-heading {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group-heading .filter-icon {
+  color: #0194f3;
+  font-size: 0.85rem;
+}
+
+.provider-filter-name {
+  transition: all 0.2s ease;
 }
 
 .filter-group h4 {

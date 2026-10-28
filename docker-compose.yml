@@ -15,8 +15,8 @@ services:
       - db_data:/var/lib/mysql
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
-      - ./database/data.sql:/docker-entrypoint-initdb.d/02_data.sql:ro
-      - ./database/b2b_migration.sql:/docker-entrypoint-initdb.d/03_b2b.sql:ro
+      - ./database/b2b_migration.sql:/docker-entrypoint-initdb.d/02_b2b.sql:ro
+      - ./database/data.sql:/docker-entrypoint-initdb.d/03_data.sql:ro
       - ./database/high_concurrency_indexes.sql:/docker-entrypoint-initdb.d/04_indexes.sql:ro
     ports:
       - "3306:3306"
