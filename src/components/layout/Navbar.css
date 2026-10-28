@@ -1,14 +1,14 @@
-/* Modern Frosted Glass Navigation (Traveloka / Booking.com standard) */
+/* Quiet Luxury Frosted Glass Navigation */
 .navbar {
-  background-color: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background-color: rgba(250, 248, 245, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   position: sticky;
   top: 0;
   z-index: 1000;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(237, 233, 227, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(20, 23, 26, 0.04);
   transition: all 0.25s ease;
 }
 
@@ -16,7 +16,7 @@
   display: flex; 
   justify-content: space-between; 
   align-items: center; 
-  padding: 0 20px;
+  padding: 0 24px;
   max-width: 1280px;
   margin: 0 auto;
 }
@@ -26,27 +26,29 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.35rem; 
-  font-weight: 800; 
-  color: #0f172a; 
+  font-family: var(--font-serif);
+  font-size: 1.38rem; 
+  font-weight: 700; 
+  color: #14171a; 
   text-decoration: none;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
 .nav-logo > span {
-  color: #0f172a;
+  color: #14171a;
+  font-family: var(--font-serif);
 }
 
 .nav-logo .text-accent {
-  color: var(--accent-orange, #ff5e1f);
-  font-size: 1.5rem;
+  color: var(--accent-gold-kicker, #9a6e3a);
+  font-size: 1.4rem;
 }
 
 .nav-links { 
   display: flex; 
   list-style: none; 
-  gap: 12px; 
+  gap: 8px; 
   margin: 0;
   padding: 0;
   align-items: center;
@@ -54,22 +56,22 @@
 
 .nav-links a { 
   font-weight: 600; 
-  color: #475569;
+  color: #4b5259;
   text-decoration: none;
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 7px 16px;
+  border-radius: 9999px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
 .nav-links a:hover { 
-  color: var(--accent-blue, #0194f3);
-  background-color: rgba(1, 148, 243, 0.08);
+  color: #14171a;
+  background-color: rgba(20, 23, 26, 0.05);
 }
 
 .nav-links a.active { 
-  color: var(--accent-blue, #0194f3);
-  background-color: rgba(1, 148, 243, 0.12);
+  color: #14171a;
+  background-color: rgba(20, 23, 26, 0.08);
   font-weight: 700;
 }
 
@@ -83,18 +85,19 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  border-color: #0194f3 !important;
-  color: #0194f3 !important;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  border: 1px solid #ede9e3 !important;
+  color: #14171a !important;
   font-weight: 700;
-  background: #f0f9ff;
+  background: #ffffff;
 }
 
 .admin-quick-btn:hover {
-  background: #0194f3 !important;
-  color: #ffffff !important;
+  background: #14171a !important;
+  color: #f8e7cb !important;
+  border-color: #14171a !important;
 }
 
 .btn-cart-nav {
@@ -104,19 +107,19 @@
   height: 40px;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #ede9e3;
   border-radius: 12px;
-  background: #f8fafc;
-  color: #0f172a;
+  background: #ffffff;
+  color: #14171a;
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   transition: all 0.2s ease;
 }
 
 .btn-cart-nav:hover {
-  border-color: var(--accent-blue, #0194f3);
-  background: #f0f9ff;
-  color: var(--accent-blue, #0194f3);
+  border-color: #14171a;
+  background: #faf7f2;
+  color: #14171a;
   transform: translateY(-1px);
 }
 
@@ -130,9 +133,9 @@
   place-items: center;
   padding: 0 4px;
   border: 2px solid #ffffff;
-  border-radius: 99px;
-  background: var(--accent-orange, #ff5e1f);
-  color: #fff;
+  border-radius: 9999px;
+  background: #14171a;
+  color: #f8e7cb;
   font-size: 0.65rem;
   font-weight: 800;
   line-height: 1;
@@ -149,10 +152,10 @@
   height: 40px;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #ede9e3;
   border-radius: 12px;
-  background: #f8fafc;
-  color: #0f172a;
+  background: #ffffff;
+  color: #14171a;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -160,9 +163,9 @@
 
 .nav-icon-btn:hover,
 .nav-icon-btn[aria-expanded="true"] {
-  border-color: var(--accent-blue, #0194f3);
-  background: #f0f9ff;
-  color: var(--accent-blue, #0194f3);
+  border-color: #14171a;
+  background: #faf7f2;
+  color: #14171a;
 }
 
 .notification-badge {
@@ -175,9 +178,9 @@
   place-items: center;
   padding: 0 4px;
   border: 2px solid #ffffff;
-  border-radius: 99px;
-  background: var(--accent-orange, #ff5e1f);
-  color: #fff;
+  border-radius: 9999px;
+  background: #c25e38;
+  color: #ffffff;
   font-size: 0.65rem;
   font-weight: 800;
   line-height: 1;
@@ -291,27 +294,28 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 12px 4px 6px;
-  border-radius: 99px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  padding: 4px 14px 4px 6px;
+  border-radius: 9999px;
+  border: 1px solid #ede9e3;
+  background: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .user-btn:hover {
-  border-color: var(--accent-blue, #0194f3);
-  background: #f0f9ff;
+  border-color: #14171a;
+  background: #faf7f2;
 }
 
 .user-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--accent-blue, #0194f3);
-  color: #ffffff;
+  background: #14171a;
+  color: #f8e7cb;
+  font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;

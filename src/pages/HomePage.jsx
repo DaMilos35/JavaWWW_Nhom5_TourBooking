@@ -164,11 +164,13 @@ const HomePage = () => {
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <div className="hero-top-badge">
-            <span className="live-dot"></span> Sàn Thương Mại Điện Tử Du Lịch Hàng Đầu Việt Nam
+            <span className="live-dot"></span> BỘ SƯU TẬP HÀNH TRÌNH TINH HOA 2026
           </div>
-          <h1 className="hero-title text-gradient-animated">Khám Phá Việt Nam & Thế Giới<br />Trọn Vẹn Từng Trải Nghiệm</h1>
+          <h1 className="hero-title hero-editorial-title">
+            Hành Trình Tinh Tuyển<br /><em>Dành Cho Những Tâm Hồn Tự Do</em>
+          </h1>
           <p className="hero-subtitle">
-            Hơn 40 hành trình chọn lọc từ Vietravel, Saigontourist, xác nhận vé điện tử tức thì và hỗ trợ tìm kiếm điểm đến thông minh.
+            Hơn 80 hành trình chọn lọc từ Du Lịch Việt, Saigontourist, Vietravel — trải nghiệm văn hóa bản địa sâu sắc, tiện nghi chuẩn mực và xác nhận tức thì.
           </p>
 
           {/* Thanh tìm kiếm điểm đến và phân loại */}
@@ -256,6 +258,23 @@ const HomePage = () => {
                 ))}
               </div>
             </div>
+            {/* 3 Trụ Cột Đẳng Cấp Lữ Hành */}
+            <div className="hero-value-pillars mt-4">
+              <div className="pillar-item">
+                <span className="pillar-number">80+</span>
+                <span className="pillar-text">Hành trình kiểm định trực tiếp</span>
+              </div>
+              <div className="pillar-divider" />
+              <div className="pillar-item">
+                <span className="pillar-number">100%</span>
+                <span className="pillar-text">Xác nhận vé điện tử tức thì</span>
+              </div>
+              <div className="pillar-divider" />
+              <div className="pillar-item">
+                <span className="pillar-number">24/7</span>
+                <span className="pillar-text">Chăm sóc hành trình riêng biệt</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -321,8 +340,8 @@ const HomePage = () => {
               <div className="flash-title-wrap">
                 <div className="flash-fire-icon"><FaFire /></div>
                 <div>
-                  <h2 className="flash-title">Ưu Đãi Giờ Vàng · Flash Deals</h2>
-                  <p className="flash-subtitle">Các hành trình giá tốt nhất hôm nay - Giữ chỗ tức thì</p>
+                  <h2 className="flash-title">Ưu Đãi Đặc Tuyển · Private Offers</h2>
+                  <p className="flash-subtitle">Hành trình trải nghiệm giới hạn — Ưu đãi độc quyền theo ngày</p>
                 </div>
               </div>
               <div className="flash-countdown-pill">
@@ -343,9 +362,9 @@ const HomePage = () => {
       <section className="categories-section container reveal">
         <div className="section-header">
           <div>
-            <span className="section-kicker">DANH MỤC ĐIỂM ĐẾN</span>
-            <h2 className="section-title">Khám Phá Theo Chủ Đề Du Lịch</h2>
-            <p className="section-subtitle">Lựa chọn chuyến đi theo phong cách trải nghiệm mà bạn yêu thích</p>
+            <span className="section-kicker">BỘ SƯU TẬP THEO CHỦ ĐỀ</span>
+            <h2 className="section-title">Khám Phá Theo Phong Cách Sống</h2>
+            <p className="section-subtitle">Lựa chọn chuyến đi theo cảm hứng văn hóa và nghỉ dưỡng mà bạn yêu thích</p>
           </div>
           <Link to="/tours" className="section-more-link">
             Xem tất cả tour <FaChevronRight />
@@ -420,9 +439,9 @@ const HomePage = () => {
       <section className="featured-tours-section container reveal" style={{ marginBottom: '100px' }}>
         <div className="section-header">
           <div>
-            <span className="section-kicker">DANH SÁCH MỞ BÁN</span>
+            <span className="section-kicker">TUYỂN TẬP TINH HOA</span>
             <h2 className="section-title">Hành Trình Được Yêu Thích Nhất</h2>
-            <p className="section-subtitle">Khám phá và đặt chỗ ngay các tour chất lượng cao đang sẵn sàng phục vụ</p>
+            <p className="section-subtitle">Tuyển tập 80+ hành trình trải nghiệm chuẩn mực được du khách đánh giá cao nhất</p>
           </div>
           <Link to="/tours" className="btn btn-outline" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             Xem Toàn Bộ {tours.length} Tour <FaChevronRight />
