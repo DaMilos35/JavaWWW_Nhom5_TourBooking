@@ -142,6 +142,18 @@ public class EmbeddingService {
         DESTINATION_COORDS.put("nhật bản", new int[]{116, 117, 8, 40});
         DESTINATION_COORDS.put("hàn quốc", new int[]{118, 119, 8, 56});
         DESTINATION_COORDS.put("singapore", new int[]{120, 121, 40, 48});
+        DESTINATION_COORDS.put("dubai", new int[]{106, 114, 40, 48});
+        DESTINATION_COORDS.put("abu dhabi", new int[]{106, 114, 40, 48});
+        DESTINATION_COORDS.put("trương gia giới", new int[]{116, 122, 8, 48});
+        DESTINATION_COORDS.put("phượng hoàng cổ trấn", new int[]{116, 122, 8, 48});
+        DESTINATION_COORDS.put("hoa kỳ", new int[]{106, 123, 40, 48});
+        DESTINATION_COORDS.put("mỹ", new int[]{106, 123, 40, 48});
+        DESTINATION_COORDS.put("phan thiết", new int[]{0, 1, 48, 49});
+        DESTINATION_COORDS.put("mũi né", new int[]{0, 1, 48, 49});
+        DESTINATION_COORDS.put("bàu trắng", new int[]{0, 1, 48, 49});
+        DESTINATION_COORDS.put("cao bằng", new int[]{8, 9, 32, 33});
+        DESTINATION_COORDS.put("bản giốc", new int[]{8, 9, 32, 33});
+        DESTINATION_COORDS.put("lý sơn", new int[]{0, 16, 48, 49});
     }
 
     public EmbeddingService(@Value("${gemini.api.key:}") String geminiApiKey) {

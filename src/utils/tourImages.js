@@ -458,6 +458,11 @@ export function getDestinationKey(tour) {
   if (text.includes('hàn quốc') || text.includes('seoul') || text.includes('nami') || text.includes('lotte')) return 'hanquoc';
   if (text.includes('châu âu') || text.includes('chau au') || text.includes('pháp') || text.includes('thụy sĩ') || text.includes('vatican') || text.includes('eiffel') || text.includes('paris') || text.includes('colosseum') || text.includes('titlis') || text.includes('rome') || text.includes('venice')) return 'chauau';
   if (text.includes('đài loan') || text.includes('đài bắc') || text.includes('jiufen') || text.includes('taipei')) return 'dailoan';
+  if (text.includes('dubai') || text.includes('abu dhabi') || text.includes('burj khalifa') || text.includes('safari')) return 'dubai';
+  if (text.includes('trương gia giới') || text.includes('phượng hoàng cổ trấn') || text.includes('thiên môn sơn') || text.includes('bảo phong')) return 'truonggiagioi';
+  if (text.includes('hoa kỳ') || text.includes('bờ tây') || text.includes('los angeles') || text.includes('las vegas') || text.includes('san francisco') || text.includes('grand canyon')) return 'hoaky';
+  if (text.includes('phan thiết') || text.includes('mũi né') || text.includes('bàu trắng') || text.includes('lâu đài rượu vang')) return 'phanthiet';
+  if (text.includes('cao bằng') || text.includes('bản giốc') || text.includes('pác bó') || text.includes('ngườm ngao')) return 'caobang';
   
   return 'fallback';
 }

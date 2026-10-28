@@ -1192,3 +1192,455 @@
 .day-photo-item:hover .day-photo-zoom-btn {
   opacity: 1;
 }
+
+
+/* ==========================================================================
+   Departure Schedule Picker (Traveloka OTA 2026 Style)
+   ========================================================================== */
+.departure-schedule-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.schedule-box-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.schedule-pills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.schedule-pill-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.schedule-pill-card:hover {
+  border-color: #0194f3;
+  background: #f0f9ff;
+}
+
+.schedule-pill-card.active {
+  border-color: #0194f3;
+  background: #f0f9ff;
+  box-shadow: 0 0 0 2px rgba(1, 148, 243, 0.2);
+}
+
+.schedule-pill-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-pill-dow {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.schedule-pill-date {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.schedule-pill-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.schedule-seats-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.badge-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-urgent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.schedule-pill-price {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0194f3;
+}
+
+/* ==========================================================================
+   Comprehensive Policy Grid (Tab 3)
+   ========================================================================== */
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.policy-detail-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.policy-detail-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.policy-card-header {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.policy-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policy-card-list li {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #475569;
+  position: relative;
+  padding-left: 14px;
+}
+
+.policy-card-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #0194f3;
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   Customer Reviews & Ratings (Tab 4)
+   ========================================================================== */
+.customer-reviews-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.reviews-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.reviews-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.btn-open-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 8px 18px;
+}
+
+/* Write review box */
+.write-review-box {
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.write-review-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.form-row-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.star-rating-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.star-select-icon {
+  font-size: 1.3rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.star-select-icon:hover,
+.star-select-icon.active {
+  color: #f59e0b;
+  transform: scale(1.15);
+}
+
+.rating-select-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-left: 8px;
+}
+
+/* Filter pills */
+.reviews-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-pill-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-pill-btn:hover {
+  background: #e2e8f0;
+}
+
+.filter-pill-btn.active {
+  background: #0194f3;
+  color: #ffffff;
+  border-color: #0194f3;
+}
+
+/* Review Cards */
+.reviews-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.review-card-item {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 20px;
+}
+
+.review-card-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.review-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.reviewer-info-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reviewer-avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.reviewer-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reviewer-name {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.reviewer-badge-verified {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reviewer-meta-sub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.trip-type-tag {
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.review-body-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0 0 12px 0;
+}
+
+.review-photos-thumbnails {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.review-thumb-img {
+  width: 90px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.review-thumb-img:hover {
+  transform: scale(1.05);
+}
+
+/* CSKH reply */
+.cskh-reply-box {
+  background: #f8fafc;
+  border-left: 3px solid #0194f3;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.cskh-reply-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.cskh-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0194f3;
+}
+
+.cskh-time {
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.cskh-reply-content {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #475569;
+  margin: 0;
+}
+
+.review-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.helpful-vote-btn {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.helpful-vote-btn:hover {
+  background: #f0f9ff;
+  border-color: #0194f3;
+  color: #0194f3;
+}
