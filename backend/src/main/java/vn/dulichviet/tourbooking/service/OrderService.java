@@ -165,7 +165,83 @@ public class OrderService {
             order.setNotes((corporateNotes + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
         }
 
+        // 1. Chiết khấu đặc quyền Hội Viên (Loyalty Member Tier Discount)
+        String tier = user.getMembershipTier() != null ? user.getMembershipTier().toUpperCase() : "STANDARD";
+        int memberDiscountRate = switch (tier) {
+            case "VIP_PLATINUM" -> 8;
+            case "DIAMOND" -> 5;
+            case "GOLD" -> 3;
+            default -> 0;
+        };
+        BigDecimal memberDiscountAmt = BigDecimal.ZERO;
+        if (memberDiscountRate > 0) {
+            memberDiscountAmt = total.multiply(BigDecimal.valueOf(memberDiscountRate))
+                    .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+            total = total.subtract(memberDiscountAmt);
+            order.setMemberDiscount(memberDiscountAmt);
+        } else {
+            order.setMemberDiscount(BigDecimal.ZERO);
+        }
+
+        // 2. Đổi điểm thưởng tích lũy (Loyalty Points Redemption: 1 điểm = 1.000 VNĐ)
+        BigDecimal pointsDiscountAmt = BigDecimal.ZERO;
+        if (request.pointsUsed() != null && request.pointsUsed() > 0) {
+            int currentPoints = user.getLoyaltyPoints() != null ? user.getLoyaltyPoints() : 0;
+            int pointsToDeduct = Math.min(request.pointsUsed(), currentPoints);
+            if (pointsToDeduct > 0) {
+                pointsDiscountAmt = BigDecimal.valueOf(pointsToDeduct * 1000L);
+                if (pointsDiscountAmt.compareTo(total) > 0) {
+                    pointsDiscountAmt = total;
+                    pointsToDeduct = (int)(total.longValue() / 1000L);
+                }
+                total = total.subtract(pointsDiscountAmt);
+                user.setLoyaltyPoints(currentPoints - pointsToDeduct);
+                userRepository.save(user);
+                order.setPointsUsed(pointsToDeduct);
+                order.setPointsDiscount(pointsDiscountAmt);
+            }
+        } else {
+            order.setPointsUsed(0);
+            order.setPointsDiscount(BigDecimal.ZERO);
+        }
+
+        if (total.compareTo(BigDecimal.ZERO) < 0) total = BigDecimal.ZERO;
         order.setTotalAmount(total);
+
+        // 3. Cơ chế Đặt Cọc giữ chỗ (DEPOSIT: mặc định 30%) hoặc Thanh Toán Trọn Gói (FULL)
+        boolean isDeposit = "DEPOSIT".equalsIgnoreCase(request.paymentType());
+        if (isDeposit) {
+            int depPercent = (request.depositPercent() != null && request.depositPercent() > 0) ? request.depositPercent() : 30;
+            order.setPaymentType("DEPOSIT");
+            order.setDepositPercent(depPercent);
+            BigDecimal depAmt = total.multiply(BigDecimal.valueOf(depPercent))
+                    .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+            BigDecimal remAmt = total.subtract(depAmt);
+            order.setDepositAmount(depAmt);
+            order.setRemainingAmount(remAmt);
+            order.setStatus("DEPOSITED");
+            order.setPaymentStatus("PARTIALLY_PAID");
+
+            java.time.LocalDate earliestDate = null;
+            for (OrderDetail d : order.getDetails()) {
+                if (d.getTour() != null && d.getTour().getStartDate() != null) {
+                    if (earliestDate == null || d.getTour().getStartDate().isBefore(earliestDate)) {
+                        earliestDate = d.getTour().getStartDate();
+                    }
+                }
+            }
+            if (earliestDate != null && earliestDate.minusDays(7).isAfter(java.time.LocalDate.now())) {
+                order.setDepositDeadline(earliestDate.minusDays(7).atTime(23, 59, 59));
+            } else {
+                order.setDepositDeadline(LocalDateTime.now().plusDays(7));
+            }
+        } else {
+            order.setPaymentType("FULL");
+            order.setDepositPercent(100);
+            order.setDepositAmount(total);
+            order.setRemainingAmount(BigDecimal.ZERO);
+        }
+
         TourOrder savedOrder = orderRepository.save(order);
 
         // Lưu vết hành vi BOOK (trọng số cao nhất = 5) để tối ưu gợi ý tour
@@ -321,13 +397,81 @@ public class OrderService {
         String tx = (transactionCode != null && !transactionCode.isBlank()) ? transactionCode.trim() : ("TXN" + System.currentTimeMillis());
 
         order.setStatus("CONFIRMED");
+        order.setPaymentStatus("PAID");
+        if ("DEPOSIT".equalsIgnoreCase(order.getPaymentType())) {
+            order.setRemainingAmount(BigDecimal.ZERO);
+        }
         String paymentTag = String.format("[Đã thanh toán qua %s - Mã GD: %s]", method, tx);
         String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
         order.setNotes((paymentTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
 
         TourOrder saved = orderRepository.save(order);
+
+        // Tích điểm thưởng & tự động thăng hạng hội viên cho người dùng
+        updateUserLoyalty(order.getUser(), order.getTotalAmount());
+
         emailService.sendOrderConfirmation(saved);
         return OrderDto.from(saved);
+    }
+
+    /** Tất toán 100% số tiền còn lại cho đơn đặt cọc */
+    @Transactional
+    public OrderDto payRemainingBalance(Integer orderId, Integer userId, String paymentMethod, String transactionCode) {
+        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
+        if (!order.getUser().getId().equals(userId)) {
+            throw new ApiException(403, "Bạn không có quyền thao tác trên đơn hàng này");
+        }
+        if (!"DEPOSITED".equalsIgnoreCase(order.getStatus()) && !"PARTIALLY_PAID".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new ApiException(400, "Đơn hàng này không ở trạng thái chờ tất toán phần còn lại");
+        }
+
+        String method = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim() : "Chuyển khoản VietQR";
+        String tx = (transactionCode != null && !transactionCode.isBlank()) ? transactionCode.trim() : ("TXN-REM-" + System.currentTimeMillis());
+
+        order.setStatus("CONFIRMED");
+        order.setPaymentStatus("PAID");
+        order.setRemainingAmount(BigDecimal.ZERO);
+
+        String paymentTag = String.format("[Đã tất toán 100%% phần còn lại qua %s - Mã GD: %s]", method, tx);
+        String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
+        order.setNotes((paymentTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
+
+        TourOrder saved = orderRepository.save(order);
+
+        // Tích điểm & thăng hạng
+        updateUserLoyalty(order.getUser(), order.getTotalAmount());
+
+        emailService.sendOrderConfirmation(saved);
+        return OrderDto.from(saved);
+    }
+
+    /** Cập nhật tổng chi tiêu, tích điểm thưởng và thăng hạng thành viên tự động */
+    private void updateUserLoyalty(User user, BigDecimal amountPaid) {
+        if (user == null || amountPaid == null) return;
+        BigDecimal currentSpent = user.getTotalSpent() != null ? user.getTotalSpent() : BigDecimal.ZERO;
+        BigDecimal newSpent = currentSpent.add(amountPaid);
+        user.setTotalSpent(newSpent);
+
+        String newTier = "STANDARD";
+        double multiplier = 1.0;
+        if (newSpent.compareTo(new BigDecimal("100000000")) >= 0) {
+            newTier = "VIP_PLATINUM";
+            multiplier = 2.0;
+        } else if (newSpent.compareTo(new BigDecimal("50000000")) >= 0) {
+            newTier = "DIAMOND";
+            multiplier = 1.5;
+        } else if (newSpent.compareTo(new BigDecimal("20000000")) >= 0) {
+            newTier = "GOLD";
+            multiplier = 1.2;
+        }
+        user.setMembershipTier(newTier);
+
+        long earnedPoints = Math.round(amountPaid.doubleValue() * 0.01 * multiplier / 1000.0);
+        int currentPoints = user.getLoyaltyPoints() != null ? user.getLoyaltyPoints() : 0;
+        user.setLoyaltyPoints(currentPoints + (int) earnedPoints);
+
+        userRepository.save(user);
     }
 
     // ============ ADMIN & PROVIDER ============

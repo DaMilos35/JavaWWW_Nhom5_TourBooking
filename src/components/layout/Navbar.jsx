@@ -218,6 +218,24 @@ const Navbar = () => {
               >
                 <div className="user-avatar">{getInitial(user.fullName || user.username)}</div>
                 <span className="user-name">{user.fullName || user.username}</span>
+                {user.membershipTier && user.membershipTier !== 'STANDARD' && (
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    background: user.membershipTier === 'VIP_PLATINUM' ? 'linear-gradient(135deg, #4338ca, #6366f1)' :
+                                user.membershipTier === 'DIAMOND' ? 'linear-gradient(135deg, #0284c7, #38bdf8)' :
+                                'linear-gradient(135deg, #b45309, #f59e0b)',
+                    color: '#ffffff',
+                    marginLeft: '6px',
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                  }}>
+                    {user.membershipTier === 'VIP_PLATINUM' ? '👑 VIP' : user.membershipTier === 'DIAMOND' ? '💎 Kim Cương' : '🥇 Vàng'}
+                  </span>
+                )}
                 <FaChevronDown className="nav-chevron" />
               </button>
               

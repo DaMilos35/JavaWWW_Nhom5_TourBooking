@@ -70,6 +70,18 @@ public class OrderController {
         return ResponseEntity.ok(orderService.payOrder(id, userId, method, tx));
     }
 
+    /** Tất toán 100% số tiền còn lại cho đơn hàng đặt cọc */
+    @PostMapping("/my/{id}/pay-remaining")
+    public ResponseEntity<OrderDto> payRemaining(
+            @PathVariable Integer id,
+            @RequestBody(required = false) vn.dulichviet.tourbooking.dto.PayOrderRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Integer userId = extractUserId(userDetails);
+        String method = request != null ? request.paymentMethod() : "VIETQR";
+        String tx = request != null ? request.transactionCode() : null;
+        return ResponseEntity.ok(orderService.payRemainingBalance(id, userId, method, tx));
+    }
+
     private Integer extractUserId(UserDetails userDetails) {
         if (userDetails instanceof CustomUserDetails custom) {
             return custom.getUser().getId();

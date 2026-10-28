@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -49,6 +50,15 @@ public class User {
 
     @Column(name = "is_active", nullable = false)
     private Boolean active = true;
+
+    @Column(name = "membership_tier", length = 30)
+    private String membershipTier = "STANDARD";
+
+    @Column(name = "loyalty_points")
+    private Integer loyaltyPoints = 0;
+
+    @Column(name = "total_spent")
+    private BigDecimal totalSpent = BigDecimal.ZERO;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

@@ -186,6 +186,7 @@ export const orderApi = {
   getOrderById: (id) => api.get('/admin/orders/' + id),
   cancelOrder: (id, refundData) => api.post('/orders/my/' + id + '/cancel', refundData),
   payOrder: (id, data) => api.post('/orders/my/' + id + '/pay', data),
+  payRemaining: (id, data) => api.post('/orders/my/' + id + '/pay-remaining', data),
 };
 
 // ========= USER PROFILE =========

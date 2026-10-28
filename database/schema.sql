@@ -37,6 +37,9 @@ CREATE TABLE Users (
     phone       VARCHAR(15)     NULL,
     address     VARCHAR(255)    NULL,
     is_active   TINYINT(1)       NOT NULL DEFAULT 1,
+    membership_tier VARCHAR(30)     NOT NULL DEFAULT 'STANDARD',
+    loyalty_points  INT             NOT NULL DEFAULT 0,
+    total_spent     DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
     created_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -95,7 +98,7 @@ CREATE TABLE Orders (
     order_date      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_amount    DECIMAL(18,2)   NOT NULL DEFAULT 0,
     status          VARCHAR(20)     NOT NULL DEFAULT 'PENDING'
-                                    CHECK (status IN ('PENDING','CONFIRMED','CANCELLED','COMPLETED','PAID')),
+                                    CHECK (status IN ('PENDING','CONFIRMED','CANCELLED','COMPLETED','PAID','DEPOSITED')),
     contact_name    VARCHAR(150)    NOT NULL,
     contact_phone   VARCHAR(15)     NOT NULL,
     contact_email   VARCHAR(100)    NOT NULL,
@@ -113,6 +116,14 @@ CREATE TABLE Orders (
     refund_account_number VARCHAR(50) NULL,
     refund_account_name VARCHAR(100) NULL,
     cancellation_reason VARCHAR(255) NULL,
+    payment_type    VARCHAR(20)     NOT NULL DEFAULT 'FULL',
+    deposit_percent INT             NOT NULL DEFAULT 0,
+    deposit_amount  DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    remaining_amount DECIMAL(18,2)  NOT NULL DEFAULT 0.00,
+    deposit_deadline DATETIME       NULL,
+    points_used     INT             NOT NULL DEFAULT 0,
+    points_discount DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    member_discount DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
 
     CONSTRAINT FK_Orders_Users FOREIGN KEY (user_id)
         REFERENCES Users(user_id)

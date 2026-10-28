@@ -13,6 +13,8 @@ import {
   FaArrowRight, FaMoneyBillWave, FaBarcode
 } from 'react-icons/fa';
 import './CheckoutPage.css';
+import { getTierInfo } from '../utils/membershipUtils';
+import { FaCrown, FaGem, FaMedal, FaCoins } from 'react-icons/fa';
 
 // Mã giảm giá hợp lệ mô phỏng hệ thống
 const AVAILABLE_VOUCHERS = {
@@ -156,7 +158,28 @@ const CheckoutPage = () => {
     return appliedVoucher.value;
   }, [appliedVoucher, subTotal]);
 
-  const finalTotalAmount = Math.max(0, subTotal - b2bDiscountAmount - voucherDiscountAmount);
+  // 1. Chiết khấu Hạng Thành Viên VIP (Loyalty Tier Discount)
+  const tierInfo = useMemo(() => getTierInfo(user?.membershipTier, user?.totalSpent), [user]);
+  const memberDiscountAmount = useMemo(() => {
+    return Math.round(subTotal * (tierInfo.discountRate || 0));
+  }, [subTotal, tierInfo]);
+
+  // 2. Điểm thưởng tích lũy (Points Redemption: 1 điểm = 1.000 VNĐ)
+  const userLoyaltyPoints = user?.loyaltyPoints || 0;
+  const maxSpendBeforePoints = Math.max(0, subTotal - b2bDiscountAmount - voucherDiscountAmount - memberDiscountAmount);
+  const maxPointsUsable = Math.min(userLoyaltyPoints, Math.floor(maxSpendBeforePoints / 1000));
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
+  const pointsDiscountAmount = useLoyaltyPoints ? (maxPointsUsable * 1000) : 0;
+
+  // 3. Tổng giá trị đơn sau toàn bộ chiết khấu
+  const finalTotalAmount = Math.max(0, subTotal - b2bDiscountAmount - voucherDiscountAmount - memberDiscountAmount - pointsDiscountAmount);
+
+  // 4. Kế hoạch thanh toán: FULL (100%) vs DEPOSIT (30%)
+  const [paymentPlan, setPaymentPlan] = useState('FULL'); // 'FULL' or 'DEPOSIT'
+  const depositPercent = 30;
+  const depositAmount = paymentPlan === 'DEPOSIT' ? Math.round((finalTotalAmount * depositPercent) / 100) : finalTotalAmount;
+  const remainingAmount = paymentPlan === 'DEPOSIT' ? (finalTotalAmount - depositAmount) : 0;
+  const amountToPayNow = paymentPlan === 'DEPOSIT' ? depositAmount : finalTotalAmount;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -256,6 +279,9 @@ const CheckoutPage = () => {
         isB2b: isB2bInvoice || b2bDiscountPercent > 0 || isCorporateAccount,
         companyName: isB2bInvoice ? formData.companyName : null,
         taxId: isB2bInvoice ? formData.taxId : null,
+        paymentType: paymentPlan,
+        depositPercent: paymentPlan === 'DEPOSIT' ? 30 : 100,
+        pointsUsed: useLoyaltyPoints ? maxPointsUsable : 0,
         items: items.map(item => ({
           tourId: item.tour.id || item.tour.tourId,
           quantity: item.quantity
@@ -311,7 +337,7 @@ const CheckoutPage = () => {
     bankName: 'Ngân hàng TMCP Quân Đội (MB Bank)',
     accountNumber: '0901234567899',
     accountHolder: 'CONG TY CP DU LICH VIET MEDIA CORP',
-    qrUrl: `https://api.vietqr.io/image/970422-0901234567899-compact2.jpg?amount=${finalTotalAmount}&addInfo=DULICHVIET%20${(user?.username || 'GUEST').toUpperCase()}`
+    qrUrl: `https://api.vietqr.io/image/970422-0901234567899-compact2.jpg?amount=${amountToPayNow}&addInfo=DULICHVIET%20${(user?.username || 'GUEST').toUpperCase()}`
   };
 
   // ==============================================================
@@ -786,6 +812,100 @@ const CheckoutPage = () => {
                   </button>
                 </div>
 
+                {/* BENTO 1: LỰA CHỌN HÌNH THỨC THANH TOÁN (FULL vs DEPOSIT 30%) */}
+                <div className="payment-strategy-bento">
+                  <div className="strategy-title-row">
+                    <h4 className="strategy-title">
+                      <FaCreditCard style={{ color: '#0ea5e9' }} /> Lựa chọn hình thức thanh toán
+                    </h4>
+                    <span style={{ fontSize: '0.82rem', color: '#64748b' }}>Linh hoạt tài chính cho chuyến đi</span>
+                  </div>
+
+                  <div className="strategy-grid">
+                    {/* Option 1: Thanh toán 100% */}
+                    <div 
+                      className={`payment-plan-card ${paymentPlan === 'FULL' ? 'selected' : ''}`}
+                      onClick={() => setPaymentPlan('FULL')}
+                    >
+                      <div className="plan-header">
+                        <span className="plan-name">
+                          <input 
+                            type="radio" 
+                            name="paymentPlan" 
+                            checked={paymentPlan === 'FULL'} 
+                            onChange={() => setPaymentPlan('FULL')} 
+                          />
+                          Thanh toán 100%
+                        </span>
+                        <span className="plan-badge full">TẶNG +100 ĐIỂM</span>
+                      </div>
+                      <div className="plan-price-row">{formatPrice(finalTotalAmount)}</div>
+                      <p className="plan-desc">Tất toán toàn bộ chi phí chuyến đi. Phát hành vé điện tử E-Ticket QR Check-in tức thì.</p>
+                    </div>
+
+                    {/* Option 2: Đặt cọc 30% */}
+                    <div 
+                      className={`payment-plan-card ${paymentPlan === 'DEPOSIT' ? 'selected' : ''}`}
+                      onClick={() => setPaymentPlan('DEPOSIT')}
+                    >
+                      <div className="plan-header">
+                        <span className="plan-name">
+                          <input 
+                            type="radio" 
+                            name="paymentPlan" 
+                            checked={paymentPlan === 'DEPOSIT'} 
+                            onChange={() => setPaymentPlan('DEPOSIT')} 
+                          />
+                          Đặt cọc giữ chỗ 30%
+                        </span>
+                        <span className="plan-badge deposit">CHỈ TRẢ TRƯỚC 30%</span>
+                      </div>
+                      <div className="plan-price-row">{formatPrice(depositAmount)}</div>
+                      <p className="plan-desc">Chỉ cần thanh toán trước 30% để chốt chỗ. Số tiền còn lại thanh toán trước ngày khởi hành 7 ngày.</p>
+                      <div className="plan-installment-detail">
+                        <span>Đợt 2 (70%): <strong>{formatPrice(remainingAmount)}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BENTO 2: ĐẶC QUYỀN HỘI VIÊN & ĐỔI ĐIỂM THƯỞNG */}
+                <div className="loyalty-perks-bento">
+                  <div className="loyalty-header-row">
+                    <h4 className="loyalty-title">
+                      {tierInfo.key === 'VIP_PLATINUM' ? <FaCrown style={{ color: '#6366f1' }} /> : 
+                       tierInfo.key === 'DIAMOND' ? <FaGem style={{ color: '#0ea5e9' }} /> : 
+                       <FaMedal style={{ color: '#f59e0b' }} />}
+                      Đặc quyền Hội Viên {tierInfo.shortName}
+                    </h4>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#15803d' }}>
+                      {tierInfo.discountPercent > 0 ? `Giảm ${tierInfo.discountPercent}% giá tour` : 'Tích 1% điểm thưởng'}
+                    </span>
+                  </div>
+
+                  {userLoyaltyPoints > 0 && maxPointsUsable > 0 && (
+                    <div className="points-redeem-box">
+                      <div className="points-label-col">
+                        <input 
+                          type="checkbox" 
+                          id="usePointsCheck" 
+                          checked={useLoyaltyPoints} 
+                          onChange={(e) => setUseLoyaltyPoints(e.target.checked)} 
+                        />
+                        <label htmlFor="usePointsCheck" style={{ margin: 0, cursor: 'pointer' }}>
+                          <span className="points-label-text">
+                            Dùng <strong>{maxPointsUsable.toLocaleString('vi-VN')} điểm</strong> tích lũy để giảm thêm
+                          </span>
+                          <span className="points-sub-text"> (Quy đổi: {formatPrice(maxPointsUsable * 1000)})</span>
+                        </label>
+                      </div>
+                      <span style={{ fontWeight: 800, color: '#16a34a', fontSize: '0.95rem' }}>
+                        -{formatPrice(maxPointsUsable * 1000)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 {/* Danh sách các phương thức thanh toán */}
                 <div className="payment-options-grid mt-4">
 
@@ -1053,7 +1173,11 @@ const CheckoutPage = () => {
                     {loading ? (
                       'Đang xử lý đặt chỗ & gửi vé điện tử...'
                     ) : (
-                      <>Xác Nhận Đặt Tour & Thanh Toán {formatPrice(finalTotalAmount)}</>
+                      paymentPlan === 'DEPOSIT' ? (
+                        <>Xác Nhận Đặt Cọc 30% ({formatPrice(amountToPayNow)})</>
+                      ) : (
+                        <>Xác Nhận Đặt Tour & Thanh Toán {formatPrice(amountToPayNow)}</>
+                      )
                     )}
                   </button>
                   <div className="return-step-btn mt-2 text-center">
@@ -1174,8 +1298,34 @@ const CheckoutPage = () => {
                     <span className="total-title">TỔNG THANH TOÁN</span>
                     <small className="text-muted">Đã bao gồm toàn bộ thuế & phí</small>
                   </div>
+                  {memberDiscountAmount > 0 && (
+                    <div className="pricing-row discount-row text-success" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: '#16a34a' }}>
+                      <span>Đặc quyền {tierInfo.shortName} (-{tierInfo.discountPercent}%):</span>
+                      <span>-{formatPrice(memberDiscountAmount)}</span>
+                    </div>
+                  )}
+                  {pointsDiscountAmount > 0 && (
+                    <div className="pricing-row discount-row text-success" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: '#16a34a' }}>
+                      <span>Đổi điểm tích lũy ({maxPointsUsable} điểm):</span>
+                      <span>-{formatPrice(pointsDiscountAmount)}</span>
+                    </div>
+                  )}
+                  <div className="pricing-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: '#475569' }}>
+                    <span>Hình thức:</span>
+                    <strong style={{ color: paymentPlan === 'DEPOSIT' ? '#b45309' : '#0284c7' }}>
+                      {paymentPlan === 'DEPOSIT' ? 'Đặt cọc 30%' : 'Thanh toán 100%'}
+                    </strong>
+                  </div>
                   <div className="total-amount-box text-right">
-                    <span className="final-price-text">{formatPrice(finalTotalAmount)}</span>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>
+                      {paymentPlan === 'DEPOSIT' ? 'Số tiền thanh toán đợt 1 (30%):' : 'Tổng thanh toán:'}
+                    </div>
+                    <span className="final-price-text">{formatPrice(amountToPayNow)}</span>
+                    {paymentPlan === 'DEPOSIT' && (
+                      <div style={{ fontSize: '0.82rem', color: '#b45309', marginTop: '6px', fontWeight: 600 }}>
+                        Còn lại đợt 2 (70%): {formatPrice(remainingAmount)}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

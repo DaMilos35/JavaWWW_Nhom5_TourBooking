@@ -39,6 +39,30 @@ const MyOrdersPage = () => {
   const [cancelModalOrder, setCancelModalOrder] = useState(null);
   // Modal xác nhận hủy tour khi CHƯA THANH TOÁN (Miễn phí 100%)
   const [unpaidCancelModalOrder, setUnpaidCancelModalOrder] = useState(null);
+  const [payRemainingModalOrder, setPayRemainingModalOrder] = useState(null);
+  const [payingRemaining, setPayingRemaining] = useState(false);
+
+  const handleOpenPayRemaining = (order) => {
+    setPayRemainingModalOrder(order);
+  };
+
+  const handleConfirmPayRemaining = async () => {
+    if (!payRemainingModalOrder) return;
+    setPayingRemaining(true);
+    try {
+      await orderApi.payRemaining(payRemainingModalOrder.id, {
+        paymentMethod: 'VIETQR',
+        transactionCode: `TXN-REM-${Date.now().toString().slice(-6)}`
+      });
+      toast.success(`Đã tất toán 100% chuyến đi cho đơn #${payRemainingModalOrder.id}! Chúc quý khách có chuyến du lịch tuyệt vời!`);
+      setPayRemainingModalOrder(null);
+      fetchOrders();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Có lỗi khi tất toán số tiền còn lại');
+    } finally {
+      setPayingRemaining(false);
+    }
+  };
   const [refundForm, setRefundForm] = useState({
     bankName: 'MBBank (Quân Đội)',
     accountNumber: '',
@@ -223,7 +247,8 @@ const MyOrdersPage = () => {
       'PENDING': { label: 'Chờ Admin xác nhận', bg: '#fef3c7', color: '#b45309' },
       'CONFIRMED': { label: 'Đã xác nhận', bg: '#dcfce7', color: '#15803d' },
       'CANCELLED': { label: 'Đã hủy', bg: '#fee2e2', color: '#b91c1c' },
-      'COMPLETED': { label: 'Hoàn thành', bg: '#e0f2fe', color: '#0369a1' }
+      'COMPLETED': { label: 'Hoàn thành', bg: '#e0f2fe', color: '#0369a1' },
+      'DEPOSITED': { label: 'Đã cọc 30%', bg: '#fef3c7', color: '#b45309' }
     };
     const s = statusMap[status] || { label: status, bg: '#f1f5f9', color: '#475569' };
     return (
@@ -358,8 +383,9 @@ const MyOrdersPage = () => {
             {orders.map(order => {
               const isExpanded = expandedOrder === order.id;
               const isCancelled = order.status === 'CANCELLED';
+              const isDeposited = order.status === 'DEPOSITED' || order.paymentStatus === 'PARTIALLY_PAID';
               const isPaid = order.paymentStatus === 'PAID';
-              const isUnpaid = !isPaid && order.paymentStatus !== 'REFUND_PENDING' && order.paymentStatus !== 'REFUNDED';
+              const isUnpaid = !isPaid && !isDeposited && order.paymentStatus !== 'REFUND_PENDING' && order.paymentStatus !== 'REFUNDED';
               const canCancel = isPaid && !isCancelled;
 
               return (
@@ -414,6 +440,41 @@ const MyOrdersPage = () => {
                           );
                         })}
                       </ul>
+
+                      {/* BENTO TRACKER: TIẾN ĐỘ ĐẶT CỌC & TẤT TOÁN */}
+                      {isDeposited && (
+                        <div style={{
+                          background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                          border: '1.5px solid #fde68a',
+                          borderRadius: '12px',
+                          padding: '16px 20px',
+                          marginBottom: '16px'
+                        }}>
+                          <div style={{ fontWeight: 800, color: '#b45309', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FaCoins /> TIẾN ĐỘ ĐẶT CỌC & THANH TOÁN (INSTALLMENT TRACKER):
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', fontSize: '0.88rem' }}>
+                            <div>
+                              <span style={{ color: '#78350f', display: 'block' }}>Đợt 1 (Đã cọc 30%):</span>
+                              <strong style={{ color: '#15803d', fontSize: '1.05rem' }}>
+                                {formatPrice(order.depositAmount || (order.totalAmount * 0.3))} (Đã nộp)
+                              </strong>
+                            </div>
+                            <div>
+                              <span style={{ color: '#78350f', display: 'block' }}>Đợt 2 (Còn lại 70%):</span>
+                              <strong style={{ color: '#dc2626', fontSize: '1.05rem' }}>
+                                {formatPrice(order.remainingAmount || (order.totalAmount * 0.7))}
+                              </strong>
+                            </div>
+                            <div>
+                              <span style={{ color: '#78350f', display: 'block' }}>Hạn chót tất toán:</span>
+                              <strong style={{ color: '#0f172a' }}>
+                                {order.depositDeadline ? formatDate(order.depositDeadline) : 'Trước ngày khởi hành 7 ngày'}
+                              </strong>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="order-contact-box" style={{ marginBottom: '16px' }}>
                         <p><strong>Người liên hệ:</strong> {order.fullName || order.contactName}</p>

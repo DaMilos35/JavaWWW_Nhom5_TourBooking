@@ -90,6 +90,30 @@ public class TourOrder {
     @Column(name = "cancellation_reason", length = 255)
     private String cancellationReason;
 
+    @Column(name = "payment_type", length = 20)
+    private String paymentType = "FULL";
+
+    @Column(name = "deposit_percent")
+    private Integer depositPercent = 0;
+
+    @Column(name = "deposit_amount")
+    private BigDecimal depositAmount = BigDecimal.ZERO;
+
+    @Column(name = "remaining_amount")
+    private BigDecimal remainingAmount = BigDecimal.ZERO;
+
+    @Column(name = "deposit_deadline")
+    private LocalDateTime depositDeadline;
+
+    @Column(name = "points_used")
+    private Integer pointsUsed = 0;
+
+    @Column(name = "points_discount")
+    private BigDecimal pointsDiscount = BigDecimal.ZERO;
+
+    @Column(name = "member_discount")
+    private BigDecimal memberDiscount = BigDecimal.ZERO;
+
     @Column(name = "notes")
     private String notes;
 

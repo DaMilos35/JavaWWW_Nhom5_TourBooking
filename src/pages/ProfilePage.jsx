@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import api from '../api/axiosConfig';
-import { FaUserCircle, FaShieldAlt, FaKey, FaSave } from 'react-icons/fa';
+import { FaUserCircle, FaShieldAlt, FaKey, FaSave, FaCrown, FaGem, FaMedal, FaCoins, FaCheckCircle, FaPercent } from 'react-icons/fa';
+import { getTierInfo } from '../utils/membershipUtils';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
+  const formatPrice = (val) => {
+    return Number(val || 0).toLocaleString('vi-VN') + ' ₫';
+  };
+
   const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -20,6 +25,11 @@ const ProfilePage = () => {
   });
   const [savingProfile, setSavingProfile] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+
+  const tierInfo = React.useMemo(() => {
+    return getTierInfo(user?.membershipTier, user?.totalSpent);
+  }, [user]);
+
 
   // Điền dữ liệu người dùng khi đã đăng nhập
   useEffect(() => {
@@ -116,8 +126,90 @@ const ProfilePage = () => {
             </span>
           </div>
           
+
           {/* Cột phải: Form cập nhật thông tin và đổi mật khẩu */}
           <div className="profile-main card-box">
+            {/* THẺ HỘI VIÊN ĐIỆN TỬ VIP - UI/UX PRO MAX */}
+            <div 
+              className="membership-bento-card"
+              style={{
+                background: tierInfo.gradient,
+                border: tierInfo.border
+              }}
+            >
+              <div className="membership-card-top">
+                <div className="membership-brand">
+                  <div>
+                    <div className="membership-brand-logo">DU LỊCH VIỆT · VIP CLUB</div>
+                    <div className="membership-brand-sub">Chương trình đặc quyền khách hàng thân thiết</div>
+                  </div>
+                </div>
+                <div 
+                  className="membership-tier-badge"
+                  style={{
+                    background: tierInfo.badgeBg,
+                    color: tierInfo.badgeColor,
+                    border: '1px solid ' + tierInfo.badgeColor
+                  }}
+                >
+                  {tierInfo.key === 'VIP_PLATINUM' ? <FaCrown /> : tierInfo.key === 'DIAMOND' ? <FaGem /> : <FaMedal />}
+                  <span>{tierInfo.shortName}</span>
+                </div>
+              </div>
+
+              <div className="membership-chip-row">
+                <div className="emv-chip" />
+                <div className="membership-card-number">
+                  DLV · {String(user?.id || 1).padStart(4, '0')} · {tierInfo.shortName.toUpperCase()}
+                </div>
+              </div>
+
+              <div className="membership-info-grid">
+                <div className="membership-info-item">
+                  <span className="info-label">Chủ thẻ hội viên</span>
+                  <span className="info-val">{user?.fullName || user?.username || 'Khách Hàng'}</span>
+                </div>
+                <div className="membership-info-item">
+                  <span className="info-label">Điểm tích lũy hiện có</span>
+                  <span className="info-val" style={{ color: '#fde047', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <FaCoins /> {Number(user?.loyaltyPoints || 0).toLocaleString('vi-VN')} điểm
+                  </span>
+                </div>
+                <div className="membership-info-item">
+                  <span className="info-label">Tổng chi tiêu tích lũy</span>
+                  <span className="info-val">{formatPrice(user?.totalSpent || 0)}</span>
+                </div>
+                <div className="membership-info-item">
+                  <span className="info-label">Chiết khấu đặc quyền</span>
+                  <span className="info-val" style={{ color: '#4ade80' }}>
+                    {tierInfo.discountPercent > 0 ? `Giảm ${tierInfo.discountPercent}%` : 'Tích 1% điểm'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Thanh tiến trình thăng hạng */}
+              {tierInfo.nextTier && (
+                <div className="membership-progress-box">
+                  <div className="progress-header">
+                    <span>Tiến trình lên hạng <strong>{tierInfo.nextTier.shortName}</strong> ({tierInfo.progress}%)</span>
+                    <span>Còn thiếu: <strong>{formatPrice(tierInfo.remainingToNext)}</strong></span>
+                  </div>
+                  <div className="progress-bar-bg">
+                    <div className="progress-bar-fill" style={{ width: `${tierInfo.progress}%` }} />
+                  </div>
+                </div>
+              )}
+
+              {/* Danh sách đặc quyền */}
+              <div className="membership-perks-row">
+                {tierInfo.perks.map((perk, idx) => (
+                  <span key={idx} className="perk-pill">
+                    <FaCheckCircle style={{ color: '#4ade80', fontSize: '0.75rem' }} /> {perk}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px' }}>
               <FaUserCircle style={{ fontSize: '1.4rem', color: '#0ea5e9' }} />
               <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>
