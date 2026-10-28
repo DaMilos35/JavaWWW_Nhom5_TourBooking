@@ -149,17 +149,19 @@ const HomePage = () => {
   // Filter flash deal tours (with badge or discount)
   const flashDeals = tours.filter(t => t.badge || (t.originalPrice && Number(t.originalPrice) > Number(t.price))).slice(0, 4);
 
-  const smartSuggestions = [
-    'Du thuyền 5 sao vịnh Hạ Long ngắm hoàng hôn',
-    'Tour săn mây Tà Xùa Sa Pa cho 2 người',
-    'Nghỉ dưỡng biển Phú Quốc cho gia đình có trẻ em',
-    'Khám phá di sản miền Trung Đà Nẵng Hội An',
-    'Sông nước miệt vườn Cần Thơ Chợ Nổi Cái Răng'
+  const trendingDestinations = [
+    'Hạ Long',
+    'Đà Nẵng',
+    'Phú Quốc',
+    'Sa Pa',
+    'Đà Lạt',
+    'Hà Giang',
+    'Côn Đảo'
   ];
 
   return (
     <div className="homepage">
-      {/* Hero Section & Tìm kiếm thông minh */}
+      {/* Hero Section & Thanh Tìm Kiếm Đẳng Cấp */}
       <section className="hero-section">
         <div className="hero-overlay"></div>
         <div className="hero-content">
@@ -180,12 +182,12 @@ const HomePage = () => {
                 <FaMapMarkerAlt className="search-icon" aria-hidden="true" />
                 <div className="search-input-group">
                   <label className="search-label" htmlFor="home-tour-keyword">
-                    Bạn muốn đi đâu hoặc kỳ nghỉ thế nào?
+                    Điểm Đến
                   </label>
                   <input 
                     id="home-tour-keyword"
                     type="search"
-                    placeholder="Điểm đến, hoặc miêu tả kỳ nghỉ (VD: Du thuyền Hạ Long, Biển gia đình...)" 
+                    placeholder="Bạn muốn đi đâu? (Hạ Long, Đà Nẵng, Sa Pa...)" 
                     value={searchKeyword}
                     onChange={(e) => setSearchKeyword(e.target.value)}
                     className="search-input"
@@ -195,14 +197,14 @@ const HomePage = () => {
 
               <div className="search-field field-category">
                 <div className="search-input-group">
-                  <label className="search-label" htmlFor="home-tour-category">Danh mục loại hình</label>
+                  <label className="search-label" htmlFor="home-tour-category">Chủ Đề Tour</label>
                   <SelectDropdown
                     id="home-tour-category"
-                    label="Danh mục"
+                    label="Chủ đề tour"
                     value={searchCategory}
                     onChange={setSearchCategory}
                     options={[
-                      { value: '', label: 'Tất cả loại hình' },
+                      { value: '', label: 'Tất cả chủ đề' },
                       ...categories.map((category) => ({
                         value: String(category.id || category.categoryId),
                         label: category.name || category.categoryName,
@@ -214,10 +216,10 @@ const HomePage = () => {
 
               <div className="search-field field-price">
                 <div className="search-input-group">
-                  <label className="search-label" htmlFor="home-tour-price">Khoảng ngân sách</label>
+                  <label className="search-label" htmlFor="home-tour-price">Ngân Sách</label>
                   <SelectDropdown
                     id="home-tour-price"
-                    label="Ngân sách"
+                    label="Mức ngân sách"
                     value={priceRange}
                     onChange={setPriceRange}
                     options={[
@@ -236,44 +238,54 @@ const HomePage = () => {
                 ) : (
                   <FaSearch aria-hidden="true" />
                 )}
-                <span>{semanticLoading ? 'Đang tìm kiếm...' : 'Tìm Chuyến Đi'}</span>
+                <span>{semanticLoading ? 'Đang tìm...' : 'Tìm Chuyến Đi'}</span>
               </button>
             </form>
 
-            {/* Các Gợi Ý Ý Tưởng Tìm Kiếm Nhanh */}
-            <div className="smart-search-hints mt-3">
-              <span className="hints-label">
-                <FaMagic className="hint-icon" aria-hidden="true" /> Gợi ý tìm kiếm:
-              </span>
-              <div className="hints-chips-list">
-                {smartSuggestions.map((item, idx) => (
+            {/* Các Điểm Đến Thịnh Hành Dạng Tag Tinh Tế (Gọn gàng 1 dòng, không che khuất) */}
+            <div className="hero-trending-tags">
+              <span className="trending-label">Điểm đến thịnh hành:</span>
+              <div className="trending-tags-list">
+                {trendingDestinations.map((dest, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    className="hint-chip-btn"
-                    onClick={() => handleQuickSuggestion(item)}
+                    className="trending-tag-btn"
+                    onClick={() => handleQuickSuggestion(dest)}
                   >
-                    {item}
+                    {dest}
                   </button>
                 ))}
               </div>
             </div>
-            {/* 3 Trụ Cột Đẳng Cấp Lữ Hành */}
-            <div className="hero-value-pillars mt-4">
-              <div className="pillar-item">
-                <span className="pillar-number">80+</span>
-                <span className="pillar-text">Hành trình kiểm định trực tiếp</span>
-              </div>
-              <div className="pillar-divider" />
-              <div className="pillar-item">
-                <span className="pillar-number">100%</span>
-                <span className="pillar-text">Xác nhận vé điện tử tức thì</span>
-              </div>
-              <div className="pillar-divider" />
-              <div className="pillar-item">
-                <span className="pillar-number">24/7</span>
-                <span className="pillar-text">Chăm sóc hành trình riêng biệt</span>
-              </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3 Trụ Cột Đẳng Cấp & Cam Kết Lữ Hành (Độc lập dưới Hero, không bao giờ bị Dropdown đè) */}
+      <section className="trust-assurance-bar container">
+        <div className="trust-bar-wrapper">
+          <div className="trust-bar-item">
+            <span className="trust-number">80+</span>
+            <div className="trust-text-wrap">
+              <strong className="trust-title">Hành trình kiểm định trực tiếp</strong>
+              <span className="trust-desc">Tuyển chọn từ Du Lịch Việt, Saigontourist, Vietravel</span>
+            </div>
+          </div>
+          <div className="trust-bar-divider" />
+          <div className="trust-bar-item">
+            <span className="trust-number">100%</span>
+            <div className="trust-text-wrap">
+              <strong className="trust-title">Xác nhận vé điện tử tức thì</strong>
+              <span className="trust-desc">Giữ chỗ thời gian thực, minh bạch không phí ẩn</span>
+            </div>
+          </div>
+          <div className="trust-bar-divider" />
+          <div className="trust-bar-item">
+            <span className="trust-number">24/7</span>
+            <div className="trust-text-wrap">
+              <strong className="trust-title">Chăm sóc hành trình riêng biệt</strong>
+              <span className="trust-desc">Chuyên viên hỗ trợ tận tâm trước, trong và sau tour</span>
             </div>
           </div>
         </div>
