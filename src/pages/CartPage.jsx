@@ -11,7 +11,7 @@ const CartPage = () => {
   const { items, updateQuantity, removeFromCart, getTotal } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const hasExpiredTours = items.some((item) => hasTourDatePassed(item.tour.startDate || item.tour.endDate));
+  const hasExpiredTours = items.some((item) => hasTourDatePassed(item?.tour?.startDate || item?.tour?.endDate));
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -54,49 +54,55 @@ const CartPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item) => (
-                    <tr key={item.tour.id || item.tour.tourId}>
-                      <td className="product-col">
-                        <FallbackImage src={item.tour.imageUrl} alt={item.tour.name} />
-                        <div>
-                          <Link to={`/tours/${item.tour.id || item.tour.tourId}`} className="tour-name">{item.tour.name || item.tour.tourName}</Link>
-                          {hasTourDatePassed(item.tour.startDate || item.tour.endDate) && (
-                            <small className="cart-expired-note">Lịch đã qua — xóa khỏi giỏ hoặc cập nhật tour trước khi tiếp tục.</small>
-                          )}
-                        </div>
-                      </td>
-                      <td>{formatPrice(item.tour.price)}</td>
-                      <td>
-                        <div className="qty-controls cart-qty">
-                          <button aria-label="Giảm số lượng vé" onClick={() => updateQuantity(item.tour.id || item.tour.tourId, item.quantity - 1)}>-</button>
-                          <input 
-                            type="number" 
-                            value={item.quantity} 
-                            onChange={(e) => updateQuantity(item.tour.id || item.tour.tourId, parseInt(e.target.value) || 1)}
-                            min="1"
-                            max={item.tour.availableSeats}
-                          />
+                  {items.map((item) => {
+                    const tour = item.tour || {};
+                    const tourId = tour.id || tour.tourId || item.tourId;
+                    const isPassed = hasTourDatePassed(tour.startDate || tour.endDate);
+                    const seats = Number(tour.availableSeats || 99);
+                    return (
+                      <tr key={tourId || Math.random()}>
+                        <td className="product-col">
+                          <FallbackImage src={tour.imageUrl} alt={tour.name || 'Tour'} />
+                          <div>
+                            <Link to={`/tours/${tourId}`} className="tour-name">{tour.name || tour.tourName || 'Tour'}</Link>
+                            {isPassed && (
+                              <small className="cart-expired-note">Lịch đã qua — xóa khỏi giỏ hoặc cập nhật tour trước khi tiếp tục.</small>
+                            )}
+                          </div>
+                        </td>
+                        <td>{formatPrice(tour.price || 0)}</td>
+                        <td>
+                          <div className="qty-controls cart-qty">
+                            <button aria-label="Giảm số lượng vé" onClick={() => updateQuantity(tourId, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
+                            <input 
+                              type="number" 
+                              value={item.quantity} 
+                              onChange={(e) => updateQuantity(tourId, parseInt(e.target.value) || 1)}
+                              min="1"
+                              max={seats}
+                            />
+                            <button
+                              aria-label="Tăng số lượng vé"
+                              disabled={item.quantity >= seats}
+                              onClick={() => updateQuantity(tourId, item.quantity + 1)}
+                            >+</button>
+                          </div>
+                        </td>
+                        <td className="item-total">{formatPrice((tour.price || 0) * item.quantity)}</td>
+                        <td>
                           <button
-                            aria-label="Tăng số lượng vé"
-                            disabled={item.quantity >= Number(item.tour.availableSeats || 0)}
-                            onClick={() => updateQuantity(item.tour.id || item.tour.tourId, item.quantity + 1)}
-                          >+</button>
-                        </div>
-                      </td>
-                      <td className="item-total">{formatPrice(item.tour.price * item.quantity)}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="btn-delete"
-                          aria-label="Xóa tour khỏi giỏ hàng"
-                          title="Xóa tour khỏi giỏ hàng"
-                          onClick={() => removeFromCart(item.tour.id || item.tour.tourId)}
-                        >
-                          <FaTrash aria-hidden="true" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                            type="button"
+                            className="btn-delete"
+                            aria-label="Xóa tour khỏi giỏ hàng"
+                            title="Xóa tour khỏi giỏ hàng"
+                            onClick={() => removeFromCart(tourId)}
+                          >
+                            <FaTrash aria-hidden="true" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

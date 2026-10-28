@@ -3,7 +3,7 @@ import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { authApi } from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaIdCard, FaPhone, FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash, FaPlane } from 'react-icons/fa';
+import { FaIdCard, FaPhone, FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash, FaPlane, FaCheckCircle } from 'react-icons/fa';
 import './AuthPages.css';
 
 const RegisterPage = () => {

@@ -27,6 +27,7 @@ import MyOrdersPage from './pages/MyOrdersPage';
 import WishlistPage from './pages/WishlistPage';
 import HelpCenterPage from './pages/HelpCenterPage';
 import VnPayReturnPage from './pages/VnPayReturnPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Lazy-loaded Admin Pages (Code-split for admin bundle)
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
@@ -99,6 +100,9 @@ function App() {
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="b2b" element={<AdminB2B />} />
                 </Route>
+
+                {/* Catch-all 404 Route: Prevents Blank Screens on Unmatched Paths */}
+                <Route path="*" element={<UserLayout><NotFoundPage /></UserLayout>} />
               </Routes>
             </Router>
           </WishlistProvider>

@@ -11,9 +11,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     authApi.me()
       .then((res) => {
-        const { userId, username, email, role, fullName, phone, address } = res.data;
+        const { userId, username, email, role, fullName, phone, address, membershipTier, loyaltyPoints, totalSpent } = res.data;
         const cleanRole = (role || '').replace(/^ROLE_/, '');
-        setUser({ id: userId, username, email, role: cleanRole, fullName: fullName || username, phone: phone || '', address: address || '' });
+        setUser({
+          id: userId,
+          username,
+          email,
+          role: cleanRole,
+          fullName: fullName || username,
+          phone: phone || '',
+          address: address || '',
+          membershipTier: membershipTier || 'STANDARD',
+          loyaltyPoints: loyaltyPoints || 0,
+          totalSpent: totalSpent || 0
+        });
       })
       .catch(() => {
         // Session đã hết hoặc chưa đăng nhập → giữ user = null
@@ -25,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authApi.login(credentials);
-      const { userId, username, email, role, fullName, phone, address } = response.data;
+      const { userId, username, email, role, fullName, phone, address, membershipTier, loyaltyPoints, totalSpent } = response.data;
       const cleanRole = (role || '').replace(/^ROLE_/, '');
       const newUser = {
         id: userId,
@@ -35,10 +46,18 @@ export const AuthProvider = ({ children }) => {
         fullName: fullName || username,
         phone: phone || '',
         address: address || '',
+        membershipTier: membershipTier || 'STANDARD',
+        loyaltyPoints: loyaltyPoints || 0,
+        totalSpent: totalSpent || 0
       };
       setUser(newUser);
       // Lưu tên vào localStorage để hiển thị nhanh (không phải để xác thực)
-      localStorage.setItem('user_display', JSON.stringify({ username, fullName: newUser.fullName, role: cleanRole }));
+      localStorage.setItem('user_display', JSON.stringify({
+        username,
+        fullName: newUser.fullName,
+        role: cleanRole,
+        membershipTier: newUser.membershipTier
+      }));
       return { success: true, user: newUser };
     } catch (error) {
       let message = 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';

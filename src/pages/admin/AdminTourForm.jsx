@@ -16,7 +16,9 @@ import {
   FaRoute, 
   FaCheckCircle, 
   FaTimesCircle,
-  FaImage
+  FaImage,
+  FaCamera,
+  FaLightbulb
 } from 'react-icons/fa';
 
 // Helper: chuyển đổi JSON array hoặc text từ DB sang dạng hiển thị nhiều dòng cho textarea

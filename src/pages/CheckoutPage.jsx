@@ -10,7 +10,7 @@ import {
   FaMapMarkerAlt, FaCreditCard, FaQrcode, FaShieldAlt, FaTag, FaClock,
   FaTicketAlt, FaPrint, FaCopy, FaCheck, FaLock, FaBuilding, FaFileInvoice,
   FaUsers, FaChevronDown, FaChevronUp, FaInfoCircle, FaCalendarAlt, FaPercent,
-  FaArrowRight, FaMoneyBillWave, FaBarcode
+  FaArrowRight, FaMoneyBillWave, FaBarcode, FaPlaneDeparture, FaStar
 } from 'react-icons/fa';
 import './CheckoutPage.css';
 import { getTierInfo } from '../utils/membershipUtils';
@@ -128,7 +128,7 @@ const CheckoutPage = () => {
   const [isPaidSuccess, setIsPaidSuccess] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
 
-  const hasExpiredTours = items.some(item => hasTourDatePassed(item.tour.startDate || item.tour.endDate));
+  const hasExpiredTours = items.some(item => hasTourDatePassed(item?.tour?.startDate || item?.tour?.endDate));
 
   // Kiểm tra giỏ hàng trống
   useEffect(() => {
@@ -240,7 +240,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    const emptyPassenger = passengers.find(p => !p.fullName?.trim());
+    const emptyPassenger = passengers.find(p => !(p.name?.trim() || p.fullName?.trim()));
     if (emptyPassenger) {
       toast.warning('Vui lòng điền đầy đủ tên các hành khách trong danh sách.');
       return;
@@ -283,7 +283,7 @@ const CheckoutPage = () => {
         depositPercent: paymentPlan === 'DEPOSIT' ? 30 : 100,
         pointsUsed: useLoyaltyPoints ? maxPointsUsable : 0,
         items: items.map(item => ({
-          tourId: item.tour.id || item.tour.tourId,
+          tourId: item?.tour?.id || item?.tour?.tourId || item?.tourId || item?.id,
           quantity: item.quantity
         }))
       };
@@ -726,6 +726,7 @@ const CheckoutPage = () => {
                               onChange={(e) => {
                                 const newP = [...passengers];
                                 newP[idx].name = e.target.value;
+                                newP[idx].fullName = e.target.value;
                                 setPassengers(newP);
                               }}
                               placeholder={`Họ và tên hành khách ${idx + 1}`}

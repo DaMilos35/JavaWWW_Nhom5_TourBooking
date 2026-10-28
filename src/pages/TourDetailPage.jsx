@@ -38,7 +38,8 @@ import {
   FaCalendarCheck,
   FaBuilding,
   FaPhoneAlt,
-  FaExternalLinkAlt
+  FaExternalLinkAlt,
+  FaTimes
 } from 'react-icons/fa';
 import { tourApi } from '../api/axiosConfig';
 import { useCart } from '../context/CartContext';

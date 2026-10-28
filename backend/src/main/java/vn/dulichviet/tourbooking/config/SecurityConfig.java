@@ -77,7 +77,10 @@ public class SecurityConfig {
                         "role", user.getRole(),
                         "fullName", user.getFullName() != null ? user.getFullName() : user.getUsername(),
                         "phone", user.getPhone() != null ? user.getPhone() : "",
-                        "address", user.getAddress() != null ? user.getAddress() : ""
+                        "address", user.getAddress() != null ? user.getAddress() : "",
+                        "membershipTier", user.getMembershipTier() != null ? user.getMembershipTier() : "STANDARD",
+                        "loyaltyPoints", user.getLoyaltyPoints() != null ? user.getLoyaltyPoints() : 0,
+                        "totalSpent", user.getTotalSpent() != null ? user.getTotalSpent() : java.math.BigDecimal.ZERO
                     ));
                 })
                 .failureHandler((request, response, exception) -> {
