@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaRobot, FaPaperPlane, FaTimes, FaMagic, FaExternalLinkAlt, FaStar } from 'react-icons/fa';
+import { FaHeadset, FaPaperPlane, FaTimes, FaStar, FaCompass } from 'react-icons/fa';
 import { aiApi } from '../../api/axiosConfig';
+import { realTourApi, removeVietnameseTones } from '../../api/realTourDataApi';
 import FallbackImage from './FallbackImage';
 import './AiChatWidget.css';
 
 const DEFAULT_PROMPTS = [
   'Gợi ý tour nghỉ mát biển đảo',
-  'Tour săn mây vùng cao mát mẻ',
+  'Tour Đà Lạt săn mây mát mẻ',
   'Khám phá miền Tây sông nước ẩm thực',
-  'Tour du lịch giá rẻ dưới 5 triệu'
+  'Tour du lịch tiết kiệm dưới 5 triệu'
 ];
 
 const renderFormattedText = (text) => {
@@ -36,7 +37,7 @@ const AiChatWidget = () => {
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: 'Xin chào! Tôi là Trợ Lý Du Lịch AI của Du Lịch Việt. Tôi có thể giúp bạn tìm tour du lịch phù hợp nhất theo sở thích (nghỉ mát biển, săn mây vùng cao, miền Tây...) hoặc theo ngân sách.',
+      text: 'Xin chào quý khách! Em là chuyên viên tư vấn du lịch của Du Lịch Việt. Em luôn sẵn sàng hỗ trợ anh/chị chọn chuyến đi phù hợp nhất theo sở thích (biển đảo, vùng cao, miền Tây...) hoặc theo ngân sách và số ngày.',
       suggestedTours: []
     }
   ]);
@@ -73,19 +74,46 @@ const AiChatWidget = () => {
 
       const botMsg = {
         sender: 'bot',
-        text: res.data?.reply || 'Tôi đã tìm thấy một số gợi ý phù hợp cho bạn.',
+        text: res.data?.reply || 'Em đã chọn lọc những hành trình phù hợp nhất cho anh/chị:',
         suggestedTours: res.data?.suggestedTours || []
       };
       setMessages(prev => [...prev, botMsg]);
-    } catch (error) {
-      setMessages(prev => [
-        ...prev,
-        {
-          sender: 'bot',
-          text: 'Rất tiếc, hiện tại hệ thống AI đang bận xử lý. Bạn có thể thử tìm kiếm theo từ khóa hoặc xem các tour nổi bật trên trang chủ nhé!',
-          suggestedTours: []
+    } catch {
+      // Smart client-side fallback supporting unaccented text & common typos
+      try {
+        const searchRes = await realTourApi.search(textToSend);
+        const matches = (searchRes.data || []).slice(0, 3);
+        const unaccented = removeVietnameseTones(textToSend);
+
+        let replyIntro = 'Em xin gợi ý những hành trình phù hợp nhất với mong muốn của anh/chị:';
+        if (unaccented.includes('da lat') || unaccented.includes('san may')) {
+          replyIntro = 'Đà Lạt luôn là điểm đến tuyệt vời với khí hậu se lạnh và cảnh sắc ngàn hoa mộng mơ. Dưới đây là các tour Đà Lạt - Lâm Đồng được yêu thích nhất:';
+        } else if (unaccented.includes('phu quoc') || unaccented.includes('nha trang') || unaccented.includes('bien')) {
+          replyIntro = 'Một chuyến nghỉ mát biển đảo với làn nước trong xanh và hải sản tươi ngon là lựa chọn tuyệt vời! Dưới đây là các tour biển đảo hấp dẫn nhất:';
+        } else if (unaccented.includes('mien tay') || unaccented.includes('song nuoc')) {
+          replyIntro = 'Về miền Tây sông nước hữu tình để trải nghiệm chèo xuồng, đi chợ nổi và thưởng thức ẩm thực miệt vườn. Em xin gợi ý các tour chọn lọc:';
+        } else if (unaccented.includes('gia re') || unaccented.includes('tiet kiem')) {
+          replyIntro = 'Dưới đây là các hành trình du lịch chất lượng cao với chi phí tiết kiệm tối ưu, trọn gói dịch vụ chu đáo:';
         }
-      ]);
+
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: `${replyIntro}\n\nAnh/chị có thể bấm trực tiếp vào thẻ tour bên dưới để xem hình ảnh và chi tiết lịch trình nhé!`,
+            suggestedTours: matches
+          }
+        ]);
+      } catch {
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: 'Hiện tại hệ thống tư vấn đang bận một chút. Quý khách có thể xem nhanh các tour gợi ý bên dưới hoặc tìm kiếm theo điểm đến trên trang chủ nhé!',
+            suggestedTours: []
+          }
+        ]);
+      }
     } finally {
       setLoading(false);
     }
@@ -115,13 +143,16 @@ const AiChatWidget = () => {
           <div className="ai-chat-header">
             <div className="ai-header-title">
               <span className="ai-status-indicator"></span>
-              <FaRobot style={{ color: '#38bdf8' }} />
-              <span>Trợ Lý Du Lịch AI</span>
+              <FaHeadset style={{ color: '#38bdf8', fontSize: '1.05rem' }} />
+              <div>
+                <span style={{ fontWeight: 600, display: 'block', lineHeight: 1.2 }}>Tư Vấn Du Lịch 24/7</span>
+                <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 400 }}>Trực tuyến • Phản hồi ngay</span>
+              </div>
             </div>
             <button 
               className="ai-close-btn" 
               onClick={() => setIsOpen(false)}
-              aria-label="Đóng chat"
+              aria-label="Đóng khung tư vấn"
             >
               <FaTimes />
             </button>
@@ -135,7 +166,7 @@ const AiChatWidget = () => {
                   {renderFormattedText(msg.text)}
                 </div>
 
-                {/* Tour cards if suggested by AI */}
+                {/* Tour cards suggested by assistant */}
                 {msg.suggestedTours && msg.suggestedTours.length > 0 && (
                   <div className="ai-tours-wrapper">
                     {msg.suggestedTours.map(tour => (
@@ -168,7 +199,7 @@ const AiChatWidget = () => {
             {messages.length === 1 && (
               <div className="ai-quick-prompts">
                 <span style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <FaMagic style={{ color: '#f59e0b' }} /> Gợi ý câu hỏi nhanh:
+                  <FaCompass style={{ color: '#0194F3' }} /> Gợi ý câu hỏi nhanh:
                 </span>
                 {DEFAULT_PROMPTS.map((prompt, idx) => (
                   <button 
@@ -203,7 +234,7 @@ const AiChatWidget = () => {
               <input
                 type="text"
                 className="ai-input"
-                placeholder="Hỏi AI về chuyến đi hoặc ngân sách..."
+                placeholder="Nhập câu hỏi hoặc điểm đến bạn quan tâm..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -226,10 +257,10 @@ const AiChatWidget = () => {
       <button 
         className="ai-launcher-btn" 
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Trợ lý Du lịch AI"
+        aria-label="Tư vấn du lịch 24/7"
       >
-        <FaRobot className="ai-launcher-icon" />
-        <span>Trợ Lý Du Lịch AI</span>
+        <FaHeadset className="ai-launcher-icon" />
+        <span>Tư Vấn Chuyến Đi</span>
       </button>
     </div>
   );

@@ -30,8 +30,8 @@ const articles = [
     answer: 'Hệ thống sử dụng cơ chế Khóa bi quan (Pessimistic Locking) trong cơ sở dữ liệu MariaDB khi đặt vé để đảm bảo không bị trùng chỗ (overbooking). Khi đơn hàng hủy, số ghế tự động được hoàn trả ngay lập tức.'
   },
   {
-    category: 'Tìm kiếm AI',
-    question: 'Công nghệ AI Vector Database (Semantic Search) hoạt động như thế nào?',
+    category: 'Tìm kiếm thông minh',
+    question: 'Công nghệ tìm kiếm theo ngữ nghĩa (Semantic Search) hoạt động như thế nào?',
     answer: 'Thay vì chỉ tìm từ khóa khớp chính xác, thanh tìm kiếm thông minh sử dụng thuật toán Vector Embeddings để phân tích ngữ nghĩa tự nhiên của bạn (ví dụ: "cần nơi yên bình ngắm biển cho gia đình có người lớn tuổi"), từ đó gợi ý các tour phù hợp nhất.'
   },
   {
@@ -52,7 +52,7 @@ const tabSlugMap = {
   'dat-tour': 'Đặt tour',
   'thanh-toan': 'Thanh toán',
   'don-dat': 'Đơn đặt',
-  'ai-search': 'Tìm kiếm AI',
+  'ai-search': 'Tìm kiếm thông minh',
   'thong-tin': 'Thông tin tour',
   'tai-khoan': 'Tài khoản',
   'all': 'Tất cả'
@@ -113,7 +113,7 @@ const HelpCenterPage = () => {
         <header className="help-center-hero">
           <p className="help-center-eyebrow">Hỗ trợ khách hàng</p>
           <h1>Trung tâm trợ giúp</h1>
-          <p>Tìm câu trả lời về đặt vé, thanh toán trực tuyến, chính sách hoàn hủy và công nghệ AI.</p>
+          <p>Tìm câu trả lời về đặt vé, thanh toán trực tuyến, chính sách hoàn hủy và trải nghiệm du lịch thông minh.</p>
           <label className="help-search">
             <FaSearch aria-hidden="true" />
             <input

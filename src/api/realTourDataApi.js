@@ -88,6 +88,43 @@ export const REAL_CATEGORIES = [
   { id: 8, categoryId: 8, name: 'Tour Quốc Tế Chọn Lọc', categoryName: 'Tour Quốc Tế Chọn Lọc', description: 'Hành trình khám phá xứ chùa Vàng Bangkok - Pattaya, Singapore - Malaysia, Tokyo ngắm hoa anh đào, Seoul Hàn Quốc.', imageUrl: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800' }
 ];
 
+export function removeVietnameseTones(str) {
+  if (!str) return '';
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim();
+}
+
+function normalizeSearchKeyword(keyword) {
+  if (!keyword) return '';
+  let s = removeVietnameseTones(keyword);
+  const typos = {
+    'dalat': 'da lat',
+    'phuquoc': 'phu quoc',
+    'nhatrag': 'nha trang',
+    'nhatrang': 'nha trang',
+    'danang': 'da nang',
+    'halong': 'ha long',
+    'quynhon': 'quy nhon',
+    'vungtau': 'vung tau',
+    'condao': 'con dao',
+    'mientay': 'mien tay',
+    'hagiang': 'ha giang',
+    'giare': 'gia re',
+    'sanmay': 'san may',
+    'nghimat': 'nghi mat',
+    'ksan': 'khach san'
+  };
+  for (const [typo, fixed] of Object.entries(typos)) {
+    if (s.includes(typo)) s = s.split(typo).join(fixed);
+  }
+  return s;
+}
+
 export const realTourApi = {
   getAll: async () => {
     return { data: REAL_TOURS };
@@ -108,13 +145,23 @@ export const realTourApi = {
 
   search: async (keyword) => {
     if (!keyword) return { data: REAL_TOURS };
-    const kw = keyword.toLowerCase().trim();
-    const filtered = REAL_TOURS.filter((t) =>
-      t.name.toLowerCase().includes(kw) ||
-      (t.description && t.description.toLowerCase().includes(kw)) ||
-      (t.departureLocation && t.departureLocation.toLowerCase().includes(kw))
-    );
-    return { data: filtered };
+    const rawKw = keyword.toLowerCase().trim();
+    const cleanKw = normalizeSearchKeyword(keyword);
+    const kwTokens = cleanKw.split(/\s+/).filter(Boolean);
+
+    const filtered = REAL_TOURS.filter((t) => {
+      const rawText = (t.name + ' ' + (t.description || '') + ' ' + (t.departureLocation || '')).toLowerCase();
+      const cleanText = removeVietnameseTones(rawText);
+
+      // Exact substring match on raw or normalized
+      if (rawText.includes(rawKw) || cleanText.includes(cleanKw)) return true;
+
+      // Token overlap match (e.g. "tim tour nha trang 3 ngay")
+      const matchesTokens = kwTokens.length > 0 && kwTokens.every(tok => cleanText.includes(tok));
+      return matchesTokens;
+    });
+
+    return { data: filtered.length > 0 ? filtered : REAL_TOURS.slice(0, 8) };
   },
 
   getRecommendations: async (_sessionId, limit = 4) => {

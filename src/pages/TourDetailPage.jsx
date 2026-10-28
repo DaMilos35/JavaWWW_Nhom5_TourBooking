@@ -131,8 +131,22 @@ const TourDetailPage = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner fullScreen />;
-  if (!tour) return null;
+  if (loading) return <LoadingSpinner fullScreen text="Đang tải thông tin tour..." />;
+  if (!tour) {
+    return (
+      <div className="container" style={{ padding: '80px 20px', textAlign: 'center', minHeight: '60vh' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '12px' }}>
+          Không tìm thấy thông tin tour du lịch này
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '15px', marginBottom: '24px' }}>
+          Tour du lịch này có thể tạm thời chưa khả dụng hoặc đường dẫn không tồn tại.
+        </p>
+        <Link to="/tours" className="btn btn-primary" style={{ padding: '12px 24px', borderRadius: '10px' }}>
+          Khám phá danh sách các tour khác
+        </Link>
+      </div>
+    );
+  }
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
@@ -444,7 +458,7 @@ const TourDetailPage = () => {
                 onClick={() => setActiveTab('ai_insights')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                <FaMagic style={{ color: '#0194F3' }} /> AI Phân Tích Đánh Giá
+                <FaMagic style={{ color: '#0194F3' }} /> Trải Nghiệm & Đánh Giá
               </button>
             </div>
 
@@ -462,9 +476,9 @@ const TourDetailPage = () => {
                   <div className="ai-tailor-header">
                     <div className="ai-tailor-title">
                       <FaMagic className="ai-icon-pulse" />
-                      <span>AI Smart Itinerary Tailor · Cá nhân hóa hành trình theo đối tượng</span>
+                      <span>Gợi Ý Lịch Trình Theo Đối Tượng Du Khách</span>
                     </div>
-                    <span className="ai-tailor-badge">AI Assistant</span>
+                    <span className="ai-tailor-badge">Tư vấn thông minh</span>
                   </div>
                   <p className="ai-tailor-sub">Chọn phong cách chuyến đi của bạn để nhận lưu ý và mẹo tối ưu độc quyền:</p>
                   <div className="ai-persona-pills">
@@ -654,7 +668,7 @@ const TourDetailPage = () => {
                         <span className="ai-score-text">Độ Hài Lòng Rất Cao (98% Khuyên Đi)</span>
                       </div>
                       <p className="ai-score-desc">
-                        Trí tuệ nhân tạo Gemini tự động phân tích và trích xuất điểm chính từ <strong>142 lượt phản hồi thực tế</strong> của du khách đã hoàn tất tour.
+                        Hệ thống tổng hợp và phân tích khách quan từ <strong>142 lượt phản hồi thực tế</strong> của các du khách đã hoàn tất hành trình.
                       </p>
                     </div>
                   </div>
@@ -676,7 +690,7 @@ const TourDetailPage = () => {
                     <div className="ai-bento-card bento-tips">
                       <div className="bento-card-title text-amber">
                         <FaLightbulb style={{ color: '#d97706', marginRight: '6px' }} />
-                        Lưu Ý & Chuẩn Bị (AI Tips)
+                        Kinh Nghiệm & Lưu Ý Hữu Ích
                       </div>
                       <ul className="bento-list">
                         <li>Nên mang theo giày đế bám và mũ nón che nắng cho các chặng tham quan ngoài trời.</li>

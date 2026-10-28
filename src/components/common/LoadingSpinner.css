@@ -1,0 +1,63 @@
+/* LoadingSpinner.css - Smooth, accessible brand loading animation */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  gap: 16px;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #0071c2;
+  border-right-color: #0071c2;
+  border-radius: 50%;
+  animation: dv-spin 0.75s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  box-sizing: border-box;
+}
+
+.spinner-overlay .spinner {
+  width: 52px;
+  height: 52px;
+  border-width: 4.5px;
+  box-shadow: 0 4px 16px rgba(0, 113, 194, 0.18);
+}
+
+.spinner-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  letter-spacing: -0.01em;
+  margin: 0;
+  font-family: inherit;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  gap: 12px;
+  min-height: 220px;
+}
+
+@keyframes dv-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -67,7 +67,7 @@ public class AiTourService {
                 : (request.prompt() != null ? request.prompt().trim() : "");
 
         if (userMessage.isBlank()) {
-            return new AiChatResponse("Xin chào! Tôi là Trợ lý Du Lịch AI của Du Lịch Việt. Bạn đang muốn tìm tour du lịch đến đâu hay có ngân sách như thế nào?", List.of());
+            return new AiChatResponse("Xin chào quý khách! Em là chuyên viên tư vấn du lịch của Du Lịch Việt. Anh/chị đang có dự định khám phá địa điểm nào hay cần gợi ý theo ngân sách và số ngày ạ?", List.of());
         }
 
         // Đảm bảo Vector Store đã được đánh chỉ mục
@@ -187,14 +187,14 @@ public class AiTourService {
             }
         }
 
-        String systemPrompt = "Bạn là Trợ lý Du Lịch AI chuyên nghiệp, nhiệt tình và am hiểu của công ty 'Du Lịch Việt'.\n" +
-                "Hệ thống của bạn sử dụng kiến trúc RAG (Retrieval-Augmented Generation) kết hợp Vector Database để gợi ý tour.\n" +
-                "Nhiệm vụ: Tư vấn hành trình, giải đáp thắc mắc và giới thiệu các tour du lịch được Vector Database trích xuất ở trên phù hợp nhất với nhu cầu của khách hàng.\n" +
-                "Quy tắc:\n" +
-                "1. Ưu tiên bám sát thông tin các tour được trích xuất trong danh sách trên.\n" +
-                "2. Định dạng câu trả lời thân thiện, rõ ràng, gạch đầu dòng các điểm nổi bật, kèm theo giá vé và thời lượng.\n" +
-                "3. Nhắc khách hàng có thể bấm trực tiếp vào thẻ tour gợi ý bên dưới để xem chi tiết và đặt chỗ.\n" +
-                "4. Dùng tiếng Việt chuẩn mực, lịch sự, hiếu khách.";
+        String systemPrompt = "Bạn là Chuyên viên Tư vấn Du lịch trực tuyến cao cấp, tận tâm của 'Du Lịch Việt' (luôn xưng là 'em' hoặc 'Du Lịch Việt' và gọi khách hàng là 'anh/chị' hoặc 'quý khách').\n" +
+                "Khách hàng có thể gõ tiếng Việt không dấu (ví dụ: 'tim tour nha trang', 'da lat 3 ngay', 'gia re') hoặc gõ tắt, gõ nhầm lỗi telex, lỗi chính tả.\n" +
+                "Nhiệm vụ:\n" +
+                "1. Luôn thấu hiểu chính xác ý định của khách hàng, ngầm hiểu và tự động sửa các lỗi chính tả/gõ không dấu của khách.\n" +
+                "2. Trả lời bằng tiếng Việt chuẩn mực, có dấu đầy đủ, giọng điệu niềm nở, ân cần, hiếu khách và chuyên nghiệp như một tư vấn viên lâu năm.\n" +
+                "3. Giới thiệu nhiệt tình các tour du lịch được hệ thống gợi ý ở trên phù hợp nhất với mong muốn của khách (nêu rõ điểm nổi bật, giá vé ưu đãi, số ngày).\n" +
+                "4. Nhắc khách hàng có thể bấm trực tiếp vào thẻ tour bên dưới để xem hình ảnh thực tế, lịch trình chi tiết và giữ chỗ.\n" +
+                "5. Tuyệt đối KHÔNG tự xưng là 'AI', 'mô hình ngôn ngữ', 'bot' hay đề cập đến các thuật toán/công nghệ.";
 
         Map<String, Object> payload = Map.of(
                 "contents", List.of(
@@ -251,6 +251,7 @@ public class AiTourService {
 
     private List<Tour> filterRelevantTours(List<Tour> tours, String query) {
         String lower = query.toLowerCase(Locale.ROOT);
+        String unaccented = EmbeddingService.normalizeQuery(query);
         List<Tour> matches = new ArrayList<>();
 
         for (Tour t : tours) {
@@ -258,60 +259,68 @@ public class AiTourService {
             String desc = (t.getDescription() != null ? t.getDescription() : "").toLowerCase(Locale.ROOT);
             String cat = (t.getCategory() != null ? t.getCategory().getName() : "").toLowerCase(Locale.ROOT);
             String text = name + " " + desc + " " + cat;
+            String textUnaccented = EmbeddingService.removeAccents(text);
 
-            // Nghỉ mát / Biển đảo
-            if ((lower.contains("nghỉ mát") || lower.contains("bãi biển") || lower.contains("tắm biển") || lower.contains("biển") || lower.contains("đảo") || lower.contains("hải sản"))
-                    && (text.contains("phú quốc") || text.contains("nha trang") || text.contains("quy nhơn") || text.contains("lan hạ") || text.contains("cát bà") || text.contains("vũng tàu") || text.contains("kỳ co") || text.contains("biển"))) {
+            // Nghỉ mát / Biển đảo (hỗ trợ cả có dấu, không dấu: biển, đảo, nha trang, phú quốc, quy nhơn...)
+            if ((unaccented.contains("nghi mat") || unaccented.contains("bai bien") || unaccented.contains("tam bien") || unaccented.contains("bien") || unaccented.contains("dao") || unaccented.contains("hai san") || unaccented.contains("mua he"))
+                    && (textUnaccented.contains("phu quoc") || textUnaccented.contains("nha trang") || textUnaccented.contains("quy nhon") || textUnaccented.contains("lan ha") || textUnaccented.contains("cat ba") || textUnaccented.contains("vung tau") || textUnaccented.contains("ky co") || textUnaccented.contains("bien") || textUnaccented.contains("dao"))) {
                 matches.add(t);
             }
-            // Vùng cao / Núi non / Săn mây
-            else if ((lower.contains("săn mây") || lower.contains("núi") || lower.contains("lên núi") || lower.contains("cao nguyên") || lower.contains("mát mẻ") || lower.contains("se lạnh"))
-                    && (text.contains("đà lạt") || text.contains("sapa") || text.contains("fansipan") || text.contains("hà giang") || text.contains("măng đen") || text.contains("núi") || text.contains("mây"))) {
+            // Vùng cao / Núi non / Săn mây (hỗ trợ: săn mây, đà lạt, sapa, hà giang, măng đen...)
+            else if ((unaccented.contains("san may") || unaccented.contains("nui") || unaccented.contains("len nui") || unaccented.contains("cao nguyen") || unaccented.contains("mat me") || unaccented.contains("se lanh"))
+                    && (textUnaccented.contains("da lat") || textUnaccented.contains("sapa") || textUnaccented.contains("fansipan") || textUnaccented.contains("ha giang") || textUnaccented.contains("mang den") || textUnaccented.contains("nui") || textUnaccented.contains("may"))) {
                 matches.add(t);
             }
             // Sông nước Miền Tây / Ẩm thực / Chợ nổi
-            else if ((lower.contains("miền tây") || lower.contains("sông nước") || lower.contains("chợ nổi") || lower.contains("trái cây") || lower.contains("ẩm thực"))
-                    && (text.contains("cần thơ") || text.contains("bến tre") || text.contains("mỹ tho") || text.contains("châu đốc") || text.contains("trà sư") || text.contains("sông nước") || text.contains("miền tây"))) {
+            else if ((unaccented.contains("mien tay") || unaccented.contains("song nuoc") || unaccented.contains("cho noi") || unaccented.contains("trai cay") || unaccented.contains("am thuc"))
+                    && (textUnaccented.contains("can tho") || textUnaccented.contains("ben tre") || textUnaccented.contains("my tho") || textUnaccented.contains("chau doc") || textUnaccented.contains("tra su") || textUnaccented.contains("song nuoc") || textUnaccented.contains("mien tay"))) {
                 matches.add(t);
             }
-            // Di sản / Lịch sử / Tâm linh
-            else if ((lower.contains("di sản") || lower.contains("lịch sử") || lower.contains("cố đô") || lower.contains("tâm linh") || lower.contains("chùa"))
-                    && (text.contains("huế") || text.contains("hội an") || text.contains("ninh bình") || text.contains("tràng an") || text.contains("bái đính") || text.contains("côn đảo") || text.contains("di sản"))) {
+            // Di sản / Lịch sử / Cố đô / Tâm linh
+            else if ((unaccented.contains("di san") || unaccented.contains("lich su") || unaccented.contains("co do") || unaccented.contains("tam linh") || unaccented.contains("chua"))
+                    && (textUnaccented.contains("hue") || textUnaccented.contains("hoi an") || textUnaccented.contains("ninh binh") || textUnaccented.contains("trang an") || textUnaccented.contains("bai dinh") || textUnaccented.contains("con dao") || textUnaccented.contains("di san"))) {
                 matches.add(t);
             }
             // Thám hiểm / Hang động
-            else if ((lower.contains("thám hiểm") || lower.contains("hang động") || lower.contains("mạo hiểm") || lower.contains("cắm trại"))
-                    && (text.contains("tú làn") || text.contains("phong nha") || text.contains("thiên đường") || text.contains("hang"))) {
+            else if ((unaccented.contains("tham hiem") || unaccented.contains("hang dong") || unaccented.contains("mao hiem") || unaccented.contains("cam trai"))
+                    && (textUnaccented.contains("tu lan") || textUnaccented.contains("phong nha") || textUnaccented.contains("thien duong") || textUnaccented.contains("hang"))) {
                 matches.add(t);
             }
             // Du thuyền / Sang trọng 5 sao
-            else if ((lower.contains("du thuyền") || lower.contains("5 sao") || lower.contains("sang trọng") || lower.contains("resort"))
-                    && (text.contains("du thuyền") || text.contains("5 sao") || text.contains("suite") || text.contains("resort"))) {
+            else if ((unaccented.contains("du thuyen") || unaccented.contains("5 sao") || unaccented.contains("sang trong") || unaccented.contains("resort"))
+                    && (textUnaccented.contains("du thuyen") || textUnaccented.contains("5 sao") || textUnaccented.contains("suite") || textUnaccented.contains("resort"))) {
                 matches.add(t);
             }
-            // Địa danh cụ thể
-            else if (lower.contains("hạ long") && text.contains("hạ long")) matches.add(t);
-            else if ((lower.contains("đà nẵng") || lower.contains("hội an") || lower.contains("bà nà")) && (text.contains("đà nẵng") || text.contains("hội an"))) matches.add(t);
-            else if (lower.contains("phú quốc") && text.contains("phú quốc")) matches.add(t);
-            else if ((lower.contains("sapa") || lower.contains("fansipan")) && text.contains("sapa")) matches.add(t);
-            else if (lower.contains("nha trang") && text.contains("nha trang")) matches.add(t);
-            else if (lower.contains("đà lạt") && text.contains("đà lạt")) matches.add(t);
-            else if (lower.contains("hà giang") && text.contains("hà giang")) matches.add(t);
-            else if (lower.contains("quy nhơn") && text.contains("quy nhơn")) matches.add(t);
+            // Khớp trực tiếp địa danh (cả có dấu và không dấu / gõ tắt)
+            else if (unaccented.contains("ha long") && textUnaccented.contains("ha long")) matches.add(t);
+            else if ((unaccented.contains("da nang") || unaccented.contains("hoi an") || unaccented.contains("ba na")) && (textUnaccented.contains("da nang") || textUnaccented.contains("hoi an"))) matches.add(t);
+            else if (unaccented.contains("phu quoc") && textUnaccented.contains("phu quoc")) matches.add(t);
+            else if ((unaccented.contains("sapa") || unaccented.contains("fansipan")) && textUnaccented.contains("sapa")) matches.add(t);
+            else if (unaccented.contains("nha trang") && textUnaccented.contains("nha trang")) matches.add(t);
+            else if (unaccented.contains("da lat") && textUnaccented.contains("da lat")) matches.add(t);
+            else if (unaccented.contains("ha giang") && textUnaccented.contains("ha giang")) matches.add(t);
+            else if (unaccented.contains("quy nhon") && textUnaccented.contains("quy nhon")) matches.add(t);
+            else if (unaccented.contains("vung tau") && textUnaccented.contains("vung tau")) matches.add(t);
+            else if (unaccented.contains("con dao") && textUnaccented.contains("con dao")) matches.add(t);
+            else if (unaccented.contains("ninh binh") && textUnaccented.contains("ninh binh")) matches.add(t);
+            else if (unaccented.contains("hue") && textUnaccented.contains("hue")) matches.add(t);
+            else if (unaccented.contains("quang binh") && textUnaccented.contains("quang binh")) matches.add(t);
+            else if (unaccented.contains("thai lan") && textUnaccented.contains("thai lan")) matches.add(t);
+            else if (unaccented.contains("singapore") && textUnaccented.contains("singapore")) matches.add(t);
         }
 
-        // Lọc ngân sách nếu có
+        // Lọc ngân sách nếu có (hỗ trợ có dấu và không dấu: gia re, tiet kiem, duoi 5 trieu, ...)
         boolean filterBudget = false;
         BigDecimal maxPrice = null;
         BigDecimal minPrice = null;
-        if (lower.contains("giá rẻ") || lower.contains("tiết kiệm") || lower.contains("rẻ") || lower.contains("dưới 5 triệu") || lower.contains("< 5 triệu") || lower.contains("dưới 5tr")) {
+        if (unaccented.contains("gia re") || unaccented.contains("tiet kiem") || unaccented.contains("re") || unaccented.contains("duoi 5 trieu") || unaccented.contains("< 5 trieu") || unaccented.contains("duoi 5tr") || unaccented.contains("duoi 4 trieu")) {
             maxPrice = BigDecimal.valueOf(5000000);
             filterBudget = true;
-        } else if (lower.contains("5 đến 10 triệu") || lower.contains("5-10 triệu") || lower.contains("từ 5 đến 10 triệu")) {
+        } else if (unaccented.contains("5 den 10 trieu") || unaccented.contains("5-10 trieu") || unaccented.contains("tu 5 den 10 trieu")) {
             minPrice = BigDecimal.valueOf(5000000);
             maxPrice = BigDecimal.valueOf(10000000);
             filterBudget = true;
-        } else if (lower.contains("trên 10 triệu") || lower.contains("> 10 triệu")) {
+        } else if (unaccented.contains("tren 10 trieu") || unaccented.contains("> 10 trieu")) {
             minPrice = BigDecimal.valueOf(10000000);
             filterBudget = true;
         }
@@ -346,39 +355,44 @@ public class AiTourService {
         String lower = query.toLowerCase(Locale.ROOT).trim();
         StringBuilder sb = new StringBuilder();
 
+        String unaccented = EmbeddingService.normalizeQuery(query);
+
         boolean isGreeting = lower.matches("^(chào|xin chào|hello|hi|alo|hé lô|cho hỏi|ad ơi|bot ơi|bạn là ai|giúp tôi).*")
-                || lower.equals("chào") || lower.equals("xin chào") || lower.equals("hi") || lower.equals("hello");
+                || unaccented.matches("^(chao|xin chao|hello|hi|alo|he lo|cho hoi|ad oi|giup toi).*")
+                || lower.equals("chào") || lower.equals("xin chào") || unaccented.equals("chao") || unaccented.equals("xin chao")
+                || lower.equals("hi") || lower.equals("hello");
 
-        boolean isBeachVacation = lower.contains("nghỉ mát") || lower.contains("bãi biển") || lower.contains("tắm biển")
-                || lower.contains("biển") || lower.contains("biển đảo") || lower.contains("hải sản")
-                || lower.contains("mùa hè") || lower.contains("nghỉ hè") || lower.contains("đảo");
+        boolean isBeachVacation = unaccented.contains("nghi mat") || unaccented.contains("bai bien") || unaccented.contains("tam bien")
+                || unaccented.contains("bien") || unaccented.contains("hai san") || unaccented.contains("mua he") || unaccented.contains("dao")
+                || unaccented.contains("phu quoc") || unaccented.contains("nha trang") || unaccented.contains("quy nhon") || unaccented.contains("vung tau");
 
-        boolean isMountainCloud = lower.contains("săn mây") || lower.contains("núi") || lower.contains("lên núi")
-                || lower.contains("vùng cao") || lower.contains("mát mẻ") || lower.contains("se lạnh")
-                || lower.contains("cao nguyên") || lower.contains("sương mù") || lower.contains("đèo")
-                || lower.contains("đà lạt") || lower.contains("sapa") || lower.contains("hà giang");
+        boolean isMountainCloud = unaccented.contains("san may") || unaccented.contains("nui") || unaccented.contains("len nui")
+                || unaccented.contains("vung cao") || unaccented.contains("mat me") || unaccented.contains("se lanh")
+                || unaccented.contains("cao nguyen") || unaccented.contains("suong mu") || unaccented.contains("deo")
+                || unaccented.contains("da lat") || unaccented.contains("sapa") || unaccented.contains("ha giang") || unaccented.contains("mang den");
 
-        boolean isWesternRiver = lower.contains("miền tây") || lower.contains("sông nước") || lower.contains("chợ nổi")
-                || lower.contains("ẩm thực") || lower.contains("trái cây") || lower.contains("miệt vườn")
-                || lower.contains("cần thơ") || lower.contains("bến tre") || lower.contains("châu đốc");
+        boolean isWesternRiver = unaccented.contains("mien tay") || unaccented.contains("song nuoc") || unaccented.contains("cho noi")
+                || unaccented.contains("am thuc") || unaccented.contains("trai cay") || unaccented.contains("miet vuon")
+                || unaccented.contains("can tho") || unaccented.contains("ben tre") || unaccented.contains("chau doc");
 
-        boolean isHeritage = lower.contains("di sản") || lower.contains("lịch sử") || lower.contains("cố đô")
-                || lower.contains("tâm linh") || lower.contains("chùa") || lower.contains("phố cổ")
-                || lower.contains("huế") || lower.contains("hội an") || lower.contains("ninh bình") || lower.contains("bái đính");
+        boolean isHeritage = unaccented.contains("di san") || unaccented.contains("lich su") || unaccented.contains("co do")
+                || unaccented.contains("tam linh") || unaccented.contains("chua") || unaccented.contains("pho co")
+                || unaccented.contains("hue") || unaccented.contains("hoi an") || unaccented.contains("ninh binh") || unaccented.contains("bai dinh")
+                || unaccented.contains("con dao");
 
-        boolean isBudget = lower.contains("giá rẻ") || lower.contains("tiết kiệm") || lower.contains("rẻ")
-                || lower.contains("bình dân") || lower.contains("sinh viên") || lower.contains("dưới 5 triệu")
-                || lower.contains("chi phí thấp") || lower.contains("hạt dẻ");
+        boolean isBudget = unaccented.contains("gia re") || unaccented.contains("tiet kiem") || unaccented.contains("re")
+                || unaccented.contains("binh dan") || unaccented.contains("sinh vien") || unaccented.contains("duoi 5 trieu")
+                || unaccented.contains("chi phi thap") || unaccented.contains("hat de") || unaccented.contains("duoi 4 trieu");
 
-        boolean isLuxury = lower.contains("du thuyền") || lower.contains("5 sao") || lower.contains("resort")
-                || lower.contains("sang trọng") || lower.contains("cao cấp") || lower.contains("luxury");
+        boolean isLuxury = unaccented.contains("du thuyen") || unaccented.contains("5 sao") || unaccented.contains("resort")
+                || unaccented.contains("sang trong") || unaccented.contains("cao cap") || unaccented.contains("luxury");
 
-        boolean isAdventure = lower.contains("thám hiểm") || lower.contains("hang động") || lower.contains("mạo hiểm")
-                || lower.contains("cắm trại") || lower.contains("tú làn") || lower.contains("phong nha");
+        boolean isAdventure = unaccented.contains("tham hiem") || unaccented.contains("hang dong") || unaccented.contains("mao hiem")
+                || unaccented.contains("cam trai") || unaccented.contains("tu lan") || unaccented.contains("phong nha");
 
         if (isGreeting && matchedTours.isEmpty()) {
-            sb.append("Xin chào bạn! Tôi là Trợ Lý Du Lịch AI của Du Lịch Việt, được tích hợp công nghệ Vector Database để hỗ trợ bạn tìm kiếm và gợi ý tour theo đúng nhu cầu ngữ nghĩa tự nhiên.\n\n");
-            sb.append("Bạn có thể đặt câu hỏi hoặc nêu nhu cầu của mình, ví dụ như:\n");
+            sb.append("Xin chào quý khách! Em là chuyên viên tư vấn du lịch của Du Lịch Việt, rất vui được hỗ trợ anh/chị chọn chuyến đi lý tưởng nhất.\n\n");
+            sb.append("Anh/chị có thể đặt câu hỏi hoặc nêu nhu cầu của mình, ví dụ như:\n");
             sb.append("• 🌊 Gợi ý tour nghỉ mát biển đảo (Phú Quốc, Nha Trang, Quy Nhơn...)\n");
             sb.append("• ☁️ Tour săn mây vùng cao mát mẻ (Đà Lạt, Sapa, Hà Giang...)\n");
             sb.append("• 🛶 Khám phá miền Tây sông nước và miệt vườn trái cây\n");
@@ -389,17 +403,17 @@ public class AiTourService {
         }
 
         if (isBeachVacation) {
-            sb.append("Chào bạn! Nếu bạn đang lên kế hoạch cho một kỳ **nghỉ mát** tuyệt vời để xua tan căng thẳng, đắm mình trong làn nước biển trong xanh và thưởng thức hải sản tươi ngon, Vector Database của Du Lịch Việt đã phân tích ngữ nghĩa và trích xuất các **thiên đường biển đảo & nghỉ mát** nổi bật nhất dành cho bạn:\n\n");
+            sb.append("Chào anh/chị! Nếu bạn đang lên kế hoạch cho một kỳ **nghỉ mát** tuyệt vời để xua tan căng thẳng, đắm mình trong làn nước biển trong xanh và thưởng thức hải sản tươi ngon, Du Lịch Việt xin gợi ý những hành trình **nghỉ mát biển đảo tuyệt đẹp** được đông đảo du khách đánh giá cao nhất:\n\n");
             sb.append("🌊 **Trải nghiệm nghỉ mát nổi bật:**\n");
             sb.append("• **Đảo Ngọc Phú Quốc & Quy Nhơn:** Nổi tiếng với làn nước trong vắt 2 màu, lặn ngắm san hô tự nhiên, cano lướt sóng và ngắm hoàng hôn lãng mạn.\n");
             sb.append("• **Vịnh Biển Nha Trang:** Vui chơi thả ga tại VinWonders Hòn Tre, thư giãn tắm bùn khoáng nóng và thưởng thức hải sản biển.\n");
             sb.append("• **Du Thuyền Vịnh Lan Hạ - Cát Bà:** Kỳ nghỉ mát sang trọng đẳng cấp giữa lòng vịnh biển kỳ quan thế giới.\n\n");
-            sb.append("💡 Bạn có thể bấm trực tiếp vào thẻ tour bên dưới để xem chi tiết lịch trình và đặt chỗ ngay nhé!");
+            sb.append("💡 Anh/chị có thể bấm trực tiếp vào thẻ tour bên dưới để xem chi tiết lịch trình và đặt chỗ ngay nhé!");
             return sb.toString();
         }
 
         if (isMountainCloud) {
-            sb.append("Chào bạn! Để tận hưởng không khí trong lành se lạnh và săn trọn khoảnh khắc biển mây bồng bềnh tuyệt đẹp, Vector Database đã tìm thấy các hành trình **vùng cao săn mây & khám phá thiên nhiên** lý tưởng nhất:\n\n");
+            sb.append("Chào anh/chị! Để tận hưởng không khí trong lành se lạnh và săn trọn khoảnh khắc biển mây bồng bềnh tuyệt đẹp, Em xin giới thiệu những hành trình **vùng cao săn mây và nghỉ dưỡng se lạnh** lý tưởng nhất dành cho anh/chị:\n\n");
             sb.append("☁️ **Điểm nhấn vùng cao săn mây:**\n");
             sb.append("• **Đà Lạt:** Săn mây sớm tại đồi Cầu Đất, dạo bước qua rừng thông thơ mộng và thung lũng ngàn hoa.\n");
             sb.append("• **Sapa & Fansipan:** Chinh phục 'Nóc nhà Đông Dương' bồng bềnh mây trắng và khám phá văn hóa vùng cao Tây Bắc.\n");
@@ -409,7 +423,7 @@ public class AiTourService {
         }
 
         if (isWesternRiver) {
-            sb.append("Chào bạn! Về với miền Tây là về với nét mộc mạc sông nước hữu tình, không khí miệt vườn trù phú và nét văn hóa ẩm thực Nam Bộ đậm đà:\n\n");
+            sb.append("Chào anh/chị! Về với miền Tây là về với nét mộc mạc sông nước hữu tình, không khí miệt vườn trù phú và nét văn hóa ẩm thực Nam Bộ đậm đà:\n\n");
             sb.append("🛶 **Trải nghiệm sông nước miền Tây:**\n");
             sb.append("• **Mỹ Tho - Bến Tre - Cần Thơ:** Len lỏi xuồng ba lá dưới rặng dừa nước, đi chợ nổi Cái Răng tấp nập lúc sớm mai và thưởng thức trái cây chín mọng tại vườn.\n");
             sb.append("• **Châu Đốc - Rừng Tràm Trà Sư:** Lướt xuồng trên thảm bèo xanh mướt mát mắt, viếng Miếu Bà Chúa Xứ linh thiêng và thưởng thức cá lóc nướng trui.\n\n");
@@ -418,7 +432,7 @@ public class AiTourService {
         }
 
         if (isHeritage) {
-            sb.append("Chào bạn! Những hành trình **di sản văn hóa và lịch sử** luôn đem lại cảm xúc lắng đọng và chiều sâu trải nghiệm đặc biệt:\n\n");
+            sb.append("Chào anh/chị! Những hành trình **di sản văn hóa và lịch sử** luôn đem lại cảm xúc lắng đọng và chiều sâu trải nghiệm đặc biệt:\n\n");
             sb.append("🏮 **Dấu ấn di sản nổi bật:**\n");
             sb.append("• **Đà Nẵng - Hội An - Cố Đô Huế:** Thả hoa đăng lung linh phố cổ Hội An, chiêm ngưỡng Đại Nội Hoàng Thành Huế cổ kính và nghe Ca Huế trên sông Hương.\n");
             sb.append("• **Ninh Bình - Tràng An - Chùa Bái Đính:** Quần thể danh thắng di sản thế giới non nước hữu tình kết hợp ngôi chùa tâm linh thanh tịnh.\n");
@@ -428,7 +442,7 @@ public class AiTourService {
         }
 
         if (isBudget) {
-            sb.append("Chào bạn! Thỏa sức vi vu du lịch mà không lo về giá! Dựa trên yêu cầu tour tiết kiệm, hệ thống AI đã chọn lọc các hành trình **chất lượng cao với chi phí tối ưu nhất**:\n\n");
+            sb.append("Chào anh/chị! Thỏa sức vi vu du lịch mà không lo về giá! Dựa trên yêu cầu tour tiết kiệm, Du Lịch Việt đã tuyển chọn các hành trình **chất lượng cao với chi phí tiết kiệm tối ưu**:\n\n");
             sb.append("💰 **Ưu điểm gói tour tiết kiệm:**\n");
             sb.append("• Mức giá cực kỳ ưu đãi (từ dưới 2 triệu đến 4 triệu đồng), phù hợp cho học sinh, sinh viên và gia đình.\n");
             sb.append("• Dịch vụ trọn gói chu đáo: xe đời mới đưa đón, vé tham quan danh thắng và bảo hiểm du lịch đầy đủ.\n\n");
@@ -437,7 +451,7 @@ public class AiTourService {
         }
 
         if (isLuxury) {
-            sb.append("Chào bạn! Dành cho những kỳ nghỉ dưỡng đỉnh cao và riêng tư, hệ thống xin giới thiệu các gói tour **tiêu chuẩn 5 sao và du thuyền hạng sang**:\n\n");
+            sb.append("Chào anh/chị! Dành cho những kỳ nghỉ dưỡng đỉnh cao và riêng tư, hệ thống xin giới thiệu các gói tour **tiêu chuẩn 5 sao và du thuyền hạng sang**:\n\n");
             sb.append("✨ **Đẳng cấp nghỉ dưỡng:**\n");
             sb.append("• **Du thuyền 5 sao Vịnh Lan Hạ - Cát Bà:** Phòng Suite có ban công riêng view trọn vịnh, ẩm thực Fine Dining hải sản thượng hạng và chèo kayak tắm biển Ba Trái Đào.\n");
             sb.append("• **Resort biển cao cấp:** Tận hưởng dịch vụ spa thư giãn, bãi tắm riêng biệt và không gian an dưỡng chuẩn mực.\n\n");
@@ -446,16 +460,16 @@ public class AiTourService {
         }
 
         if (isAdventure) {
-            sb.append("Chào bạn! Dành cho những trái tim đam mê mạo hiểm và khát khao chinh phục vẻ đẹp kỳ bí của tự nhiên:\n\n");
+            sb.append("Chào anh/chị! Dành cho những trái tim đam mê mạo hiểm và khát khao chinh phục vẻ đẹp kỳ bí của tự nhiên:\n\n");
             sb.append("🧗 **Hành trình thám hiểm mạo hiểm:**\n");
             sb.append("• **Thám hiểm Hang Tú Làn:** Cắm trại giữa rừng nguyên sinh Quảng Bình, bơi khám phá hang động thạch nhũ hàng triệu năm tuổi.\n");
             sb.append("• **Động Phong Nha & Suối Nước Moọc:** Chinh phục kỳ quan đệ nhất động và tắm suối ngọc bích giữa thiên nhiên đại ngàn.\n\n");
-            sb.append("💡 Bạn có thể xem yêu cầu thể lực và lịch trình chi tiết ở các thẻ tour bên dưới nhé!");
+            sb.append("💡 Anh/chị có thể xem yêu cầu thể lực và lịch trình chi tiết ở các thẻ tour bên dưới nhé!");
             return sb.toString();
         }
 
         // Câu trả lời tổng quát dựa trên kết quả trích xuất ngữ nghĩa cụ thể
-        sb.append(String.format("Chào bạn! Dựa trên tìm kiếm **\"%s\"**, Trợ lý Du Lịch AI đã phân tích tương đồng ngữ nghĩa bằng Vector Database và trích xuất những hành trình phù hợp nhất:\n\n", query));
+        sb.append(String.format("Chào anh/chị! Dựa trên tìm kiếm **\"%s\"**, Trợ lý Du Lịch AI đã phân tích tương đồng ngữ nghĩa bằng Vector Database và trích xuất những hành trình phù hợp nhất:\n\n", query));
         sb.append("🌟 **Những điểm đến gợi ý hàng đầu:**\n");
         int count = 0;
         for (TourDto t : matchedTours) {
@@ -464,7 +478,7 @@ public class AiTourService {
                     t.name(), t.duration(), t.departureLocation() != null ? t.departureLocation() : "Toàn quốc"));
             count++;
         }
-        sb.append("\n💡 Bạn có thể bấm trực tiếp vào thẻ tour bên dưới để xem chi tiết lịch trình trọn gói và đặt giữ chỗ nhé!");
+        sb.append("\n💡 Anh/chị có thể bấm trực tiếp vào thẻ tour bên dưới để xem chi tiết lịch trình trọn gói và đặt giữ chỗ nhé!");
         return sb.toString();
     }
 }

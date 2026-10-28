@@ -215,11 +215,13 @@ public class EmbeddingService {
                 .replaceAll("\\s+", " ")
                 .trim();
 
-        if (normalized.isBlank()) {
+        String unaccented = normalizeQuery(text);
+
+        if (normalized.isBlank() && unaccented.isBlank()) {
             return vector;
         }
 
-        // 1. Phân tích các cụm chủ đề ngữ nghĩa (Semantic Topic Clusters)
+        // 1. Phân tích các cụm chủ đề ngữ nghĩa (Semantic Topic Clusters - hỗ trợ cả tiếng Việt có dấu và không dấu)
         for (Map.Entry<String, List<String>> entry : CLUSTER_KEYWORDS.entrySet()) {
             String clusterName = entry.getKey();
             int[] dims = SEMANTIC_CLUSTERS.get(clusterName);
@@ -227,7 +229,8 @@ public class EmbeddingService {
 
             float matchScore = 0.0f;
             for (String kw : entry.getValue()) {
-                if (normalized.contains(kw)) {
+                String kwUnaccented = removeAccents(kw);
+                if (normalized.contains(kw) || unaccented.contains(kwUnaccented)) {
                     matchScore += 3.5f;
                 }
             }
@@ -239,10 +242,11 @@ public class EmbeddingService {
             }
         }
 
-        // 2. Phân tích các điểm đến địa lý
+        // 2. Phân tích các điểm đến địa lý (hỗ trợ cả có dấu, không dấu và gõ tắt)
         for (Map.Entry<String, int[]> entry : DESTINATION_COORDS.entrySet()) {
             String destName = entry.getKey();
-            if (normalized.contains(destName)) {
+            String destUnaccented = removeAccents(destName);
+            if (normalized.contains(destName) || unaccented.contains(destUnaccented)) {
                 for (int dim : entry.getValue()) {
                     vector[dim] += 4.5f;
                 }
@@ -301,6 +305,42 @@ public class EmbeddingService {
             h *= 0x01000193;
         }
         return h;
+    }
+
+    public static String removeAccents(String text) {
+        if (text == null) return "";
+        String nfd = java.text.Normalizer.normalize(text, java.text.Normalizer.Form.NFD);
+        return nfd.replaceAll("\\p{M}", "")
+                .replace("đ", "d")
+                .replace("Đ", "D")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    public static String normalizeQuery(String text) {
+        if (text == null) return "";
+        String s = removeAccents(text);
+        s = s.replace("dalat", "da lat")
+             .replace("phuquoc", "phu quoc")
+             .replace("nhatrag", "nha trang")
+             .replace("nhatrang", "nha trang")
+             .replace("danang", "da nang")
+             .replace("halong", "ha long")
+             .replace("quynhon", "quy nhon")
+             .replace("vungtau", "vung tau")
+             .replace("condao", "con dao")
+             .replace("mientay", "mien tay")
+             .replace("hagiang", "ha giang")
+             .replace("cantho", "can tho")
+             .replace("bentre", "ben tre")
+             .replace("mytho", "my tho")
+             .replace("phongnha", "phong nha")
+             .replace("giare", "gia re")
+             .replace("sanmay", "san may")
+             .replace("nghimat", "nghi mat")
+             .replace("ksan", "khach san");
+        return s;
     }
 
     public boolean isOnlineAvailable() {

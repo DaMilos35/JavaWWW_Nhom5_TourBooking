@@ -168,7 +168,7 @@ const HomePage = () => {
           </div>
           <h1 className="hero-title text-gradient-animated">Khám Phá Việt Nam & Thế Giới<br />Trọn Vẹn Từng Trải Nghiệm</h1>
           <p className="hero-subtitle">
-            Hơn 40 hành trình chọn lọc từ Vietravel, Saigontourist, xác nhận vé điện tử tức thì và hỗ trợ tìm kiếm bằng công nghệ AI thông minh.
+            Hơn 40 hành trình chọn lọc từ Vietravel, Saigontourist, xác nhận vé điện tử tức thì và hỗ trợ tìm kiếm điểm đến thông minh.
           </p>
 
           {/* Thanh tìm kiếm điểm đến và phân loại */}
@@ -234,7 +234,7 @@ const HomePage = () => {
                 ) : (
                   <FaSearch aria-hidden="true" />
                 )}
-                <span>{semanticLoading ? 'Đang phân tích...' : 'Tìm Chuyến Đi'}</span>
+                <span>{semanticLoading ? 'Đang tìm kiếm...' : 'Tìm Chuyến Đi'}</span>
               </button>
             </form>
 
@@ -375,8 +375,8 @@ const HomePage = () => {
         <div className="features-grid stagger-children">
           <div className="feature-box">
             <div className="feature-icon-wrapper feat-ai"><FaMagic /></div>
-            <h3>Gợi Ý Thông Minh Bằng AI</h3>
-            <p>Hệ thống tự động thấu hiểu mong muốn và sở thích chuyến đi của bạn để đề xuất hành trình hoàn hảo.</p>
+            <h3>Gợi Ý Chuyến Đi Lý Tưởng</h3>
+            <p>Hệ thống tự động đề xuất những chuyến đi dựa trên mùa du lịch, sở thích và phản hồi thực tế từ hàng nghìn du khách.</p>
           </div>
           <div className="feature-box">
             <div className="feature-icon-wrapper feat-plane"><FaPlaneDeparture /></div>

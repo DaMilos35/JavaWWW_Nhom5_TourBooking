@@ -112,7 +112,7 @@ const LoginPage = () => {
             <FaCheckCircle style={{ color: '#0194F3', fontSize: '0.9rem', flexShrink: 0 }} /> Đặt chỗ tức thì với khóa tranh chấp an toàn
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94a3b8' }}>
-            <FaCheckCircle style={{ color: '#0194F3', fontSize: '0.9rem', flexShrink: 0 }} /> Trợ lý du lịch ảo AI Gemini tư vấn 24/7
+            <FaCheckCircle style={{ color: '#0194F3', fontSize: '0.9rem', flexShrink: 0 }} /> Chuyên viên tư vấn trực tuyến hỗ trợ 24/7
           </div>
         </div>
       </div>

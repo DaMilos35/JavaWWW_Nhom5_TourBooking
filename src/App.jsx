@@ -14,7 +14,7 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { PrivateRoute, AdminRoute } from './components/common/PrivateRoute';
 
-// Core Public Pages (direct imports for optimal initial page-speed)
+// Public & User Pages (Direct imports prevent blank screen flashes when switching pages)
 import HomePage from './pages/HomePage';
 import TourListPage from './pages/TourListPage';
 import TourDetailPage from './pages/TourDetailPage';
@@ -22,15 +22,13 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import MyOrdersPage from './pages/MyOrdersPage';
+import WishlistPage from './pages/WishlistPage';
+import HelpCenterPage from './pages/HelpCenterPage';
+import VnPayReturnPage from './pages/VnPayReturnPage';
 
-// Lazy-loaded Secondary User Pages
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'));
-const WishlistPage = lazy(() => import('./pages/WishlistPage'));
-const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage'));
-const VnPayReturnPage = lazy(() => import('./pages/VnPayReturnPage'));
-
-// Lazy-loaded Admin Pages (isolated code-splitting for admin bundle)
+// Lazy-loaded Admin Pages (Code-split for admin bundle)
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminTours = lazy(() => import('./pages/admin/AdminTours'));
@@ -61,40 +59,47 @@ function App() {
             <Router>
               <ScrollToTop />
               <ToastContainer position="top-right" autoClose={3000} />
-              <Suspense fallback={<LoadingSpinner fullScreen />}>
-                <Routes>
-                  {/* Public User Routes */}
-                  <Route path="/" element={<UserLayout><HomePage /></UserLayout>} />
-                  <Route path="/tours" element={<UserLayout><TourListPage /></UserLayout>} />
-                  <Route path="/tours/:id" element={<UserLayout><TourDetailPage /></UserLayout>} />
-                  <Route path="/cart" element={<UserLayout><CartPage /></UserLayout>} />
-                  <Route path="/help" element={<UserLayout><HelpCenterPage /></UserLayout>} />
-                  <Route path="/payment/vnpay-return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
-                  <Route path="/vnpay/return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
-                  <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />
-                  <Route path="/register" element={<UserLayout><RegisterPage /></UserLayout>} />
+              <Routes>
+                {/* Public User Routes */}
+                <Route path="/" element={<UserLayout><HomePage /></UserLayout>} />
+                <Route path="/tours" element={<UserLayout><TourListPage /></UserLayout>} />
+                <Route path="/tours/:id" element={<UserLayout><TourDetailPage /></UserLayout>} />
+                <Route path="/cart" element={<UserLayout><CartPage /></UserLayout>} />
+                <Route path="/help" element={<UserLayout><HelpCenterPage /></UserLayout>} />
+                <Route path="/payment/vnpay-return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
+                <Route path="/vnpay/return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
+                <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />
+                <Route path="/register" element={<UserLayout><RegisterPage /></UserLayout>} />
 
-                  {/* Private User Routes */}
-                  <Route path="/wishlist" element={<PrivateRoute><UserLayout><WishlistPage /></UserLayout></PrivateRoute>} />
-                  <Route path="/checkout" element={<PrivateRoute><UserLayout><CheckoutPage /></UserLayout></PrivateRoute>} />
-                  <Route path="/profile" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
-                  <Route path="/settings" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
-                  <Route path="/my-orders" element={<PrivateRoute><UserLayout><MyOrdersPage /></UserLayout></PrivateRoute>} />
+                {/* Private User Routes */}
+                <Route path="/wishlist" element={<PrivateRoute><UserLayout><WishlistPage /></UserLayout></PrivateRoute>} />
+                <Route path="/checkout" element={<PrivateRoute><UserLayout><CheckoutPage /></UserLayout></PrivateRoute>} />
+                <Route path="/profile" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
+                <Route path="/settings" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
+                <Route path="/my-orders" element={<PrivateRoute><UserLayout><MyOrdersPage /></UserLayout></PrivateRoute>} />
 
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="tours" element={<AdminTours />} />
-                    <Route path="tours/new" element={<AdminTourForm />} />
-                    <Route path="tours/:id/edit" element={<AdminTourForm />} />
-                    <Route path="categories" element={<AdminCategories />} />
-                    <Route path="orders" element={<AdminOrders />} />
-                    <Route path="orders/:id" element={<AdminOrderDetail />} />
-                    <Route path="users" element={<AdminUsers />} />
-                    <Route path="b2b" element={<AdminB2B />} />
-                  </Route>
-                </Routes>
-              </Suspense>
+                {/* Admin Routes with Suspense fallback */}
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <Suspense fallback={<LoadingSpinner fullScreen text="Đang tải trang quản trị..." />}>
+                        <AdminLayout />
+                      </Suspense>
+                    </AdminRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="tours" element={<AdminTours />} />
+                  <Route path="tours/new" element={<AdminTourForm />} />
+                  <Route path="tours/:id/edit" element={<AdminTourForm />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="orders/:id" element={<AdminOrderDetail />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="b2b" element={<AdminB2B />} />
+                </Route>
+              </Routes>
             </Router>
           </WishlistProvider>
         </CartProvider>
