@@ -10,6 +10,9 @@ dist/
 build/
 target/
 .gradle/
+bin/
+backend/bin/
+*.class
 
 # Environment files
 .env
