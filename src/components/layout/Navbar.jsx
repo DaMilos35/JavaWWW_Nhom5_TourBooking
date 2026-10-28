@@ -16,7 +16,10 @@ import {
   FaShieldAlt,
   FaHeart,
   FaBell,
-  FaChevronDown
+  FaChevronDown,
+  FaCrown,
+  FaGem,
+  FaMedal
 } from 'react-icons/fa';
 import './Navbar.css';
 
@@ -220,9 +223,12 @@ const Navbar = () => {
                 <span className="user-name">{user.fullName || user.username}</span>
                 {user.membershipTier && user.membershipTier !== 'STANDARD' && (
                   <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
                     fontSize: '0.72rem',
                     fontWeight: 800,
-                    padding: '2px 8px',
+                    padding: '3px 9px',
                     borderRadius: '12px',
                     background: user.membershipTier === 'VIP_PLATINUM' ? 'linear-gradient(135deg, #4338ca, #6366f1)' :
                                 user.membershipTier === 'DIAMOND' ? 'linear-gradient(135deg, #0284c7, #38bdf8)' :
@@ -233,7 +239,13 @@ const Navbar = () => {
                     textTransform: 'uppercase',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
                   }}>
-                    {user.membershipTier === 'VIP_PLATINUM' ? '👑 VIP' : user.membershipTier === 'DIAMOND' ? '💎 Kim Cương' : '🥇 Vàng'}
+                    {user.membershipTier === 'VIP_PLATINUM' ? (
+                      <><FaCrown aria-hidden="true" style={{ fontSize: '0.75rem' }} /> VIP</>
+                    ) : user.membershipTier === 'DIAMOND' ? (
+                      <><FaGem aria-hidden="true" style={{ fontSize: '0.75rem' }} /> Kim Cương</>
+                    ) : (
+                      <><FaMedal aria-hidden="true" style={{ fontSize: '0.75rem' }} /> Vàng</>
+                    )}
                   </span>
                 )}
                 <FaChevronDown className="nav-chevron" />

@@ -426,7 +426,7 @@ const CheckoutPage = () => {
                         <h4 className="tour-name">{t.name || t.tourName}</h4>
                         <div className="tour-meta-row">
                           <span><FaMapMarkerAlt style={{ color: '#0194F3', marginRight: '4px' }} /> Điểm đón: <b>{t.departureLocation || 'TP. Hồ Chí Minh'}</b></span>
-                          <span>⏳ Thời lượng: <b>{t.duration || 3} ngày</b></span>
+                          <span><FaClock aria-hidden="true" style={{ color: '#0194F3', marginRight: '4px' }} /> Thời lượng: <b>{t.duration || 3} ngày</b></span>
                           <span><FaUsers style={{ color: '#0194F3', marginRight: '4px' }} /> Số vé: <b>{item.quantity || 1} khách</b></span>
                         </div>
                       </div>

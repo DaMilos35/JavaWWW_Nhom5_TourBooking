@@ -3,7 +3,8 @@ import { toast } from 'react-toastify';
 import {
   FaBuilding, FaCheckCircle, FaClock, FaBan, FaExclamationTriangle,
   FaMoneyBillWave, FaFileContract, FaUsers, FaSearch, FaPlus,
-  FaChartLine, FaThumbsUp, FaThumbsDown, FaEye, FaSyncAlt
+  FaChartLine, FaThumbsUp, FaThumbsDown, FaEye, FaSyncAlt,
+  FaCreditCard, FaCalendarAlt, FaHotel, FaCheck, FaTimes
 } from 'react-icons/fa';
 import './AdminB2B.css';
 
@@ -101,7 +102,7 @@ export default function AdminB2B() {
       body: JSON.stringify({ approverCorpUserId: 1, [key]: note })
     });
     if (r.ok) {
-      toast.success(action === 'approve' ? '✅ Đã phê duyệt!' : '❌ Đã từ chối!');
+      toast.success(action === 'approve' ? 'Đã phê duyệt yêu cầu thành công!' : 'Đã từ chối yêu cầu.');
       if (selectedCompany) selectCompany(selectedCompany);
     } else {
       const err = await r.json();
@@ -226,7 +227,11 @@ export default function AdminB2B() {
                           color: c.paymentMethod === 'CREDIT_LINE' ? '#6366f1' : '#10b981',
                           fontWeight: 600, fontSize: '0.8rem'
                         }}>
-                          {c.paymentMethod === 'CREDIT_LINE' ? '💳 Tín dụng' : '💰 Trả trước'}
+                          {c.paymentMethod === 'CREDIT_LINE' ? (
+                            <><FaCreditCard aria-hidden="true" style={{ marginRight: 4 }} /> Hạn mức tín dụng</>
+                          ) : (
+                            <><FaMoneyBillWave aria-hidden="true" style={{ marginRight: 4 }} /> Trả trước</>
+                          )}
                         </span>
                       </td>
                       <td><Badge status={c.kybStatus} map={STATUS_BADGE} /></td>
@@ -278,7 +283,11 @@ export default function AdminB2B() {
                 <div className="info-row"><span>Trạng thái KYB</span><Badge status={selectedCompany.kybStatus} map={STATUS_BADGE} /></div>
                 <div className="info-row"><span>Phương thức TT</span>
                   <span style={{ color: '#6366f1', fontWeight: 600 }}>
-                    {selectedCompany.paymentMethod === 'CREDIT_LINE' ? '💳 Tín dụng' : '💰 Trả trước'}
+                    {selectedCompany.paymentMethod === 'CREDIT_LINE' ? (
+                      <><FaCreditCard aria-hidden="true" style={{ marginRight: 4 }} /> Hạn mức tín dụng</>
+                    ) : (
+                      <><FaMoneyBillWave aria-hidden="true" style={{ marginRight: 4 }} /> Trả trước</>
+                    )}
                   </span>
                 </div>
                 <div className="info-row"><span>Địa chỉ</span><span>{selectedCompany.registeredAddress}</span></div>
@@ -323,12 +332,12 @@ export default function AdminB2B() {
                       <h4>{p.policyName}</h4>
                       <p>{p.description}</p>
                       <div className="policy-rules">
-                        <div>💰 Hạn mức/chuyến: <strong>{fmt(p.maxAmountPerTrip)}</strong></div>
-                        <div>📅 Đặt trước tối thiểu: <strong>{p.advanceBookingDaysMin} ngày</strong></div>
+                        <div><FaMoneyBillWave aria-hidden="true" style={{ color: '#0194f3', marginRight: 6 }} /> Hạn mức/chuyến: <strong>{fmt(p.maxAmountPerTrip)}</strong></div>
+                        <div><FaCalendarAlt aria-hidden="true" style={{ color: '#0194f3', marginRight: 6 }} /> Đặt trước tối thiểu: <strong>{p.advanceBookingDaysMin} ngày</strong></div>
                         {p.requireApprovalAbove && (
-                          <div>⚠️ Phê duyệt khi vượt: <strong>{fmt(p.requireApprovalAbove)}</strong></div>
+                          <div><FaExclamationTriangle aria-hidden="true" style={{ color: '#f59e0b', marginRight: 6 }} /> Phê duyệt khi vượt: <strong>{fmt(p.requireApprovalAbove)}</strong></div>
                         )}
-                        <div>🏨 Khách sạn tối đa: <strong>{p.maxHotelStar} sao</strong></div>
+                        <div><FaHotel aria-hidden="true" style={{ color: '#0194f3', marginRight: 6 }} /> Khách sạn tối đa: <strong>{p.maxHotelStar} sao</strong></div>
                       </div>
                     </div>
                   ))}
@@ -428,12 +437,12 @@ export default function AdminB2B() {
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                               <Badge status={b.bookingStatus} map={{
-                                CONFIRMED: { color: '#10b981', bg: '#d1fae5', label: '✅ Xác nhận' },
-                                PENDING_APPROVAL: { color: '#f59e0b', bg: '#fef3c7', label: '⏳ Chờ duyệt' },
-                                CANCELLED: { color: '#ef4444', bg: '#fee2e2', label: '❌ Hủy' },
-                                COMPLETED: { color: '#6366f1', bg: '#ede9fe', label: '🏁 Hoàn thành' },
+                                CONFIRMED: { color: '#10b981', bg: '#d1fae5', label: 'Đã xác nhận' },
+                                PENDING_APPROVAL: { color: '#f59e0b', bg: '#fef3c7', label: 'Chờ duyệt' },
+                                CANCELLED: { color: '#ef4444', bg: '#fee2e2', label: 'Đã hủy' },
+                                COMPLETED: { color: '#6366f1', bg: '#ede9fe', label: 'Hoàn thành' },
                               }} />
-                              {b.isOverPolicy && <span style={{ fontSize: '0.7rem', color: '#f59e0b' }}>⚠️ Vượt hạn mức</span>}
+                              {b.isOverPolicy && <span style={{ fontSize: '0.7rem', color: '#f59e0b', display: 'inline-flex', alignItems: 'center', gap: 3 }}><FaExclamationTriangle aria-hidden="true" /> Vượt hạn mức</span>}
                             </div>
                           </td>
                           <td style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
@@ -454,7 +463,7 @@ export default function AdminB2B() {
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h2>➕ Thêm Công ty Mới</h2>
+            <h2><FaPlus aria-hidden="true" style={{ marginRight: 8, fontSize: '1rem', color: '#0194f3' }} /> Thêm Công ty Mới</h2>
             <form onSubmit={createCompany} className="modal-form">
               {[
                 { label: 'Tên công ty *', key: 'companyName', required: true },

@@ -53,6 +53,14 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 220ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 320ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* UI/UX Pro Max 2026 - Icon Design Tokens */
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+  --touch-target-min: 44px;
 }
 
 * {
@@ -354,5 +362,41 @@ a,
   z-index: 3;
   pointer-events: none;
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* UI/UX Pro Max 2026 - Standard Icon System & Touch Accessibility */
+.icon-token-xs { font-size: var(--icon-xs); width: var(--icon-xs); height: var(--icon-xs); vertical-align: -0.125em; }
+.icon-token-sm { font-size: var(--icon-sm); width: var(--icon-sm); height: var(--icon-sm); vertical-align: -0.125em; }
+.icon-token-md { font-size: var(--icon-md); width: var(--icon-md); height: var(--icon-md); vertical-align: -0.15em; }
+.icon-token-lg { font-size: var(--icon-lg); width: var(--icon-lg); height: var(--icon-lg); vertical-align: -0.2em; }
+.icon-token-xl { font-size: var(--icon-xl); width: var(--icon-xl); height: var(--icon-xl); vertical-align: -0.25em; }
+
+/* Accessible Touch Targets for all Icon-only Buttons (WCAG 2.2 AA >= 44x44px) */
+.btn-icon-accessible {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all var(--transition-fast);
+}
+
+.btn-icon-accessible:hover {
+  background: var(--bg-surface-hover);
+  transform: translateY(-1px);
+}
+
+.btn-icon-accessible:active {
+  transform: translateY(0);
+}
+
+.btn-icon-accessible:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 

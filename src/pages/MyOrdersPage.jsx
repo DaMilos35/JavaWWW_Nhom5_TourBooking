@@ -526,7 +526,7 @@ const MyOrdersPage = () => {
                               <div style={{ marginTop: '4px', color: order.paymentStatus === 'REFUNDED' ? '#15803d' : '#b45309', fontWeight: 600 }}>
                                 {order.paymentStatus === 'REFUNDED' 
                                   ? 'Ban Quản Trị đã hoàn tất chuyển tiền hoàn lại cho bạn.' 
-                                  : '⏳ Đang chờ Ban Quản Trị chuyển khoản hoàn tiền vào tài khoản trên.'}
+                                  : <><FaClock aria-hidden="true" style={{ marginRight: '6px' }} /> Đang chờ Ban Quản Trị chuyển khoản hoàn tiền vào tài khoản trên.</>}
                               </div>
                             </div>
                           )}
