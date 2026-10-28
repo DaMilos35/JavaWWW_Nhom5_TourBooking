@@ -217,44 +217,7 @@ const TourListPage = () => {
                 )}
               </div>
 
-              {/* 1. Lọc theo Đơn Vị Tổ Chức (Multi-Vendor OTA) */}
-              <div className="filter-group">
-                <h4 className="filter-group-heading">
-                  <FaBuilding className="filter-icon" /> Đơn Vị Tổ Chức Tour
-                </h4>
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="provider"
-                    value=""
-                    checked={selectedProvider === ''}
-                    onChange={() => {
-                      setSelectedProvider('');
-                      updateUrlParam('provider', '');
-                    }}
-                  />
-                  Tất cả đơn vị lữ hành
-                </label>
-                {ALL_CERTIFIED_PROVIDERS.map(p => (
-                  <label key={p.id} className="radio-label">
-                    <input
-                      type="radio"
-                      name="provider"
-                      value={String(p.id)}
-                      checked={String(selectedProvider) === String(p.id)}
-                      onChange={() => {
-                        setSelectedProvider(String(p.id));
-                        updateUrlParam('provider', String(p.id));
-                      }}
-                    />
-                    <span className="provider-filter-name" style={{ color: String(selectedProvider) === String(p.id) ? p.brandColor : 'inherit', fontWeight: String(selectedProvider) === String(p.id) ? 700 : 400 }}>
-                      {p.shortName}
-                    </span>
-                  </label>
-                ))}
-              </div>
-
-              {/* 2. Lọc theo Điểm Khởi Hành */}
+              {/* 1. Lọc theo Điểm Khởi Hành (Ưu tiên số 1) */}
               <div className="filter-group">
                 <h4 className="filter-group-heading">
                   <FaMapMarkerAlt className="filter-icon" /> Điểm Khởi Hành
@@ -276,7 +239,7 @@ const TourListPage = () => {
                 ))}
               </div>
 
-              {/* 3. Lọc theo Danh Mục Tour */}
+              {/* 2. Lọc theo Danh Mục Tour */}
               <div className="filter-group">
                 <h4 className="filter-group-heading">
                   <FaPlane className="filter-icon" /> Danh Mục Tour
@@ -320,7 +283,7 @@ const TourListPage = () => {
                 )}
               </div>
 
-              {/* 4. Lọc theo Mức Giá Tour */}
+              {/* 3. Lọc theo Mức Giá Tour */}
               <div className="filter-group">
                 <h4 className="filter-group-heading">
                   <FaMoneyBillWave className="filter-icon" /> Mức Giá Tour
@@ -338,6 +301,49 @@ const TourListPage = () => {
                       }}
                     />
                     {pt.label}
+                  </label>
+                ))}
+              </div>
+
+              {/* 4. Lọc theo Đơn Vị Tổ Chức (Duy nhất 6 đối tác, không trùng lặp) */}
+              <div className="filter-group">
+                <h4 className="filter-group-heading">
+                  <FaBuilding className="filter-icon" /> Đơn Vị Tổ Chức Tour
+                </h4>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="provider"
+                    value=""
+                    checked={selectedProvider === ''}
+                    onChange={() => {
+                      setSelectedProvider('');
+                      updateUrlParam('provider', '');
+                    }}
+                  />
+                  Tất cả đơn vị lữ hành
+                </label>
+                {ALL_CERTIFIED_PROVIDERS.map(p => (
+                  <label key={p.id} className="radio-label">
+                    <input
+                      type="radio"
+                      name="provider"
+                      value={String(p.id)}
+                      checked={String(selectedProvider) === String(p.id)}
+                      onChange={() => {
+                        setSelectedProvider(String(p.id));
+                        updateUrlParam('provider', String(p.id));
+                      }}
+                    />
+                    <span 
+                      className="provider-filter-name" 
+                      style={{ 
+                        color: String(selectedProvider) === String(p.id) ? p.brandColor : 'inherit', 
+                        fontWeight: String(selectedProvider) === String(p.id) ? 700 : 500 
+                      }}
+                    >
+                      {p.shortName}
+                    </span>
                   </label>
                 ))}
               </div>

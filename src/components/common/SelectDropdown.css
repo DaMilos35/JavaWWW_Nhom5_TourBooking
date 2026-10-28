@@ -47,9 +47,9 @@
 /* Luxury Editorial Popover Options */
 .search-select-options {
   position: absolute;
-  top: calc(100% + 14px);
+  top: calc(100% + 10px);
   left: -14px;
-  z-index: 1000;
+  z-index: 99999;
   overflow-y: auto;
   width: max(calc(100% + 28px), 240px);
   max-height: 280px;

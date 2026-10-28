@@ -122,13 +122,20 @@ export const CERTIFIED_PROVIDERS = {
   }
 };
 
-// Aliases for provider lookup
+// Danh sách các đơn vị tổ chức lữ hành chính thức (Duy nhất 6 đơn vị, triệt tiêu trùng lặp)
+export const ALL_CERTIFIED_PROVIDERS = [
+  CERTIFIED_PROVIDERS[2],   // Vietravel
+  CERTIFIED_PROVIDERS[3],   // Saigontourist
+  CERTIFIED_PROVIDERS[4],   // Du Lịch Việt
+  CERTIFIED_PROVIDERS[230], // BenThanh Tourist
+  CERTIFIED_PROVIDERS[231], // Hanoitourist
+  CERTIFIED_PROVIDERS[232]  // BestPrice Travel
+];
+
+// Aliases cho các ID phụ nếu có
 CERTIFIED_PROVIDERS[5] = CERTIFIED_PROVIDERS[230];
 CERTIFIED_PROVIDERS[6] = CERTIFIED_PROVIDERS[231];
 CERTIFIED_PROVIDERS[7] = CERTIFIED_PROVIDERS[232];
-
-// Danh sách tất cả đơn vị tổ chức phục vụ lọc
-export const ALL_CERTIFIED_PROVIDERS = Object.values(CERTIFIED_PROVIDERS);
 
 /**
  * Trả về thông tin đầy đủ của đối tác tổ chức tour dựa trên providerId hoặc providerName
