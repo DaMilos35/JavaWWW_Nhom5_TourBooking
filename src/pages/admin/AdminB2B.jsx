@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import './AdminB2B.css';
 
-const API = 'http://localhost:8080/api/corporate';
+const API = (import.meta.env.VITE_API_BASE_URL || '/api') + '/corporate';
 
 const STATUS_BADGE = {
   VERIFIED:             { color: '#10b981', bg: '#d1fae5', label: 'Đã xác minh' },
