@@ -162,39 +162,47 @@ public class EmbeddingService {
      * Gọi Google Gemini text-embedding-004 qua REST API
      */
     private float[] callGeminiEmbeddingApi(String text) throws Exception {
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=" + geminiApiKey;
-
         String truncatedText = text.length() > 2000 ? text.substring(0, 2000) : text;
+        String[] candidateModels = new String[]{"gemini-embedding-001", "text-embedding-004"};
 
-        Map<String, Object> payload = Map.of(
-                "model", "models/text-embedding-004",
-                "content", Map.of(
-                        "parts", List.of(Map.of("text", truncatedText))
-                )
-        );
+        for (String model : candidateModels) {
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":embedContent?key=" + geminiApiKey;
 
-        String jsonBody = JSON.writeValueAsString(payload);
+            Map<String, Object> payload = Map.of(
+                    "model", "models/" + model,
+                    "content", Map.of(
+                            "parts", List.of(Map.of("text", truncatedText))
+                    )
+            );
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(Duration.ofSeconds(10))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
-                .build();
+            String jsonBody = JSON.writeValueAsString(payload);
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        if (response.statusCode() == 200) {
-            JsonNode root = JSON.readTree(response.body());
-            JsonNode valuesNode = root.at("/embedding/values");
-            if (valuesNode.isArray() && valuesNode.size() > 0) {
-                float[] vector = new float[valuesNode.size()];
-                for (int i = 0; i < valuesNode.size(); i++) {
-                    vector[i] = (float) valuesNode.get(i).asDouble();
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .timeout(Duration.ofSeconds(15))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                if (response.statusCode() == 200) {
+                    JsonNode root = JSON.readTree(response.body());
+                    JsonNode valuesNode = root.at("/embedding/values");
+                    if (valuesNode.isArray() && valuesNode.size() > 0) {
+                        float[] vector = new float[valuesNode.size()];
+                        for (int i = 0; i < valuesNode.size(); i++) {
+                            vector[i] = (float) valuesNode.get(i).asDouble();
+                        }
+                        log.info("Gemini Embedding generated successfully with model: {}", model);
+                        return normalizeL2(vector);
+                    }
+                } else {
+                    log.warn("Gemini Embedding model {} returned status {}: {}", model, response.statusCode(), response.body());
                 }
-                return normalizeL2(vector);
+            } catch (Exception e) {
+                log.warn("Error calling Gemini embedding model {}: {}", model, e.getMessage());
             }
-        } else {
-            log.warn("Gemini Embedding API returned status {}: {}", response.statusCode(), response.body());
         }
         return null;
     }

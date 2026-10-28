@@ -209,24 +209,40 @@ public class AiTourService {
         );
 
         String jsonBody = JSON.writeValueAsString(payload);
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(Duration.ofSeconds(12))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
-                .build();
+        // Danh sách các model LLM tương thích với API Key mới nhất
+        String[] candidateModels = new String[]{
+                "gemini-3.1-flash-lite",
+                "gemini-3.5-flash-lite",
+                "gemini-flash-latest",
+                "gemini-1.5-flash"
+        };
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        if (response.statusCode() == 200) {
-            JsonNode root = JSON.readTree(response.body());
-            JsonNode textNode = root.at("/candidates/0/content/parts/0/text");
-            if (!textNode.isMissingNode()) {
-                return textNode.asText();
+        for (String model : candidateModels) {
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + geminiApiKey;
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .timeout(Duration.ofSeconds(20))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                if (response.statusCode() == 200) {
+                    JsonNode root = JSON.readTree(response.body());
+                    JsonNode textNode = root.at("/candidates/0/content/parts/0/text");
+                    if (!textNode.isMissingNode() && !textNode.asText().isBlank()) {
+                        log.info("Gemini LLM responded successfully using model: {}", model);
+                        return textNode.asText();
+                    }
+                } else {
+                    log.warn("Gemini model {} returned status {}: {}", model, response.statusCode(), response.body());
+                }
+            } catch (Exception e) {
+                log.warn("Error calling Gemini model {}: {}", model, e.getMessage());
             }
         }
-        log.warn("Gemini RAG API returned status {}: {}", response.statusCode(), response.body());
         return null;
     }
 
