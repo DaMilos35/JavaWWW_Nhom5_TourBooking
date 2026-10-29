@@ -81,6 +81,56 @@
   gap: 12px; 
 }
 
+/* OmniSearch Spotlight Button (2026 UX) */
+.nav-omni-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ede9e3;
+  border-radius: 9999px;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-omni-btn:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  color: #0f172a;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.14);
+  transform: translateY(-1px);
+}
+
+.nav-omni-icon {
+  font-size: 0.78rem;
+  color: #0284c7;
+}
+
+.nav-omni-kbd {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .nav-omni-text,
+  .nav-omni-kbd {
+    display: none;
+  }
+  .nav-omni-btn {
+    padding: 8px 10px;
+  }
+}
+
 .admin-quick-btn {
   display: inline-flex;
   align-items: center;

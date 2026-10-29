@@ -12,6 +12,7 @@ import AiChatWidget from './components/common/AiChatWidget';
 import ScrollToTop from './components/common/ScrollToTop';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import OmniSearchModal from './components/common/OmniSearchModal';
 import { PrivateRoute, AdminRoute } from './components/common/PrivateRoute';
 
 // Public & User Pages (Direct imports prevent blank screen flashes when switching pages)
@@ -52,6 +53,25 @@ const UserLayout = ({ children }) => (
 );
 
 function App() {
+  const [isOmniOpen, setIsOmniOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsOmniOpen((prev) => !prev);
+      }
+    };
+    const handleCustomEvent = () => setIsOmniOpen(true);
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('open-omni-search', handleCustomEvent);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('open-omni-search', handleCustomEvent);
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
       <AuthProvider>
@@ -59,6 +79,7 @@ function App() {
           <WishlistProvider>
             <Router>
               <ScrollToTop />
+              <OmniSearchModal isOpen={isOmniOpen} onClose={() => setIsOmniOpen(false)} />
               <ToastContainer position="top-right" autoClose={3000} />
               <Routes>
                 {/* Public User Routes */}

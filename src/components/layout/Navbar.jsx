@@ -19,7 +19,8 @@ import {
   FaChevronDown,
   FaCrown,
   FaGem,
-  FaMedal
+  FaMedal,
+  FaSearch
 } from 'react-icons/fa';
 import './Navbar.css';
 
@@ -132,6 +133,19 @@ const Navbar = () => {
 
         {/* Các nút chức năng bên phải */}
         <div className="nav-right">
+          {/* OmniSearch Spotlight Trigger (Ctrl + K) */}
+          <button
+            type="button"
+            className="nav-omni-btn"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-omni-search'))}
+            aria-label="Tìm kiếm nhanh toàn hệ thống (Ctrl + K)"
+            title="Tìm kiếm nhanh (Ctrl + K)"
+          >
+            <FaSearch className="nav-omni-icon" aria-hidden="true" />
+            <span className="nav-omni-text">Tìm kiếm...</span>
+            <kbd className="nav-omni-kbd">⌘K</kbd>
+          </button>
+
           {/* Nút vào nhanh trang Quản Trị dành cho Admin */}
           {user?.role === 'ADMIN' && (
             <Link 

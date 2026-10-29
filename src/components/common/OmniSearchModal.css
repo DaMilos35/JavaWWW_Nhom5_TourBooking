@@ -1,0 +1,414 @@
+/* ========================================================
+   OMNI-SEARCH SPOTLIGHT MODAL (2026 LUXURY COMMAND PALETTE)
+======================================================== */
+.omni-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 16px 24px;
+  animation: omniFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes omniFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.omni-dialog {
+  width: 100%;
+  max-width: 680px;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 32px 70px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: omniZoomIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes omniZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Omni Search Bar */
+.omni-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.omni-search-icon {
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.omni-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1.05rem;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.omni-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.omni-clear-btn {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-clear-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.omni-shortcut-badge {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+/* Omni Body */
+.omni-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.omni-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+/* Tour Items List */
+.omni-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.omni-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.omni-item:hover {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  transform: translateX(2px);
+}
+
+.omni-tour-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.omni-tour-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.omni-tour-name {
+  display: block;
+  font-size: 0.92rem;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.omni-tour-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.omni-tour-price {
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.omni-meta-sep {
+  color: #cbd5e1;
+}
+
+.omni-item-arrow {
+  color: #94a3b8;
+  opacity: 0;
+  transition: all 0.15s ease;
+}
+
+.omni-item:hover .omni-item-arrow {
+  opacity: 1;
+  color: #0284c7;
+}
+
+.omni-mini-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #0284c7;
+  border-radius: 50%;
+  animation: omniSpin 0.6s linear infinite;
+  margin-left: 6px;
+}
+
+@keyframes omniSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.omni-empty {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.omni-fallback-search-btn {
+  display: block;
+  margin: 10px auto 0;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.omni-fallback-search-btn:hover {
+  background: #0369a1;
+}
+
+/* Destinations Grid */
+.omni-grid-destinations {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.omni-dest-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-dest-card:hover {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.omni-dest-card strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+
+.omni-dest-card small {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Price Cards Grid */
+.omni-grid-prices {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.omni-price-card {
+  padding: 10px 12px;
+  background: #fafaf9;
+  border: 1px solid #f5f5f4;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-price-card:hover {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.omni-price-label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #15803d;
+  margin-bottom: 2px;
+}
+
+.omni-price-desc {
+  font-size: 0.72rem;
+  color: #78716c;
+}
+
+/* Shortcuts Row */
+.omni-shortcuts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.omni-shortcut-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-shortcut-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.omni-admin-btn {
+  border-color: #fbcfe8;
+  color: #be185d;
+  background: #fdf2f8;
+}
+
+.omni-admin-btn:hover {
+  background: #db2777;
+  color: #ffffff;
+  border-color: #db2777;
+}
+
+/* Omni Footer */
+.omni-footer {
+  padding: 10px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.omni-footer-hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.omni-footer-hint kbd {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+  color: #475569;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.omni-brand-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0284c7;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .omni-backdrop {
+    padding: 0;
+  }
+  .omni-dialog {
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .omni-grid-destinations,
+  .omni-grid-prices {
+    grid-template-columns: 1fr;
+  }
+}
