@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
-  padding: 80px 0 100px;
+  padding: 80px 0 120px;
   overflow: visible;
 }
 
@@ -346,7 +346,7 @@
    TRUST & ASSURANCE BAR (Độc lập dưới Hero, không bao giờ bị Dropdown đè)
 ======================================================== */
 .trust-assurance-bar {
-  margin-top: 28px;
+  margin-top: 36px;
   margin-bottom: 56px;
   position: relative;
   z-index: 1;

@@ -51,18 +51,39 @@
 /* Luxury Editorial Popover Options */
 .search-select-options {
   position: absolute;
-  top: calc(100% + 10px);
-  left: -14px;
+  top: calc(100% + 12px);
+  left: -12px;
   z-index: 99999;
   overflow-y: auto;
-  width: max(calc(100% + 28px), 240px);
-  max-height: 280px;
+  overflow-x: hidden;
+  min-width: 280px;
+  max-width: 420px;
+  width: max(calc(100% + 24px), 280px);
+  max-height: 290px;
   padding: 8px;
   border: 1px solid #ede9e3;
   border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 20px 45px -10px rgba(20, 23, 26, 0.22), 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 24px 50px -12px rgba(15, 23, 42, 0.28), 0 4px 12px rgba(0, 0, 0, 0.06);
   animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Custom sleek scrollbar for popover options */
+.search-select-options::-webkit-scrollbar {
+  width: 5px;
+}
+
+.search-select-options::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-select-options::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.search-select-options::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 @keyframes dropdownFadeIn {
