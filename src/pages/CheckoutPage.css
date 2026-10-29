@@ -1516,3 +1516,97 @@
   font-size: 0.78rem;
   color: #15803d;
 }
+
+/* ========================================================
+   CANCELLATION POLICY CARD (2026 ZERO-FRICTION TRANSPARENCY)
+======================================================== */
+.cancellation-policy-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cancellation-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  color: #0f172a;
+  margin-bottom: 14px;
+}
+
+.cancellation-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  padding-left: 8px;
+}
+
+.cancellation-stepper::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.policy-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.step-marker {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.step-free .step-marker {
+  background: #dcfce7;
+  color: #15803d;
+  border: 2px solid #86efac;
+}
+
+.step-partial .step-marker {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 2px solid #fde047;
+}
+
+.step-locked .step-marker {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 2px solid #fca5a5;
+}
+
+.step-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.step-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.step-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+

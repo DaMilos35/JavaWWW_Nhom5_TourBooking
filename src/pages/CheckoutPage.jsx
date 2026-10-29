@@ -1331,6 +1331,37 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
+              {/* Chính Sách Hoàn Hủy Minh Bạch 2026 (Zero-Friction Conversion) */}
+              <div className="cancellation-policy-card">
+                <div className="cancellation-header">
+                  <FaShieldAlt className="text-success" />
+                  <strong>Chính Sách Hoàn Hủy Minh Bạch</strong>
+                </div>
+                <div className="cancellation-stepper">
+                  <div className="policy-step step-free">
+                    <div className="step-marker">100%</div>
+                    <div className="step-info">
+                      <div className="step-title">Hủy trước 7 ngày</div>
+                      <div className="step-desc">Hoàn tiền 100% không mất phí</div>
+                    </div>
+                  </div>
+                  <div className="policy-step step-partial">
+                    <div className="step-marker">80%</div>
+                    <div className="step-info">
+                      <div className="step-title">Hủy từ 3 – 7 ngày</div>
+                      <div className="step-desc">Phí hủy 20% tiền tour</div>
+                    </div>
+                  </div>
+                  <div className="policy-step step-locked">
+                    <div className="step-marker">0%</div>
+                    <div className="step-info">
+                      <div className="step-title">Dưới 72 giờ</div>
+                      <div className="step-desc">Không áp dụng hoàn phí</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Trust & Guarantees */}
               <div className="trust-badges-list">
                 <div className="trust-item">
