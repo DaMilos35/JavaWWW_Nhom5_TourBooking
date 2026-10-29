@@ -3,6 +3,10 @@
   width: 100%;
 }
 
+.select-dropdown.is-open {
+  z-index: 1000;
+}
+
 .search-select-trigger {
   display: flex;
   min-height: 38px;

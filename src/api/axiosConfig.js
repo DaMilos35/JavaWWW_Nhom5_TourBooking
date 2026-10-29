@@ -47,6 +47,9 @@ export const authApi = {
       ...(data.rememberMe && { 'remember-me': 'on' }),
     }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }),
 
+  /** POST /api/auth/send-otp — gửi mã xác thực OTP qua Gmail */
+  sendOtp: (email) => api.post('/auth/send-otp', { email }),
+
   /** POST /api/auth/register */
   register: (data) => api.post('/auth/register', data),
 

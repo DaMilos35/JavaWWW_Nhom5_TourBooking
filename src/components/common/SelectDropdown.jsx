@@ -79,7 +79,7 @@ const SelectDropdown = ({ id, label, value, options, onChange, className = '' })
   };
 
   return (
-    <div className={`select-dropdown ${className}`.trim()} ref={rootRef}>
+    <div className={`select-dropdown ${isOpen ? 'is-open' : ''} ${className}`.trim()} ref={rootRef}>
       <button
         id={id}
         ref={triggerRef}

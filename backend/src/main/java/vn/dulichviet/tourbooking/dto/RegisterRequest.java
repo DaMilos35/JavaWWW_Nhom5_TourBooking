@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO đăng ký tài khoản khách hàng với validation chuẩn mực
+ * DTO đăng ký tài khoản khách hàng với validation chuẩn mực và mã xác thực OTP
  */
 public record RegisterRequest(
         @NotBlank(message = "Tên đăng nhập không được để trống")
@@ -23,5 +23,11 @@ public record RegisterRequest(
         @NotBlank(message = "Họ và tên không được để trống")
         String fullName,
 
-        String phone) {
+        String phone,
+
+        String otp) {
+
+    public RegisterRequest(String username, String email, String password, String fullName, String phone) {
+        this(username, email, password, fullName, phone, null);
+    }
 }
