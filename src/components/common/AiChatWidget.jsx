@@ -9,10 +9,12 @@ import FallbackImage from './FallbackImage';
 import './AiChatWidget.css';
 
 const DEFAULT_PROMPTS = [
-  'Gợi ý tour nghỉ mát biển đảo',
-  'Tour Đà Lạt săn mây mát mẻ',
-  'Khám phá miền Tây sông nước ẩm thực',
-  'Tour du lịch tiết kiệm dưới 5 triệu'
+  '🌐 Thủ tục Visa & Hộ chiếu tour Quốc tế',
+  '⚖️ So sánh Tour Trong Nước vs Quốc Tế',
+  '🛡️ Chính sách bảo lãnh hoàn 100% cọc khi trượt Visa',
+  '✈️ Quy định hành lý, chất lỏng & Ga T1/T2',
+  '🏖️ Gợi ý tour biển đảo & nghỉ dưỡng',
+  '🌲 Tour Đà Lạt & Vùng cao săn mây'
 ];
 
 const renderFormattedText = (text) => {
@@ -39,7 +41,7 @@ const AiChatWidget = () => {
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: 'Xin chào quý khách! Em là chuyên viên tư vấn du lịch của Du Lịch Việt. Em luôn sẵn sàng hỗ trợ anh/chị chọn chuyến đi phù hợp nhất theo sở thích (biển đảo, vùng cao, miền Tây...) hoặc theo ngân sách và số ngày.',
+      text: 'Kính chào quý khách! Em là Trợ lý Lữ Hành Thông Minh của Du Lịch Việt. Em luôn sẵn sàng hỗ trợ anh/chị thẩm định thời hạn Hộ chiếu, tra cứu thủ tục Visa, so sánh quyền lợi Tour Nội Địa vs Quốc Tế hoặc tùy biến lịch trình 5 sao tối ưu nhất.',
       suggestedTours: []
     }
   ]);

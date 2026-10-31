@@ -438,6 +438,40 @@ assert(
   'TourCard explicitly identifies departure pickup city chip'
 );
 
+
+// 7. Travel Business Rules & Outbound vs Domestic Domain Knowledge
+const bizRulesPath = path.resolve(__dirname, '../src/utils/travelBusinessRules.js');
+assert(fs.existsSync(bizRulesPath), 'src/utils/travelBusinessRules.js exists');
+const bizRules = require('../src/utils/travelBusinessRules.js');
+assert(typeof bizRules.isInternationalTour === 'function', 'travelBusinessRules exports isInternationalTour');
+assert(bizRules.isInternationalTour({ categoryId: 8, name: 'Thái Lan' }) === true, 'isInternationalTour flags Category 8 as Outbound');
+assert(bizRules.isInternationalTour({ categoryId: 1, name: 'Phú Quốc' }) === false, 'isInternationalTour flags Category 1 as Domestic');
+
+// 8. Interactive AI Passport Clearance Validator Invariants
+const validCheck = bizRules.validatePassportExpiry('2028-01-01', '2026-11-01');
+assert(validCheck.isValid === true && validCheck.status === 'VALID', 'validatePassportExpiry passes valid passport > 6 months');
+
+const expiredCheck = bizRules.validatePassportExpiry('2025-01-01', '2026-11-01');
+assert(expiredCheck.isValid === false && expiredCheck.status === 'EXPIRED', 'validatePassportExpiry flags expired passport');
+
+const nearExpiryCheck = bizRules.validatePassportExpiry('2027-01-01', '2026-11-01');
+assert(nearExpiryCheck.isValid === false && nearExpiryCheck.status === 'NEAR_EXPIRY', 'validatePassportExpiry flags passport < 6 months');
+
+// 9. TourDetailPage AI Passport Checker & Domain Tabs
+const detailPageCode = fs.readFileSync(path.resolve(__dirname, '../src/pages/TourDetailPage.jsx'), 'utf8');
+assert(detailPageCode.includes('handlePassportCheck') && detailPageCode.includes('validatePassportExpiry'), 'TourDetailPage implements interactive AI Passport Clearance Checker');
+assert(detailPageCode.includes("activeTab === 'domain_guide'") && detailPageCode.includes('domainProfile'), 'TourDetailPage renders dedicated Outbound vs Domestic domain guide tab');
+
+// 10. TourCard & CheckoutPage Domain Adaptation
+assert(tourCardCode.includes('tc-domain-pill') && tourCardCode.includes('isInternationalTour'), 'TourCard identifies Outbound vs Domestic tour pills');
+const checkoutPageCode = fs.readFileSync(path.resolve(__dirname, '../src/pages/CheckoutPage.jsx'), 'utf8');
+assert(checkoutPageCode.includes('hasIntlTour ? 50 : 30') && checkoutPageCode.includes('intl-checkout-notice'), 'CheckoutPage dynamically enforces 50% deposit for Outbound tours with passport notice');
+
+// 11. Context7 Outbound vs Domestic Policies
+const updatedContext7 = fs.readFileSync(path.resolve(__dirname, '../src/utils/context7Engine.js'), 'utf8');
+assert(updatedContext7.includes('ctx-international-vs-domestic') && updatedContext7.includes('ctx-visa-passport-requirements'), 'context7Engine indexes Outbound vs Domestic policies and Visa clearance rules');
+assert(updatedContext7.includes('ctx-aviation-baggage-rules') && updatedContext7.includes('ctx-global-travel-insurance'), 'context7Engine indexes Terminal T1/T2 aviation rules and 1 Billion global insurance');
+
 console.log('\n======================================================');
 console.log('📊 TEST SUMMARY');
 console.log('======================================================');

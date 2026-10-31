@@ -458,3 +458,29 @@
   display: inline-flex;
   align-items: center;
 }
+
+
+/* Domain Badge Pill in TourCard Kicker */
+.tc-domain-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+}
+
+.tc-domain-pill.pill-intl {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.tc-domain-pill.pill-dom {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}

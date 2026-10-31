@@ -1848,3 +1848,426 @@
   background: #0284c7;
   color: #ffffff;
 }
+
+
+/* ==========================================================================
+   CHUYÊN SÂU NGHIỆP VỤ: TOUR NỘI ĐỊA VS TOUR QUỐC TẾ & AI PASSPORT CHECKER
+   ========================================================================== */
+.td-badges-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.domain-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.domain-pill.pill-intl {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  color: #ffffff;
+}
+
+.domain-pill.pill-dom {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+}
+
+/* Domain Overview Banner */
+.domain-overview-banner {
+  padding: 24px 28px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.domain-tag-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+
+.domain-tag-pill.tag-intl {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.domain-tag-pill.tag-dom {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.domain-banner-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.domain-banner-desc {
+  font-size: 0.92rem;
+  color: #64748b;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.domain-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.pillar-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.pillar-icon {
+  font-size: 1.25rem;
+  color: #0284c7;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pillar-body strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #1e293b;
+  margin-bottom: 3px;
+}
+
+.pillar-body p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* AI Passport Checker Card */
+.ai-passport-checker-card {
+  padding: 24px 28px;
+  border-radius: 16px;
+  border: 1px solid #ddd6fe;
+  background: linear-gradient(180deg, #faf5ff 0%, #ffffff 100%);
+}
+
+.checker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.checker-title-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.checker-magic-icon {
+  font-size: 1.5rem;
+  color: #7c3aed;
+  margin-top: 4px;
+}
+
+.checker-title {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0 0 4px 0;
+}
+
+.checker-sub {
+  font-size: 0.88rem;
+  color: #6b21a8;
+}
+
+.checker-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #7c3aed;
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.checker-form-wrap {
+  margin-bottom: 16px;
+}
+
+.checker-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.input-group-date {
+  flex: 1;
+  min-width: 260px;
+}
+
+.input-group-date .input-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.date-picker-input {
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  background: #ffffff;
+}
+
+.btn-check-passport {
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  background: #7c3aed;
+  border-color: #7c3aed;
+  white-space: nowrap;
+}
+
+.btn-check-passport:hover {
+  background: #6d28d9;
+  border-color: #6d28d9;
+}
+
+/* Passport Result Card */
+.passport-result-card {
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-top: 14px;
+  border-left: 5px solid;
+}
+
+.passport-result-card.success {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.passport-result-card.danger {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.passport-result-card.warning {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.result-status-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.result-action-hint {
+  font-size: 0.86rem;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Visa Breakdown Box */
+.visa-breakdown-box {
+  padding-top: 16px;
+  border-top: 1px solid #e9d5ff;
+}
+
+.breakdown-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #4c1d95;
+  margin-bottom: 10px;
+}
+
+.visa-notice-banner {
+  background: #fdf4ff;
+  border: 1px solid #f0abfc;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: #86198f;
+  margin-bottom: 12px;
+}
+
+.visa-doc-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.visa-doc-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.check-bullet {
+  color: #7c3aed;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* Domestic Papers Card */
+.domestic-papers-card {
+  padding: 22px 26px;
+  border-radius: 16px;
+  border: 1px solid #e0f2fe;
+  background: #f0f9ff;
+}
+
+.domestic-papers-list {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0 0;
+  display: grid;
+  gap: 10px;
+}
+
+.domestic-papers-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  line-height: 1.45;
+}
+
+/* Smart Pack Bento Grid */
+.smart-pack-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.bento-pack-card {
+  padding: 22px 24px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.bento-pack-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.bento-pack-icon {
+  color: #0284c7;
+}
+
+.pack-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.pack-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.pack-bullet {
+  color: #059669;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.currency-box, .plug-box, .aviation-luggage-box {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+}
+
+.currency-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.currency-val {
+  display: block;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.exchange-rate-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: #059669;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.plug-val, .luggage-val {
+  font-size: 0.88rem;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.meetup-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: #d97706;
+  font-weight: 500;
+}

@@ -23,6 +23,8 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { getTourImage, formatVehicleChip, formatLocationChip } from '../../utils/tourImages';
 import { getProviderInfo } from '../../utils/providerData';
+import { isInternationalTour } from '../../utils/travelBusinessRules';
+import { FaGlobeAsia } from 'react-icons/fa';
 import './TourCard.css';
 
 const TourCard = ({ tour }) => {
@@ -138,6 +140,15 @@ const TourCard = ({ tour }) => {
         <div className="tc-content">
           <div className="tc-kicker">
             <span className="tc-category-tag">{categoryName}</span>
+            {isInternationalTour(tour) ? (
+              <span className="tc-domain-pill pill-intl" title="Hành trình Quốc Tế: Bay quốc tế, bảo hiểm toàn cầu 1 Tỷ, hỗ trợ Visa trọn gói">
+                <FaGlobeAsia style={{ fontSize: '0.62rem', marginRight: '3px' }} /> Quốc Tế
+              </span>
+            ) : (
+              <span className="tc-domain-pill pill-dom" title="Hành trình Nội Địa: Thủ tục CCCD nhanh gọn, bảo hiểm 100 Triệu">
+                Nội Địa
+              </span>
+            )}
             <span className="tc-rating">
               <FaStar className="star-icon" /> {Number(tour.rating || 5).toFixed(1)}
             </span>

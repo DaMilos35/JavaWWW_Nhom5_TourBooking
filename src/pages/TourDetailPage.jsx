@@ -48,6 +48,20 @@ import { useAuth } from '../context/AuthContext';
 import { getTourImage, getTourGallery, getItineraryDayPhotos } from '../utils/tourImages';
 import { getProviderInfo } from '../utils/providerData';
 import TourGalleryBento from '../components/tours/TourGalleryBento';
+import {
+  isInternationalTour,
+  getTourDomainProfile,
+  validatePassportExpiry,
+  getSmartTravelPackList
+} from '../utils/travelBusinessRules';
+import {
+  FaGlobeAsia,
+  FaPassport,
+  FaSuitcase,
+  FaExchangeAlt,
+  FaFileContract,
+  FaExclamationTriangle
+} from 'react-icons/fa';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import FallbackImage from '../components/common/FallbackImage';
 import { toast } from 'react-toastify';
@@ -70,6 +84,8 @@ const TourDetailPage = () => {
   const [selectedPersona, setSelectedPersona] = useState('family');
   const [selectedDayFilter, setSelectedDayFilter] = useState(null);
   const [dayLightboxPhoto, setDayLightboxPhoto] = useState(null);
+  const [passportInputDate, setPassportInputDate] = useState('');
+  const [passportCheckResult, setPassportCheckResult] = useState(null);
 
   // Dynamic Departure Date Selection
   const [selectedDepartureDate, setSelectedDepartureDate] = useState(null);
@@ -508,6 +524,20 @@ const TourDetailPage = () => {
   const itineraryDays = parseItinerary(tour.itinerary);
   const highlights = parseHighlights(tour.highlights);
 
+  const isIntl = isInternationalTour(tour);
+  const domainProfile = getTourDomainProfile(tour);
+  const smartPack = getSmartTravelPackList(tour || {});
+
+  const handlePassportCheck = (e) => {
+    e.preventDefault();
+    if (!passportInputDate) {
+      toast.info('Vui lòng chọn ngày hết hạn hộ chiếu trên lịch');
+      return;
+    }
+    const result = validatePassportExpiry(passportInputDate, tour?.startDate || new Date());
+    setPassportCheckResult(result);
+  };
+
   return (
     <div className="tour-detail-page">
       <div className="container py-4">
@@ -528,11 +558,22 @@ const TourDetailPage = () => {
 
           <div className="td-title-row">
             <div>
-              {badge && (
-                <div className="td-badge-pill">
-                  <FaFire /> {badge}
-                </div>
-              )}
+              <div className="td-badges-group">
+                {badge && (
+                  <div className="td-badge-pill">
+                    <FaFire /> {badge}
+                  </div>
+                )}
+                {isIntl ? (
+                  <div className="domain-pill pill-intl" title="Hành trình Quốc Tế: Hàng không quốc tế, bảo hiểm toàn cầu 1 Tỷ, hỗ trợ Visa trọn gói">
+                    <FaGlobeAsia style={{ marginRight: '5px' }} /> HÀNH TRÌNH QUỐC TẾ 5 SAO
+                  </div>
+                ) : (
+                  <div className="domain-pill pill-dom" title="Hành trình Nội Địa: Khám phá Việt Nam với thủ tục CCCD nhanh gọn, bảo hiểm 100 Triệu">
+                    <FaCompass style={{ marginRight: '5px' }} /> HÀNH TRÌNH NỘI ĐỊA CHỌN LỌC
+                  </div>
+                )}
+              </div>
               <h1 className="td-title">{tour.name || tour.tourName}</h1>
             </div>
             <button
@@ -556,7 +597,7 @@ const TourDetailPage = () => {
               <FaStar className="star-icon" /> {tour.rating || 4.8} / 5 (Đánh giá tuyệt hảo)
             </span>
             <span className="location">
-              <FaMapMarkerAlt /> Khởi hành: <b>{tour.departureLocation || 'TP. Hồ Chí Minh'}</b>
+              <FaMapMarkerAlt /> {isIntl ? 'Ga Quốc Tế T2: ' : 'Điểm đón / Ga T1: '} <b>{tour.departureLocation || 'TP. Hồ Chí Minh'}</b>
             </span>
             <span className="td-provider-tag" style={{ borderColor: `${providerInfo.brandColor}40`, color: providerInfo.brandColor, background: `${providerInfo.brandColor}0d` }}>
               <FaBuilding style={{ marginRight: '5px' }} />
@@ -698,6 +739,14 @@ const TourDetailPage = () => {
               </button>
               <button 
                 type="button"
+                className={`td-nav-tab-btn ${activeTab === 'domain_guide' ? 'active' : ''}`}
+                onClick={() => setActiveTab('domain_guide')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                {isIntl ? <><FaPassport style={{ color: '#8b5cf6' }} /> Hộ Chiếu, Visa & Hành Trang AI</> : <><FaSuitcase style={{ color: '#0284c7' }} /> Quy Chuẩn Lữ Hành & Hành Trang</>}
+              </button>
+              <button 
+                type="button"
                 className={`td-nav-tab-btn ${activeTab === 'services' ? 'active' : ''}`}
                 onClick={() => setActiveTab('services')}
               >
@@ -708,7 +757,7 @@ const TourDetailPage = () => {
                 className={`td-nav-tab-btn ${activeTab === 'policy' ? 'active' : ''}`}
                 onClick={() => setActiveTab('policy')}
               >
-                Chính sách đổi trả & B2B
+                Chính sách cọc & hoàn hủy
               </button>
               <button 
                 type="button"
@@ -716,7 +765,7 @@ const TourDetailPage = () => {
                 onClick={() => setActiveTab('ai_insights')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                <FaMagic style={{ color: '#0194F3' }} /> Trải Nghiệm & Đánh Giá
+                <FaMagic style={{ color: '#0194F3' }} /> Trải Nghiệm & Đánh Giá AI
               </button>
             </div>
 
@@ -859,6 +908,173 @@ const TourDetailPage = () => {
                           </div>
                         );
                       })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tab: Hộ Chiếu, Visa & Cẩm Nang Hành Trang Chuyên Sâu */}
+            {activeTab === 'domain_guide' && (
+              <div className="tab-pane-content animate-fade-in">
+                {/* 1. Header Banner Phân Định Nghiệp Vụ */}
+                <div className="domain-overview-banner card-surface mb-4">
+                  <div className="domain-banner-header">
+                    <span className={`domain-tag-pill ${isIntl ? 'tag-intl' : 'tag-dom'}`}>
+                      {domainProfile.badge}
+                    </span>
+                    <h3 className="domain-banner-title">{domainProfile.label}</h3>
+                    <p className="domain-banner-desc">{domainProfile.tagline}</p>
+                  </div>
+
+                  <div className="domain-pillars-grid">
+                    <div className="pillar-item">
+                      <FaPassport className="pillar-icon" />
+                      <div className="pillar-body">
+                        <strong>{domainProfile.passportVisa.title}</strong>
+                        <p>{domainProfile.passportVisa.summary}</p>
+                      </div>
+                    </div>
+
+                    <div className="pillar-item">
+                      <FaPlane className="pillar-icon" />
+                      <div className="pillar-body">
+                        <strong>Hàng Không & Ga Đón</strong>
+                        <p>{domainProfile.aviationBaggage.airportTerminal} · {domainProfile.aviationBaggage.carrierStandard}</p>
+                      </div>
+                    </div>
+
+                    <div className="pillar-item">
+                      <FaShieldAlt className="pillar-icon" />
+                      <div className="pillar-body">
+                        <strong>Bảo Hiểm Toàn Diện</strong>
+                        <p>{domainProfile.insurance.name} (Tối đa <strong>{domainProfile.insurance.maxCoverage}</strong>)</p>
+                      </div>
+                    </div>
+
+                    <div className="pillar-item">
+                      <FaUsers className="pillar-icon" />
+                      <div className="pillar-body">
+                        <strong>Đội Ngũ Hướng Dẫn Viên</strong>
+                        <p>{domainProfile.guides.system}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Interactive AI Passport & Visa Clearance Checker (Dành cho Tour Quốc Tế) */}
+                {isIntl ? (
+                  <div className="ai-passport-checker-card card-surface mb-4">
+                    <div className="checker-header">
+                      <div className="checker-title-box">
+                        <FaMagic className="checker-magic-icon" />
+                        <div>
+                          <h4 className="checker-title">Trợ Lý AI Thẩm Định Hạn Hộ Chiếu & Thị Thực (Visa) 1 Chạm</h4>
+                          <span className="checker-sub">Kiểm tra ngay tính hợp lệ của hộ chiếu và nhận tư vấn thủ tục xin Visa chính xác:</span>
+                        </div>
+                      </div>
+                      <span className="checker-badge">OTA Intelligence 2026</span>
+                    </div>
+
+                    <form onSubmit={handlePassportCheck} className="checker-form-wrap">
+                      <div className="checker-input-row">
+                        <div className="input-group-date">
+                          <label className="input-label">
+                            <FaPassport style={{ marginRight: '6px', color: '#7c3aed' }} /> Ngày hết hạn trên Hộ chiếu của bạn:
+                          </label>
+                          <input 
+                            type="date"
+                            className="form-control date-picker-input"
+                            value={passportInputDate}
+                            onChange={(e) => {
+                              setPassportInputDate(e.target.value);
+                              if (passportCheckResult) setPassportCheckResult(null);
+                            }}
+                          />
+                        </div>
+                        <button type="submit" className="btn btn-primary btn-check-passport">
+                          <FaCheckCircle style={{ marginRight: '6px' }} /> Thẩm Định Tính Hợp Lệ
+                        </button>
+                      </div>
+                    </form>
+
+                    {passportCheckResult && (
+                      <div className={`passport-result-card animate-fade-in ${passportCheckResult.alertType}`}>
+                        <div className="result-status-header">
+                          {passportCheckResult.isValid ? (
+                            <FaCheckCircle className="result-icon success" />
+                          ) : (
+                            <FaExclamationTriangle className="result-icon danger" />
+                          )}
+                          <strong>{passportCheckResult.message}</strong>
+                        </div>
+                        <p className="result-action-hint">{passportCheckResult.actionHint}</p>
+                      </div>
+                    )}
+
+                    {/* Visa Checklist Breakdown */}
+                    <div className="visa-breakdown-box mt-3">
+                      <h5 className="breakdown-title">
+                        <FaFileContract style={{ marginRight: '6px', color: '#7c3aed' }} />
+                        Quy định thị thực tại nước sở tại ({smartPack.country}):
+                      </h5>
+                      <div className="visa-notice-banner">
+                        <p>{smartPack.visaNotice}</p>
+                      </div>
+                      <ul className="visa-doc-checklist">
+                        {domainProfile.passportVisa.details.map((d, dIdx) => (
+                          <li key={dIdx}><FaCheck className="check-bullet" /> {d}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  /* Hướng dẫn giấy tờ nội địa */
+                  <div className="domestic-papers-card card-surface mb-4">
+                    <h4 className="checker-title">
+                      <FaFileContract style={{ marginRight: '8px', color: '#0284c7' }} />
+                      Giấy tờ tùy thân cần chuẩn bị cho chuyến đi trong nước:
+                    </h4>
+                    <ul className="domestic-papers-list">
+                      {domainProfile.passportVisa.details.map((d, dIdx) => (
+                        <li key={dIdx}><FaCheckCircle className="check-bullet text-primary" /> {d}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* 3. Cẩm Nang Chuẩn Bị Hành Trang & Ngoại Tệ (Smart Pack-List Bento) */}
+                <div className="smart-pack-bento-grid">
+                  <div className="bento-pack-card pack-essentials card-surface">
+                    <h4 className="bento-pack-title">
+                      <FaSuitcase className="bento-pack-icon" /> Hành trang thiết yếu cần mang theo
+                    </h4>
+                    <ul className="pack-checklist">
+                      {smartPack.essentials.map((item, itemIdx) => (
+                        <li key={itemIdx}><FaCheck className="pack-bullet" /> {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="bento-pack-card pack-meta card-surface">
+                    <h4 className="bento-pack-title">
+                      <FaExchangeAlt className="bento-pack-icon" /> Tiền tệ & Ổ cắm điện tại {smartPack.country}
+                    </h4>
+                    <div className="currency-box mb-3">
+                      <span className="currency-label">Đơn vị tiền tệ:</span>
+                      <b className="currency-val">{smartPack.currency.name} ({smartPack.currency.code})</b>
+                      <span className="exchange-rate-hint">Tỷ giá tham khảo: {smartPack.currency.exchangeRate}</span>
+                    </div>
+
+                    <div className="plug-box">
+                      <span className="currency-label">Chuẩn chân cắm điện thoại / laptop:</span>
+                      <p className="plug-val">{smartPack.plugType}</p>
+                    </div>
+
+                    <div className="aviation-luggage-box mt-3">
+                      <span className="currency-label">Quy chuẩn hành lý miễn cước:</span>
+                      <p className="luggage-val">{domainProfile.aviationBaggage.baggageAllowance}</p>
+                      <span className="meetup-hint">{domainProfile.aviationBaggage.meetupNotice}</span>
+                    </div>
                   </div>
                 </div>
               </div>

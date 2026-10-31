@@ -1610,3 +1610,34 @@
   color: #64748b;
 }
 
+
+
+/* International Checkout Notice */
+.intl-checkout-notice {
+  background: #fdf4ff;
+  border: 1.5px solid #e879f9;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.intl-checkout-notice .intl-notice-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #86198f;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.intl-checkout-notice .intl-globe-icon {
+  color: #a855f7;
+  font-size: 1.15rem;
+}
+
+.intl-checkout-notice .intl-notice-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #4a044e;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}

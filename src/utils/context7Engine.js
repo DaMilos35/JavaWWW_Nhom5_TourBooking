@@ -73,6 +73,70 @@ export const CONTEXT7_DOCS = [
 4. BenThanh Tourist (GP-LHQT 79-058/2026): Chuyên gia tour di sản miền Trung và sông nước miền Tây.
 5. Hanoitourist (GP-LHQT 01-112/2026): Biểu tượng lữ hành Thủ đô, chuyên tour Tây Bắc & Đông Bắc mùa vàng.
 6. BestPrice Travel (GP-LHQT 01-825/2026): Tiên phong du thuyền 5 sao Hạ Long & Lan Hạ với giá tốt nhất thị trường.`
+  },
+  {
+    id: 'ctx-international-vs-domestic',
+    category: 'DOMAIN_RULES',
+    title: 'Phân Định Nghiệp Vụ Chuyên Sâu: Tour Trong Nước vs Tour Quốc Tế',
+    keywords: ['trong nước', 'quốc tế', 'nội địa', 'outbound', 'so sánh tour', 'khác nhau', 'nước ngoài'],
+    content: `Quy chuẩn phân định nghiệp vụ lữ hành 2026:
+1. Giấy tờ tùy thân:
+   - Tour Nội địa: Chỉ cần CCCD gắn chip (hoặc Giấy khai sinh trích lục đối với trẻ em dưới 14 tuổi).
+   - Tour Quốc tế: Bắt buộc Hộ chiếu (Passport) còn hạn tối thiểu 6 tháng tính từ ngày kết thúc chuyến đi. Trẻ em phải có hộ chiếu riêng.
+2. Quy định Đặt cọc & Hoàn hủy:
+   - Tour Nội địa: Đặt cọc 30%, tất toán trước 7 ngày, hủy trước 7 ngày miễn phí 100%.
+   - Tour Quốc tế: Đặt cọc 50% để giữ vé máy bay quốc tế và nộp hồ sơ visa. Nếu bị từ chối Visa do yếu tố khách quan từ Sứ quán, Du Lịch Việt bảo lãnh hoàn lại 100% tiền cọc tour (chỉ trừ lệ phí xét visa thực tế).
+3. Hàng không & Điểm tập trung:
+   - Tour Nội địa: Tập trung tại Ga Quốc nội (Nhà ga T1) trước giờ bay 2 tiếng. Hành lý 20kg ký gửi + 7kg xách tay.
+   - Tour Quốc tế: Tập trung tại Ga Quốc tế (Nhà ga T2) trước giờ bay 3 tiếng. Hành lý 23 - 30kg ký gửi. Không mang chất lỏng vượt quá 100ml trong hành lý xách tay.
+4. Bảo hiểm du lịch:
+   - Tour Nội địa: Mức bồi thường tối đa 100.000.000 VNĐ/khách.
+   - Tour Quốc tế: Bảo hiểm toàn cầu Chubb / Bảo Việt International Care hạn mức 1.000.000.000 VNĐ (~45.000 USD/khách).
+5. Hướng dẫn viên: Tour Quốc tế vận hành theo mô hình kép: 01 Trưởng đoàn suốt tuyến từ Việt Nam + 01 Hướng dẫn viên bản địa.`
+  },
+  {
+    id: 'ctx-visa-passport-requirements',
+    category: 'VISA_PASSPORT',
+    title: 'Quy Định Hộ Chiếu, Thị Thực (Visa) & Bảo Lãnh Trượt Visa',
+    keywords: ['visa', 'hộ chiếu', 'passport', 'thị thực', 'trượt visa', 'hạn 6 tháng', 'thủ tục visa'],
+    content: `Quy định xuất nhập cảnh và bảo lãnh thị thực lữ hành:
+1. Quy định thời hạn Hộ chiếu:
+   - Theo Luật Xuất nhập cảnh quốc tế, hộ chiếu phải còn hạn trên 6 tháng tính từ ngày trở về Việt Nam và còn ít nhất 2 trang trắng liền kề.
+   - Trường hợp hộ chiếu còn dưới 6 tháng: Du khách cần đổi hộ chiếu mới trên Cổng Dịch vụ Công Quốc gia (5 - 8 ngày làm việc).
+2. Quy định Thị thực (Visa) theo khu vực:
+   - Đông Nam Á (Thái Lan, Singapore, Malaysia): Miễn visa 30 ngày cho hộ chiếu Việt Nam.
+   - Nhật Bản & Hàn Quốc: Hỗ trợ nộp Visa du lịch đoàn (thời gian xét duyệt 7 - 12 ngày làm việc).
+   - Châu Âu (Schengen): Lấy sinh trắc học vân tay, xét duyệt 15 - 21 ngày làm việc.
+3. Cam kết Bảo Lãnh Trượt Visa từ Du Lịch Việt:
+   - Trường hợp hồ sơ du khách bị Lãnh sự quán từ chối visa vì lý do khách quan, công ty hoàn lại 100% tiền cọc tour đã đóng, chỉ trừ chi phí xét duyệt visa thực tế của Sứ quán.`
+  },
+  {
+    id: 'ctx-aviation-baggage-rules',
+    category: 'OPERATIONS',
+    title: 'Quy Chuẩn Hàng Không, Nhà Ga T1/T2 & Hành Lý Ký Gửi',
+    keywords: ['hàng không', 'hành lý', 'ký gửi', 'xách tay', 'nhà ga t1', 'nhà ga t2', 'chất lỏng', 'sân bay'],
+    content: `Tiêu chuẩn hàng không lữ hành OTA 2026:
+1. Nhà ga & Thời gian tập trung:
+   - Chuyến bay Nội địa: Nhà ga T1 - Tập trung trước giờ bay 120 phút (2 tiếng).
+   - Chuyến bay Quốc tế: Nhà ga T2 - Tập trung trước giờ bay 180 phút (3 tiếng) tại cột hẹn của Trưởng đoàn Du Lịch Việt.
+2. Tiêu chuẩn Hành lý:
+   - Hành lý ký gửi: 20kg (nội địa) hoặc 23 - 30kg (quốc tế) tùy hãng hàng không.
+   - Hành lý xách tay: 7kg - 10kg, kích thước tiêu chuẩn không quá 56 x 36 x 23 cm.
+3. Quy định vật dụng an ninh:
+   - Tuyệt đối không để sạc dự phòng, pin lithium trong hành lý ký gửi (bắt buộc mang theo hành lý xách tay, dung lượng dưới 20.000 mAh).
+   - Chất lỏng trên chuyến bay quốc tế: Mỗi bình chứa không quá 100ml, tổng thể tích không quá 1000ml đặt trong túi zip trong suốt.`
+  },
+  {
+    id: 'ctx-global-travel-insurance',
+    category: 'POLICIES',
+    title: 'Quyền Lợi Bảo Hiểm Du Lịch Quốc Tế 1 Tỷ Đồng & Y Tế Khẩn Cấp',
+    keywords: ['bảo hiểm', '1 tỷ', 'bảo hiểm quốc tế', 'y tế', 'chubb', 'cấp cứu', 'thất lạc hành lý'],
+    content: `Chi tiết quyền lợi gói Bảo hiểm Du lịch Quốc tế cao cấp (Hợp tác cùng Chubb & Bảo Việt):
+1. Chi phí y tế tai nạn và điều trị bệnh tật ở nước ngoài: Tối đa 1.000.000.000 VNĐ (~45.000 USD).
+2. Hỗ trợ vận chuyển y tế cấp cứu và hồi hương: Chi trả 100% chi phí thực tế theo chỉ định của cơ quan y tế quốc tế SOS.
+3. Bồi thường thất lạc hành lý hoặc hành lý đến chậm: Lên đến 20.000.000 VNĐ.
+4. Bồi thường hủy chuyến hoặc chậm chuyến bay quốc tế kéo dài: Hỗ trợ ăn nghỉ tại khách sạn sân bay và phụ phí đổi chuyến.
+5. Tổng đài cứu trợ khẩn cấp toàn cầu hoạt động 24/7 bằng tiếng Việt và tiếng Anh.`
   }
 ];
 

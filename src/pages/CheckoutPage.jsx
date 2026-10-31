@@ -14,6 +14,8 @@ import {
 } from 'react-icons/fa';
 import './CheckoutPage.css';
 import { getTierInfo } from '../utils/membershipUtils';
+import { isInternationalTour } from '../utils/travelBusinessRules';
+import { FaGlobeAsia } from 'react-icons/fa';
 import { FaCrown, FaGem, FaMedal, FaCoins } from 'react-icons/fa';
 
 // Mã giảm giá hợp lệ mô phỏng hệ thống
@@ -176,7 +178,8 @@ const CheckoutPage = () => {
 
   // 4. Kế hoạch thanh toán: FULL (100%) vs DEPOSIT (30%)
   const [paymentPlan, setPaymentPlan] = useState('FULL'); // 'FULL' or 'DEPOSIT'
-  const depositPercent = 30;
+  const hasIntlTour = useMemo(() => items.some(item => isInternationalTour(item.tour || item)), [items]);
+  const depositPercent = hasIntlTour ? 50 : 30;
   const depositAmount = paymentPlan === 'DEPOSIT' ? Math.round((finalTotalAmount * depositPercent) / 100) : finalTotalAmount;
   const remainingAmount = paymentPlan === 'DEPOSIT' ? (finalTotalAmount - depositAmount) : 0;
   const amountToPayNow = paymentPlan === 'DEPOSIT' ? depositAmount : finalTotalAmount;
@@ -707,11 +710,30 @@ const CheckoutPage = () => {
                     )}
                   </div>
 
+                  {/* Banner Lưu ý Xuất nhập cảnh Quốc tế */}
+                  {hasIntlTour && (
+                    <div className="intl-checkout-notice mb-4">
+                      <div className="intl-notice-title">
+                        <FaGlobeAsia className="intl-globe-icon" />
+                        <strong>Quy định bắt buộc đối với Hành trình Quốc tế:</strong>
+                      </div>
+                      <ul className="intl-notice-list">
+                        <li>Họ và tên hành khách vui lòng nhập <strong>chữ in hoa không dấu chính xác theo Hộ chiếu</strong> (VD: NGUYEN VAN A).</li>
+                        <li>Hộ chiếu phải còn <strong>hạn sử dụng trên 6 tháng</strong> tính từ ngày trở về Việt Nam.</li>
+                        <li><strong>Bảo lãnh an tâm 100%:</strong> Du Lịch Việt hoàn lại trọn vẹn tiền cọc tour nếu quý khách không may bị từ chối Visa vì lý do khách quan từ Sứ quán.</li>
+                      </ul>
+                    </div>
+                  )}
+
                   {/* Danh sách Hành khách (Passenger Roster) */}
                   <div className="passengers-roster-section mt-4">
                     <div className="roster-header">
                       <h3><FaUsers /> Danh sách hành khách tham gia ({totalTravelers} người)</h3>
-                      <span className="roster-sub">Phục vụ mua bảo hiểm lữ hành bắt buộc theo quy định Tổng cục Du Lịch.</span>
+                      <span className="roster-sub">
+                        {hasIntlTour 
+                          ? 'Phục vụ mua bảo hiểm lữ hành quốc tế toàn cầu Chubb 1 Tỷ VNĐ và đăng ký danh sách đoàn với Lãnh sự quán.'
+                          : 'Phục vụ mua bảo hiểm lữ hành bắt buộc theo quy định Tổng cục Du Lịch.'}
+                      </span>
                     </div>
 
                     <div className="passenger-items-list mt-3">
@@ -844,7 +866,7 @@ const CheckoutPage = () => {
                       <p className="plan-desc">Tất toán toàn bộ chi phí chuyến đi. Phát hành vé điện tử E-Ticket QR Check-in tức thì.</p>
                     </div>
 
-                    {/* Option 2: Đặt cọc 30% */}
+                    {/* Option 2: Đặt cọc */}
                     <div 
                       className={`payment-plan-card ${paymentPlan === 'DEPOSIT' ? 'selected' : ''}`}
                       onClick={() => setPaymentPlan('DEPOSIT')}
@@ -857,14 +879,18 @@ const CheckoutPage = () => {
                             checked={paymentPlan === 'DEPOSIT'} 
                             onChange={() => setPaymentPlan('DEPOSIT')} 
                           />
-                          Đặt cọc giữ chỗ 30%
+                          Đặt cọc giữ chỗ {depositPercent}%
                         </span>
-                        <span className="plan-badge deposit">CHỈ TRẢ TRƯỚC 30%</span>
+                        <span className="plan-badge deposit">CHỈ TRẢ TRƯỚC {depositPercent}%</span>
                       </div>
                       <div className="plan-price-row">{formatPrice(depositAmount)}</div>
-                      <p className="plan-desc">Chỉ cần thanh toán trước 30% để chốt chỗ. Số tiền còn lại thanh toán trước ngày khởi hành 7 ngày.</p>
+                      <p className="plan-desc">
+                        {hasIntlTour
+                          ? 'Thanh toán trước 50% để khóa vé máy bay quốc tế và nộp hồ sơ xin Visa. Số tiền 50% còn lại thanh toán trước ngày khởi hành 15 ngày.'
+                          : 'Chỉ cần thanh toán trước 30% để chốt chỗ giữ vé. Số tiền 70% còn lại thanh toán trước ngày khởi hành 7 ngày.'}
+                      </p>
                       <div className="plan-installment-detail">
-                        <span>Đợt 2 (70%): <strong>{formatPrice(remainingAmount)}</strong></span>
+                        <span>Đợt 2 ({100 - depositPercent}%): <strong>{formatPrice(remainingAmount)}</strong></span>
                       </div>
                     </div>
                   </div>
