@@ -466,6 +466,18 @@ assert(detailPageCode.includes("activeTab === 'domain_guide'") && detailPageCode
 assert(tourCardCode.includes('tc-domain-pill') && tourCardCode.includes('isInternationalTour'), 'TourCard identifies Outbound vs Domestic tour pills');
 const checkoutPageCode = fs.readFileSync(path.resolve(__dirname, '../src/pages/CheckoutPage.jsx'), 'utf8');
 assert(checkoutPageCode.includes('hasIntlTour ? 50 : 30') && checkoutPageCode.includes('intl-checkout-notice'), 'CheckoutPage dynamically enforces 50% deposit for Outbound tours with passport notice');
+assert(checkoutPageCode.includes("depositPercent: paymentPlan === 'DEPOSIT' ? depositPercent : 100"), 'CheckoutPage sends dynamic depositPercent in orderPayload');
+
+// 11. MyOrdersPage Cancellation Policy & Real Paid Refund Math
+const myOrdersCode = fs.readFileSync(path.resolve(__dirname, '../src/pages/MyOrdersPage.jsx'), 'utf8');
+assert(myOrdersCode.includes('diffDays <= 0') && myOrdersCode.includes('canCancel: false'), 'MyOrdersPage locks cancellation for past and ongoing departures');
+assert(myOrdersCode.includes('paidAmount = isPartiallyPaid') && myOrdersCode.includes('depositAmount'), 'MyOrdersPage calculates refund on real paid amount (deposit vs total)');
+
+// 12. AdminTourForm Client-Side Validation Invariants
+const adminFormCode = fs.readFileSync(path.resolve(__dirname, '../src/pages/admin/AdminTourForm.jsx'), 'utf8');
+assert(adminFormCode.includes('parseFloat(formData.originalPrice) < parseFloat(formData.price)'), 'AdminTourForm validates originalPrice >= price');
+assert(adminFormCode.includes('parseInt(formData.availableSeats) < 0'), 'AdminTourForm validates availableSeats >= 0');
+assert(adminFormCode.includes('new Date(formData.endDate) < new Date(formData.startDate)'), 'AdminTourForm validates endDate >= startDate');
 
 // 11. Context7 Outbound vs Domestic Policies
 const updatedContext7 = fs.readFileSync(path.resolve(__dirname, '../src/utils/context7Engine.js'), 'utf8');

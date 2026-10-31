@@ -191,6 +191,22 @@ const AdminTourForm = () => {
       toast.warning('Giá tour phải lớn hơn 0');
       return;
     }
+    if (formData.originalPrice && parseFloat(formData.originalPrice) < parseFloat(formData.price)) {
+      toast.warning('Giá gốc (trước giảm giá) không được nhỏ hơn giá bán thực tế');
+      return;
+    }
+    if (formData.availableSeats !== undefined && formData.availableSeats !== '' && parseInt(formData.availableSeats) < 0) {
+      toast.warning('Số lượng chỗ khả dụng không được nhỏ hơn 0');
+      return;
+    }
+    if (formData.duration !== undefined && formData.duration !== '' && parseInt(formData.duration) < 1) {
+      toast.warning('Thời lượng tour phải từ 1 ngày trở lên');
+      return;
+    }
+    if (formData.startDate && formData.endDate && new Date(formData.endDate) < new Date(formData.startDate)) {
+      toast.warning('Ngày kết thúc tour không thể trước ngày bắt đầu khởi hành');
+      return;
+    }
 
     setSubmitting(true);
     try {

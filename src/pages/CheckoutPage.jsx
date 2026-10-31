@@ -283,7 +283,7 @@ const CheckoutPage = () => {
         companyName: isB2bInvoice ? formData.companyName : null,
         taxId: isB2bInvoice ? formData.taxId : null,
         paymentType: paymentPlan,
-        depositPercent: paymentPlan === 'DEPOSIT' ? 30 : 100,
+        depositPercent: paymentPlan === 'DEPOSIT' ? depositPercent : 100,
         pointsUsed: useLoyaltyPoints ? maxPointsUsable : 0,
         items: items.map(item => ({
           tourId: item?.tour?.id || item?.tour?.tourId || item?.tourId || item?.id,

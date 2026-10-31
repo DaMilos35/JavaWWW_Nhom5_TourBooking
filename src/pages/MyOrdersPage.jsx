@@ -144,7 +144,7 @@ const MyOrdersPage = () => {
     }
 
     if (!earliestDeparture) {
-      return { days: null, percent: 3, refundPercent: 97, departureDateStr: null, desc: 'Chưa có ngày khởi hành cụ thể (phí xử lý 3%)' };
+      return { days: null, percent: 3, refundPercent: 97, departureDateStr: null, canCancel: true, desc: 'Chưa có ngày khởi hành cụ thể (phí xử lý 3%)' };
     }
 
     const today = new Date();
@@ -154,12 +154,42 @@ const MyOrdersPage = () => {
     const diffTime = dep.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays >= 7) {
-      return { days: diffDays, percent: 0, refundPercent: 100, departureDateStr, desc: `Hủy trước 7 ngày (còn ${diffDays} ngày): Hoàn trả 100% (Phí đổi hủy 0%)` };
+    if (diffDays <= 0) {
+      return { 
+        days: 0, 
+        percent: 100, 
+        refundPercent: 0, 
+        departureDateStr, 
+        canCancel: false, 
+        desc: 'Chuyến đi đang diễn ra hoặc đã hoàn tất (Không thể đổi hủy tour sau ngày khởi hành)' 
+      };
+    } else if (diffDays >= 7) {
+      return { 
+        days: diffDays, 
+        percent: 0, 
+        refundPercent: 100, 
+        departureDateStr, 
+        canCancel: true, 
+        desc: `Hủy trước ≥ 7 ngày (còn ${diffDays} ngày): Hoàn trả 100% (Phí đổi hủy 0%)` 
+      };
     } else if (diffDays >= 3) {
-      return { days: diffDays, percent: 30, refundPercent: 70, departureDateStr, desc: `Hủy từ 3 - 6 ngày (còn ${diffDays} ngày): Phí đổi hủy 30% giá tour (Hoàn lại 70%)` };
+      return { 
+        days: diffDays, 
+        percent: 30, 
+        refundPercent: 70, 
+        departureDateStr, 
+        canCancel: true, 
+        desc: `Hủy từ 3 - 6 ngày (còn ${diffDays} ngày): Phí đổi hủy 30% giá tour (Hoàn lại 70%)` 
+      };
     } else {
-      return { days: Math.max(0, diffDays), percent: 70, refundPercent: 30, departureDateStr, desc: `Hủy trong vòng 48h trước khởi hành (còn ${diffDays} ngày): Phí đổi hủy 70% giá tour (Hoàn lại 30%)` };
+      return { 
+        days: Math.max(0, diffDays), 
+        percent: 70, 
+        refundPercent: 30, 
+        departureDateStr, 
+        canCancel: true, 
+        desc: `Hủy trong vòng 48h trước khởi hành (còn ${diffDays} ngày): Phí đổi hủy 70% giá tour (Hoàn lại 30%)` 
+      };
     }
   };
 
@@ -387,7 +417,8 @@ const MyOrdersPage = () => {
               const isDeposited = order.status === 'DEPOSITED' || order.paymentStatus === 'PARTIALLY_PAID';
               const isPaid = order.paymentStatus === 'PAID';
               const isUnpaid = !isPaid && !isDeposited && order.paymentStatus !== 'REFUND_PENDING' && order.paymentStatus !== 'REFUNDED';
-              const canCancel = isPaid && !isCancelled;
+              const policy = getCancellationPolicy(order);
+              const canCancel = (isPaid || isDeposited) && !isCancelled && order.status !== 'COMPLETED' && policy.canCancel;
 
               return (
                 <div key={order.id} className="order-card" style={{ border: isCancelled ? '1.5px solid #fca5a5' : '1px solid #e2e8f0' }}>
@@ -624,7 +655,7 @@ const MyOrdersPage = () => {
                         </button>
                         
                         {/* Khi đã thanh toán và Admin xác nhận: Nút Hủy Tour có hoàn tiền theo chính sách */}
-                        {canCancel && (
+                        {canCancel ? (
                           <button 
                             onClick={() => promptCancelOrder(order)}
                             style={{
@@ -643,7 +674,24 @@ const MyOrdersPage = () => {
                           >
                             <FaTimesCircle /> Hủy Tour & Nhận Hoàn Tiền
                           </button>
-                        )}
+                        ) : ((isPaid || isDeposited) && !isCancelled && order.status !== 'COMPLETED' && (
+                          <span 
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '6px 12px',
+                              borderRadius: '6px',
+                              background: '#f1f5f9',
+                              color: '#64748b',
+                              fontSize: '0.8rem',
+                              fontWeight: 500
+                            }}
+                            title={policy.desc}
+                          >
+                            <FaInfoCircle style={{ color: '#94a3b8' }} /> Đã qua ngày khởi hành
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -764,8 +812,12 @@ const MyOrdersPage = () => {
             {/* Bảng tính hoàn tiền theo chính sách ngày khởi hành */}
             {(() => {
               const pol = refundForm.policy || getCancellationPolicy(cancelModalOrder);
-              const feeAmount = Math.round(cancelModalOrder.totalAmount * (pol.percent / 100));
-              const refundAmount = Math.max(0, cancelModalOrder.totalAmount - feeAmount);
+              const isPartiallyPaid = cancelModalOrder.status === 'DEPOSITED' || cancelModalOrder.paymentStatus === 'PARTIALLY_PAID';
+              const paidAmount = isPartiallyPaid
+                ? (cancelModalOrder.depositAmount || cancelModalOrder.deposit_amount || 0)
+                : cancelModalOrder.totalAmount;
+              const feeAmount = Math.round(paidAmount * (pol.percent / 100));
+              const refundAmount = Math.max(0, paidAmount - feeAmount);
               return (
                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '18px', marginBottom: '20px', fontSize: '0.9rem', lineHeight: 1.55 }}>
                   {pol.departureDateStr && (
@@ -781,8 +833,8 @@ const MyOrdersPage = () => {
                     </strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <span style={{ color: '#cbd5e1' }}>Số tiền đã thanh toán:</span>
-                    <strong>{formatPrice(cancelModalOrder.totalAmount)}</strong>
+                    <span style={{ color: '#64748b' }}>Số tiền thực tế đã đóng:</span>
+                    <strong style={{ color: '#0f172a' }}>{formatPrice(paidAmount)} {isPartiallyPaid ? `(Đặt cọc ${cancelModalOrder.depositPercent || 30}%)` : '(100% trọn gói)'}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: pol.percent === 0 ? '#4ade80' : '#f87171' }}>
                     <span>Phí đổi hủy áp dụng ({pol.percent}%):</span>
@@ -891,8 +943,19 @@ const MyOrdersPage = () => {
                 </button>
                 <button 
                   type="submit" 
-                  disabled={cancelling}
-                  style={{ padding: '10px 22px', borderRadius: '8px', border: 'none', background: '#dc2626', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  disabled={cancelling || (refundForm.policy && !refundForm.policy.canCancel)}
+                  style={{ 
+                    padding: '10px 22px', 
+                    borderRadius: '8px', 
+                    border: 'none', 
+                    background: (refundForm.policy && !refundForm.policy.canCancel) ? '#94a3b8' : '#dc2626', 
+                    color: '#fff', 
+                    fontWeight: 700, 
+                    cursor: (refundForm.policy && !refundForm.policy.canCancel) ? 'not-allowed' : 'pointer', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px' 
+                  }}
                 >
                   {cancelling ? 'Đang gửi...' : 'Xác Nhận Hủy Tour & Gửi Thông Tin'}
                 </button>
