@@ -325,8 +325,8 @@ const LoginPage = () => {
                 Ghi nhớ đăng nhập
               </label>
 
-              <Link to="/help" style={{ color: '#0ea5e9', textDecoration: 'none', fontWeight: 500 }}>
-                Cần trợ giúp?
+              <Link to="/forgot-password" style={{ color: '#0ea5e9', textDecoration: 'none', fontWeight: 600 }}>
+                Quên mật khẩu?
               </Link>
             </div>
             

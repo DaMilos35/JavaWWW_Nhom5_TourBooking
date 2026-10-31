@@ -292,4 +292,52 @@ public class EmailService {
             log.warn("Failed to send cancellation email to {}: {}", recipient, e.getMessage());
         }
     }
+
+    /**
+     * Gửi liên kết và mã xác thực đặt lại mật khẩu an toàn qua Email
+     */
+    @Async
+    public void sendPasswordResetEmail(String toEmail, String resetLink, String rawToken) {
+        if (toEmail == null || toEmail.isBlank()) return;
+
+        try {
+            String sender = (fromEmail != null && !fromEmail.isBlank()) ? fromEmail : "hotro@dulichviet.vn";
+            String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);'>"
+                    + "<div style='background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 28px; text-align: center;'>"
+                    + "<h1 style='margin: 0; font-size: 26px; letter-spacing: 1px;'>DU LỊCH VIỆT</h1>"
+                    + "<p style='margin: 8px 0 0; font-size: 15px; opacity: 0.95;'>Yêu Cầu Đặt Lại Mật Khẩu</p>"
+                    + "</div>"
+                    + "<div style='padding: 28px; color: #334155; line-height: 1.6; background: #ffffff;'>"
+                    + "<p>Xin chào quý khách,</p>"
+                    + "<p>Hệ thống nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với địa chỉ email này. Để tiến hành đặt mật khẩu mới, bạn vui lòng nhấn vào nút bên dưới:</p>"
+                    + "<div style='text-align: center; margin: 28px 0;'>"
+                    + "<a href='" + resetLink + "' style='display: inline-block; background: #0284c7; color: #ffffff; text-decoration: none; font-weight: bold; padding: 14px 32px; border-radius: 8px; font-size: 16px; box-shadow: 0 2px 6px rgba(2,132,199,0.3);'>Đặt Lại Mật Khẩu Ngay</a>"
+                    + "<p style='font-size: 13px; color: #64748b; margin-top: 14px;'>Hoặc sử dụng mã Reset Token này: <strong style='font-family:monospace; color:#0284c7;'>" + rawToken + "</strong></p>"
+                    + "<p style='font-size: 13px; color: #64748b; margin-top: 6px;'>Liên kết có hiệu lực trong vòng <strong>15 phút</strong> và chỉ sử dụng được 01 lần duy nhất.</p>"
+                    + "</div>"
+                    + "<div style='background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 6px; font-size: 13px; color: #92400e;'>"
+                    + "<strong>Cảnh báo bảo mật:</strong> Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này hoặc liên hệ hotline 1900 1234 ngay lập tức để bảo vệ tài khoản."
+                    + "</div>"
+                    + "<p style='margin-top: 28px; font-size: 13px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 16px;'>"
+                    + "Trân trọng,<br><strong>Đội ngũ Du Lịch Việt Security Team</strong>"
+                    + "</p>"
+                    + "</div>"
+                    + "</div>";
+
+            if (mailSender != null && fromEmail != null && !fromEmail.isBlank()) {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+                helper.setFrom(sender);
+                helper.setTo(toEmail);
+                helper.setSubject("[Du Lịch Việt] Hướng dẫn đặt lại mật khẩu tài khoản");
+                helper.setText(content, true);
+                mailSender.send(message);
+                log.info("Password reset email sent to {}", toEmail);
+            } else {
+                log.info("[SIMULATED EMAIL] Password reset email for {}: Link = [{}], Token = [{}]", toEmail, resetLink, rawToken);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to send password reset email to {}: {}", toEmail, e.getMessage());
+        }
+    }
 }

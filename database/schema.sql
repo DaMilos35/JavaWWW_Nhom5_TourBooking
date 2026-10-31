@@ -177,6 +177,24 @@ CREATE TABLE IF NOT EXISTS persistent_logins (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- TẠO BẢNG PASSWORD RESET TOKENS & OTP
+-- ============================================================
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT NOT NULL,
+    token_hash  VARCHAR(64) NOT NULL,
+    type        VARCHAR(20) NOT NULL,
+    target      VARCHAR(100) NULL,
+    expires_at  DATETIME NOT NULL,
+    attempts    INT NOT NULL DEFAULT 0,
+    is_used     TINYINT(1) NOT NULL DEFAULT 0,
+    created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_token_hash (token_hash),
+    INDEX idx_user_type (user_id, type),
+    CONSTRAINT fk_prt_user FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- SEED DATA - CATEGORIES (3 danh mục)
 -- ============================================================
 INSERT INTO Categories (category_name, description, image_url) VALUES

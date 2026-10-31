@@ -23,6 +23,7 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import MyOrdersPage from './pages/MyOrdersPage';
 import WishlistPage from './pages/WishlistPage';
@@ -94,6 +95,8 @@ function App() {
                 <Route path="/vnpay/return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
                 <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />
                 <Route path="/register" element={<UserLayout><RegisterPage /></UserLayout>} />
+                <Route path="/forgot-password" element={<UserLayout><ForgotPasswordPage /></UserLayout>} />
+                <Route path="/reset-password" element={<UserLayout><ForgotPasswordPage /></UserLayout>} />
 
                 {/* Private User Routes */}
                 <Route path="/wishlist" element={<PrivateRoute><UserLayout><WishlistPage /></UserLayout></PrivateRoute>} />
