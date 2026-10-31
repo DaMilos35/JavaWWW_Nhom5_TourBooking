@@ -40,6 +40,8 @@ const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminOrderDetail = lazy(() => import('./pages/admin/AdminOrderDetail'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminB2B = lazy(() => import('./pages/admin/AdminB2B'));
+const AdminArchitectureGraph = lazy(() => import('./pages/admin/AdminArchitectureGraph'));
+const AdminDesignCanvas = lazy(() => import('./pages/admin/AdminDesignCanvas'));
 
 import './App.css';
 
@@ -120,6 +122,8 @@ function App() {
                   <Route path="orders/:id" element={<AdminOrderDetail />} />
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="b2b" element={<AdminB2B />} />
+                  <Route path="architecture" element={<AdminArchitectureGraph />} />
+                  <Route path="design-canvas" element={<AdminDesignCanvas />} />
                 </Route>
 
                 {/* Catch-all 404 Route: Prevents Blank Screens on Unmatched Paths */}

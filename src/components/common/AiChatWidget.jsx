@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FaHeadset, FaPaperPlane, FaTimes, FaStar, FaCompass } from 'react-icons/fa';
 import { aiApi } from '../../api/axiosConfig';
 import { realTourApi, removeVietnameseTones } from '../../api/realTourDataApi';
+import { context7Engine } from '../../utils/context7Engine';
+import { travelReachEngine } from '../../utils/travelReachEngine';
 import FallbackImage from './FallbackImage';
 import './AiChatWidget.css';
 
@@ -79,14 +81,25 @@ const AiChatWidget = () => {
       };
       setMessages(prev => [...prev, botMsg]);
     } catch {
-      // Smart client-side fallback supporting unaccented text & common typos
+      // Smart client-side fallback supporting unaccented text, Context7 policy grounding & Agent-Reach intelligence
       try {
         const searchRes = await realTourApi.search(textToSend);
         const matches = (searchRes.data || []).slice(0, 3);
         const unaccented = removeVietnameseTones(textToSend);
 
+        // 1. Kiểm tra Context7 Grounding (Chính sách hoàn hủy, cọc 30%, B2B, trẻ em, E-ticket)
+        const relevantPolicy = context7Engine.query(textToSend, 1)[0];
+        
+        // 2. Kiểm tra Agent-Reach Destination Ground Truth (Thời tiết, mùa đẹp, hành lý, văn hóa)
+        const destinationIntel = travelReachEngine.getDestinationIntelligence(textToSend);
+
         let replyIntro = 'Em xin gợi ý những hành trình phù hợp nhất với mong muốn của anh/chị:';
-        if (unaccented.includes('chau au') || unaccented.includes('phap') || unaccented.includes('thuy si') || unaccented.includes('italy') || unaccented.includes('rome') || unaccented.includes('paris')) {
+
+        if (relevantPolicy) {
+          replyIntro = `**[Thông Tin Chính Thống OTA - ${relevantPolicy.title}]**\n${relevantPolicy.content}\n\nDưới đây là một số hành trình nổi bật đang áp dụng chính sách này:`;
+        } else if (destinationIntel) {
+          replyIntro = `**[Tình Báo Điểm Đến: ${destinationIntel.name}]**\n• **Thời điểm lý tưởng:** ${destinationIntel.bestSeasons}\n• **Khí hậu & Thời tiết:** ${destinationIntel.weatherProfile}\n• **Lưu ý hành lý:** ${destinationIntel.luggageTips}\n• **Văn hóa bản địa:** ${destinationIntel.cultureTips}\n\nDu Lịch Việt trân trọng gửi đến anh/chị các tour chọn lọc đến ${destinationIntel.name}:`;
+        } else if (unaccented.includes('chau au') || unaccented.includes('phap') || unaccented.includes('thuy si') || unaccented.includes('italy') || unaccented.includes('rome') || unaccented.includes('paris')) {
           if (unaccented.includes('duoi 10') || unaccented.includes('10 trieu') || unaccented.includes('gia re') || unaccented.includes('sinh vien')) {
             replyIntro = 'Dạ về kế hoạch du lịch các nước Châu Âu cho 2 người, thông thường tour Châu Âu trọn gói dao động từ 55 - 75 triệu/khách (vé máy bay khứ hồi và visa Schengen đã khoảng 25 - 35 triệu/người). Với ngân sách khoảng 10 triệu cho 2 người, em xin phép gợi ý anh/chị tham khảo các tour nghỉ dưỡng biển đảo cao cấp (Phú Quốc, Nha Trang) hoặc tour Thái Lan trọn gói (6.990.000đ/khách), đồng thời có thể tham khảo thêm hành trình Châu Âu 4 nước bên dưới để lên kế hoạch trong tương lai nhé:';
           } else {

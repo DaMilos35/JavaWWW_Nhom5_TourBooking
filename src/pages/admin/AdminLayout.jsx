@@ -12,7 +12,9 @@ import {
   FaBell, 
   FaUserShield,
   FaHome,
-  FaBuilding
+  FaBuilding,
+  FaProjectDiagram,
+  FaPaintBrush
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { adminApi } from '../../api/axiosConfig';
@@ -65,6 +67,8 @@ const AdminLayout = () => {
     },
     { path: '/admin/users', name: 'Khách Hàng', icon: <FaUsers /> },
     { path: '/admin/b2b', name: 'B2B Doanh Nghiệp', icon: <FaBuilding /> },
+    { path: '/admin/architecture', name: 'Kiến Trúc & AST', icon: <FaProjectDiagram /> },
+    { path: '/admin/design-canvas', name: 'Replica Design', icon: <FaPaintBrush /> },
   ];
 
   const getInitial = (name) => name ? name.charAt(0).toUpperCase() : 'A';

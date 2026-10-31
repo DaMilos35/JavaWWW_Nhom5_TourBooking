@@ -296,6 +296,56 @@ assert(tourControllerCode.includes('/sync-real-data'), 'TourController exposes /
 const tourServiceCode = fs.readFileSync(path.resolve(__dirname, '../backend/src/main/java/vn/dulichviet/tourbooking/service/TourService.java'), 'utf8');
 assert(tourServiceCode.includes('syncRealTours'), 'TourService implements syncRealTours method');
 
+
+// -----------------------------------------------------------------------------
+// SUITE 7: 2026 AI Architecture, CodeGraph & Grounding Intelligence
+// (Understand-Anything, CodeGraph, REA, Agent-Reach, Replica, Context7)
+// -----------------------------------------------------------------------------
+console.log('\n======================================================');
+console.log('🔮 SUITE 7: 2026 AI Architecture, CodeGraph & Grounding Intelligence');
+console.log('======================================================');
+
+// 1. Context7 Grounding Store
+const context7Path = path.resolve(__dirname, '../src/utils/context7Engine.js');
+assert(fs.existsSync(context7Path), 'src/utils/context7Engine.js exists');
+const context7Code = fs.readFileSync(context7Path, 'utf8');
+assert(context7Code.includes('CONTEXT7_DOCS') && context7Code.includes('buildGroundingPrompt'), 'context7Engine defines CONTEXT7_DOCS and buildGroundingPrompt');
+assert(context7Code.includes('ctx-cancellation-policy') && context7Code.includes('ctx-deposit-preorder'), 'context7Engine indexes cancellation and 30% deposit policies');
+
+// 2. TravelReach & REA Partner Protocol Probe
+const travelReachPath = path.resolve(__dirname, '../src/utils/travelReachEngine.js');
+assert(fs.existsSync(travelReachPath), 'src/utils/travelReachEngine.js exists');
+const travelReachCode = fs.readFileSync(travelReachPath, 'utf8');
+assert(travelReachCode.includes('DESTINATION_GROUND_TRUTH') && travelReachCode.includes('probeProviderContractSLA'), 'travelReachEngine implements destination truth & REA SLA probes');
+assert(travelReachCode.includes('ha-long') && travelReachCode.includes('sa-pa') && travelReachCode.includes('phu-quoc'), 'travelReachEngine covers Ha Long, Sa Pa, Phu Quoc ground truth');
+
+// 3. CodeGraph AST Symbol Resolution & Blast Radius
+const codeGraphPath = path.resolve(__dirname, '../src/utils/codeGraphEngine.js');
+assert(fs.existsSync(codeGraphPath), 'src/utils/codeGraphEngine.js exists');
+const codeGraphCode = fs.readFileSync(codeGraphPath, 'utf8');
+assert(codeGraphCode.includes('OTA_DOMAINS') && codeGraphCode.includes('getImpactAnalysis'), 'codeGraphEngine exports OTA_DOMAINS and getImpactAnalysis');
+assert(codeGraphCode.includes('domain-discovery') && codeGraphCode.includes('domain-booking') && codeGraphCode.includes('domain-fulfillment'), 'codeGraphEngine covers all 5 OTA core domains');
+
+// 4. Admin Architecture Knowledge Graph Page
+const archGraphPath = path.resolve(__dirname, '../src/pages/admin/AdminArchitectureGraph.jsx');
+assert(fs.existsSync(archGraphPath), 'src/pages/admin/AdminArchitectureGraph.jsx exists');
+const archGraphCode = fs.readFileSync(archGraphPath, 'utf8');
+assert(archGraphCode.includes('ARCHITECTURE KNOWLEDGE GRAPH') && archGraphCode.includes('REA_PROBE'), 'AdminArchitectureGraph implements visual graph & REA probe tab');
+
+// 5. Admin Replica Design System Canvas Page
+const replicaPath = path.resolve(__dirname, '../src/pages/admin/AdminDesignCanvas.jsx');
+assert(fs.existsSync(replicaPath), 'src/pages/admin/AdminDesignCanvas.jsx exists');
+const replicaCode = fs.readFileSync(replicaPath, 'utf8');
+assert(replicaCode.includes('REPLICA DESIGN SYSTEM CANVAS') && replicaCode.includes('comp-dual-filter'), 'AdminDesignCanvas implements live interactive component prototyping');
+
+// 6. App Routing & Navigation
+const appJsxCode = fs.readFileSync(path.resolve(__dirname, '../src/App.jsx'), 'utf8');
+assert(appJsxCode.includes('architecture') && appJsxCode.includes('design-canvas'), 'App.jsx registers /admin/architecture and /admin/design-canvas routes');
+
+// 7. AiChatWidget Grounding Integration
+const aiChatCode = fs.readFileSync(path.resolve(__dirname, '../src/components/common/AiChatWidget.jsx'), 'utf8');
+assert(aiChatCode.includes('context7Engine') && aiChatCode.includes('travelReachEngine'), 'AiChatWidget integrates Context7 and TravelReach grounding engines');
+
 // -----------------------------------------------------------------------------
 // SUMMARY
 // -----------------------------------------------------------------------------
