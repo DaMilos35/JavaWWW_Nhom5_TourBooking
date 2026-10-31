@@ -169,8 +169,8 @@ const TourCard = ({ tour }) => {
                 <FaHotel className="tc-chip-icon" /> <span>KS {hotelStar} sao</span>
               </span>
             )}
-            <span className="tc-amenity-chip chip-location" title={`Khởi hành từ ${tour.departureLocation || 'Việt Nam'}`}>
-              <FaMapMarkerAlt className="tc-chip-icon" /> <span>{locationText}</span>
+            <span className="tc-amenity-chip chip-location" title={`Điểm đón / Khởi hành từ: ${tour.departureLocation || 'Việt Nam'}`}>
+              <FaMapMarkerAlt className="tc-chip-icon" /> <span>Đón: {locationText}</span>
             </span>
           </div>
 

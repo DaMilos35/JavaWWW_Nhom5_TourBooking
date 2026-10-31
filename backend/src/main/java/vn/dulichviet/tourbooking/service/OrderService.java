@@ -219,8 +219,8 @@ public class OrderService {
             BigDecimal remAmt = total.subtract(depAmt);
             order.setDepositAmount(depAmt);
             order.setRemainingAmount(remAmt);
-            order.setStatus("DEPOSITED");
-            order.setPaymentStatus("PARTIALLY_PAID");
+            order.setStatus("PENDING");
+            order.setPaymentStatus("UNPAID");
 
             java.time.LocalDate earliestDate = null;
             for (OrderDetail d : order.getDetails()) {
@@ -279,9 +279,11 @@ public class OrderService {
             throw new ApiException(400, "Chuyến đi đã hoàn thành, không thể hủy đơn hàng này");
         }
 
-        // Kiểm tra xem đơn hàng đã được thanh toán và Admin xác nhận hay chưa
+        // Kiểm tra xem đơn hàng đã được thanh toán (toàn bộ hoặc đặt cọc) hay chưa
         boolean isPaid = "PAID".equalsIgnoreCase(order.getPaymentStatus())
-                || "CONFIRMED".equalsIgnoreCase(order.getStatus());
+                || "CONFIRMED".equalsIgnoreCase(order.getStatus())
+                || "PARTIALLY_PAID".equalsIgnoreCase(order.getPaymentStatus())
+                || "DEPOSITED".equalsIgnoreCase(order.getStatus());
 
         if (!isPaid) {
             // KHÁCH HÀNG HỦY ĐƠN KHI CHƯA THANH TOÁN: Miễn phí 100%, không mất chi phí nào cả
@@ -302,6 +304,15 @@ public class OrderService {
             String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
             order.setNotes((cancelTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
 
+            // Hoàn lại điểm thưởng tích lũy nếu có sử dụng trong đơn hàng
+            if (order.getPointsUsed() != null && order.getPointsUsed() > 0) {
+                User customer = order.getUser();
+                if (customer != null) {
+                    customer.setLoyaltyPoints((customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0) + order.getPointsUsed());
+                    userRepository.save(customer);
+                }
+            }
+
             // Hoàn lại số ghế trống khả dụng cho các Tour trong đơn hàng
             for (OrderDetail detail : order.getDetails()) {
                 Tour tour = detail.getTour();
@@ -314,10 +325,8 @@ public class OrderService {
             return OrderDto.from(orderRepository.save(order));
         }
 
-        // TRƯỜNG HỢP ĐƠN ĐÃ THANH TOÁN: Áp dụng Chính sách đặt, đổi và hoàn hủy tour:
-        // 1. Hủy tour trước 7 ngày: Hoàn trả 100% số tiền (Phí đổi hủy 0%)
-        // 2. Hủy tour từ 3 - 6 ngày: Phí đổi hủy 30% giá tour (Hoàn trả 70%)
-        // 3. Hủy tour trong vòng 48h trước giờ khởi hành: Phí đổi hủy 70% giá tour (Hoàn trả 30%)
+        // TRƯỜNG HỢP ĐƠN ĐÃ THANH TOÁN (TOÀN BỘ HOẶC ĐẶT CỌC):
+        // 1. BẢO VỆ INVARIANT KHỞI HÀNH: Không cho phép hủy tour vào ngày hoặc sau ngày khởi hành
         java.time.LocalDate earliestDeparture = null;
         for (OrderDetail detail : order.getDetails()) {
             if (detail.getTour() != null && detail.getTour().getStartDate() != null) {
@@ -327,28 +336,52 @@ public class OrderService {
             }
         }
 
-        int penaltyPercent = 3; // Mặc định phí xử lý tối thiểu 3% nếu không có ngày khởi hành cụ thể
+        if (earliestDeparture != null && !earliestDeparture.isAfter(java.time.LocalDate.now())) {
+            throw new ApiException(400, "Không thể hủy tour trong ngày khởi hành hoặc chuyến đi đã diễn ra trong quá khứ");
+        }
+
+        // 2. TÍNH TOÁN DỰA TRÊN SỐ TIỀN THỰC TẾ KHÁCH ĐÃ ĐÓNG (paidAmount)
+        boolean isPartiallyPaid = "PARTIALLY_PAID".equalsIgnoreCase(order.getPaymentStatus())
+                || "DEPOSITED".equalsIgnoreCase(order.getStatus());
+        BigDecimal paidAmount = isPartiallyPaid
+                ? (order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO)
+                : order.getTotalAmount();
+
+        // Áp dụng Chính sách đặt, đổi và hoàn hủy tour:
+        // 1. Hủy tour trước 7 ngày: Hoàn trả 100% số tiền đã đóng (Phí 0%)
+        // 2. Hủy tour từ 3 - 6 ngày: Phí đổi hủy 30% số tiền đã đóng (Hoàn trả 70%)
+        // 3. Hủy tour trong vòng 48h trước giờ khởi hành: Phí đổi hủy 70% số tiền đã đóng (Hoàn trả 30%)
+        int penaltyPercent = 3; // Mặc định phí tối thiểu 3% nếu không có ngày cụ thể
         if (earliestDeparture != null) {
             long daysUntilDeparture = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), earliestDeparture);
             if (daysUntilDeparture >= 7) {
-                penaltyPercent = 0; // Hủy trước 7 ngày: Hoàn 100% số tiền (phí 0%)
+                penaltyPercent = 0; // Hủy trước 7 ngày: Hoàn 100%
             } else if (daysUntilDeparture >= 3) {
-                penaltyPercent = 30; // Hủy từ 3 - 6 ngày: Phí 30% giá tour
+                penaltyPercent = 30; // Hủy từ 3 - 6 ngày: Phí 30%
             } else {
-                penaltyPercent = 70; // Hủy trong vòng 48h trước giờ khởi hành: Phí 70% giá tour
+                penaltyPercent = 70; // Hủy cận ngày (< 3 ngày): Phí 70%
             }
         }
 
-        BigDecimal fee = order.getTotalAmount()
+        BigDecimal fee = paidAmount
                 .multiply(BigDecimal.valueOf(penaltyPercent))
                 .divide(BigDecimal.valueOf(100), 0, java.math.RoundingMode.HALF_UP);
-        BigDecimal refund = order.getTotalAmount().subtract(fee);
+        BigDecimal refund = paidAmount.subtract(fee);
 
         order.setCancellationFeePercent(penaltyPercent);
         order.setCancellationFee(fee);
         order.setRefundAmount(refund);
         order.setPaymentStatus("REFUND_PENDING"); // Đang chờ Admin chuyển khoản hoàn trả
         order.setStatus("CANCELLED");
+
+        // 3. HOÀN LẠI ĐIỂM THƯỞNG TÍCH LŨY (LOYALTY POINTS ROLLBACK)
+        if (order.getPointsUsed() != null && order.getPointsUsed() > 0) {
+            User customer = order.getUser();
+            if (customer != null) {
+                customer.setLoyaltyPoints((customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0) + order.getPointsUsed());
+                userRepository.save(customer);
+            }
+        }
 
         if (request != null) {
             order.setRefundBankName(request.refundBankName());
@@ -378,7 +411,9 @@ public class OrderService {
             }
         }
 
-        return OrderDto.from(orderRepository.save(order));
+        TourOrder savedOrder = orderRepository.save(order);
+        emailService.sendCancellationNotification(savedOrder, refund, order.getCancellationReason());
+        return OrderDto.from(savedOrder);
     }
 
     /** Khách hàng hoàn tất thanh toán (Xác nhận chuyển khoản / cổng thanh toán) */
@@ -396,19 +431,27 @@ public class OrderService {
         String method = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim() : "Chuyển khoản VietQR";
         String tx = (transactionCode != null && !transactionCode.isBlank()) ? transactionCode.trim() : ("TXN" + System.currentTimeMillis());
 
-        order.setStatus("CONFIRMED");
-        order.setPaymentStatus("PAID");
-        if ("DEPOSIT".equalsIgnoreCase(order.getPaymentType())) {
+        boolean isDepositOrder = "DEPOSIT".equalsIgnoreCase(order.getPaymentType());
+        BigDecimal amountPaidNow;
+        if (isDepositOrder) {
+            order.setStatus("DEPOSITED");
+            order.setPaymentStatus("PARTIALLY_PAID");
+            amountPaidNow = order.getDepositAmount() != null ? order.getDepositAmount() : order.getTotalAmount();
+        } else {
+            order.setStatus("CONFIRMED");
+            order.setPaymentStatus("PAID");
             order.setRemainingAmount(BigDecimal.ZERO);
+            amountPaidNow = order.getTotalAmount();
         }
-        String paymentTag = String.format("[Đã thanh toán qua %s - Mã GD: %s]", method, tx);
+        String paymentTag = String.format("[Đã thanh toán %s qua %s - Mã GD: %s]", 
+                isDepositOrder ? "đặt cọc 30%" : "trọn gói", method, tx);
         String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
         order.setNotes((paymentTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
 
         TourOrder saved = orderRepository.save(order);
 
-        // Tích điểm thưởng & tự động thăng hạng hội viên cho người dùng
-        updateUserLoyalty(order.getUser(), order.getTotalAmount());
+        // Tích điểm thưởng & tự động thăng hạng hội viên theo số tiền thực tế vừa thanh toán
+        updateUserLoyalty(order.getUser(), amountPaidNow);
 
         emailService.sendOrderConfirmation(saved);
         return OrderDto.from(saved);
@@ -439,8 +482,11 @@ public class OrderService {
 
         TourOrder saved = orderRepository.save(order);
 
-        // Tích điểm & thăng hạng
-        updateUserLoyalty(order.getUser(), order.getTotalAmount());
+        // Tích điểm & thăng hạng cho phần còn lại thực tế vừa thanh toán (70%)
+        BigDecimal remainingSettled = order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0
+                ? order.getRemainingAmount()
+                : order.getTotalAmount().subtract(order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO);
+        updateUserLoyalty(order.getUser(), remainingSettled);
 
         emailService.sendOrderConfirmation(saved);
         return OrderDto.from(saved);
@@ -635,6 +681,18 @@ public class OrderService {
                 .map(d -> d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalAmount(newTotal);
+
+        if ("DEPOSIT".equalsIgnoreCase(order.getPaymentType())) {
+            int depPercent = (order.getDepositPercent() != null && order.getDepositPercent() > 0) ? order.getDepositPercent() : 30;
+            BigDecimal depAmt = newTotal.multiply(BigDecimal.valueOf(depPercent))
+                    .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+            BigDecimal remAmt = newTotal.subtract(depAmt);
+            order.setDepositAmount(depAmt);
+            order.setRemainingAmount(remAmt);
+        } else {
+            order.setDepositAmount(newTotal);
+            order.setRemainingAmount(BigDecimal.ZERO);
+        }
 
         return OrderDto.from(orderRepository.save(order));
     }

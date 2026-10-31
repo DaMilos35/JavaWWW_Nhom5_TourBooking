@@ -16,6 +16,8 @@ const DEPARTURE_OPTIONS = [
   { value: 'TP. Hồ Chí Minh', label: 'TP. Hồ Chí Minh', shortLabel: 'TP. Hồ Chí Minh', icon: '🏙️' },
   { value: 'Hà Nội', label: 'Hà Nội', shortLabel: 'Hà Nội', icon: '🏛️' },
   { value: 'Đà Nẵng', label: 'Đà Nẵng', shortLabel: 'Đà Nẵng', icon: '🌉' },
+  { value: 'Quy Nhơn', label: 'Quy Nhơn', shortLabel: 'Quy Nhơn', icon: '🏖️' },
+  { value: 'Quảng Bình', label: 'Quảng Bình', shortLabel: 'Quảng Bình', icon: '🏔️' },
   { value: 'Cần Thơ', label: 'Cần Thơ', shortLabel: 'Cần Thơ', icon: '🛶' }
 ];
 

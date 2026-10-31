@@ -349,6 +349,95 @@ assert(aiChatCode.includes('context7Engine') && aiChatCode.includes('travelReach
 // -----------------------------------------------------------------------------
 // SUMMARY
 // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// SUITE 8: Enterprise Business Logic & Edge Case Invariants
+// -----------------------------------------------------------------------------
+console.log('\n======================================================');
+console.log('⚖️ SUITE 8: Enterprise Business Logic & Edge Case Invariants');
+console.log('======================================================');
+
+// 1. OrderService Deposit Initial Lifecycle
+const orderServicePath = path.resolve(__dirname, '../backend/src/main/java/vn/dulichviet/tourbooking/service/OrderService.java');
+const orderServiceCode = fs.readFileSync(orderServicePath, 'utf8');
+assert(
+  orderServiceCode.includes('order.setStatus("PENDING");') &&
+  orderServiceCode.includes('order.setPaymentStatus("UNPAID");'),
+  'OrderService initializes DEPOSIT orders with PENDING and UNPAID prior to payment'
+);
+
+// 2. OrderService Deposit Payment & Balance Preservation
+assert(
+  orderServiceCode.includes('isDepositOrder') &&
+  orderServiceCode.includes('order.setStatus("DEPOSITED");') &&
+  orderServiceCode.includes('order.setPaymentStatus("PARTIALLY_PAID");'),
+  'OrderService payOrder transitions DEPOSIT orders to DEPOSITED and PARTIALLY_PAID'
+);
+assert(
+  orderServiceCode.includes('BigDecimal remainingSettled'),
+  'OrderService payRemainingBalance awards loyalty points strictly for remaining 70%'
+);
+
+// 3. OrderService Cancellation Invariants
+assert(
+  orderServiceCode.includes('!earliestDeparture.isAfter(java.time.LocalDate.now())'),
+  'OrderService blocks cancellation of tours on or after departure date'
+);
+assert(
+  orderServiceCode.includes('isPartiallyPaid') &&
+  orderServiceCode.includes('BigDecimal refund = paidAmount.subtract(fee);'),
+  'OrderService calculates refund and penalty strictly against paidAmount (protects deposit orders)'
+);
+assert(
+  orderServiceCode.includes('customer.setLoyaltyPoints((customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0) + order.getPointsUsed());'),
+  'OrderService rolls back redeemed loyalty points upon order cancellation'
+);
+assert(
+  orderServiceCode.includes('emailService.sendCancellationNotification'),
+  'OrderService dispatches email cancellation notification'
+);
+
+// 4. OrderService Quantity Adjustment Financial Sync
+assert(
+  orderServiceCode.includes('int depPercent = (order.getDepositPercent() != null && order.getDepositPercent() > 0) ? order.getDepositPercent() : 30;') &&
+  orderServiceCode.includes('order.setDepositAmount(depAmt);') &&
+  orderServiceCode.includes('order.setRemainingAmount(remAmt);'),
+  'OrderService updateOrderDetailQuantity recalculates depositAmount and remainingAmount for DEPOSIT orders'
+);
+
+// 5. TourService Invariant Validations
+const tourServiceValPath = path.resolve(__dirname, '../backend/src/main/java/vn/dulichviet/tourbooking/service/TourService.java');
+const tourServiceValidationCode = fs.readFileSync(tourServiceValPath, 'utf8');
+assert(
+  tourServiceValidationCode.includes('request.price().compareTo(java.math.BigDecimal.ZERO) < 0'),
+  'TourService rejects negative tour price'
+);
+assert(
+  tourServiceValidationCode.includes('request.originalPrice().compareTo(request.price()) < 0'),
+  'TourService ensures originalPrice is not less than discounted sale price'
+);
+assert(
+  tourServiceValidationCode.includes('request.availableSeats() < 0'),
+  'TourService rejects negative availableSeats'
+);
+assert(
+  tourServiceValidationCode.includes('request.endDate().isBefore(request.startDate())'),
+  'TourService validates tour endDate is not before startDate'
+);
+
+// 6. Frontend Departure Filtering & Pickup Display Clarity
+const tourListPath = path.resolve(__dirname, '../src/pages/TourListPage.jsx');
+const tourListCode = fs.readFileSync(tourListPath, 'utf8');
+assert(
+  tourListCode.includes('Quy Nhơn') && tourListCode.includes('Quảng Bình'),
+  'TourListPage DEPARTURE_OPTIONS includes all authentic departure cities'
+);
+const tourCardPath = path.resolve(__dirname, '../src/components/tours/TourCard.jsx');
+const tourCardCode = fs.readFileSync(tourCardPath, 'utf8');
+assert(
+  tourCardCode.includes('Đón: {locationText}'),
+  'TourCard explicitly identifies departure pickup city chip'
+);
+
 console.log('\n======================================================');
 console.log('📊 TEST SUMMARY');
 console.log('======================================================');

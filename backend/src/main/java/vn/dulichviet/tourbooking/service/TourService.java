@@ -238,6 +238,22 @@ public class TourService {
     }
 
     private void mapToEntity(TourRequest request, Tour tour) {
+        if (request.price() == null || request.price().compareTo(java.math.BigDecimal.ZERO) < 0) {
+            throw new ApiException(400, "Giá tour không được để trống và phải lớn hơn hoặc bằng 0");
+        }
+        if (request.originalPrice() != null && request.originalPrice().compareTo(request.price()) < 0) {
+            throw new ApiException(400, "Giá gốc không được nhỏ hơn giá bán khuyến mãi");
+        }
+        if (request.availableSeats() == null || request.availableSeats() < 0) {
+            throw new ApiException(400, "Số lượng chỗ trống không được nhỏ hơn 0");
+        }
+        if (request.duration() != null && request.duration() < 1) {
+            throw new ApiException(400, "Thời lượng tour phải từ 1 ngày trở lên");
+        }
+        if (request.startDate() != null && request.endDate() != null && request.endDate().isBefore(request.startDate())) {
+            throw new ApiException(400, "Ngày kết thúc không thể trước ngày bắt đầu khởi hành");
+        }
+
         tour.setName(request.name());
         tour.setDescription(request.description());
         tour.setPrice(request.price());
