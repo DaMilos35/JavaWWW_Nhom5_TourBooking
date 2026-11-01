@@ -39,6 +39,19 @@ public class AuthService {
      * Gửi mã xác thực OTP 6 số qua Gmail để kích hoạt đăng ký
      */
     public Map<String, String> sendOtp(String email) {
+        return sendOtp(email, null);
+    }
+
+    public Map<String, String> sendOtp(String email, String username) {
+        if (username != null && !username.trim().isBlank()) {
+            String cleanUsername = username.trim();
+            if (cleanUsername.length() < 3) {
+                throw new ApiException(400, "Tên đăng nhập phải có ít nhất 3 ký tự.");
+            }
+            if (userRepository.existsByUsername(cleanUsername)) {
+                throw new ApiException(400, "Tên đăng nhập '" + cleanUsername + "' đã có người sử dụng. Vui lòng chọn tên khác.");
+            }
+        }
         if (email == null || email.trim().isBlank()) {
             throw new ApiException(400, "Vui lòng nhập địa chỉ email hợp lệ.");
         }
@@ -48,8 +61,8 @@ public class AuthService {
         }
 
         // Kiểm tra xem email đã được đăng ký tài khoản trước đó hay chưa
-        if (userRepository.existsByUsernameOrEmailIgnoreCase(null, cleanEmail)) {
-            throw new ApiException(400, "Email này đã được sử dụng bởi một tài khoản khác.");
+        if (userRepository.findFirstByEmailIgnoreCase(cleanEmail).isPresent()) {
+            throw new ApiException(400, "Địa chỉ email '" + cleanEmail + "' đã được sử dụng bởi một tài khoản khác.");
         }
 
         // Sinh mã OTP ngẫu nhiên 6 chữ số an toàn
@@ -75,8 +88,17 @@ public class AuthService {
         if (username.isBlank() || email.isBlank() || password.length() < 6) {
             throw new ApiException(400, "Vui lòng nhập tên đăng nhập, email và mật khẩu tối thiểu 6 ký tự.");
         }
-        if (userRepository.existsByUsernameOrEmailIgnoreCase(username, email)) {
-            throw new ApiException(400, "Tên đăng nhập hoặc email đã tồn tại.");
+        if (userRepository.existsByUsername(username)) {
+            throw new ApiException(400, "Tên đăng nhập '" + username + "' đã được sử dụng. Vui lòng chọn tên khác.");
+        }
+        if (userRepository.findFirstByEmailIgnoreCase(email).isPresent()) {
+            throw new ApiException(400, "Địa chỉ email '" + email + "' đã được sử dụng bởi một tài khoản khác.");
+        }
+        if (request.phone() != null && !request.phone().trim().isBlank()) {
+            String cleanPhone = request.phone().trim().replaceAll("\\s+", "");
+            if (userRepository.findFirstByPhone(cleanPhone).isPresent()) {
+                throw new ApiException(400, "Số điện thoại '" + cleanPhone + "' đã được đăng ký tài khoản khác.");
+            }
         }
 
         // Xác thực mã OTP nếu người dùng cung cấp hoặc nếu hệ thống yêu cầu

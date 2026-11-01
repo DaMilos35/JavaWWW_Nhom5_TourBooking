@@ -1219,51 +1219,52 @@
 }
 
 .schedule-pills-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
 .schedule-pill-card {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
   justify-content: space-between;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 8px 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 56px;
 }
 
 .schedule-pill-card:hover {
-  border-color: #0194f3;
-  background: #f0f9ff;
+  border-color: #0284c7;
+  background: #f8fafc;
 }
 
 .schedule-pill-card.active {
-  border-color: #0194f3;
+  border-color: #0284c7;
   background: #f0f9ff;
-  box-shadow: 0 0 0 2px rgba(1, 148, 243, 0.2);
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
 }
 
 .schedule-pill-left {
   display: flex;
-  align-items: baseline;
-  gap: 5px;
-  width: 100%;
+  align-items: center;
+  gap: 8px;
 }
 
 .schedule-pill-dow {
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .schedule-pill-date {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #0f172a;
 }
@@ -1271,9 +1272,31 @@
 .schedule-pill-right {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 4px;
+  gap: 8px;
+}
+
+.schedule-seats-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.schedule-seats-badge.badge-urgent {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.schedule-seats-badge.badge-ok {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.schedule-pill-price {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ff5e1f;
 }
 
 .schedule-seats-badge {
@@ -2325,8 +2348,14 @@
 }
 
 /* ==========================================================================
-   Floating Bottom Quick-Booking Bar (Guarantees 1-Click Access)
+   Floating Bottom Quick-Booking Bar (Guarantees 1-Click Access on mobile/tablets)
    ========================================================================== */
+@media (min-width: 993px) {
+  .td-floating-bottom-bar {
+    display: none !important;
+  }
+}
+
 .td-floating-bottom-bar {
   position: fixed;
   bottom: 0;

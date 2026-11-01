@@ -30,7 +30,8 @@ public class AuthController {
     @PostMapping("/send-otp")
     public ResponseEntity<Map<String, String>> sendOtp(@RequestBody Map<String, String> body) {
         String email = body != null ? body.get("email") : null;
-        return ResponseEntity.ok(authService.sendOtp(email));
+        String username = body != null ? body.get("username") : null;
+        return ResponseEntity.ok(authService.sendOtp(email, username));
     }
 
     @PostMapping("/register")

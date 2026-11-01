@@ -31,7 +31,7 @@ const RegisterPage = () => {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,25 +64,45 @@ const RegisterPage = () => {
     }
   };
 
-  // Bước 1: Yêu cầu mã OTP qua Gmail
+  // Bước 1: Kiểm tra tính hợp lệ & Yêu cầu mã OTP qua Gmail
   const handleRequestOtp = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Mật khẩu xác nhận không khớp!');
+    if (!formData.fullName.trim()) {
+      toast.error('Vui lòng nhập họ và tên của bạn!');
+      return;
+    }
+    const cleanUsername = formData.username.trim();
+    if (!cleanUsername || cleanUsername.length < 3) {
+      toast.error('Tên đăng nhập phải có ít nhất 3 ký tự!');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUsername)) {
+      toast.error('Tên đăng nhập chỉ được chứa chữ cái, chữ số, dấu gạch dưới hoặc dấu chấm!');
+      return;
+    }
+    if (formData.phone && !/^(0|\+84)[0-9]{9,10}$/.test(formData.phone.trim().replace(/\s/g, ''))) {
+      toast.error('Số điện thoại không hợp lệ (cần 10 chữ số, ví dụ: 0912345678)!');
+      return;
+    }
+    if (!formData.email || !/^[A-Za-z0-9+_.-]+@(.+)$/.test(formData.email.trim())) {
+      toast.error('Vui lòng nhập địa chỉ email hợp lệ (ví dụ: yourname@gmail.com)!');
       return;
     }
     if (formData.password.length < 6) {
       toast.error('Mật khẩu phải có ít nhất 6 ký tự!');
       return;
     }
-    if (!formData.email || !formData.email.includes('@')) {
-      toast.error('Vui lòng nhập địa chỉ email hợp lệ!');
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Mật khẩu xác nhận không khớp!');
       return;
     }
 
     setSendingOtp(true);
     try {
-      const res = await authApi.sendOtp(formData.email.trim());
+      const res = await authApi.sendOtp({
+        email: formData.email.trim(),
+        username: cleanUsername
+      });
       toast.success(res.data?.message || 'Mã OTP đã được gửi về Gmail của bạn!');
       if (res.data?.simulatedOtp) {
         setSimulatedOtp(res.data.simulatedOtp);
@@ -104,7 +124,10 @@ const RegisterPage = () => {
     if (countdown > 0 || sendingOtp) return;
     setSendingOtp(true);
     try {
-      const res = await authApi.sendOtp(formData.email.trim());
+      const res = await authApi.sendOtp({
+        email: formData.email.trim(),
+        username: formData.username.trim()
+      });
       toast.success('Đã gửi lại mã xác thực OTP mới!');
       if (res.data?.simulatedOtp) {
         setSimulatedOtp(res.data.simulatedOtp);
@@ -130,7 +153,18 @@ const RegisterPage = () => {
       const submitData = { ...formData, otp: otp.trim() };
       delete submitData.confirmPassword;
       await authApi.register(submitData);
-      toast.success('Đăng ký tài khoản thành công! Email chào mừng đã được gửi tới Gmail của bạn.');
+      toast.success('Đăng ký tài khoản thành công! Đang tự động đăng nhập...');
+
+      // Tự động đăng nhập luôn để khách không phải gõ lại
+      try {
+        const loginRes = await login({ username: formData.username.trim(), password: formData.password });
+        if (loginRes.success) {
+          navigate('/');
+          return;
+        }
+      } catch (_) {
+        // Fallback chuyển về login nếu cần
+      }
       navigate('/login');
     } catch (error) {
       const msg = error.response?.data?.message 
