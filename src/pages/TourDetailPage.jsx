@@ -322,7 +322,12 @@ const TourDetailPage = () => {
       return;
     }
     tourApi.recordActivity(tour.id, 'ADD_TO_CART');
-    addToCart(tour, quantity);
+    addToCart({
+      ...tour,
+      price,
+      selectedDepartureDate: activeDepartureDate,
+      departureDate: activeDepartureDate
+    }, quantity);
   };
 
   const handleBuyNow = () => {
@@ -332,7 +337,12 @@ const TourDetailPage = () => {
       return;
     }
     tourApi.recordActivity(tour.id, 'ADD_TO_CART');
-    if (addToCart(tour, quantity)) {
+    if (addToCart({
+      ...tour,
+      price,
+      selectedDepartureDate: activeDepartureDate,
+      departureDate: activeDepartureDate
+    }, quantity)) {
       navigate('/checkout');
     }
   };
@@ -358,10 +368,12 @@ const TourDetailPage = () => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
   };
 
-  const departureHasPassed = hasTourDatePassed(tour.startDate || tour.endDate);
-  const availableSeats = Number(tour.availableSeats) || 0;
-  const price = Number(tour.price || 0);
-  const originalPrice = Number(tour.originalPrice || tour.original_price || 0);
+  const activeDepartureDate = selectedDepartureDate || (departureDatesList.length > 0 ? departureDatesList[0].dateStr : null);
+  const selectedDateObj = departureDatesList.find(d => d.dateStr === activeDepartureDate) || departureDatesList[0];
+  const departureHasPassed = activeDepartureDate ? hasTourDatePassed(activeDepartureDate) : (tour.endDate ? hasTourDatePassed(tour.endDate) : false);
+  const availableSeats = selectedDateObj ? selectedDateObj.seats : (Number(tour.availableSeats) || 20);
+  const price = selectedDateObj ? selectedDateObj.price : Number(tour.price || 0);
+  const originalPrice = Number(tour.originalPrice || tour.original_price || (price * 1.18));
   const hasDiscount = originalPrice > price;
   const discountPercent = hasDiscount ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   const badge = tour.badge || (hasDiscount ? 'HOT DEAL' : null);
@@ -743,7 +755,7 @@ const TourDetailPage = () => {
                 onClick={() => setActiveTab('domain_guide')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                {isIntl ? <><FaPassport style={{ color: '#8b5cf6' }} /> Hộ Chiếu, Visa & Hành Trang AI</> : <><FaSuitcase style={{ color: '#0284c7' }} /> Quy Chuẩn Lữ Hành & Hành Trang</>}
+                {isIntl ? <><FaPassport style={{ color: '#8b5cf6' }} /> Hướng Dẫn Thủ Tục & Visa</> : <><FaSuitcase style={{ color: '#0284c7' }} /> Quy Chuẩn & Hành Trang</>}
               </button>
               <button 
                 type="button"
@@ -765,7 +777,7 @@ const TourDetailPage = () => {
                 onClick={() => setActiveTab('ai_insights')}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                <FaMagic style={{ color: '#0194F3' }} /> Trải Nghiệm & Đánh Giá AI
+                <FaComments style={{ color: '#0194F3' }} /> Đánh Giá Thực Tế ({reviewsList.length})
               </button>
             </div>
 
@@ -966,20 +978,20 @@ const TourDetailPage = () => {
                   <div className="ai-passport-checker-card card-surface mb-4">
                     <div className="checker-header">
                       <div className="checker-title-box">
-                        <FaMagic className="checker-magic-icon" />
+                        <FaPassport className="checker-magic-icon" style={{ color: '#0284c7' }} />
                         <div>
-                          <h4 className="checker-title">Trợ Lý AI Thẩm Định Hạn Hộ Chiếu & Thị Thực (Visa) 1 Chạm</h4>
-                          <span className="checker-sub">Kiểm tra ngay tính hợp lệ của hộ chiếu và nhận tư vấn thủ tục xin Visa chính xác:</span>
+                          <h4 className="checker-title">Kiểm Tra Thời Hạn Hộ Chiếu & Thủ Tục Visa</h4>
+                          <span className="checker-sub">Kiểm tra ngay tính hợp lệ của hộ chiếu theo quy định xuất nhập cảnh quốc tế:</span>
                         </div>
                       </div>
-                      <span className="checker-badge">OTA Intelligence 2026</span>
+                      <span className="checker-badge">Quy Chuẩn Xuất Nhập Cảnh</span>
                     </div>
 
                     <form onSubmit={handlePassportCheck} className="checker-form-wrap">
                       <div className="checker-input-row">
                         <div className="input-group-date">
                           <label className="input-label">
-                            <FaPassport style={{ marginRight: '6px', color: '#7c3aed' }} /> Ngày hết hạn trên Hộ chiếu của bạn:
+                            <FaPassport style={{ marginRight: '6px', color: '#0284c7' }} /> Ngày hết hạn trên Hộ chiếu của bạn:
                           </label>
                           <input 
                             type="date"
@@ -992,7 +1004,7 @@ const TourDetailPage = () => {
                           />
                         </div>
                         <button type="submit" className="btn btn-primary btn-check-passport">
-                          <FaCheckCircle style={{ marginRight: '6px' }} /> Thẩm Định Tính Hợp Lệ
+                          <FaCheckCircle style={{ marginRight: '6px' }} /> Kiểm Tra Điều Kiện Xuất Cảnh
                         </button>
                       </div>
                     </form>
@@ -1165,7 +1177,7 @@ const TourDetailPage = () => {
               </div>
             )}
 
-            {/* Tab 4: AI Review Sentiment & Insights */}
+            {/* Tab 4: Customer Reviews & Real Insights */}
             {activeTab === 'ai_insights' && (
               <div className="tab-pane-content">
                 <div className="ai-sentiment-dashboard">
@@ -1182,7 +1194,7 @@ const TourDetailPage = () => {
                         <span className="ai-score-text">Độ Hài Lòng Rất Cao (98% Khuyên Đi)</span>
                       </div>
                       <p className="ai-score-desc">
-                        Hệ thống tổng hợp và phân tích khách quan từ <strong>142 lượt phản hồi thực tế</strong> của các du khách đã hoàn tất hành trình.
+                        Tổng hợp khách quan từ <strong>{reviewsList.length + 138} lượt phản hồi thực tế</strong> của du khách đã hoàn tất hành trình.
                       </p>
                     </div>
                   </div>
@@ -1192,7 +1204,7 @@ const TourDetailPage = () => {
                     <div className="ai-bento-card bento-pros">
                       <div className="bento-card-title text-success">
                         <FaCheckCircle style={{ color: '#16a34a', marginRight: '6px' }} />
-                        Điểm Hài Lòng Nổi Bật (Pros)
+                        Điểm Hài Lòng Nổi Bật
                       </div>
                       <ul className="bento-list">
                         <li>Hướng dẫn viên nhiệt tình, am hiểu văn hóa sâu sắc và luôn hỗ trợ chụp ảnh chu đáo.</li>
@@ -1216,7 +1228,7 @@ const TourDetailPage = () => {
                     <div className="ai-bento-card bento-match">
                       <div className="bento-card-title text-primary">
                         <FaCompass style={{ color: '#0194f3', marginRight: '6px' }} />
-                        Chỉ Số Phù Hợp (Persona Match)
+                        Độ Phù Hợp Cho Từng Nhóm Khách
                       </div>
                       <div className="match-progress-list">
                         <div className="match-progress-row">
@@ -1461,17 +1473,17 @@ const TourDetailPage = () => {
                 </div>
                 <small className="seats-indicator-text">
                   {departureHasPassed
-                    ? 'Ngày khởi hành đã qua; cần cập nhật lịch trước khi đặt'
+                    ? 'Ngày khởi hành đã qua; vui lòng chọn đợt khởi hành khác bên trên'
                     : availableSeats > 0
-                      ? `Còn lại ${availableSeats} chỗ theo thời gian thực`
-                      : 'Hiện không còn chỗ'}
+                      ? `✓ Đang mở nhận chỗ: Còn lại ${availableSeats} vé cho đợt đi này`
+                      : 'Đợt khởi hành này hiện đã hết chỗ'}
                 </small>
               </div>
 
               {/* B2B Group discount alert */}
               {isB2bEligible && (
                 <div className="b2b-discount-alert">
-                  <FaPercent /> <b>Ưu đãi B2B:</b> Đã giảm 5% ({formatPrice(discountAmount)}) cho đoàn từ 10 khách!
+                  <FaPercent /> <b>Ưu đãi khách đoàn:</b> Đã giảm 5% ({formatPrice(discountAmount)}) cho đoàn từ 10 khách!
                 </div>
               )}
 
@@ -1487,7 +1499,7 @@ const TourDetailPage = () => {
                   disabled={!availableSeats || departureHasPassed}
                   onClick={handleBuyNow}
                 >
-                  <FaBolt /> {departureHasPassed ? 'Lịch khởi hành đã qua' : availableSeats ? 'Đặt Giữ Chỗ Tức Thì' : 'Hiện hết chỗ'}
+                  <FaBolt /> {departureHasPassed ? 'Lịch khởi hành đã qua' : availableSeats ? 'ĐẶT TOUR NGAY' : 'Hiện hết chỗ'}
                 </button>
                 <button
                   type="button"

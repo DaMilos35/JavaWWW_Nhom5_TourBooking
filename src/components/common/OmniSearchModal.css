@@ -65,6 +65,7 @@
 
 .omni-input {
   flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   outline: none;
@@ -255,20 +256,27 @@
 /* Destinations Grid */
 .omni-grid-destinations {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .omni-grid-destinations {
+    grid-template-columns: 1fr;
+  }
 }
 
 .omni-dest-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  padding: 11px 14px;
   background: #f8fafc;
   border: 1px solid #f1f5f9;
-  border-radius: 10px;
+  border-radius: 12px;
   text-align: left;
   cursor: pointer;
+  min-width: 0;
   transition: all 0.15s ease;
 }
 
@@ -277,19 +285,28 @@
   border-color: #bae6fd;
 }
 
+.omni-dest-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .omni-dest-card strong {
   display: block;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .omni-dest-card small {
   display: block;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   color: #64748b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-top: 2px;
 }
 
 /* Price Cards Grid */

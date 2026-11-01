@@ -130,7 +130,14 @@ const CheckoutPage = () => {
   const [isPaidSuccess, setIsPaidSuccess] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
 
-  const hasExpiredTours = items.some(item => hasTourDatePassed(item?.tour?.startDate || item?.tour?.endDate));
+  const isItemPassed = (item) => {
+    const tour = item?.tour || {};
+    const chosenDate = tour.selectedDepartureDate || tour.departureDate;
+    if (chosenDate) return hasTourDatePassed(chosenDate);
+    return tour.endDate ? hasTourDatePassed(tour.endDate) : false;
+  };
+
+  const hasExpiredTours = items.some(isItemPassed);
 
   // Kiểm tra giỏ hàng trống
   useEffect(() => {

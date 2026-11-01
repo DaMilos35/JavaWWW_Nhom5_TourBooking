@@ -53,14 +53,31 @@ const AdminTours = () => {
     const newStatus = tour.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     try {
       await adminApi.updateTour(tour.id, {
-        ...tour,
-        categoryId: tour.categoryId || tour.category?.id || tour.category?.categoryId,
-        status: newStatus
+        categoryId: parseInt(tour.categoryId || tour.category?.id || tour.category?.categoryId || 1),
+        name: tour.name || tour.tourName || 'Tour Du Lịch',
+        description: tour.description || '',
+        price: parseFloat(tour.price || 1000000),
+        originalPrice: tour.originalPrice ? parseFloat(tour.originalPrice) : null,
+        duration: parseInt(tour.duration) || 1,
+        departureLocation: tour.departureLocation || 'TP. Hồ Chí Minh',
+        vehicle: tour.vehicle || 'Xe du lịch cao cấp',
+        hotelStar: parseInt(tour.hotelStar) || 3,
+        badge: tour.badge || null,
+        highlights: tour.highlights || null,
+        itinerary: tour.itinerary || null,
+        inclusions: tour.inclusions || null,
+        exclusions: tour.exclusions || null,
+        imageUrl: tour.imageUrl || '',
+        availableSeats: parseInt(tour.availableSeats) >= 0 ? parseInt(tour.availableSeats) : 20,
+        startDate: tour.startDate || null,
+        endDate: tour.endDate || null,
+        status: newStatus,
+        rating: parseFloat(tour.rating) || 5.0
       });
       toast.success(`Đã chuyển tour sang: ${newStatus === 'ACTIVE' ? 'Đang mở bán' : 'Tạm ẩn'}`);
       setTours(prev => prev.map(t => t.id === tour.id ? { ...t, status: newStatus } : t));
     } catch (error) {
-      toast.error('Lỗi khi cập nhật trạng thái tour');
+      toast.error(error.response?.data?.message || 'Lỗi khi cập nhật trạng thái tour');
     }
   };
 
@@ -74,7 +91,9 @@ const AdminTours = () => {
       (t.name || t.tourName || '').toLowerCase().includes(searchKeyword.toLowerCase()) ||
       (t.departureLocation || '').toLowerCase().includes(searchKeyword.toLowerCase());
     
-    const matchesCategory = filterCategory === 'ALL' || String(t.categoryId) === String(filterCategory);
+    const matchesCategory = filterCategory === 'ALL' || 
+      String(t.categoryId) === String(filterCategory) ||
+      (t.category && String(t.category.id || t.category.categoryId) === String(filterCategory));
     const matchesStatus = filterStatus === 'ALL' || t.status === filterStatus;
 
     return matchesKeyword && matchesCategory && matchesStatus;
@@ -195,7 +214,7 @@ const AdminTours = () => {
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <span style={{ background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 500 }}>
-                          {tour.category?.name || 'N/A'}
+                          {tour.categoryName || tour.category?.name || categories.find(c => String(c.id || c.categoryId) === String(tour.categoryId))?.name || 'Tất cả'}
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px', fontWeight: 700, color: '#e8400c' }}>

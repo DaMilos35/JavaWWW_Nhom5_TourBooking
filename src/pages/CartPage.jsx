@@ -7,11 +7,18 @@ import { useAuth } from '../context/AuthContext';
 import { hasTourDatePassed } from '../utils/tourDate';
 import './CartPage.css';
 
+const isItemPassed = (item) => {
+  const tour = item?.tour || {};
+  const chosenDate = tour.selectedDepartureDate || tour.departureDate;
+  if (chosenDate) return hasTourDatePassed(chosenDate);
+  return tour.endDate ? hasTourDatePassed(tour.endDate) : false;
+};
+
 const CartPage = () => {
   const { items, updateQuantity, removeFromCart, getTotal } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const hasExpiredTours = items.some((item) => hasTourDatePassed(item?.tour?.startDate || item?.tour?.endDate));
+  const hasExpiredTours = items.some(isItemPassed);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -57,7 +64,7 @@ const CartPage = () => {
                   {items.map((item) => {
                     const tour = item.tour || {};
                     const tourId = tour.id || tour.tourId || item.tourId;
-                    const isPassed = hasTourDatePassed(tour.startDate || tour.endDate);
+                    const isPassed = isItemPassed(item);
                     const seats = Number(tour.availableSeats || 99);
                     return (
                       <tr key={tourId || Math.random()}>

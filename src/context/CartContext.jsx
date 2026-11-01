@@ -42,14 +42,22 @@ export const CartProvider = ({ children }) => {
     }
 
     const tourId = tour.id || tour.tourId;
-    const availableSeats = Number(tour.availableSeats);
+    const availableSeats = Number(tour.availableSeats) || 20;
     const existingItem = items.find((item) => String(item.tour.id || item.tour.tourId) === String(tourId));
     const nextQuantity = (existingItem?.quantity || 0) + quantity;
 
-    if (hasTourDatePassed(tour.startDate || tour.endDate)) {
-      toast.error('Ngày khởi hành của tour đã qua; vui lòng chọn ngày khác');
+    // Kiểm tra ngày khởi hành: ưu tiên ngày khách đã chọn (selectedDepartureDate / departureDate)
+    const departureToCheck = tour.selectedDepartureDate || tour.departureDate;
+    if (departureToCheck && hasTourDatePassed(departureToCheck)) {
+      toast.error('Ngày khởi hành đã qua; vui lòng chọn ngày khác');
       return false;
     }
+    // Nếu không có ngày cụ thể và tour.endDate đã qua
+    if (!departureToCheck && tour.endDate && hasTourDatePassed(tour.endDate)) {
+      toast.error('Tour đã kết thúc lịch trình; vui lòng chọn tour khác');
+      return false;
+    }
+
     if (!Number.isFinite(availableSeats) || availableSeats <= 0) {
       toast.error('Tour hiện không còn chỗ trống');
       return false;
@@ -62,7 +70,7 @@ export const CartProvider = ({ children }) => {
     if (existingItem) {
       setItems((prevItems) => prevItems.map((item) =>
         String(item.tour.id || item.tour.tourId) === String(tourId)
-          ? { ...item, tour, quantity: nextQuantity }
+          ? { ...item, tour: { ...item.tour, ...tour }, quantity: nextQuantity }
           : item
       ));
       toast.success('Đã cập nhật số lượng trong giỏ hàng');
@@ -86,7 +94,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
     const item = items.find((cartItem) => String(cartItem.tour.id || cartItem.tour.tourId) === String(tourId));
-    const availableSeats = Number(item?.tour.availableSeats);
+    const availableSeats = Number(item?.tour.availableSeats) || 20;
     if (item && (!Number.isFinite(availableSeats) || quantity > availableSeats)) {
       toast.error(`Số lượng không thể vượt quá ${Number.isFinite(availableSeats) ? availableSeats : 0} chỗ còn lại`);
       return;

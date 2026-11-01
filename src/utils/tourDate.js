@@ -1,6 +1,18 @@
 const parseTourDate = (value) => {
   if (!value) return null;
-  const datePart = String(value).slice(0, 10);
+  const str = String(value).trim();
+
+  // Hỗ trợ định dạng DD/MM/YYYY (ví dụ: 10/11/2026)
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+    const [day, month, year] = str.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+    if (date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day) {
+      return date;
+    }
+    return null;
+  }
+
+  const datePart = str.slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return null;
 
   const [year, month, day] = datePart.split('-').map(Number);

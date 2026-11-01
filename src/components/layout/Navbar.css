@@ -58,10 +58,14 @@
   font-weight: 600; 
   color: #4b5259;
   text-decoration: none;
-  padding: 7px 16px;
+  padding: 7px 14px;
   border-radius: 9999px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-size: 0.9rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-links a:hover { 
@@ -78,7 +82,8 @@
 .nav-right { 
   display: flex; 
   align-items: center; 
-  gap: 12px; 
+  gap: 10px; 
+  flex-shrink: 0;
 }
 
 /* OmniSearch Spotlight Button (2026 UX) */
@@ -94,6 +99,8 @@
   cursor: pointer;
   font-size: 0.82rem;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -121,6 +128,29 @@
   line-height: 1.2;
 }
 
+@media (max-width: 1240px) {
+  .nav-container {
+    padding: 0 16px;
+  }
+  .nav-links {
+    gap: 4px;
+  }
+  .nav-links a {
+    padding: 6px 10px;
+    font-size: 0.84rem;
+  }
+  .nav-right {
+    gap: 8px;
+  }
+  .admin-quick-btn {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+  }
+  .user-name {
+    max-width: 100px;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-omni-text,
   .nav-omni-kbd {
@@ -142,6 +172,8 @@
   color: #14171a !important;
   font-weight: 700;
   background: #ffffff;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .admin-quick-btn:hover {

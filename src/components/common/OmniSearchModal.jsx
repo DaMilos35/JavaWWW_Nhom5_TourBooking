@@ -19,12 +19,12 @@ import { useAuth } from '../../context/AuthContext';
 import './OmniSearchModal.css';
 
 const QUICK_DESTINATIONS = [
-  { name: 'Hạ Long', desc: 'Du thuyền vịnh di sản 5 sao' },
-  { name: 'Phú Quốc', desc: 'Thiên đường biển đảo & cáp treo' },
+  { name: 'Hạ Long', desc: 'Du thuyền ngắm vịnh di sản 5 sao' },
+  { name: 'Phú Quốc', desc: 'Thiên đường biển đảo & cáp treo Hòn Thơm' },
   { name: 'Đà Nẵng', desc: 'Bà Nà Hills & Phố cổ Hội An' },
-  { name: 'Sa Pa', desc: 'Đỉnh Fansipan & bản làng mộng mơ' },
-  { name: 'Đà Lạt', desc: 'Cao nguyên hoa & săn mây Tà Xùa' },
-  { name: 'Côn Đảo', desc: 'Hành trình tâm linh & biển hoang sơ' }
+  { name: 'Sa Pa', desc: 'Đỉnh Fansipan & bản Cát Cát' },
+  { name: 'Đà Lạt', desc: 'Hồ Tuyền Lâm & săn mây Cầu Đất' },
+  { name: 'Côn Đảo', desc: 'Biển xanh hoang sơ & di tích lịch sử' }
 ];
 
 const PRICE_TIERS = [
@@ -111,7 +111,7 @@ const OmniSearchModal = ({ isOpen, onClose }) => {
             ref={inputRef}
             type="text"
             className="omni-input"
-            placeholder="Tìm theo điểm đến, tên tour, chủ đề hoặc phím tắt... (VD: Phú Quốc, Hạ Long)"
+            placeholder="Tìm theo điểm đến, tên tour... (VD: Phú Quốc, Hạ Long)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
