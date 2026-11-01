@@ -753,9 +753,8 @@ const TourDetailPage = () => {
                 type="button"
                 className={`td-nav-tab-btn ${activeTab === 'domain_guide' ? 'active' : ''}`}
                 onClick={() => setActiveTab('domain_guide')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                {isIntl ? <><FaPassport style={{ color: '#8b5cf6' }} /> Hướng Dẫn Thủ Tục & Visa</> : <><FaSuitcase style={{ color: '#0284c7' }} /> Quy Chuẩn & Hành Trang</>}
+                {isIntl ? 'Hướng Dẫn Thủ Tục & Visa' : 'Quy Chuẩn & Hành Trang'}
               </button>
               <button 
                 type="button"
@@ -775,9 +774,8 @@ const TourDetailPage = () => {
                 type="button"
                 className={`td-nav-tab-btn ${activeTab === 'ai_insights' ? 'active' : ''}`}
                 onClick={() => setActiveTab('ai_insights')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                <FaComments style={{ color: '#0194F3' }} /> Đánh Giá Thực Tế ({reviewsList.length})
+                Đánh Giá Thực Tế ({reviewsList.length})
               </button>
             </div>
 

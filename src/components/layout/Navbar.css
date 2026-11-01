@@ -57,11 +57,11 @@
 .nav-links a { 
   font-weight: 600; 
   color: #4b5259;
-  text-decoration: none;
-  padding: 7px 14px;
+  text-decoration: none !important;
+  padding: 6px 14px;
   border-radius: 9999px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   white-space: nowrap;
   flex-shrink: 0;
   display: inline-flex;
@@ -69,14 +69,16 @@
 }
 
 .nav-links a:hover { 
-  color: #14171a;
-  background-color: rgba(20, 23, 26, 0.05);
+  color: #0284c7;
+  background-color: #f0f9ff;
+  text-decoration: none !important;
 }
 
 .nav-links a.active { 
-  color: #14171a;
-  background-color: rgba(20, 23, 26, 0.08);
+  color: #0284c7;
+  background-color: #e0f2fe;
   font-weight: 700;
+  text-decoration: none !important;
 }
 
 .nav-right { 
@@ -174,34 +176,36 @@
   background: #ffffff;
   white-space: nowrap;
   flex-shrink: 0;
+  text-decoration: none !important;
 }
 
 .admin-quick-btn:hover {
   background: #14171a !important;
   color: #f8e7cb !important;
   border-color: #14171a !important;
+  text-decoration: none !important;
 }
 
 .btn-cart-nav {
   position: relative;
   display: inline-flex;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   align-items: center;
   justify-content: center;
   border: 1px solid #ede9e3;
-  border-radius: 12px;
+  border-radius: 9999px;
   background: #ffffff;
   color: #14171a;
-  text-decoration: none;
-  font-size: 1.05rem;
+  text-decoration: none !important;
+  font-size: 1rem;
   transition: all 0.2s ease;
 }
 
 .btn-cart-nav:hover {
-  border-color: #14171a;
-  background: #faf7f2;
-  color: #14171a;
+  border-color: #0284c7;
+  background: #f0f9ff;
+  color: #0284c7;
   transform: translateY(-1px);
 }
 
@@ -230,24 +234,25 @@
 .nav-icon-btn {
   position: relative;
   display: inline-flex;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   align-items: center;
   justify-content: center;
   border: 1px solid #ede9e3;
-  border-radius: 12px;
+  border-radius: 9999px;
   background: #ffffff;
   color: #14171a;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none !important;
 }
 
 .nav-icon-btn:hover,
 .nav-icon-btn[aria-expanded="true"] {
-  border-color: #14171a;
-  background: #faf7f2;
-  color: #14171a;
+  border-color: #0284c7;
+  background: #f0f9ff;
+  color: #0284c7;
 }
 
 .notification-badge {

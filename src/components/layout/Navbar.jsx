@@ -89,6 +89,17 @@ const Navbar = () => {
     return name ? name.charAt(0).toUpperCase() : 'U';
   };
 
+  const getDisplayName = (u) => {
+    if (!u) return '';
+    if (u.role === 'ADMIN') return 'Quản Trị Viên';
+    const name = u.fullName || u.username || '';
+    if (name.length > 18) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length > 2) return `${parts[0]} ${parts[parts.length - 1]}`;
+    }
+    return name;
+  };
+
   const totalCartCount = user && getTotalItems ? getTotalItems() : 0;
   const pendingNotifications = user
     ? recentOrders.filter((order) => order.status === 'PENDING').length
@@ -234,7 +245,7 @@ const Navbar = () => {
                 aria-haspopup="true"
               >
                 <div className="user-avatar">{getInitial(user.fullName || user.username)}</div>
-                <span className="user-name">{user.fullName || user.username}</span>
+                <span className="user-name" title={user.fullName || user.username}>{getDisplayName(user)}</span>
                 {user.membershipTier && user.membershipTier !== 'STANDARD' && (
                   <span style={{
                     display: 'inline-flex',

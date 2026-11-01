@@ -458,22 +458,25 @@
 ======================================================== */
 .td-sidebar {
   position: sticky;
-  top: 90px;
+  top: 76px;
   height: fit-content;
+  max-height: calc(100vh - 86px);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .booking-card {
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 16px;
-  padding: 26px 28px;
+  padding: 24px;
   box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
 }
 
 .booking-card-header,
 .price-box {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -527,7 +530,7 @@
 
 .qty-control-wrap,
 .quantity-box {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .qty-control-wrap label,
@@ -607,8 +610,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-top: 14px;
+  margin-bottom: 14px;
+  padding-top: 10px;
   border-top: 1px solid #e2e8f0;
 }
 
@@ -1216,21 +1219,23 @@
 }
 
 .schedule-pills-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
 .schedule-pill-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 56px;
 }
 
 .schedule-pill-card:hover {
@@ -1246,26 +1251,29 @@
 
 .schedule-pill-left {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  gap: 5px;
+  width: 100%;
 }
 
 .schedule-pill-dow {
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 600;
   color: #64748b;
 }
 
 .schedule-pill-date {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #0f172a;
 }
 
 .schedule-pill-right {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
 }
 
 .schedule-seats-badge {
