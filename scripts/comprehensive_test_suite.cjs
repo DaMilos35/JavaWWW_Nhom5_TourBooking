@@ -484,6 +484,84 @@ const updatedContext7 = fs.readFileSync(path.resolve(__dirname, '../src/utils/co
 assert(updatedContext7.includes('ctx-international-vs-domestic') && updatedContext7.includes('ctx-visa-passport-requirements'), 'context7Engine indexes Outbound vs Domestic policies and Visa clearance rules');
 assert(updatedContext7.includes('ctx-aviation-baggage-rules') && updatedContext7.includes('ctx-global-travel-insurance'), 'context7Engine indexes Terminal T1/T2 aviation rules and 1 Billion global insurance');
 
+
+// ======================================================
+// 🧠 SUITE 9: 2026 Open-Source Agentic Architectures (Mem0, Langfuse, Guardrails AI, TypeChat)
+// ======================================================
+console.log('\n======================================================');
+console.log('🧠 SUITE 9: Advanced Agentic Ecosystem (Mem0, Langfuse, Guardrails, TypeChat)');
+console.log('======================================================');
+
+// 1. Langfuse AI Observability & Tracing Engine
+const langfusePath = path.resolve(__dirname, '../src/utils/langfuseTraceEngine.js');
+assert(fs.existsSync(langfusePath), 'src/utils/langfuseTraceEngine.js exists');
+const { langfuseTraceEngine } = require('../src/utils/langfuseTraceEngine.js');
+const testTrace = langfuseTraceEngine.startTrace('test-sess-1', 'Thủ tục visa Thái Lan', { mock: true });
+assert(testTrace && testTrace.traceId.startsWith('tr-'), 'Langfuse startTrace initializes trace with unique ID');
+const recordedTrace = langfuseTraceEngine.endTrace(testTrace, {
+  output: 'Miễn thị thực 30 ngày cho khách Việt Nam',
+  promptTokens: 200,
+  completionTokens: 80,
+  guardrailsPassed: true
+});
+assert(recordedTrace.totalTokens === 280 && recordedTrace.guardrailsPassed === true, 'Langfuse endTrace records token usage and metrics');
+const telemSummary = langfuseTraceEngine.getTelemetrySummary();
+assert(typeof telemSummary.avgLatencyMs === 'number' && telemSummary.zeroHallucinationRate >= 0, 'Langfuse computes aggregated telemetry summary');
+
+// 2. Mem0 Customer Travel Memory Layer
+const mem0Path = path.resolve(__dirname, '../src/utils/customerMemoryEngine.js');
+assert(fs.existsSync(mem0Path), 'src/utils/customerMemoryEngine.js exists');
+const { customerMemoryEngine } = require('../src/utils/customerMemoryEngine.js');
+const detected = customerMemoryEngine.extractSignalsFromText('Tôi muốn đi từ Hà Nội cùng gia đình có con nhỏ và ăn chay');
+assert(detected.preferredDeparture === 'Hà Nội', 'Mem0 extracts preferred departure from conversation');
+assert(detected.partyType === 'Gia đình có trẻ nhỏ', 'Mem0 extracts family party signals');
+assert(detected.dietaryRestrictions && detected.dietaryRestrictions.includes('Ăn chay'), 'Mem0 extracts dietary restrictions');
+const alarmCheck = customerMemoryEngine.checkPassportAlarm();
+assert(alarmCheck && ['VALID', 'NEAR_EXPIRY', 'EXPIRED'].includes(alarmCheck.status), 'Mem0 validates customer passport status');
+const groundingPrompt = customerMemoryEngine.generatePersonalizedGroundingContext();
+assert(groundingPrompt.includes('[HỒ SƠ KHÁCH HÀNG (MEM0 MEMORY LAYER)]:'), 'Mem0 generates personalized prompt injection context');
+
+// 3. Guardrails AI Safety & Policy Enforcement Engine
+const guardrailsPath = path.resolve(__dirname, '../src/utils/guardrailsEngine.js');
+assert(fs.existsSync(guardrailsPath), 'src/utils/guardrailsEngine.js exists');
+const guardrails = require('../src/utils/guardrailsEngine.js').default || require('../src/utils/guardrailsEngine.js');
+const maskedPii = guardrails.maskPII('Số CCCD của tôi là 079198001234 và hộ chiếu B1234567');
+assert(maskedPii.includes('0791****1234') && maskedPii.includes('B12****7'), 'Guardrails AI redacts CCCD and Passport PII numbers');
+const toneEval = guardrails.evaluateHospitalityTone('Kính chào quý khách, em rất hân hạnh được hỗ trợ anh chị ạ');
+assert(toneEval.isApproved === true && toneEval.score >= 90, 'Guardrails AI evaluates 5-star hospitality tone');
+const scanVerdict = guardrails.scanOutput('Kính chào quý khách, hủy tour trước 7 ngày được hoàn tiền 100% trọn vẹn.');
+assert(scanVerdict.passed === true && scanVerdict.violations.length === 0, 'Guardrails AI verifies zero-hallucination compliance');
+
+// 4. TypeChat & Structured Intent Schema Engine
+const typeChatPath = path.resolve(__dirname, '../src/utils/typeChatBookingEngine.js');
+assert(fs.existsSync(typeChatPath), 'src/utils/typeChatBookingEngine.js exists');
+const { typeChatBookingEngine } = require('../src/utils/typeChatBookingEngine.js');
+const parsedIntent = typeChatBookingEngine.parseBookingIntent('Đặt cho gia đình 2 người lớn 1 bé đi Phú Quốc từ Hà Nội phòng 5 sao view biển');
+assert(parsedIntent.destination === 'Phú Quốc', 'TypeChat extracts destination entity');
+assert(parsedIntent.departureLocation === 'Hà Nội', 'TypeChat extracts departure location');
+assert(parsedIntent.adults === 2 && parsedIntent.children === 1, 'TypeChat extracts structured passenger counts');
+assert(parsedIntent.hotelStar === 5, 'TypeChat extracts hotel tier');
+assert(parsedIntent.specialRequests.some(r => r.includes('biển')), 'TypeChat extracts special requests array');
+const schemaCheck = typeChatBookingEngine.validateSchema(parsedIntent, 'BOOKING_REQUEST');
+assert(schemaCheck.isValid === true, 'TypeChat validates parsed object against BookingRequest schema');
+
+// 5. CodeGraph 8 Domains Expansion
+const { OTA_DOMAINS } = require('../src/utils/codeGraphEngine.js');
+assert(OTA_DOMAINS.length === 8, 'CodeGraph expands to full 8 OTA architectural domains');
+assert(OTA_DOMAINS.some(d => d.id === 'domain-grounding'), 'CodeGraph indexes Zero-Hallucination domain');
+assert(OTA_DOMAINS.some(d => d.id === 'domain-observability'), 'CodeGraph indexes Agent Observability domain');
+assert(OTA_DOMAINS.some(d => d.id === 'domain-personalization'), 'CodeGraph indexes Personalized Memory domain');
+
+// 6. AdminArchitectureGraph & AdminDesignCanvas Features
+const archGraphCodeSuite9 = fs.readFileSync(path.resolve(__dirname, '../src/pages/admin/AdminArchitectureGraph.jsx'), 'utf8');
+assert(archGraphCodeSuite9.includes("'LANGFUSE'") && archGraphCodeSuite9.includes("'MEM0'"), 'AdminArchitectureGraph implements Langfuse and Mem0 tabs');
+const designCanvasCode = fs.readFileSync(path.resolve(__dirname, '../src/pages/admin/AdminDesignCanvas.jsx'), 'utf8');
+assert(designCanvasCode.includes('comp-passport-checker') && designCanvasCode.includes('comp-eticket-card') && designCanvasCode.includes('comp-outbound-pill'), 'AdminDesignCanvas implements all 7 replica components');
+
+// 7. AiChatWidget Deep Integration
+const aiChatWidgetCode = fs.readFileSync(path.resolve(__dirname, '../src/components/common/AiChatWidget.jsx'), 'utf8');
+assert(aiChatWidgetCode.includes('customerMemoryEngine') && aiChatWidgetCode.includes('guardrailsEngine') && aiChatWidgetCode.includes('langfuseTraceEngine'), 'AiChatWidget integrates Mem0, Guardrails, and Langfuse engines');
+
 console.log('\n======================================================');
 console.log('📊 TEST SUMMARY');
 console.log('======================================================');
