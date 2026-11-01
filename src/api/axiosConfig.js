@@ -53,6 +53,15 @@ export const authApi = {
   /** POST /api/auth/register */
   register: (data) => api.post('/auth/register', data),
 
+  /** POST /api/auth/password/forgot — Yêu cầu đặt lại mật khẩu */
+  forgotPassword: (data) => api.post('/auth/password/forgot', data),
+
+  /** POST /api/auth/password/verify-otp — Xác thực mã OTP SMS */
+  verifyOtp: (data) => api.post('/auth/password/verify-otp', data),
+
+  /** POST /api/auth/password/reset — Đặt lại mật khẩu mới */
+  resetPassword: (data) => api.post('/auth/password/reset', data),
+
   /** POST /api/auth/logout */
   logout: () => api.post('/auth/logout'),
 

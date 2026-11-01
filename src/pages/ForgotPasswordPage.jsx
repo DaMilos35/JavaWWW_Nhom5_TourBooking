@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { authApi } from '../api/axiosConfig';
 import { toast } from 'react-toastify';
 import {
   FaEnvelope,
@@ -96,7 +96,7 @@ const ForgotPasswordPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/password/forgot', {
+      const res = await authApi.forgotPassword( {
         channel,
         identifier: identifier.trim()
       });
@@ -140,7 +140,7 @@ const ForgotPasswordPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/password/verify-otp', {
+      const res = await authApi.verifyOtp( {
         phone: identifier.trim(),
         otp: otp.trim()
       });
@@ -172,7 +172,7 @@ const ForgotPasswordPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/password/reset', {
+      const res = await authApi.resetPassword( {
         resetToken,
         newPassword,
         confirmPassword
