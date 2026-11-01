@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './context/AuthContext';
@@ -10,7 +10,6 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AiChatWidget from './components/common/AiChatWidget';
 import ScrollToTop from './components/common/ScrollToTop';
-import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import OmniSearchModal from './components/common/OmniSearchModal';
 import { PrivateRoute, AdminRoute } from './components/common/PrivateRoute';
@@ -31,18 +30,18 @@ import HelpCenterPage from './pages/HelpCenterPage';
 import VnPayReturnPage from './pages/VnPayReturnPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-// Lazy-loaded Admin Pages (Code-split for admin bundle)
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminTours = lazy(() => import('./pages/admin/AdminTours'));
-const AdminTourForm = lazy(() => import('./pages/admin/AdminTourForm'));
-const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
-const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
-const AdminOrderDetail = lazy(() => import('./pages/admin/AdminOrderDetail'));
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
-const AdminB2B = lazy(() => import('./pages/admin/AdminB2B'));
-const AdminArchitectureGraph = lazy(() => import('./pages/admin/AdminArchitectureGraph'));
-const AdminDesignCanvas = lazy(() => import('./pages/admin/AdminDesignCanvas'));
+// Admin Pages (Direct imports prevent dynamic import chunk failures and blank screen flashes)
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminTours from './pages/admin/AdminTours';
+import AdminTourForm from './pages/admin/AdminTourForm';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminOrderDetail from './pages/admin/AdminOrderDetail';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminB2B from './pages/admin/AdminB2B';
+import AdminArchitectureGraph from './pages/admin/AdminArchitectureGraph';
+import AdminDesignCanvas from './pages/admin/AdminDesignCanvas';
 
 import './App.css';
 
@@ -105,14 +104,12 @@ function App() {
                 <Route path="/settings" element={<PrivateRoute><UserLayout><ProfilePage /></UserLayout></PrivateRoute>} />
                 <Route path="/my-orders" element={<PrivateRoute><UserLayout><MyOrdersPage /></UserLayout></PrivateRoute>} />
 
-                {/* Admin Routes with Suspense fallback */}
+                {/* Admin Routes */}
                 <Route
                   path="/admin"
                   element={
                     <AdminRoute>
-                      <Suspense fallback={<LoadingSpinner fullScreen text="Đang tải trang quản trị..." />}>
-                        <AdminLayout />
-                      </Suspense>
+                      <AdminLayout />
                     </AdminRoute>
                   }
                 >

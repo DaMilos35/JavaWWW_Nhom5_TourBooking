@@ -34,7 +34,7 @@ const AdminLayout = () => {
       try {
         const res = await adminApi.getOrders();
         const orders = Array.isArray(res.data) ? res.data : (res.data?.content || []);
-        const pending = orders.filter(o => o.status === 'PENDING').length;
+        const pending = Array.isArray(orders) ? orders.filter(o => o && o.status === 'PENDING').length : 0;
         setPendingOrdersCount(pending);
       } catch (err) {
         // Im lặng nếu không tải được thông báo

@@ -36,7 +36,13 @@ const AdminDashboard = () => {
     setLoadError(false);
     try {
       const res = await adminApi.getDashboard();
-      setStats(res.data);
+      if (res && res.data && typeof res.data === 'object' && !Array.isArray(res.data)) {
+        setStats(prev => ({
+          ...prev,
+          ...res.data,
+          recentOrders: Array.isArray(res.data.recentOrders) ? res.data.recentOrders : (prev.recentOrders || [])
+        }));
+      }
     } catch (error) {
       setLoadError(true);
     } finally {
@@ -336,16 +342,18 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {stats.recentOrders && stats.recentOrders.length > 0 ? (
-                  stats.recentOrders.map(order => (
+                {Array.isArray(stats?.recentOrders) && stats.recentOrders.length > 0 ? (
+                  stats.recentOrders.filter(Boolean).map(order => (
                     <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '12px', fontWeight: 700, color: '#0284c7' }}>#{order.id}</td>
                       <td style={{ padding: '12px' }}>
-                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem' }}>{order.fullName}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{order.phone}</div>
+                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem' }}>{order.fullName || order.contactName || 'Khách trực tuyến'}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{order.phone || order.contactPhone || '—'}</div>
                       </td>
                       <td style={{ padding: '12px', color: '#64748b', fontSize: '0.85rem' }}>
-                        {new Date(order.createdAt || order.orderDate).toLocaleDateString('vi-VN')}
+                        {order.createdAt || order.orderDate
+                          ? new Date(order.createdAt || order.orderDate).toLocaleDateString('vi-VN')
+                          : 'Hôm nay'}
                       </td>
                       <td style={{ padding: '12px' }}>
                         <span style={{
@@ -369,7 +377,7 @@ const AdminDashboard = () => {
                         </span>
                       </td>
                       <td style={{ padding: '12px', textAlign: 'right', fontWeight: 700, color: '#e8400c', fontSize: '0.9rem' }}>
-                        {formatPrice(order.totalAmount)}
+                        {formatPrice(order.totalAmount || 0)}
                       </td>
                       <td style={{ padding: '12px', textAlign: 'center' }}>
                         <Link 

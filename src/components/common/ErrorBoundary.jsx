@@ -4,7 +4,7 @@ import { FaExclamationTriangle, FaRedo, FaHome } from 'react-icons/fa';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, showDetails: false };
   }
 
   static getDerivedStateFromError(error) {
@@ -13,14 +13,21 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    const msg = error?.message || '';
+    if ((msg.includes('dynamically imported module') || msg.includes('Loading chunk')) && !sessionStorage.getItem('chunk_reload')) {
+      sessionStorage.setItem('chunk_reload', '1');
+      window.location.reload();
+    }
   }
 
   handleReload = () => {
+    sessionStorage.removeItem('chunk_reload');
     this.setState({ hasError: false, error: null });
     window.location.reload();
   };
 
   handleGoHome = () => {
+    sessionStorage.removeItem('chunk_reload');
     this.setState({ hasError: false, error: null });
     window.location.href = '/';
   };
