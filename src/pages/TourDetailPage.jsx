@@ -674,35 +674,69 @@ const TourDetailPage = () => {
             </div>
 
             {/* THẺ ĐƠN VỊ TỔ CHỨC & ĐIỀU HÀNH TOUR (Multi-Vendor Partner Card) */}
-            <div className="tour-organizer-compact mb-4">
-              <div className="organizer-brand-box">
-                <div className="organizer-logo-avatar" style={{ backgroundColor: providerInfo.brandColor }}>
-                  <FaBuilding className="organizer-icon" />
-                </div>
-                <div className="organizer-info">
-                  <div className="organizer-top-row">
-                    <span className="organizer-kicker">Đơn vị tổ chức:</span>
-                    <strong className="organizer-name" style={{ fontSize: '1.05rem', margin: 0 }}>{providerInfo.name}</strong>
-                    <span className="organizer-verified-badge">
-                      <FaCheckCircle className="check-icon" /> Đã xác thực OTA
-                    </span>
-                    <span className="organizer-chip chip-rating">
-                      <FaStar className="star-sm" /> <b>{providerInfo.rating}</b> ({providerInfo.reviewCount.toLocaleString()} đánh giá)
-                    </span>
+            <div className="tour-organizer-card mb-4">
+              <div className="organizer-header">
+                <div className="organizer-brand-box" style={{ borderColor: `${providerInfo.brandColor}33` }}>
+                  <div className="organizer-logo-avatar" style={{ backgroundColor: providerInfo.brandColor }}>
+                    <FaBuilding className="organizer-icon" />
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.82rem', color: '#64748b', marginTop: '4px', flexWrap: 'wrap' }}>
-                    <span>Hotline: <strong style={{ color: '#0f172a' }}>{providerInfo.hotline}</strong></span>
-                    <span>•</span>
-                    <span>{providerInfo.address}</span>
-                    <span>•</span>
-                    <span>GP Lữ hành: {providerInfo.license}</span>
+                  <div className="organizer-info">
+                    <div className="organizer-top-row">
+                      <span className="organizer-kicker">Đơn vị tổ chức & điều hành tour</span>
+                      <span className="organizer-verified-badge">
+                        <FaCheckCircle className="check-icon" /> Đã xác thực OTA
+                      </span>
+                    </div>
+                    <h4 className="organizer-name">{providerInfo.name}</h4>
+                    <div className="organizer-meta-chips">
+                      <span className="organizer-chip chip-badge">{providerInfo.badgeText}</span>
+                      <span className="organizer-chip chip-rating">
+                        <FaStar className="star-sm" /> <b>{providerInfo.rating}</b> ({providerInfo.reviewCount.toLocaleString()} đánh giá)
+                      </span>
+                      <span className="organizer-chip chip-exp">Kinh nghiệm từ {providerInfo.establishedYear}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="organizer-action-row" style={{ borderTop: 'none', padding: 0, marginTop: 0 }}>
-                <Link to={`/tours?provider=${providerInfo.id}`} className="btn-provider-tours" style={{ padding: '6px 14px', fontSize: '0.84rem' }}>
-                  Xem tour của {providerInfo.shortName} <FaChevronRight style={{ fontSize: '0.7rem', marginLeft: '4px' }} />
-                </Link>
+
+              <div className="organizer-body">
+                <p className="organizer-desc">{providerInfo.description}</p>
+                <div className="organizer-credentials-grid">
+                  <div className="cred-item">
+                    <FaAward className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Giấy phép Lữ Hành Quốc Tế</span>
+                      <b className="cred-val">{providerInfo.license}</b>
+                    </div>
+                  </div>
+                  <div className="cred-item">
+                    <FaPhoneAlt className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Hotline điều hành 24/7</span>
+                      <b className="cred-val">{providerInfo.hotline}</b>
+                    </div>
+                  </div>
+                  <div className="cred-item">
+                    <FaMapMarkerAlt className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Trụ sở điều hành</span>
+                      <b className="cred-val">{providerInfo.address}</b>
+                    </div>
+                  </div>
+                  <div className="cred-item">
+                    <FaShieldAlt className="cred-icon" />
+                    <div>
+                      <span className="cred-label">Chính sách bảo trợ</span>
+                      <b className="cred-val">Bảo lãnh chất lượng bởi Du Lịch Việt</b>
+                    </div>
+                  </div>
+                </div>
+                <div className="organizer-action-row">
+                  <Link to={`/tours?provider=${providerInfo.id}`} className="btn-provider-tours">
+                    Xem tất cả tour do {providerInfo.shortName} tổ chức
+                    <FaChevronRight style={{ fontSize: '0.75rem', marginLeft: '6px' }} />
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -719,8 +753,9 @@ const TourDetailPage = () => {
                 type="button"
                 className={`td-nav-tab-btn ${activeTab === 'domain_guide' ? 'active' : ''}`}
                 onClick={() => setActiveTab('domain_guide')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                {isIntl ? 'Hướng Dẫn Thủ Tục & Visa' : 'Quy Chuẩn & Hành Trang'}
+                {isIntl ? <><FaPassport style={{ color: '#8b5cf6' }} /> Hướng Dẫn Thủ Tục & Visa</> : <><FaSuitcase style={{ color: '#0284c7' }} /> Quy Chuẩn & Hành Trang</>}
               </button>
               <button 
                 type="button"
@@ -740,8 +775,9 @@ const TourDetailPage = () => {
                 type="button"
                 className={`td-nav-tab-btn ${activeTab === 'ai_insights' ? 'active' : ''}`}
                 onClick={() => setActiveTab('ai_insights')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                Đánh Giá Khách Hàng ({reviewsList.length + 138})
+                <FaComments style={{ color: '#0194F3' }} /> Đánh Giá Thực Tế ({reviewsList.length})
               </button>
             </div>
 
@@ -1504,42 +1540,6 @@ const TourDetailPage = () => {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Floating Bottom Quick-Booking Bar (Guarantees 1-Click Access on all screens) */}
-      <div className="td-floating-bottom-bar">
-        <div className="floating-bar-container">
-          <div className="floating-bar-info">
-            <div className="floating-price-row">
-              <span className="floating-price">{formatPrice(finalTotal)}</span>
-              {hasDiscount && <span className="floating-discount-tag">-{discountPercent}%</span>}
-            </div>
-            <div className="floating-meta-text">
-              <span>Khởi hành: <strong>{activeDepartureDate}</strong></span>
-              <span>•</span>
-              <span>{quantity} vé {availableSeats > 0 ? `(còn ${availableSeats} chỗ)` : ''}</span>
-            </div>
-          </div>
-          <div className="floating-bar-actions">
-            <button
-              type="button"
-              className="btn btn-outline floating-cart-btn"
-              disabled={!availableSeats || departureHasPassed}
-              onClick={handleAddToCart}
-              title="Thêm vào giỏ hàng"
-            >
-              <FaShoppingCart /> <span className="btn-text-hide-sm">Thêm giỏ</span>
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary floating-buy-btn"
-              disabled={!availableSeats || departureHasPassed}
-              onClick={handleBuyNow}
-            >
-              <FaBolt /> {departureHasPassed ? 'Lịch đã qua' : availableSeats ? 'ĐẶT TOUR NGAY' : 'Hết chỗ'}
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Day Photo Detail Lightbox Modal */}

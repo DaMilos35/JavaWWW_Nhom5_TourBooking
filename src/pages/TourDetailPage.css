@@ -458,25 +458,22 @@
 ======================================================== */
 .td-sidebar {
   position: sticky;
-  top: 76px;
+  top: 90px;
   height: fit-content;
-  max-height: calc(100vh - 86px);
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
 
 .booking-card {
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 16px;
-  padding: 24px;
+  padding: 26px 28px;
   box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
 }
 
 .booking-card-header,
 .price-box {
-  margin-bottom: 14px;
-  padding-bottom: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -530,7 +527,7 @@
 
 .qty-control-wrap,
 .quantity-box {
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
 .qty-control-wrap label,
@@ -610,8 +607,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
-  padding-top: 10px;
+  margin-bottom: 20px;
+  padding-top: 14px;
   border-top: 1px solid #e2e8f0;
 }
 
@@ -1226,41 +1223,36 @@
 
 .schedule-pill-card {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
-  padding: 8px 14px;
+  padding: 8px 12px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .schedule-pill-card:hover {
-  border-color: #0284c7;
-  background: #f8fafc;
+  border-color: #0194f3;
+  background: #f0f9ff;
 }
 
 .schedule-pill-card.active {
-  border-color: #0284c7;
+  border-color: #0194f3;
   background: #f0f9ff;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+  box-shadow: 0 0 0 2px rgba(1, 148, 243, 0.2);
 }
 
 .schedule-pill-left {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
 }
 
 .schedule-pill-dow {
   font-size: 0.76rem;
-  font-weight: 700;
-  color: #475569;
-  background: #f1f5f9;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-weight: 600;
+  color: #64748b;
 }
 
 .schedule-pill-date {
@@ -1271,32 +1263,9 @@
 
 .schedule-pill-right {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.schedule-seats-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-
-.schedule-seats-badge.badge-urgent {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.schedule-seats-badge.badge-ok {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.schedule-pill-price {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #ff5e1f;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 
 .schedule-seats-badge {
@@ -1681,50 +1650,6 @@
 /* ==========================================================================
    Multi-Vendor Tour Organizer & Certified Partner Trust Card
    ========================================================================== */
-.tour-organizer-compact {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 18px;
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  transition: all 0.2s ease;
-}
-
-.tour-organizer-compact:hover {
-  border-color: #93c5fd;
-  box-shadow: 0 4px 16px -2px rgba(2, 132, 199, 0.1);
-}
-
-.tour-organizer-compact .organizer-brand-box {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.tour-organizer-compact .organizer-logo-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.tour-organizer-compact .organizer-top-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .tour-organizer-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -2345,117 +2270,4 @@
   font-size: 0.8rem;
   color: #d97706;
   font-weight: 500;
-}
-
-/* ==========================================================================
-   Floating Bottom Quick-Booking Bar (Guarantees 1-Click Access on mobile/tablets)
-   ========================================================================== */
-@media (min-width: 993px) {
-  .td-floating-bottom-bar {
-    display: none !important;
-  }
-}
-
-.td-floating-bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid #e2e8f0;
-  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
-  padding: 10px 24px;
-}
-
-.floating-bar-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.floating-bar-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.floating-price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.floating-price {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #ff5e1f;
-  line-height: 1;
-}
-
-.floating-discount-tag {
-  background: #fee2e2;
-  color: #ef4444;
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.floating-meta-text {
-  font-size: 0.84rem;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.floating-bar-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.floating-cart-btn {
-  padding: 10px 16px;
-  font-size: 0.88rem;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.floating-buy-btn {
-  padding: 10px 22px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ff5e1f 0%, #ea580c 100%);
-  color: #ffffff;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 12px rgba(255, 94, 31, 0.3);
-  cursor: pointer;
-}
-
-.floating-buy-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-  transform: translateY(-1px);
-}
-
-@media (max-width: 640px) {
-  .btn-text-hide-sm {
-    display: none;
-  }
-  .floating-meta-text {
-    display: none;
-  }
 }
