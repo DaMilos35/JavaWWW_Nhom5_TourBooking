@@ -12,7 +12,6 @@ import {
   FaHotel,
   FaBolt,
   FaFire,
-  FaImages,
   FaBuilding,
   FaCheckCircle
 } from 'react-icons/fa';
@@ -104,11 +103,6 @@ const TourCard = ({ tour }) => {
 
           {/* Lớp phủ tương phản ảnh */}
           <div className="tc-img-overlay" />
-
-          {/* Huy hiệu số lượng ảnh thực tế */}
-          <div className="tc-img-count" aria-hidden="true" title="Bộ sưu tập ảnh và video">
-            <FaImages style={{ fontSize: '0.68rem' }} /> {((Number(tour.id || tour.tourId || 1) * 3) % 7) + 5}+ ảnh
-          </div>
 
           {/* Huy hiệu khuyến mãi và thời lượng */}
           <div className="tc-badge-container">

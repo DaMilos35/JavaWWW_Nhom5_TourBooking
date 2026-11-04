@@ -25,16 +25,34 @@ function normalizeSearchKeyword(kw) {
 const REAL_TOURS = rawTours.map((t) => {
   const highlights = Array.isArray(t.highlights) ? t.highlights.join('\n• ') : (t.highlights || '');
   return {
-    id: t.id,
-    name: t.name,
+    id: t.tour_id || t.id,
+    name: t.tour_name || t.name,
     description: t.description || '',
     price: t.price,
-    departureLocation: t.departureLocation || 'TP. Hồ Chí Minh',
+    departureLocation: t.departure_location || t.departureLocation || 'TP. Hồ Chí Minh',
     highlights: highlights ? (highlights.startsWith('• ') ? highlights : '• ' + highlights) : '',
-    categoryId: t.categoryId,
+    categoryId: t.category_id || t.categoryId,
     status: t.status || 'ACTIVE'
   };
 });
+
+const isAus = (t) => {
+  const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+  return txt.includes('chau uc') || txt.includes('australia') || txt.includes('sydney') || txt.includes('melbourne');
+};
+const isUs = (t) => {
+  const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+  return txt.includes('hoa ky') || txt.includes('chau my') || txt.includes('los angeles') || txt.includes('las vegas');
+};
+const isEu = (t) => {
+  if (Number(t.categoryId || t.category_id) <= 7) return false;
+  const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+  return txt.includes('chau au') || txt.includes('schengen') || (txt.includes('phap') && txt.includes('thuy si')) || txt.includes('vatican') || txt.includes('colosseum');
+};
+const isAsia = (t) => {
+  if (isAus(t) || isUs(t) || isEu(t)) return false;
+  return true; // Domestic Vietnam and Asian outbound
+};
 
 // Implementation identical to realTourDataApi.js search()
 async function searchTours(keyword) {
@@ -45,38 +63,21 @@ async function searchTours(keyword) {
 
   // Geographic continent detection & isolation
   const isQueryAsiaPacific = cleanKw.includes('chau a thai binh duong') || cleanKw.includes('thai binh duong')
-    || cleanKw.includes('chau a') || cleanKw.includes('apac') || cleanKw.includes('dong nam a') || cleanKw.includes('asean');
+    || (cleanKw.includes('chau a') && !cleanKw.includes('chau au')) || cleanKw.includes('apac') || cleanKw.includes('dong nam a') || cleanKw.includes('asean');
   const isQueryAustralia = cleanKw.includes('chau uc') || cleanKw.includes('australia')
     || cleanKw.includes('sydney') || cleanKw.includes('melbourne');
   const isQueryAmericas = cleanKw.includes('chau my') || cleanKw.includes('hoa ky')
     || cleanKw.includes('los angeles') || cleanKw.includes('las vegas') || cleanKw.includes('san francisco');
   const isQueryEurope = cleanKw.includes('chau au') || cleanKw.includes('phap') || cleanKw.includes('thuy si') || cleanKw.includes('italy');
 
-  const isAus = (t) => {
-    const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
-    return txt.includes('chau uc') || txt.includes('australia') || txt.includes('sydney') || txt.includes('melbourne');
-  };
-  const isUs = (t) => {
-    const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
-    return txt.includes('hoa ky') || txt.includes('chau my') || txt.includes('los angeles') || txt.includes('las vegas');
-  };
-  const isEu = (t) => {
-    const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
-    return txt.includes('chau au') || txt.includes('phap') || txt.includes('thuy si') || txt.includes('italy');
-  };
-  const isAsia = (t) => {
-    if (isAus(t) || isUs(t) || isEu(t)) return false;
-    return true; // Domestic Vietnam and Asian outbound
-  };
-
-  if (isQueryAsiaPacific && !isQueryAustralia && !isQueryAmericas && !isQueryEurope) {
+  if (isQueryAsiaPacific) {
     const asiaTours = REAL_TOURS.filter(isAsia);
     return { data: asiaTours.slice(0, 8) };
   }
-  if (isQueryAustralia && !isQueryAsiaPacific) {
+  if (isQueryAustralia && !isQueryAmericas) {
     return { data: REAL_TOURS.filter(isAus) };
   }
-  if (isQueryAmericas && !isQueryAsiaPacific) {
+  if (isQueryAmericas && !isQueryAustralia) {
     return { data: REAL_TOURS.filter(isUs) };
   }
   if (isQueryEurope) {
@@ -161,11 +162,18 @@ async function runGeographicGuardTests() {
   const resEu = await searchTours('châu âu');
   const euTours = resEu.data || [];
   assert(euTours.length > 0, 'Europe search returns tours');
-  const allEu = euTours.every(t => {
-    const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
-    return txt.includes('chau au') || txt.includes('phap') || txt.includes('thuy si') || txt.includes('italy');
-  });
+  const allEu = euTours.every(t => isEu(t));
   assert(allEu, 'All tours returned for "châu âu" are authentic Europe tours');
+
+  // TEST 5: User submits compound meta-prompt: "khi tôi hỏi về khu vực châu á thái bình dương mà nó lại đề xuất cả châu mỹ và châu úc nên phân biệt rõ ra hơn nữa"
+  const resCompound = await searchTours('khi tôi hỏi về khu vực châu á thái bình dương mà nó lại đề xuất cả châu mỹ và châu úc nên phân biệt rõ ra hơn nữa');
+  const compoundTours = resCompound.data || [];
+  assert(compoundTours.length > 0, 'Compound prompt correctly routes to Asia-Pacific');
+  const compoundHasAusOrUs = compoundTours.some(t => {
+    const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+    return txt.includes('chau uc') || txt.includes('australia') || txt.includes('hoa ky') || txt.includes('chau my');
+  });
+  assert(!compoundHasAusOrUs, 'Compound prompt STRICTLY EXCLUDES Australia and Americas tours');
 
   console.log('\n======================================================');
   console.log(`📊 GEOGRAPHIC ISOLATION RESULTS: ${passed} PASSED, ${failed} FAILED`);

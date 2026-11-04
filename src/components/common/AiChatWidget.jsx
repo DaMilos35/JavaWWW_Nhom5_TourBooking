@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaHeadset, FaPaperPlane, FaTimes, FaStar, FaRedo } from 'react-icons/fa';
 import { aiApi } from '../../api/axiosConfig';
-import { realTourApi, removeVietnameseTones } from '../../api/realTourDataApi';
+import { realTourApi, removeVietnameseTones, REAL_TOURS } from '../../api/realTourDataApi';
 import { context7Engine } from '../../utils/context7Engine';
 import { travelReachEngine } from '../../utils/travelReachEngine';
 import { langfuseTraceEngine } from '../../utils/langfuseTraceEngine';
@@ -38,6 +38,50 @@ const renderFormattedText = (text) => {
       </React.Fragment>
     );
   });
+};
+
+const filterToursByGeographicIntent = (toursList, userQuery) => {
+  const list = Array.isArray(toursList) ? toursList : [];
+  const q = removeVietnameseTones((userQuery || '').toLowerCase());
+
+  const isAus = (t) => {
+    const txt = removeVietnameseTones(((t.name || t.tourName || '') + ' ' + (t.description || '')).toLowerCase());
+    return txt.includes('chau uc') || txt.includes('australia') || txt.includes('sydney') || txt.includes('melbourne');
+  };
+  const isUs = (t) => {
+    const txt = removeVietnameseTones(((t.name || t.tourName || '') + ' ' + (t.description || '')).toLowerCase());
+    return txt.includes('hoa ky') || txt.includes('chau my') || txt.includes('los angeles') || txt.includes('las vegas') || txt.includes('california');
+  };
+  const isEu = (t) => {
+    if (Number(t.categoryId || t.category?.id) <= 7) return false;
+    const txt = removeVietnameseTones(((t.name || t.tourName || '') + ' ' + (t.description || '')).toLowerCase());
+    return txt.includes('chau au') || txt.includes('schengen') || (txt.includes('phap') && txt.includes('thuy si')) || txt.includes('vatican') || txt.includes('colosseum');
+  };
+
+  const mentionsAPAC = q.includes('chau a thai binh duong') || q.includes('thai binh duong') || (q.includes('chau a') && !q.includes('chau au')) || q.includes('apac') || q.includes('dong nam a') || q.includes('asean');
+  const mentionsAus = q.includes('chau uc') || q.includes('australia') || q.includes('sydney') || q.includes('melbourne');
+  const mentionsUs = q.includes('chau my') || q.includes('hoa ky') || q.includes('los angeles') || q.includes('las vegas');
+  const mentionsEu = q.includes('chau au') || q.includes('phap') || q.includes('thuy si') || q.includes('italy');
+
+  if (mentionsAPAC) {
+    const apacOnly = list.filter(t => !isAus(t) && !isUs(t) && !isEu(t));
+    if (apacOnly.length > 0) return apacOnly.slice(0, 4);
+    // Nếu danh sách từ server rỗng hoặc bị loại hết, lấy trực tiếp tour Châu Á / Biển Đảo nổi bật từ REAL_TOURS
+    return REAL_TOURS.filter(t => !isAus(t) && !isUs(t) && !isEu(t)).slice(0, 4);
+  }
+  if (mentionsAus && !mentionsAPAC && !mentionsUs) {
+    const ausOnly = list.filter(isAus);
+    return ausOnly.length > 0 ? ausOnly.slice(0, 4) : REAL_TOURS.filter(isAus).slice(0, 4);
+  }
+  if (mentionsUs && !mentionsAPAC && !mentionsAus) {
+    const usOnly = list.filter(isUs);
+    return usOnly.length > 0 ? usOnly.slice(0, 4) : REAL_TOURS.filter(isUs).slice(0, 4);
+  }
+  if (mentionsEu) {
+    const euOnly = list.filter(isEu);
+    return euOnly.length > 0 ? euOnly.slice(0, 4) : REAL_TOURS.filter(isEu).slice(0, 4);
+  }
+  return list.slice(0, 4);
 };
 
 const AiChatWidget = () => {
@@ -128,7 +172,7 @@ const AiChatWidget = () => {
       const botMsg = {
         sender: 'bot',
         text: sanitizedReply,
-        suggestedTours: res.data?.suggestedTours || []
+        suggestedTours: filterToursByGeographicIntent(res.data?.suggestedTours, textToSend)
       };
       setMessages(prev => [...prev, botMsg]);
 
@@ -169,7 +213,7 @@ const AiChatWidget = () => {
         } else if (destinationIntel) {
           replyIntro = `**[Cẩm Nang Du Lịch: ${destinationIntel.name}]**\n• **Thời điểm lý tưởng:** ${destinationIntel.bestSeasons}\n• **Khí hậu & Thời tiết:** ${destinationIntel.weatherProfile}\n• **Lưu ý hành lý:** ${destinationIntel.luggageTips}\n• **Văn hóa bản địa:** ${destinationIntel.cultureTips}\n\nDu Lịch Việt trân trọng gửi đến anh/chị các tour chọn lọc đến ${destinationIntel.name}:`;
           groundingSources.push('destination-ground-truth');
-        } else if (unaccented.includes('chau a thai binh duong') || unaccented.includes('thai binh duong') || unaccented.includes('chau a') || unaccented.includes('apac') || unaccented.includes('dong nam a')) {
+        } else if (unaccented.includes('chau a thai binh duong') || unaccented.includes('thai binh duong') || (unaccented.includes('chau a') && !unaccented.includes('chau au')) || unaccented.includes('apac') || unaccented.includes('dong nam a')) {
           matches = (searchRes.data || []).filter(t => {
             const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
             return !txt.includes('chau uc') && !txt.includes('australia') && !txt.includes('hoa ky') && !txt.includes('chau my') && !txt.includes('chau au');
@@ -213,7 +257,7 @@ const AiChatWidget = () => {
           {
             sender: 'bot',
             text: guardrailResult.sanitizedText,
-            suggestedTours: matches
+            suggestedTours: filterToursByGeographicIntent(matches, textToSend)
           }
         ]);
 

@@ -653,12 +653,84 @@
 }
 
 /* ========================================================
-   TOURS GRID
+   TOURS GRID & PAGINATION
    ======================================================== */
 .tours-grid-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 24px;
+}
+
+.tour-pagination-wrapper {
+  margin-top: 36px;
+  padding: 18px 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pagination-info {
+  font-size: 0.92rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.pagination-info strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-page-nav,
+.btn-page-num {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-page-nav:hover:not(:disabled),
+.btn-page-num:hover:not(.is-active) {
+  border-color: #0194f3;
+  color: #0194f3;
+  background: #f0f9ff;
+  transform: translateY(-1px);
+}
+
+.btn-page-num.is-active {
+  background: linear-gradient(135deg, #0194f3 0%, #0070ba 100%);
+  border-color: #0194f3;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(1, 148, 243, 0.3);
+}
+
+.btn-page-nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  background: #f8fafc;
 }
 
 .empty-state {

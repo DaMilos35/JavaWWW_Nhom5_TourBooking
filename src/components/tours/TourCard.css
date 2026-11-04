@@ -75,7 +75,9 @@
 .tc-img-wrapper {
   position: relative;
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 10;
+  height: 215px;
+  max-height: 235px;
   overflow: hidden;
   background-color: #f1f5f9;
 }
@@ -365,9 +367,9 @@
 }
 
 .tc-price {
-  font-size: 1.25rem;
+  font-size: 1.32rem;
   font-weight: 800;
-  color: #14171a;
+  color: #ff5e1f;
   line-height: 1.15;
   letter-spacing: -0.5px;
   white-space: nowrap;

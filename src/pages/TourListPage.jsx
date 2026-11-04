@@ -102,6 +102,8 @@ const TourListPage = () => {
   const [durationTier, setDurationTier] = useState(paramDuration);
   const [hotelStar, setHotelStar] = useState(paramStar);
   const [sortBy, setSortBy] = useState(paramSort);
+  const [currentPage, setCurrentPage] = useState(1);
+  const TOURS_PER_PAGE = 9;
 
   const searchDebounceTimer = useRef(null);
 
@@ -199,6 +201,24 @@ const TourListPage = () => {
   useEffect(() => {
     fetchTours();
   }, [fetchTours]);
+
+  // Reset trang về 1 khi bất kỳ điều kiện lọc nào thay đổi
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, selectedProvider, selectedDeparture, priceTier, durationTier, hotelStar, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(tours.length / TOURS_PER_PAGE));
+
+  const paginatedTours = useMemo(() => {
+    const startIndex = (currentPage - 1) * TOURS_PER_PAGE;
+    return tours.slice(startIndex, startIndex + TOURS_PER_PAGE);
+  }, [tours, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 380, behavior: 'smooth' });
+  };
 
   // Dynamic Facet Counts (Bộ đếm số lượng tour thông minh theo thời gian thực)
   const departureCounts = useMemo(() => {
@@ -782,6 +802,11 @@ const TourListPage = () => {
             <div className="filter-summary-row">
               <div className="result-count-label">
                 Tìm thấy <strong>{tours.length}</strong> hành trình du lịch phù hợp
+                {tours.length > TOURS_PER_PAGE && (
+                  <span className="page-slice-hint" style={{ color: '#64748b', fontWeight: 500, fontSize: '0.9rem' }}>
+                    {' '}(Trang {currentPage}/{totalPages} · hiển thị {(currentPage - 1) * TOURS_PER_PAGE + 1} - {Math.min(currentPage * TOURS_PER_PAGE, tours.length)})
+                  </span>
+                )}
               </div>
               <div className="active-filter-chips">
                 {selectedDeparture && (
@@ -842,11 +867,54 @@ const TourListPage = () => {
             {loading ? (
               <TourGridSkeleton count={6} />
             ) : loadError ? null : tours.length > 0 ? (
-              <div className="tours-grid-list stagger-children">
-                {tours.map(tour => (
-                  <TourCard key={tour.id || tour.tourId} tour={tour} />
-                ))}
-              </div>
+              <>
+                <div className="tours-grid-list stagger-children">
+                  {paginatedTours.map(tour => (
+                    <TourCard key={tour.id || tour.tourId} tour={tour} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <nav className="tour-pagination-wrapper" aria-label="Phân trang danh sách tour">
+                    <div className="pagination-info">
+                      Hiển thị <strong>{(currentPage - 1) * TOURS_PER_PAGE + 1} - {Math.min(currentPage * TOURS_PER_PAGE, tours.length)}</strong> trên tổng số <strong>{tours.length}</strong> hành trình
+                    </div>
+                    <div className="pagination-controls">
+                      <button
+                        type="button"
+                        className="btn-page-nav"
+                        disabled={currentPage === 1}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        aria-label="Trang trước"
+                      >
+                        ‹ Trước
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          type="button"
+                          className={`btn-page-num ${page === currentPage ? 'is-active' : ''}`}
+                          onClick={() => handlePageChange(page)}
+                          aria-current={page === currentPage ? 'page' : undefined}
+                        >
+                          {page}
+                        </button>
+                      ))}
+
+                      <button
+                        type="button"
+                        className="btn-page-nav"
+                        disabled={currentPage === totalPages}
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        aria-label="Trang tiếp theo"
+                      >
+                        Sau ›
+                      </button>
+                    </div>
+                  </nav>
+                )}
+              </>
             ) : (
               <div className="empty-state card-surface" style={{ borderRadius: '12px' }}>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '8px' }}>Không tìm thấy tour phù hợp!</h3>

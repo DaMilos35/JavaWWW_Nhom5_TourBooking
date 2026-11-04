@@ -458,22 +458,25 @@
 ======================================================== */
 .td-sidebar {
   position: sticky;
-  top: 90px;
+  top: 80px;
   height: fit-content;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .booking-card {
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 16px;
-  padding: 26px 28px;
+  padding: 20px 22px;
   box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
 }
 
 .booking-card-header,
 .price-box {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -527,7 +530,7 @@
 
 .qty-control-wrap,
 .quantity-box {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .qty-control-wrap label,
@@ -607,8 +610,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-top: 14px;
+  margin-bottom: 16px;
+  padding-top: 12px;
   border-top: 1px solid #e2e8f0;
 }
 
@@ -1218,7 +1221,11 @@
 .schedule-pills-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  max-height: 165px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
 }
 
 .schedule-pill-card {
@@ -2270,4 +2277,91 @@
   font-size: 0.8rem;
   color: #d97706;
   font-weight: 500;
+}
+
+/* ========================================================
+   MOBILE / COMPACT STICKY BOTTOM BOOKING BAR (OTA STANDARD)
+   ======================================================== */
+.mobile-sticky-bottom-bar {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .mobile-sticky-bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+    border-top: 1.5px solid #e2e8f0;
+    padding: 12px 20px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -6px 24px rgba(15, 23, 42, 0.1);
+    animation: slideUpBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-bar-price-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-bar-price-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .mobile-bar-price-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ff5e1f;
+    line-height: 1;
+  }
+
+  .mobile-bar-buy-btn {
+    padding: 11px 26px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ff5e1f 0%, #ea580c 100%);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(255, 94, 31, 0.4);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-bar-buy-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    transform: translateY(-1px);
+  }
+
+  .mobile-bar-buy-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  @keyframes slideUpBottom {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .tour-detail-page {
+    padding-bottom: 90px;
+  }
 }

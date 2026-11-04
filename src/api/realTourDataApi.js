@@ -160,7 +160,7 @@ export const realTourApi = {
 
     // Geographic continent detection & isolation
     const isQueryAsiaPacific = cleanKw.includes('chau a thai binh duong') || cleanKw.includes('thai binh duong')
-      || cleanKw.includes('chau a') || cleanKw.includes('apac') || cleanKw.includes('dong nam a') || cleanKw.includes('asean');
+      || (cleanKw.includes('chau a') && !cleanKw.includes('chau au')) || cleanKw.includes('apac') || cleanKw.includes('dong nam a') || cleanKw.includes('asean');
     const isQueryAustralia = cleanKw.includes('chau uc') || cleanKw.includes('australia')
       || cleanKw.includes('sydney') || cleanKw.includes('melbourne');
     const isQueryAmericas = cleanKw.includes('chau my') || cleanKw.includes('hoa ky')
@@ -176,19 +176,20 @@ export const realTourApi = {
       return txt.includes('hoa ky') || txt.includes('chau my') || txt.includes('los angeles') || txt.includes('las vegas');
     };
     const isEu = (t) => {
+      if (Number(t.categoryId || t.category?.id) <= 7) return false;
       const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
-      return txt.includes('chau au') || txt.includes('phap') || txt.includes('thuy si') || txt.includes('italy');
+      return txt.includes('chau au') || txt.includes('schengen') || (txt.includes('phap') && txt.includes('thuy si')) || txt.includes('vatican') || txt.includes('colosseum');
     };
     const isAsia = (t) => {
       if (isAus(t) || isUs(t) || isEu(t)) return false;
       return true; // Domestic Vietnam and Asian outbound
     };
 
-    if (isQueryAsiaPacific && !isQueryAustralia && !isQueryAmericas && !isQueryEurope) {
+    if (isQueryAsiaPacific) {
       const asiaTours = REAL_TOURS.filter(isAsia);
       return { data: asiaTours.slice(0, 8) };
     }
-    if (isQueryAustralia && !isQueryAsiaPacific) {
+    if (isQueryAustralia && !isQueryAmericas) {
       return { data: REAL_TOURS.filter(isAus) };
     }
     if (isQueryAmericas && !isQueryAsiaPacific) {

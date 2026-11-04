@@ -1583,6 +1583,24 @@ const TourDetailPage = () => {
           </div>
         </div>
       )}
+
+      {/* Mobile / Compact Viewport Sticky Bottom Booking Bar (Traveloka/Airbnb Pattern) */}
+      <div className="mobile-sticky-bottom-bar" aria-label="Thanh đặt tour nhanh trên thiết bị di động">
+        <div className="mobile-bar-price-info">
+          <span className="mobile-bar-price-label">Tổng cộng tạm tính</span>
+          <span className="mobile-bar-price-value">{formatPrice(finalTotal)}</span>
+        </div>
+        <div className="mobile-bar-actions">
+          <button
+            type="button"
+            className="btn btn-primary mobile-bar-buy-btn"
+            disabled={!availableSeats || departureHasPassed}
+            onClick={handleBuyNow}
+          >
+            <FaBolt /> {availableSeats ? 'Đặt Ngay' : 'Hết chỗ'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

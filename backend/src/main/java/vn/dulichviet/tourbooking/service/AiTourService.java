@@ -349,7 +349,7 @@ public class AiTourService {
             else if (unaccented.contains("thai lan") && textUnaccented.contains("thai lan")) matches.add(t);
             else if (unaccented.contains("singapore") && textUnaccented.contains("singapore")) matches.add(t);
             // Châu Á & Châu Á - Thái Bình Dương (APAC)
-            else if ((unaccented.contains("chau a") || unaccented.contains("thai binh duong") || unaccented.contains("apac") || unaccented.contains("dong nam a"))
+            else if (((unaccented.contains("chau a") && !unaccented.contains("chau au")) || unaccented.contains("thai binh duong") || unaccented.contains("apac") || unaccented.contains("dong nam a"))
                     && isAsiaPacificTour(t)) {
                 matches.add(t);
             }
@@ -462,7 +462,7 @@ public class AiTourService {
                 || unaccented.contains("eiffel") || unaccented.contains("titlis") || unaccented.contains("colosseum");
 
         boolean isAsiaPacific = unaccented.contains("chau a thai binh duong") || unaccented.contains("thai binh duong")
-                || unaccented.contains("chau a") || unaccented.contains("apac") || unaccented.contains("dong nam a")
+                || (unaccented.contains("chau a") && !unaccented.contains("chau au")) || unaccented.contains("apac") || unaccented.contains("dong nam a")
                 || unaccented.contains("asean");
 
         boolean isAustralia = unaccented.contains("chau uc") || unaccented.contains("australia")
@@ -645,14 +645,18 @@ public class AiTourService {
 
     public static boolean isEuropeTour(Tour t) {
         if (t == null) return false;
+        // Tour nội địa không bao giờ là tour Châu Âu (tránh nhầm lẫn ví von "như Thụy Sĩ")
+        if (t.getCategory() != null && t.getCategory().getId() != null && t.getCategory().getId() <= 7) {
+            return false;
+        }
         String text = ((t.getName() != null ? t.getName() : "") + " " +
                 (t.getDescription() != null ? t.getDescription() : "") + " " +
                 (t.getCategory() != null ? t.getCategory().getName() : "")).toLowerCase(Locale.ROOT);
         String unaccented = EmbeddingService.removeAccents(text);
-        return unaccented.contains("chau au") || unaccented.contains("phap") ||
-                unaccented.contains("thuy si") || unaccented.contains("italy") ||
+        return unaccented.contains("chau au") || unaccented.contains("schengen") ||
+                (unaccented.contains("phap") && unaccented.contains("thuy si")) ||
                 unaccented.contains("vatican") || unaccented.contains("paris") ||
-                unaccented.contains("rome") || unaccented.contains("schengen");
+                unaccented.contains("colosseum");
     }
 
     public static boolean isAsiaPacificTour(Tour t) {
@@ -661,14 +665,19 @@ public class AiTourService {
         if (isAustraliaTour(t) || isAmericasTour(t) || isEuropeTour(t)) {
             return false;
         }
-        // Tour nội địa Việt Nam (Category 1 -> 7) nằm trong khu vực Châu Á - Thái Bình Dương
-        if (t.getCategory() != null && t.getCategory().getId() != null && t.getCategory().getId() <= 7) {
-            return true;
-        }
         String text = ((t.getName() != null ? t.getName() : "") + " " +
                 (t.getDescription() != null ? t.getDescription() : "") + " " +
                 (t.getCategory() != null ? t.getCategory().getName() : "")).toLowerCase(Locale.ROOT);
         String unaccented = EmbeddingService.removeAccents(text);
+        if (unaccented.contains("sydney") || unaccented.contains("melbourne") || unaccented.contains("australia")
+                || unaccented.contains("los angeles") || unaccented.contains("hoa ky") || unaccented.contains("california")
+                || unaccented.contains("paris") || unaccented.contains("thuy si") || unaccented.contains("italy")) {
+            return false;
+        }
+        // Tour nội địa Việt Nam (Category 1 -> 7) nằm trong khu vực Châu Á - Thái Bình Dương
+        if (t.getCategory() != null && t.getCategory().getId() != null && t.getCategory().getId() <= 7) {
+            return true;
+        }
         return unaccented.contains("thai lan") || unaccented.contains("singapore") ||
                 unaccented.contains("malaysia") || unaccented.contains("indonesia") ||
                 unaccented.contains("bali") || unaccented.contains("nhat ban") ||
@@ -691,18 +700,19 @@ public class AiTourService {
         String unaccented = EmbeddingService.normalizeQuery(query);
 
         boolean queryAsiaPacific = unaccented.contains("chau a thai binh duong") || unaccented.contains("thai binh duong")
-                || unaccented.contains("chau a") || unaccented.contains("apac") || unaccented.contains("dong nam a")
+                || (unaccented.contains("chau a") && !unaccented.contains("chau au")) || unaccented.contains("apac") || unaccented.contains("dong nam a")
                 || unaccented.contains("asean");
         boolean queryAustralia = unaccented.contains("chau uc") || unaccented.contains("australia")
                 || unaccented.contains("sydney") || unaccented.contains("melbourne");
         boolean queryAmericas = unaccented.contains("chau my") || unaccented.contains("hoa ky")
-                || unaccented.contains("my") || unaccented.contains("los angeles")
+                || unaccented.contains("bac my") || unaccented.contains("nuoc my") || unaccented.contains("los angeles")
                 || unaccented.contains("las vegas") || unaccented.contains("san francisco");
         boolean queryEurope = unaccented.contains("chau au") || unaccented.contains("phap")
                 || unaccented.contains("thuy si") || unaccented.contains("italy") || unaccented.contains("vatican");
 
         // 1. Phân định chặt chẽ khu vực Châu Á - Thái Bình Dương (APAC)
-        if (queryAsiaPacific && !queryAustralia && !queryAmericas && !queryEurope) {
+        // Nếu người dùng hỏi/đề cập về APAC, luôn ưu tiên áp dụng rào chắn APAC tuyệt đối
+        if (queryAsiaPacific) {
             List<Tour> filtered = (candidateTours != null ? candidateTours : new ArrayList<Tour>()).stream()
                     .filter(AiTourService::isAsiaPacificTour)
                     .collect(Collectors.toList());
@@ -719,7 +729,7 @@ public class AiTourService {
         }
 
         // 2. Phân định Châu Úc
-        if (queryAustralia && !queryAsiaPacific && !queryAmericas) {
+        if (queryAustralia && !queryAmericas) {
             List<Tour> filtered = (candidateTours != null ? candidateTours : new ArrayList<Tour>()).stream()
                     .filter(AiTourService::isAustraliaTour)
                     .collect(Collectors.toList());
@@ -733,7 +743,7 @@ public class AiTourService {
         }
 
         // 3. Phân định Châu Mỹ / Hoa Kỳ
-        if (queryAmericas && !queryAsiaPacific && !queryAustralia) {
+        if (queryAmericas && !queryAustralia) {
             List<Tour> filtered = (candidateTours != null ? candidateTours : new ArrayList<Tour>()).stream()
                     .filter(AiTourService::isAmericasTour)
                     .collect(Collectors.toList());

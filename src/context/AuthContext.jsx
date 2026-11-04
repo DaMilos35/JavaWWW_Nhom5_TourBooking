@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }) => {
 
   const isAdmin = () => {
     if (!user || !user.role) return false;
-    const r = user.role.replace(/^ROLE_/, '');
+    const r = String(user.role).replace(/^ROLE_/, '').trim().toUpperCase();
     return r === 'ADMIN';
   };
 
