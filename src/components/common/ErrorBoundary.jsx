@@ -133,6 +133,44 @@ class ErrorBoundary extends React.Component {
                 <FaHome /> Về trang chủ
               </button>
             </div>
+
+            {/* Chi tiết sự cố kỹ thuật (Hỗ trợ chẩn đoán chính xác) */}
+            <div style={{ marginTop: '20px' }}>
+              <button
+                type="button"
+                onClick={() => this.setState(prev => ({ showDetails: !prev.showDetails }))}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#94a3b8',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                {this.state.showDetails ? 'Ẩn thông tin kỹ thuật' : 'Xem chi tiết sự cố kỹ thuật'}
+              </button>
+
+              {this.state.showDetails && this.state.error && (
+                <div style={{
+                  marginTop: '12px',
+                  textAlign: 'left',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  color: '#dc2626',
+                  maxHeight: '160px',
+                  overflowY: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word'
+                }}>
+                  {this.state.error?.stack || this.state.error?.message || String(this.state.error)}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       );

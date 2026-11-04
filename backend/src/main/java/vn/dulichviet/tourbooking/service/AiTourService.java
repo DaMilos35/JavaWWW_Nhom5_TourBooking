@@ -97,11 +97,18 @@ public class AiTourService {
             }
         }
 
+        // Tải danh mục tour hoàn chỉnh để sẵn sàng bổ trợ & áp dụng rào chắn địa lý
+        List<Tour> allTours = tourRepository.findByStatus("ACTIVE");
+        if (allTours.isEmpty()) allTours = tourRepository.findAll();
+
+        // 1.1 ÁP DỤNG RÀO CHẮN ĐỊA LÝ NGHIÊM NGẶT (Geographic Isolation Guards)
+        // Đảm bảo truy vấn Châu Á - TBD không lẫn Châu Mỹ / Châu Úc và ngược lại
+        matchedTours = applyGeographicGuards(matchedTours, allTours, userMessage);
+
         // Nếu Vector DB chưa khớp đủ tour, bổ sung thêm bằng rule lọc phụ trợ
         if (matchedTours.isEmpty()) {
-            List<Tour> allTours = tourRepository.findByStatus("ACTIVE");
-            if (allTours.isEmpty()) allTours = tourRepository.findAll();
             matchedTours = filterRelevantTours(allTours, userMessage);
+            matchedTours = applyGeographicGuards(matchedTours, allTours, userMessage);
         }
 
         List<TourDto> suggestedDtos = matchedTours.stream()
@@ -150,14 +157,26 @@ public class AiTourService {
         Map<Integer, Tour> tourMap = tourRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Tour::getId, t -> t));
 
-        List<SemanticSearchDto> response = new ArrayList<>();
+        List<Tour> candidateTours = new ArrayList<>();
+        Map<Integer, Double> scoreMap = new HashMap<>();
         for (VectorStoreService.SearchResult res : searchResults) {
             Tour tour = tourMap.get(res.tourId());
             if (tour != null) {
-                double pct = Math.round(res.similarityScore() * 1000.0) / 10.0;
-                String reason = String.format("Khớp ngữ nghĩa Vector với độ tương đồng %.1f%%", Math.max(0, pct));
-                response.add(new SemanticSearchDto(TourDto.from(tour), res.similarityScore(), reason));
+                candidateTours.add(tour);
+                scoreMap.put(tour.getId(), res.similarityScore());
             }
+        }
+
+        List<Tour> allTours = tourRepository.findByStatus("ACTIVE");
+        if (allTours.isEmpty()) allTours = tourRepository.findAll();
+        List<Tour> guardedTours = applyGeographicGuards(candidateTours, allTours, query);
+
+        List<SemanticSearchDto> response = new ArrayList<>();
+        for (Tour tour : guardedTours) {
+            double score = scoreMap.getOrDefault(tour.getId(), 0.85);
+            double pct = Math.round(score * 1000.0) / 10.0;
+            String reason = String.format("Khớp ngữ nghĩa Vector với độ tương đồng %.1f%%", Math.max(0, pct));
+            response.add(new SemanticSearchDto(TourDto.from(tour), score, reason));
         }
 
         return response;
@@ -197,7 +216,10 @@ public class AiTourService {
                 "     + Giới thiệu tour Châu Âu thực tế nếu khách muốn tham khảo dài hạn (như Tour Châu Âu 4 nước Pháp - Thụy Sĩ - Ý - Vatican 10N9Đ giá 68.900.000đ/khách), đồng thời tư vấn phương án thay thế phù hợp với ngân sách 10 triệu cho 2 người (như tour Thái Lan khoảng 6.990.000đ/khách hoặc các tour nghỉ dưỡng biển đảo Phú Quốc, Nha Trang).\n" +
                 "4. Giới thiệu nhiệt tình các tour du lịch phù hợp nhất trong danh sách ở trên (nêu rõ điểm nổi bật, giá vé ưu đãi, số ngày).\n" +
                 "5. Nhắc khách hàng có thể bấm trực tiếp vào thẻ tour bên dưới để xem hình ảnh thực tế, lịch trình chi tiết và giữ chỗ.\n" +
-                "6. Tuyệt đối KHÔNG tự xưng là 'AI', 'mô hình ngôn ngữ', 'bot'. Tuyệt đối KHÔNG sử dụng các thuật ngữ kỹ thuật như 'vector database', 'embedding', 'cosine similarity', 'cơ sở dữ liệu vector', 'thuật toán', 'RAG', 'trích xuất'.";
+                "6. Tuyệt đối KHÔNG tự xưng là 'AI', 'mô hình ngôn ngữ', 'bot'. Tuyệt đối KHÔNG sử dụng các thuật ngữ kỹ thuật như 'vector database', 'embedding', 'cosine similarity', 'cơ sở dữ liệu vector', 'thuật toán', 'RAG', 'trích xuất'.\n" +
+                "7. NGUYÊN TẮC PHÂN ĐỊNH KHU VỰC ĐỊA LÝ & CHÂU LỤC CHÍNH XÁC:\n" +
+                "   - Khi khách hỏi về Châu Á hoặc Châu Á - Thái Bình Dương (APAC), chỉ được tư vấn các điểm đến thuộc Châu Á (Thái Lan, Singapore, Malaysia, Bali hoặc các kỳ quan Việt Nam như Phú Quốc, Nha Trang, Hạ Long, Đà Nẵng, Tây Ninh). Tuyệt đối KHÔNG đề xuất Châu Mỹ (Bờ Tây Hoa Kỳ), Châu Úc (Sydney - Melbourne), hay Châu Âu.\n" +
+                "   - Tương tự: nếu khách hỏi Châu Úc / Australia, chỉ giới thiệu tour Úc. Nếu khách hỏi Châu Mỹ / Hoa Kỳ, chỉ giới thiệu tour Bờ Tây Hoa Kỳ. Nếu khách hỏi Châu Âu, chỉ giới thiệu tour Châu Âu.";
 
         Map<String, Object> payload = Map.of(
                 "contents", List.of(
@@ -326,6 +348,21 @@ public class AiTourService {
             else if (unaccented.contains("quang binh") && textUnaccented.contains("quang binh")) matches.add(t);
             else if (unaccented.contains("thai lan") && textUnaccented.contains("thai lan")) matches.add(t);
             else if (unaccented.contains("singapore") && textUnaccented.contains("singapore")) matches.add(t);
+            // Châu Á & Châu Á - Thái Bình Dương (APAC)
+            else if ((unaccented.contains("chau a") || unaccented.contains("thai binh duong") || unaccented.contains("apac") || unaccented.contains("dong nam a"))
+                    && isAsiaPacificTour(t)) {
+                matches.add(t);
+            }
+            // Châu Úc / Australia
+            else if ((unaccented.contains("chau uc") || unaccented.contains("australia") || unaccented.contains("sydney") || unaccented.contains("melbourne"))
+                    && isAustraliaTour(t)) {
+                matches.add(t);
+            }
+            // Châu Mỹ / Hoa Kỳ
+            else if ((unaccented.contains("chau my") || unaccented.contains("hoa ky") || unaccented.contains("los angeles") || unaccented.contains("las vegas"))
+                    && isAmericasTour(t)) {
+                matches.add(t);
+            }
             else if ((unaccented.contains("chau au") || unaccented.contains("phap") || unaccented.contains("thuy si") || unaccented.contains("italy") || unaccented.contains("vatican") || unaccented.contains("eiffel") || unaccented.contains("paris") || unaccented.contains("rome") || unaccented.contains("titlis") || unaccented.contains("colosseum"))
                     && (textUnaccented.contains("chau au") || textUnaccented.contains("phap") || textUnaccented.contains("thuy si") || textUnaccented.contains("vatican") || textUnaccented.contains("eiffel") || textUnaccented.contains("paris") || textUnaccented.contains("rome") || textUnaccented.contains("titlis") || textUnaccented.contains("colosseum"))) {
                 matches.add(t);
@@ -362,6 +399,10 @@ public class AiTourService {
         }
 
         if (matches.isEmpty()) {
+            List<Tour> guardedFallback = applyGeographicGuards(new ArrayList<>(), tours, query);
+            if (!guardedFallback.isEmpty()) {
+                return guardedFallback;
+            }
             return tours.stream()
                     .sorted((a, b) -> Objects.compare(b.getRating(), a.getRating(), Comparator.nullsLast(Comparator.naturalOrder())))
                     .limit(4)
@@ -419,6 +460,17 @@ public class AiTourService {
         boolean isEurope = unaccented.contains("chau au") || unaccented.contains("phap") || unaccented.contains("thuy si")
                 || unaccented.contains("italy") || unaccented.contains("vatican") || unaccented.contains("paris") || unaccented.contains("rome")
                 || unaccented.contains("eiffel") || unaccented.contains("titlis") || unaccented.contains("colosseum");
+
+        boolean isAsiaPacific = unaccented.contains("chau a thai binh duong") || unaccented.contains("thai binh duong")
+                || unaccented.contains("chau a") || unaccented.contains("apac") || unaccented.contains("dong nam a")
+                || unaccented.contains("asean");
+
+        boolean isAustralia = unaccented.contains("chau uc") || unaccented.contains("australia")
+                || unaccented.contains("sydney") || unaccented.contains("melbourne");
+
+        boolean isAmericas = unaccented.contains("chau my") || unaccented.contains("hoa ky")
+                || unaccented.contains("my") || unaccented.contains("los angeles")
+                || unaccented.contains("las vegas") || unaccented.contains("san francisco");
 
         if (isGreeting && matchedTours.isEmpty()) {
             sb.append("Xin chào quý khách! Em là chuyên viên tư vấn du lịch của Du Lịch Việt, rất vui được hỗ trợ anh/chị chọn chuyến đi lý tưởng nhất.\n\n");
@@ -498,6 +550,36 @@ public class AiTourService {
             return sb.toString();
         }
 
+        if (isAsiaPacific && !isAustralia && !isAmericas && !isEurope) {
+            sb.append("Dạ em chào anh/chị! Du Lịch Việt rất hân hạnh được đồng hành cùng anh/chị khám phá **khu vực Châu Á - Thái Bình Dương (APAC)** với vô vàn danh lam thắng cảnh và nền văn hóa đa dạng rực rỡ:\n\n");
+            sb.append("🌏 **Những hành trình Châu Á & Đông Nam Á chọn lọc hàng đầu:**\n");
+            sb.append("• **Thái Lan (Bangkok - Pattaya):** Thiên đường du lịch Đông Nam Á, viếng Chùa Phật Vàng thiêng liêng, tắm biển đảo san hô Coral và thưởng thức show nghệ thuật đỉnh cao.\n");
+            sb.append("• **Singapore - Malaysia:** Khám phá đảo quốc sư tử hiện đại, kỳ quan Gardens by the Bay, Phố cổ Malacca và Cao nguyên Genting mát lạnh.\n");
+            sb.append("• **Kỳ quan biển đảo & di sản Việt Nam (APAC):** Các hành trình nghỉ dưỡng chuẩn mực tại Phú Quốc 5 sao, Vịnh Hạ Long - Lan Hạ hay Cung đường di sản miền Trung.\n\n");
+            sb.append("📌 *Lưu ý địa lý & thủ tục:* Các tour trong khu vực Châu Á - Đông Nam Á du khách Việt Nam được miễn visa hoặc làm e-Visa cực kỳ nhanh gọn, thuận tiện và tiết kiệm thời gian hơn rất nhiều so với các hành trình liên lục địa xa xôi như Châu Úc hay Châu Mỹ.\n\n");
+            sb.append("💡 Anh/chị có thể bấm trực tiếp vào thẻ tour Châu Á bên dưới để xem chi tiết lịch trình trọn gói và đặt giữ chỗ nhé!");
+            return sb.toString();
+        }
+
+        if (isAustralia && !isAsiaPacific && !isAmericas) {
+            sb.append("Dạ em chào anh/chị! Khám phá Xứ Sở Chuột Túi - Châu Úc thanh bình và hiện đại luôn là hành trình ấn tượng. Du Lịch Việt xin trân trọng giới thiệu hành trình **Tour Châu Úc: Sydney - Melbourne (7N6Đ)**:\n\n");
+            sb.append("🦘 **Trải nghiệm nổi bật tại Châu Úc:**\n");
+            sb.append("• **Sydney:** Check-in Nhà Hát Con Sò Opera House, Cầu Cảng Sydney Harbour Bridge và ngắm vịnh biển xanh ngắt.\n");
+            sb.append("• **Melbourne:** Trải nghiệm tàu hơi nước Puffing Billy xuyên rừng nguyên sinh Dandenong và ngắm chim cánh cụt tại Đảo Phillip.\n\n");
+            sb.append("💡 Anh/chị có thể bấm trực tiếp vào thẻ tour Châu Úc bên dưới để xem điều kiện visa Úc Subclass 600 và đặt giữ chỗ nhé!");
+            return sb.toString();
+        }
+
+        if (isAmericas && !isAsiaPacific && !isAustralia) {
+            sb.append("Dạ em chào anh/chị! Giấc mơ Mỹ luôn mở ra những cung đường tráng lệ. Du Lịch Việt trân trọng giới thiệu hành trình **Bờ Tây Hoa Kỳ: Los Angeles - Las Vegas - San Francisco (8N7Đ)**:\n\n");
+            sb.append("🗽 **Điểm nhấn hành trình Bờ Tây Hoa Kỳ:**\n");
+            sb.append("• **Los Angeles:** Dạo bước trên Đại Lộ Danh Vọng Hollywood, Universal Studios và đồi Beverly Hills.\n");
+            sb.append("• **Las Vegas:** Kinh đô giải trí ánh sáng, chiêm ngưỡng Đại Vực Grand Canyon kỳ vĩ nhất thế giới.\n");
+            sb.append("• **San Francisco:** Check-in Cầu Cổng Vàng Golden Gate huyền thoại và bến tàu Fisherman's Wharf.\n\n");
+            sb.append("💡 Du Lịch Việt hỗ trợ trọn gói hồ sơ phỏng vấn Visa Mỹ B1/B2 với tỷ lệ đỗ cao. Mời anh/chị tham khảo chi tiết thẻ tour bên dưới!");
+            return sb.toString();
+        }
+
         if (isEurope) {
             boolean isLowBudget = unaccented.contains("duoi 10") || unaccented.contains("10 trieu") || unaccented.contains("duoi 5")
                     || unaccented.contains("gia re") || unaccented.contains("tiet kiem") || unaccented.contains("sinh vien");
@@ -532,5 +614,152 @@ public class AiTourService {
         }
         sb.append("\n💡 Anh/chị có thể bấm trực tiếp vào thẻ tour bên dưới để xem chi tiết lịch trình trọn gói và đặt giữ chỗ nhé!");
         return sb.toString();
+    }
+
+    // =========================================================================
+    // GEOGRAPHIC REGION TAXONOMY & ISOLATION GUARDS (CHÂU Á vs MỸ vs ÚC vs ÂU)
+    // =========================================================================
+
+    public static boolean isAustraliaTour(Tour t) {
+        if (t == null) return false;
+        String text = ((t.getName() != null ? t.getName() : "") + " " +
+                (t.getDescription() != null ? t.getDescription() : "") + " " +
+                (t.getCategory() != null ? t.getCategory().getName() : "")).toLowerCase(Locale.ROOT);
+        String unaccented = EmbeddingService.removeAccents(text);
+        return unaccented.contains("chau uc") || unaccented.contains("australia") ||
+                unaccented.contains("sydney") || unaccented.contains("melbourne") ||
+                unaccented.contains("chuot tui");
+    }
+
+    public static boolean isAmericasTour(Tour t) {
+        if (t == null) return false;
+        String text = ((t.getName() != null ? t.getName() : "") + " " +
+                (t.getDescription() != null ? t.getDescription() : "") + " " +
+                (t.getCategory() != null ? t.getCategory().getName() : "")).toLowerCase(Locale.ROOT);
+        String unaccented = EmbeddingService.removeAccents(text);
+        return unaccented.contains("hoa ky") || unaccented.contains("chau my") ||
+                unaccented.contains("los angeles") || unaccented.contains("las vegas") ||
+                unaccented.contains("san francisco") || unaccented.contains("california") ||
+                unaccented.contains("new york") || unaccented.contains("usa");
+    }
+
+    public static boolean isEuropeTour(Tour t) {
+        if (t == null) return false;
+        String text = ((t.getName() != null ? t.getName() : "") + " " +
+                (t.getDescription() != null ? t.getDescription() : "") + " " +
+                (t.getCategory() != null ? t.getCategory().getName() : "")).toLowerCase(Locale.ROOT);
+        String unaccented = EmbeddingService.removeAccents(text);
+        return unaccented.contains("chau au") || unaccented.contains("phap") ||
+                unaccented.contains("thuy si") || unaccented.contains("italy") ||
+                unaccented.contains("vatican") || unaccented.contains("paris") ||
+                unaccented.contains("rome") || unaccented.contains("schengen");
+    }
+
+    public static boolean isAsiaPacificTour(Tour t) {
+        if (t == null) return false;
+        // Loại trừ tuyệt đối các châu lục khác
+        if (isAustraliaTour(t) || isAmericasTour(t) || isEuropeTour(t)) {
+            return false;
+        }
+        // Tour nội địa Việt Nam (Category 1 -> 7) nằm trong khu vực Châu Á - Thái Bình Dương
+        if (t.getCategory() != null && t.getCategory().getId() != null && t.getCategory().getId() <= 7) {
+            return true;
+        }
+        String text = ((t.getName() != null ? t.getName() : "") + " " +
+                (t.getDescription() != null ? t.getDescription() : "") + " " +
+                (t.getCategory() != null ? t.getCategory().getName() : "")).toLowerCase(Locale.ROOT);
+        String unaccented = EmbeddingService.removeAccents(text);
+        return unaccented.contains("thai lan") || unaccented.contains("singapore") ||
+                unaccented.contains("malaysia") || unaccented.contains("indonesia") ||
+                unaccented.contains("bali") || unaccented.contains("nhat ban") ||
+                unaccented.contains("han quoc") || unaccented.contains("dai loan") ||
+                unaccented.contains("trung quoc") || unaccented.contains("dong nam a") ||
+                unaccented.contains("chau a") || unaccented.contains("viet nam") ||
+                unaccented.contains("phu quoc") || unaccented.contains("nha trang") ||
+                unaccented.contains("da nang") || unaccented.contains("ha long");
+    }
+
+    /**
+     * Rào chắn địa lý nghiêm ngặt (Strict Geographic Isolation Guard):
+     * Ngăn chặn hiện tượng lan nhiễm (semantic bleeding) khi tìm kiếm vector cho các khu vực
+     * như 'Châu Á - Thái Bình Dương' (vốn có thể vô tình khớp từ 'Thái Bình Dương' trong tour Mỹ hoặc tour Úc).
+     */
+    public static List<Tour> applyGeographicGuards(List<Tour> candidateTours, List<Tour> allCatalog, String query) {
+        if (query == null || query.isBlank()) {
+            return candidateTours != null ? candidateTours : new ArrayList<>();
+        }
+        String unaccented = EmbeddingService.normalizeQuery(query);
+
+        boolean queryAsiaPacific = unaccented.contains("chau a thai binh duong") || unaccented.contains("thai binh duong")
+                || unaccented.contains("chau a") || unaccented.contains("apac") || unaccented.contains("dong nam a")
+                || unaccented.contains("asean");
+        boolean queryAustralia = unaccented.contains("chau uc") || unaccented.contains("australia")
+                || unaccented.contains("sydney") || unaccented.contains("melbourne");
+        boolean queryAmericas = unaccented.contains("chau my") || unaccented.contains("hoa ky")
+                || unaccented.contains("my") || unaccented.contains("los angeles")
+                || unaccented.contains("las vegas") || unaccented.contains("san francisco");
+        boolean queryEurope = unaccented.contains("chau au") || unaccented.contains("phap")
+                || unaccented.contains("thuy si") || unaccented.contains("italy") || unaccented.contains("vatican");
+
+        // 1. Phân định chặt chẽ khu vực Châu Á - Thái Bình Dương (APAC)
+        if (queryAsiaPacific && !queryAustralia && !queryAmericas && !queryEurope) {
+            List<Tour> filtered = (candidateTours != null ? candidateTours : new ArrayList<Tour>()).stream()
+                    .filter(AiTourService::isAsiaPacificTour)
+                    .collect(Collectors.toList());
+            if (filtered.size() < 4 && allCatalog != null) {
+                List<Tour> extra = allCatalog.stream()
+                        .filter(AiTourService::isAsiaPacificTour)
+                        .filter(t -> filtered.stream().noneMatch(existing -> existing.getId().equals(t.getId())))
+                        .sorted((a, b) -> Objects.compare(b.getRating(), a.getRating(), Comparator.nullsLast(Comparator.naturalOrder())))
+                        .limit(4 - filtered.size())
+                        .toList();
+                filtered.addAll(extra);
+            }
+            return filtered;
+        }
+
+        // 2. Phân định Châu Úc
+        if (queryAustralia && !queryAsiaPacific && !queryAmericas) {
+            List<Tour> filtered = (candidateTours != null ? candidateTours : new ArrayList<Tour>()).stream()
+                    .filter(AiTourService::isAustraliaTour)
+                    .collect(Collectors.toList());
+            if (filtered.isEmpty() && allCatalog != null) {
+                filtered = allCatalog.stream()
+                        .filter(AiTourService::isAustraliaTour)
+                        .limit(4)
+                        .collect(Collectors.toList());
+            }
+            return filtered;
+        }
+
+        // 3. Phân định Châu Mỹ / Hoa Kỳ
+        if (queryAmericas && !queryAsiaPacific && !queryAustralia) {
+            List<Tour> filtered = (candidateTours != null ? candidateTours : new ArrayList<Tour>()).stream()
+                    .filter(AiTourService::isAmericasTour)
+                    .collect(Collectors.toList());
+            if (filtered.isEmpty() && allCatalog != null) {
+                filtered = allCatalog.stream()
+                        .filter(AiTourService::isAmericasTour)
+                        .limit(4)
+                        .collect(Collectors.toList());
+            }
+            return filtered;
+        }
+
+        // 4. Phân định Châu Âu
+        if (queryEurope) {
+            List<Tour> filtered = (candidateTours != null ? candidateTours : new ArrayList<Tour>()).stream()
+                    .filter(AiTourService::isEuropeTour)
+                    .collect(Collectors.toList());
+            if (filtered.isEmpty() && allCatalog != null) {
+                filtered = allCatalog.stream()
+                        .filter(AiTourService::isEuropeTour)
+                        .limit(4)
+                        .collect(Collectors.toList());
+            }
+            return filtered;
+        }
+
+        return candidateTours != null ? candidateTours : new ArrayList<>();
     }
 }

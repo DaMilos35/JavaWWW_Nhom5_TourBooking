@@ -158,6 +158,46 @@ export const realTourApi = {
     const cleanKw = normalizeSearchKeyword(keyword);
     const kwTokens = cleanKw.split(/\s+/).filter(Boolean);
 
+    // Geographic continent detection & isolation
+    const isQueryAsiaPacific = cleanKw.includes('chau a thai binh duong') || cleanKw.includes('thai binh duong')
+      || cleanKw.includes('chau a') || cleanKw.includes('apac') || cleanKw.includes('dong nam a') || cleanKw.includes('asean');
+    const isQueryAustralia = cleanKw.includes('chau uc') || cleanKw.includes('australia')
+      || cleanKw.includes('sydney') || cleanKw.includes('melbourne');
+    const isQueryAmericas = cleanKw.includes('chau my') || cleanKw.includes('hoa ky')
+      || cleanKw.includes('los angeles') || cleanKw.includes('las vegas') || cleanKw.includes('san francisco');
+    const isQueryEurope = cleanKw.includes('chau au') || cleanKw.includes('phap') || cleanKw.includes('thuy si') || cleanKw.includes('italy');
+
+    const isAus = (t) => {
+      const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+      return txt.includes('chau uc') || txt.includes('australia') || txt.includes('sydney') || txt.includes('melbourne');
+    };
+    const isUs = (t) => {
+      const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+      return txt.includes('hoa ky') || txt.includes('chau my') || txt.includes('los angeles') || txt.includes('las vegas');
+    };
+    const isEu = (t) => {
+      const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+      return txt.includes('chau au') || txt.includes('phap') || txt.includes('thuy si') || txt.includes('italy');
+    };
+    const isAsia = (t) => {
+      if (isAus(t) || isUs(t) || isEu(t)) return false;
+      return true; // Domestic Vietnam and Asian outbound
+    };
+
+    if (isQueryAsiaPacific && !isQueryAustralia && !isQueryAmericas && !isQueryEurope) {
+      const asiaTours = REAL_TOURS.filter(isAsia);
+      return { data: asiaTours.slice(0, 8) };
+    }
+    if (isQueryAustralia && !isQueryAsiaPacific) {
+      return { data: REAL_TOURS.filter(isAus) };
+    }
+    if (isQueryAmericas && !isQueryAsiaPacific) {
+      return { data: REAL_TOURS.filter(isUs) };
+    }
+    if (isQueryEurope) {
+      return { data: REAL_TOURS.filter(isEu) };
+    }
+
     const filtered = REAL_TOURS.filter((t) => {
       const rawText = (t.name + ' ' + (t.description || '') + ' ' + (t.departureLocation || '')).toLowerCase();
       const cleanText = removeVietnameseTones(rawText);

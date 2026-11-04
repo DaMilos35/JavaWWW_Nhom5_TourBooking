@@ -18,6 +18,7 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { adminApi } from '../../api/axiosConfig';
+import ErrorBoundary from '../../components/common/ErrorBoundary';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
@@ -196,7 +197,9 @@ const AdminLayout = () => {
 
         {/* Vùng hiển thị các trang con của Admin */}
         <main className="admin-content-area">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

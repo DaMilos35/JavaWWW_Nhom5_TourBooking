@@ -56,9 +56,11 @@ const AdminDashboard = () => {
 
   if (loading) return <LoadingSpinner />;
 
-  // Định dạng số tiền VND
+  // Định dạng số tiền VND an toàn tuyệt đối
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+    const val = Number(price);
+    const safeVal = isNaN(val) ? 0 : val;
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(safeVal);
   };
 
   const [hoveredMonth, setHoveredMonth] = useState(null);
@@ -343,7 +345,7 @@ const AdminDashboard = () => {
               </thead>
               <tbody>
                 {Array.isArray(stats?.recentOrders) && stats.recentOrders.length > 0 ? (
-                  stats.recentOrders.filter(Boolean).map(order => (
+                  stats.recentOrders.filter(o => o && o.id).map(order => (
                     <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '12px', fontWeight: 700, color: '#0284c7' }}>#{order.id}</td>
                       <td style={{ padding: '12px' }}>
@@ -351,9 +353,16 @@ const AdminDashboard = () => {
                         <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{order.phone || order.contactPhone || '—'}</div>
                       </td>
                       <td style={{ padding: '12px', color: '#64748b', fontSize: '0.85rem' }}>
-                        {order.createdAt || order.orderDate
-                          ? new Date(order.createdAt || order.orderDate).toLocaleDateString('vi-VN')
-                          : 'Hôm nay'}
+                        {(() => {
+                          const rawDate = order.createdAt || order.orderDate;
+                          if (!rawDate) return 'Hôm nay';
+                          try {
+                            const d = new Date(rawDate);
+                            return isNaN(d.getTime()) ? 'Hôm nay' : d.toLocaleDateString('vi-VN');
+                          } catch {
+                            return 'Hôm nay';
+                          }
+                        })()}
                       </td>
                       <td style={{ padding: '12px' }}>
                         <span style={{

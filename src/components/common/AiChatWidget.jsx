@@ -127,7 +127,7 @@ const AiChatWidget = () => {
       // Fallback tư vấn nội bộ hỗ trợ tiếng Việt không dấu, Context7 chính sách & Agent-Reach thông tin điểm đến
       try {
         const searchRes = await realTourApi.search(textToSend);
-        const matches = (searchRes.data || []).slice(0, 3);
+        let matches = (searchRes.data || []).slice(0, 4);
         const unaccented = removeVietnameseTones(textToSend);
 
         // 1. Kiểm tra Context7 Grounding (Chính sách hoàn hủy, cọc 30/50%, B2B, trẻ em, E-ticket)
@@ -149,6 +149,24 @@ const AiChatWidget = () => {
         } else if (destinationIntel) {
           replyIntro = `**[Cẩm Nang Du Lịch: ${destinationIntel.name}]**\n• **Thời điểm lý tưởng:** ${destinationIntel.bestSeasons}\n• **Khí hậu & Thời tiết:** ${destinationIntel.weatherProfile}\n• **Lưu ý hành lý:** ${destinationIntel.luggageTips}\n• **Văn hóa bản địa:** ${destinationIntel.cultureTips}\n\nDu Lịch Việt trân trọng gửi đến anh/chị các tour chọn lọc đến ${destinationIntel.name}:`;
           groundingSources.push('destination-ground-truth');
+        } else if (unaccented.includes('chau a thai binh duong') || unaccented.includes('thai binh duong') || unaccented.includes('chau a') || unaccented.includes('apac') || unaccented.includes('dong nam a')) {
+          matches = (searchRes.data || []).filter(t => {
+            const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+            return !txt.includes('chau uc') && !txt.includes('australia') && !txt.includes('hoa ky') && !txt.includes('chau my') && !txt.includes('chau au');
+          }).slice(0, 4);
+          replyIntro = 'Dạ em chào anh/chị! Khám phá khu vực Châu Á - Thái Bình Dương (APAC) luôn là lựa chọn lý tưởng với phong cảnh đa dạng, ẩm thực phong phú và thủ tục visa thuận tiện (miễn visa hoặc e-Visa nhanh chóng). Du Lịch Việt trân trọng gửi đến anh/chị các hành trình Châu Á và biển đảo Việt Nam nổi bật nhất:';
+        } else if (unaccented.includes('chau uc') || unaccented.includes('australia')) {
+          matches = (searchRes.data || []).filter(t => {
+            const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+            return txt.includes('chau uc') || txt.includes('australia') || txt.includes('sydney') || txt.includes('melbourne');
+          }).slice(0, 4);
+          replyIntro = 'Xứ sở Chuột Túi - Châu Úc với Nhà Hát Con Sò Sydney tráng lệ và vẻ đẹp thanh bình của Melbourne đang vào mùa đẹp nhất. Du Lịch Việt xin gửi đến anh/chị hành trình Châu Úc tiêu chuẩn hàng không quốc tế:';
+        } else if (unaccented.includes('chau my') || unaccented.includes('hoa ky')) {
+          matches = (searchRes.data || []).filter(t => {
+            const txt = removeVietnameseTones((t.name + ' ' + (t.description || '')).toLowerCase());
+            return txt.includes('hoa ky') || txt.includes('chau my') || txt.includes('los angeles') || txt.includes('las vegas');
+          }).slice(0, 4);
+          replyIntro = 'Khám phá Giấc Mơ Mỹ với tuyến Bờ Tây huyền thoại: Los Angeles - Las Vegas - San Francisco, hỗ trợ trọn gói thủ tục hồ sơ phỏng vấn Visa Mỹ B1/B2 với tỷ lệ đỗ cao:';
         } else if (unaccented.includes('chau au') || unaccented.includes('phap') || unaccented.includes('thuy si') || unaccented.includes('italy') || unaccented.includes('rome') || unaccented.includes('paris')) {
           if (unaccented.includes('duoi 10') || unaccented.includes('10 trieu') || unaccented.includes('gia re') || unaccented.includes('sinh vien')) {
             replyIntro = 'Dạ về kế hoạch du lịch các nước Châu Âu cho 2 người, thông thường tour Châu Âu trọn gói dao động từ 55 - 75 triệu/khách (vé máy bay khứ hồi và visa Schengen đã khoảng 25 - 35 triệu/người). Với ngân sách khoảng 10 triệu cho 2 người, em xin phép gợi ý anh/chị tham khảo các tour nghỉ dưỡng biển đảo cao cấp (Phú Quốc, Nha Trang) hoặc tour Thái Lan trọn gói (6.990.000đ/khách), đồng thời có thể tham khảo thêm hành trình Châu Âu 4 nước bên dưới để lên kế hoạch trong tương lai nhé:';
