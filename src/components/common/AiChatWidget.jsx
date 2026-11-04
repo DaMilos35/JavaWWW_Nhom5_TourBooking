@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaHeadset, FaPaperPlane, FaTimes, FaStar } from 'react-icons/fa';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { FaHeadset, FaPaperPlane, FaTimes, FaStar, FaRedo } from 'react-icons/fa';
 import { aiApi } from '../../api/axiosConfig';
 import { realTourApi, removeVietnameseTones } from '../../api/realTourDataApi';
 import { context7Engine } from '../../utils/context7Engine';
@@ -62,6 +62,26 @@ const AiChatWidget = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Tự động đóng chatbox khi người dùng chuyển trang để restart lại giao diện sạch sẽ
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname, location.search]);
+
+  const handleRestartChat = () => {
+    const mem = customerMemoryEngine.getMemory();
+    const departureHint = mem.preferredDeparture ? ` khởi hành từ ${mem.preferredDeparture}` : '';
+    const favHint = mem.favoriteDestinations?.length > 0 ? ` như ${mem.favoriteDestinations.slice(0, 2).join(', ')}` : '';
+    setMessages([
+      {
+        sender: 'bot',
+        text: `Kính chào quý khách! Em là chuyên viên tư vấn của Du Lịch Việt. Em luôn sẵn sàng hỗ trợ giải đáp thông tin, gợi ý các chuyến đi${departureHint}${favHint} và tư vấn lịch trình phù hợp nhất cho anh/chị. Anh/chị đang quan tâm đến hành trình nào ạ?`,
+        suggestedTours: []
+      }
+    ]);
+    setInput('');
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -255,14 +275,25 @@ const AiChatWidget = () => {
                 <span className="header-sub-title">Trực tuyến 24/7 • Phản hồi tức thì</span>
               </div>
             </div>
-            <button 
-              className="ai-close-btn" 
-              onClick={() => setIsOpen(false)}
-              aria-label="Đóng khung tư vấn"
-              title="Đóng cửa sổ chat"
-            >
-              <FaTimes />
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button 
+                className="ai-close-btn" 
+                onClick={handleRestartChat}
+                aria-label="Khởi động lại cuộc trò chuyện"
+                title="Khởi động lại cuộc trò chuyện (Làm mới)"
+                style={{ fontSize: '0.85rem' }}
+              >
+                <FaRedo />
+              </button>
+              <button 
+                className="ai-close-btn" 
+                onClick={() => setIsOpen(false)}
+                aria-label="Đóng khung tư vấn"
+                title="Đóng cửa sổ chat"
+              >
+                <FaTimes />
+              </button>
+            </div>
           </div>
 
           {/* Quick Prompts Bar */}

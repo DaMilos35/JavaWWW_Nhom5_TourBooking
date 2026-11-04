@@ -278,9 +278,20 @@ const TourDetailPage = () => {
   const currentPersona = personaOptions.find(p => p.id === selectedPersona) || personaOptions[0]; // 'itinerary' | 'services' | 'policy'
   const [recommendedTours, setRecommendedTours] = useState([]);
 
-  // Tải thông tin chi tiết tour
+  // Tải thông tin chi tiết tour & restart lại giao diện sạch sẽ khi đổi tour
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    // Restart lại giao diện: Đưa tab về tab đầu tiên (Lịch trình chi tiết), xóa ngày lọc & bộ đếm vé
+    setActiveTab('itinerary');
+    setSelectedDayFilter(null);
+    setQuantity(1);
+    setSelectedDepartureDate(null);
+    setPassportInputDate('');
+    setPassportCheckResult(null);
+    setShowReviewForm(false);
+    setReviewFilter('Tất cả');
+    setDayLightboxPhoto(null);
+
     const fetchTour = async () => {
       try {
         const res = await tourApi.getById(id);
