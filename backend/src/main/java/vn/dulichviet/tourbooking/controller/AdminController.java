@@ -1,5 +1,7 @@
 package vn.dulichviet.tourbooking.controller;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import vn.dulichviet.tourbooking.exception.ApiException;
 import vn.dulichviet.tourbooking.dto.UpdateQuantityRequest;
 import vn.dulichviet.tourbooking.repository.TourOrderRepository;
 import vn.dulichviet.tourbooking.repository.UserRepository;
+import vn.dulichviet.tourbooking.service.ExportService;
 import vn.dulichviet.tourbooking.service.OrderService;
 
 import java.util.List;
@@ -26,17 +29,20 @@ public class AdminController {
     private final TourOrderRepository orderRepository;
     private final vn.dulichviet.tourbooking.repository.TourRepository tourRepository;
     private final vn.dulichviet.tourbooking.repository.UserActivityHistoryRepository userActivityHistoryRepository;
+    private final ExportService exportService;
 
     public AdminController(OrderService orderService,
                            UserRepository userRepository,
                            TourOrderRepository orderRepository,
                            vn.dulichviet.tourbooking.repository.TourRepository tourRepository,
-                           vn.dulichviet.tourbooking.repository.UserActivityHistoryRepository userActivityHistoryRepository) {
+                           vn.dulichviet.tourbooking.repository.UserActivityHistoryRepository userActivityHistoryRepository,
+                           ExportService exportService) {
         this.orderService = orderService;
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.tourRepository = tourRepository;
         this.userActivityHistoryRepository = userActivityHistoryRepository;
+        this.exportService = exportService;
     }
 
     /** Dashboard tổng quan */
@@ -45,6 +51,54 @@ public class AdminController {
             @org.springframework.security.core.annotation.AuthenticationPrincipal vn.dulichviet.tourbooking.config.CustomUserDetails userDetails) {
         var user = userDetails != null ? userDetails.getUser() : null;
         return ResponseEntity.ok(orderService.getDashboard(user));
+    }
+
+    // ===== DATA EXPORT & AUDIT (EXCEL / CSV) =====
+
+    /** Xuất danh sách toàn bộ đơn hàng ra CSV với UTF-8 BOM hiển thị chuẩn tiếng Việt trên Excel */
+    @GetMapping("/export/orders.csv")
+    public ResponseEntity<byte[]> exportOrdersCsv() {
+        byte[] csvData = exportService.exportOrdersToCsv();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"danh_sach_don_hang.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
+    }
+
+    /** Xuất danh sách toàn bộ Tour ra CSV với UTF-8 BOM */
+    @GetMapping("/export/tours.csv")
+    public ResponseEntity<byte[]> exportToursCsv() {
+        byte[] csvData = exportService.exportToursToCsv();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"danh_sach_tour.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
+    }
+
+    /** Trả về chỉ số sức khỏe & tài nguyên hệ thống (System Telemetry & Metrics) */
+    @GetMapping("/system/metrics")
+    public ResponseEntity<Map<String, Object>> getSystemMetrics() {
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory() / (1024 * 1024);
+        long freeMemory = runtime.freeMemory() / (1024 * 1024);
+        long usedMemory = totalMemory - freeMemory;
+        long maxMemory = runtime.maxMemory() / (1024 * 1024);
+
+        long totalOrders = orderRepository.count();
+        long totalTours = tourRepository.count();
+        long activeTours = tourRepository.findByStatus("ACTIVE").size();
+
+        return ResponseEntity.ok(Map.of(
+                "status", "HEALTHY",
+                "uptimeSeconds", java.lang.management.ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
+                "availableProcessors", runtime.availableProcessors(),
+                "usedMemoryMb", usedMemory,
+                "maxMemoryMb", maxMemory,
+                "totalOrdersCount", totalOrders,
+                "totalToursCount", totalTours,
+                "activeToursCount", activeTours,
+                "timestamp", System.currentTimeMillis()
+        ));
     }
 
     // ===== ORDERS =====

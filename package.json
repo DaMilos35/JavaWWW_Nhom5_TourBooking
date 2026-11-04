@@ -8,7 +8,8 @@
     "build": "vite build",
     "start": "vite preview",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "node scripts/comprehensive_test_suite.cjs"
+    "test": "node scripts/project_integrity_and_health_check.cjs && node scripts/comprehensive_test_suite.cjs",
+    "audit:health": "node scripts/project_integrity_and_health_check.cjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",

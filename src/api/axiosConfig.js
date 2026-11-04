@@ -245,6 +245,11 @@ export const adminApi = {
   confirmRefund: (id) => api.put('/admin/orders/' + id + '/confirm-refund'),
   updateOrderDetail: (orderId, detailId, quantity) =>
     api.put('/admin/orders/' + orderId + '/details/' + detailId, { quantity }),
+
+  // Xuất file báo cáo Excel / CSV chuẩn UTF-8 BOM & Chỉ số hệ thống
+  exportOrdersCsv: () => api.get('/admin/export/orders.csv', { responseType: 'blob' }),
+  exportToursCsv: () => api.get('/admin/export/tours.csv', { responseType: 'blob' }),
+  getSystemMetrics: () => api.get('/admin/system/metrics'),
 };
 
 // ========= AI ASSISTANT & RECOMMENDATIONS =========

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi, categoryApi } from '../../api/axiosConfig';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaToggleOn, FaToggleOff, FaFileExcel } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -102,6 +102,57 @@ const AdminTours = () => {
   const activeCount = tours.filter(t => t.status === 'ACTIVE').length;
   const inactiveCount = tours.filter(t => t.status === 'INACTIVE').length;
 
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportCsv = async () => {
+    setExporting(true);
+    try {
+      const res = await adminApi.exportToursCsv();
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `danh_sach_tour_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Xuất file Excel CSV danh sách tour thành công!');
+    } catch {
+      // Client-side fallback export
+      try {
+        const BOM = '\uFEFF';
+        let csvContent = BOM + 'Mã Tour,Tên Tour,Danh Mục,Giá Bán,Giá Gốc,Số Chỗ,Thời Lượng,Điểm Khởi Hành,Trạng Thái\n';
+        tours.forEach(t => {
+          const id = t.id || '';
+          const name = `"${(t.name || t.tourName || '').replace(/"/g, '""')}"`;
+          const cat = `"${(t.category?.name || t.categoryName || 'Du lịch').replace(/"/g, '""')}"`;
+          const price = t.price || 0;
+          const origPrice = t.originalPrice || price;
+          const seats = t.availableSeats || 0;
+          const dur = t.duration || 1;
+          const dep = `"${(t.departureLocation || '').replace(/"/g, '""')}"`;
+          const st = t.status || 'ACTIVE';
+          csvContent += `${id},${name},${cat},${price},${origPrice},${seats},${dur},${dep},${st}\n`;
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `danh_sach_tour_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success('Xuất file Excel CSV danh sách tour thành công!');
+      } catch (err) {
+        toast.error('Lỗi xuất file: ' + err.message);
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -114,13 +165,36 @@ const AdminTours = () => {
             Tổng cộng {tours.length} tour ({activeCount} đang mở bán · {inactiveCount} tạm ẩn)
           </p>
         </div>
-        <button 
-          className="btn btn-primary" 
-          onClick={() => navigate('/admin/tours/new')} 
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px' }}
-        >
-          <FaPlus /> Thêm Tour Mới
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button 
+            type="button"
+            className="btn btn-outline"
+            onClick={handleExportCsv}
+            disabled={exporting || tours.length === 0}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '10px 18px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '0.88rem',
+              borderColor: '#059669',
+              color: '#059669',
+              background: '#ffffff'
+            }}
+            title="Xuất file CSV danh sách tour mở được trên Excel"
+          >
+            <FaFileExcel /> {exporting ? 'Đang xuất...' : 'Xuất Excel / CSV'}
+          </button>
+          <button 
+            className="btn btn-primary" 
+            onClick={() => navigate('/admin/tours/new')} 
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px' }}
+          >
+            <FaPlus /> Thêm Tour Mới
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}

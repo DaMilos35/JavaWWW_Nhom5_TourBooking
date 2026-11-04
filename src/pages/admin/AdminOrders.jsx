@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaEye, FaSearch, FaFilter, FaCheck, FaTimes, FaClock, FaExclamationTriangle } from 'react-icons/fa';
+import { FaEye, FaSearch, FaFilter, FaCheck, FaTimes, FaClock, FaExclamationTriangle, FaFileExcel, FaDownload } from 'react-icons/fa';
 import { adminApi } from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -61,6 +61,56 @@ const AdminOrders = () => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportCsv = async () => {
+    setExporting(true);
+    try {
+      const res = await adminApi.exportOrdersCsv();
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `danh_sach_don_hang_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Xuất file Excel CSV thành công!');
+    } catch {
+      // Client-side fallback export
+      try {
+        const BOM = '\uFEFF';
+        let csvContent = BOM + 'Mã Đơn,Mã Đặt Chỗ,Khách Hàng,Số Điện Thoại,Số Vé,Tổng Tiền,Trạng Thái Đơn,Ngày Đặt\n';
+        orders.forEach(o => {
+          const id = o.id || '';
+          const code = o.orderCode || ('ORD-' + id);
+          const name = `"${(o.fullName || o.contactName || '').replace(/"/g, '""')}"`;
+          const phone = o.phone || o.contactPhone || '';
+          const qty = o.quantity || (o.orderDetails?.reduce((s, d) => s + (d.quantity || 1), 0)) || 1;
+          const total = o.totalAmount || 0;
+          const status = o.status || 'PENDING';
+          const date = o.createdAt || o.orderDate || '';
+          csvContent += `${id},${code},${name},${phone},${qty},${total},${status},${date}\n`;
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `danh_sach_don_hang_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success('Xuất file Excel CSV thành công!');
+      } catch (err) {
+        toast.error('Không thể xuất file: ' + err.message);
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -72,16 +122,45 @@ const AdminOrders = () => {
           <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>Theo dõi, xử lý và cập nhật tiến độ đặt tour của khách hàng</p>
         </div>
 
-        {/* Thanh tìm kiếm */}
-        <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 14px', width: '100%', maxWidth: '320px' }}>
-          <FaSearch style={{ color: '#94a3b8', marginRight: '10px' }} />
-          <input 
-            type="text" 
-            placeholder="Tìm theo tên, SĐT, mã ĐH..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ border: 'none', outline: 'none', fontSize: '0.9rem', color: '#1e293b', width: '100%' }}
-          />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Nút Xuất Excel/CSV */}
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            disabled={exporting || orders.length === 0}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              background: '#059669',
+              color: '#ffffff',
+              border: 'none',
+              fontWeight: 600,
+              fontSize: '0.86rem',
+              cursor: exporting || orders.length === 0 ? 'not-allowed' : 'pointer',
+              opacity: exporting || orders.length === 0 ? 0.6 : 1,
+              transition: 'background 0.2s ease',
+              boxShadow: '0 2px 6px rgba(5, 150, 105, 0.2)'
+            }}
+            title="Xuất danh sách đơn hàng sang file CSV tương thích Excel tiếng Việt"
+          >
+            <FaFileExcel />
+            <span>{exporting ? 'Đang xuất...' : 'Xuất Excel / CSV'}</span>
+          </button>
+
+          {/* Thanh tìm kiếm */}
+          <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 14px', width: '100%', maxWidth: '280px' }}>
+            <FaSearch style={{ color: '#94a3b8', marginRight: '10px' }} />
+            <input 
+              type="text" 
+              placeholder="Tìm theo tên, SĐT, mã ĐH..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ border: 'none', outline: 'none', fontSize: '0.9rem', color: '#1e293b', width: '100%' }}
+            />
+          </div>
         </div>
       </div>
 
