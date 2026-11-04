@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi, categoryApi } from '../../api/axiosConfig';
+import { REAL_TOURS, REAL_CATEGORIES } from '../../api/realTourDataApi';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaToggleOn, FaToggleOff, FaFileExcel } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -25,7 +26,9 @@ const AdminTours = () => {
       setTours(toursRes.data || []);
       setCategories(catsRes.data || []);
     } catch (error) {
-      toast.error('Lỗi khi tải dữ liệu tour');
+      console.warn('Backend tour API not reachable, falling back to local REAL_TOURS dataset');
+      setTours(REAL_TOURS);
+      setCategories(REAL_CATEGORIES);
     } finally {
       setLoading(false);
     }

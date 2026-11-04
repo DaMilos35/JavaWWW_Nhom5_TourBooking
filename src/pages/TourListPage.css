@@ -1,236 +1,89 @@
-.tour-list-page {
-  padding: 32px 0 80px;
-  background-color: var(--bg-main, #f8fafc);
-}
+/* ========================================================
+   TOUR LIST PAGE - STREAMLINED MODERN OTA DESIGN
+   Loại bỏ sidebar kéo dài trang, chuyển đổi sang Tab & Toolbar tinh gọn
+   ======================================================== */
 
-.layout-grid {
-  display: grid;
-  grid-template-columns: 290px 1fr;
-  gap: 28px;
+.tour-list-page {
+  padding: 24px 0 80px;
+  background-color: var(--bg-main, #f8fafc);
+  min-height: 100vh;
 }
 
 /* ========================================================
-   SIDEBAR BỘ LỌC PHÂN LÀN (SMART SEGMENTED LANES)
+   1. THANH TAB CHỦ ĐỀ HÀNH TRÌNH NGANG (AIRBNB / AGODA STYLE)
    ======================================================== */
-.sidebar {
-  height: fit-content;
-  position: sticky;
-  top: 86px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.top-category-tabs-bar {
+  margin-bottom: 20px;
+  width: 100%;
 }
 
-/* Header Tổng Bộ Lọc */
-.filter-sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-}
-
-.header-left {
+.category-tabs-scroll {
   display: flex;
   align-items: center;
   gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
-.header-filter-icon {
-  color: #ff5e1f;
-  font-size: 1.05rem;
+.category-tabs-scroll::-webkit-scrollbar {
+  height: 5px;
 }
 
-.filter-sidebar-header .filter-title {
-  font-size: 1rem;
-  font-weight: 800;
-  margin: 0;
-  color: #0f172a;
-  letter-spacing: -0.2px;
+.category-tabs-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.btn-quick-clear {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  font-size: 0.78rem;
-  font-weight: 700;
+.category-tabs-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.category-tabs-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.cat-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #334155;
+  font-size: 0.88rem;
+  font-weight: 600;
   cursor: pointer;
-  padding: 5px 12px;
-  border-radius: 8px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
 }
 
-.btn-quick-clear:hover {
-  background: #ef4444;
+.cat-tab-pill:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12);
+}
+
+.cat-tab-pill.is-active {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border-color: #0284c7;
   color: #ffffff;
-  border-color: #ef4444;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.32);
   transform: translateY(-1px);
 }
 
-/* Từng Card Phân Làn (Segmented Lane Cards) */
-.filter-lane-card {
-  padding: 20px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
-  transition: all 0.25s ease;
+.cat-pill-icon {
+  font-size: 1.05rem;
 }
 
-.filter-lane-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07);
-}
-
-.filter-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 12px;
-}
-
-.filter-group-heading {
-  font-size: 0.94rem;
-  font-weight: 800;
-  margin: 0;
-  color: #0f172a;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filter-group-heading .filter-icon {
-  font-size: 0.9rem;
-}
-
-.btn-lane-reset {
-  background: transparent;
-  border: none;
-  color: #64748b;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.15s ease;
-}
-
-.btn-lane-reset:hover {
-  color: #ef4444;
-  background: #fef2f2;
-}
-
-/* Ô tìm kiếm nhanh danh mục */
-.lane-quick-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.quick-search-icon {
-  position: absolute;
-  left: 10px;
-  color: #94a3b8;
-  font-size: 0.8rem;
-  pointer-events: none;
-}
-
-.quick-search-input {
-  width: 100%;
-  padding: 7px 30px 7px 30px;
-  font-size: 0.82rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  outline: none;
-  background: #f8fafc;
-  color: #0f172a;
-  transition: all 0.2s ease;
-}
-
-.quick-search-input:focus {
-  background: #ffffff;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.12);
-}
-
-.btn-clear-search {
-  position: absolute;
-  right: 8px;
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  font-size: 0.75rem;
-}
-
-.btn-clear-search:hover {
-  color: #0f172a;
-}
-
-/* Danh sách Options Lọc */
-.filter-options-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.radio-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: #334155;
-  font-size: 0.88rem;
-  font-weight: 500;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid transparent;
-}
-
-.radio-label:hover {
-  background: #f8fafc;
-  color: #0f172a;
-}
-
-.radio-label.is-active {
-  background: #f0f9ff;
-  border-color: #bae6fd;
-  color: #0369a1;
-  font-weight: 700;
-}
-
-.radio-content-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 8px;
-}
-
-.radio-text {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  line-height: 1.35;
-}
-
-.cat-bullet-emoji {
-  font-size: 0.95rem;
-  flex-shrink: 0;
-}
-
-.facet-badge {
+.cat-pill-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -238,360 +91,177 @@
   height: 20px;
   padding: 0 6px;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 800;
   border-radius: 9999px;
   background: #f1f5f9;
-  color: #64748b;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
+  color: #475569;
 }
 
-.radio-label.is-active .facet-badge {
-  background: #0284c7;
+.cat-tab-pill.is-active .cat-pill-badge {
+  background: rgba(255, 255, 255, 0.22);
   color: #ffffff;
 }
 
-.radio-label input[type="radio"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 50%;
-  outline: none;
-  background: #ffffff;
-  position: relative;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
-}
-
-.radio-label input[type="radio"]:checked {
-  border-color: #0284c7;
-  background: #ffffff;
-}
-
-.radio-label input[type="radio"]:checked::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 7px;
-  height: 7px;
-  background: #0284c7;
-  border-radius: 50%;
-}
-
-.filter-subgroup {
-  margin-top: 14px;
-}
-
-.btn-reset-filter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 11px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-reset-filter:hover {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
-
 /* ========================================================
-   MAIN CONTENT: SMART TOP SEARCH BAR
+   2. THANH CÔNG CỤ TÌM KIẾM & BỘ LỌC 1 DÒNG TINH GỌN
    ======================================================== */
-.search-bar-top {
+.quick-filter-toolbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
   padding: 14px 18px;
-  margin-bottom: 18px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
 }
 
-.search-form-list {
-  display: flex;
-  flex: 1;
-  gap: 10px;
+.toolbar-search-form {
+  flex: 1 1 260px;
+  min-width: 220px;
 }
 
-.search-input-wrapper {
+.toolbar-search-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1;
 }
 
-.search-lead-icon {
+.toolbar-search-icon {
   position: absolute;
   left: 14px;
   color: #94a3b8;
-  font-size: 1rem;
+  font-size: 0.95rem;
   pointer-events: none;
 }
 
-.search-input-top {
+.toolbar-search-input {
   width: 100%;
-  padding: 12px 38px 12px 42px;
-  border: 1.5px solid #cbd5e1;
+  padding: 10px 38px 10px 40px;
   border-radius: 12px;
-  font-size: 0.92rem;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
   color: #0f172a;
-  background-color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.search-input-top:focus {
+.toolbar-search-input:focus {
+  background: #ffffff;
   border-color: #0284c7;
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 
-.btn-clear-keyword {
+.btn-toolbar-clear {
   position: absolute;
   right: 12px;
   background: transparent;
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  display: flex;
-  align-items: center;
   padding: 4px;
-  border-radius: 50%;
-  transition: all 0.15s ease;
-}
-
-.btn-clear-keyword:hover {
-  color: #0f172a;
-  background: #f1f5f9;
-}
-
-.btn-search-icon {
-  width: 46px;
-  height: 46px;
-  padding: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  flex-shrink: 0;
-  background: #ff5e1f;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255, 94, 31, 0.3);
-  transition: all 0.2s ease;
 }
 
-.btn-search-icon:hover {
-  background: #ea4d0f;
-  transform: translateY(-1px);
+.btn-toolbar-clear:hover {
+  color: #ef4444;
 }
 
-.sort-select {
-  width: 220px;
-  padding: 12px 38px 12px 14px;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 12px;
-  color: #0f172a;
-  background-color: #ffffff;
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%23475569' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-position: right 14px center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-  transition: all 0.2s ease;
-}
-
-.sort-select:focus {
-  outline: 2px solid #0284c7;
-  outline-offset: 1px;
-}
-
-/* ========================================================
-   BỘ LỌC THÔNG MINH 2 LÀN RIÊNG BIỆT (SMART DUAL FILTER LANES)
-   ======================================================== */
-.smart-filter-lanes-container {
-  padding: 20px 22px;
-  margin-bottom: 22px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  box-shadow: 0 6px 20px -4px rgba(15, 23, 42, 0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.filter-lane {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.lane-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.lane-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.86rem;
-  color: #0f172a;
-  letter-spacing: -0.1px;
-}
-
-.lane-badge strong {
-  font-weight: 800;
-}
-
-.lane-caption {
-  font-size: 0.76rem;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-.lanes-separator-line {
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
-}
-
-/* Dải chip Làn 1: Điểm Khởi Hành */
-.lane-chips-wrap {
+.toolbar-quick-selects {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
-/* Dải chip Làn 2: Danh Mục Trải Nghiệm (Cuộn ngang mượt) */
-.lane-chips-scroll {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-.lane-chips-scroll::-webkit-scrollbar {
-  height: 4px;
-}
-
-.lane-chips-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.lane-chips-scroll::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 9999px;
-}
-
-.lane-chips-scroll::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
-}
-
-/* Nút Pill Chip Thông Minh (Smart Pill Button) */
-.lane-chip-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  border-radius: 9999px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+.toolbar-select {
+  padding: 9px 14px;
+  border-radius: 11px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
   color: #334155;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  outline: none;
+  transition: all 0.2s ease;
+  min-height: 40px;
 }
 
-.lane-chip-btn:hover {
-  background: #ffffff;
-  border-color: #94a3b8;
-  color: #0f172a;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+.toolbar-select:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
 }
 
-.lane-chip-btn.is-active {
-  background: #0284c7;
+.toolbar-select.has-value {
   border-color: #0284c7;
-  color: #ffffff;
+  color: #0284c7;
+  background: #f0f9ff;
   font-weight: 700;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
-  transform: translateY(-1px);
 }
 
-.lane-chip-icon {
-  font-size: 0.95rem;
+.toolbar-select.sort-highlight {
+  border-color: #fed7aa;
+  background: #fffaf0;
+  color: #c2410c;
+}
+
+/* Nút Mở Tab Bộ Lọc Chuyên Sâu */
+.btn-open-filter-modal {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 11px;
+  border: 1.5px solid #ff5e1f;
+  background: linear-gradient(135deg, #ff5e1f 0%, #e04b12 100%);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 3px 10px rgba(255, 94, 31, 0.25);
+  min-height: 40px;
 }
 
-.lane-chip-badge {
+.btn-open-filter-modal:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 94, 31, 0.35);
+  filter: brightness(1.05);
+}
+
+.btn-open-filter-modal.is-filtering {
+  border-color: #0284c7;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
+}
+
+.btn-filter-icon {
+  font-size: 0.95rem;
+}
+
+.modal-filter-counter-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
+  min-width: 20px;
+  height: 20px;
   padding: 0 5px;
-  font-size: 0.7rem;
-  font-weight: 800;
+  background: #ffffff;
+  color: #0284c7;
+  font-size: 0.74rem;
+  font-weight: 900;
   border-radius: 9999px;
-  background: #e2e8f0;
-  color: #475569;
-  transition: all 0.2s ease;
-}
-
-.lane-chip-btn.is-active .lane-chip-badge {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-}
-
-.lane-chip-check {
-  font-size: 0.72rem;
   margin-left: 2px;
-  animation: checkPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes checkPop {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
 }
 
 /* ========================================================
-   FILTER SUMMARY & CHIPS
+   3. ACTIVE FILTER CHIPS & SUMMARY BAR
    ======================================================== */
 .filter-summary-row {
   display: flex;
@@ -599,8 +269,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 22px;
-  padding: 0 4px;
+  padding: 4px 2px;
 }
 
 .result-count-label {
@@ -652,12 +321,37 @@
   transform: scale(1.15);
 }
 
+.btn-clear-all-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-clear-all-chips:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
 /* ========================================================
-   TOURS GRID & PAGINATION
+   4. TOURS GRID TOÀN CHIỀU RỘNG (3-4 CỘT)
    ======================================================== */
+.main-content-full {
+  width: 100%;
+}
+
 .tours-grid-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
@@ -741,34 +435,460 @@
   border-radius: 16px;
 }
 
-.empty-state h3 {
+/* ========================================================
+   5. TAB RIÊNG ĐỂ CHỌN BỘ LỌC (DEDICATED TABBED FILTER MODAL)
+   ======================================================== */
+.filter-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeInBackdrop 0.2s ease-out;
+}
+
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.filter-modal-dialog {
+  background: #ffffff;
+  width: 880px;
+  max-width: 96vw;
+  max-height: 88vh;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: scaleUpDialog 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleUpDialog {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Header */
+.filter-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.modal-header-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff5e1f 0%, #e04b12 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 12px rgba(255, 94, 31, 0.25);
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 800;
   color: #0f172a;
-  margin-bottom: 12px;
+  margin: 0 0 2px 0;
+  letter-spacing: -0.2px;
 }
 
-.filter-error {
-  display: grid;
-  gap: 6px;
-  color: #dc2626;
+.modal-subtitle {
   font-size: 0.85rem;
-  margin-top: 8px;
+  color: #64748b;
+  margin: 0;
 }
 
-.filter-error button {
-  background: transparent;
+.btn-close-modal {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #fca5a5;
+  transform: rotate(90deg);
+}
+
+/* Modal Body Layout: 2 Cột (Tab Bar bên trái, Content bên phải) */
+.filter-modal-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+/* Tab Bar bên trái */
+.filter-tabs-nav {
+  width: 250px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.filter-nav-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
   border: none;
-  color: #0194f3;
+  background: transparent;
+  color: #475569;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
   text-align: left;
+  transition: all 0.2s ease;
 }
 
-.load-error {
-  color: #dc2626;
+.filter-nav-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.filter-nav-btn.is-active {
+  background: #eff6ff;
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.nav-btn-icon {
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  color: #64748b;
+}
+
+.filter-nav-btn.is-active .nav-btn-icon {
+  color: #0284c7;
+}
+
+.nav-btn-text {
+  flex: 1;
+}
+
+.nav-active-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5e1f;
+  box-shadow: 0 0 6px rgba(255, 94, 31, 0.6);
+}
+
+/* Panel Nội Dung bên phải */
+.filter-tab-content-panel {
+  flex: 1;
+  padding: 24px 28px;
+  overflow-y: auto;
+  max-height: calc(88vh - 160px);
+}
+
+.tab-pane-content .pane-header {
+  margin-bottom: 20px;
+}
+
+.tab-pane-content .pane-header h4 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.tab-pane-content .pane-header p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Lưới các ô lựa chọn (Tiles Grid) */
+.options-grid-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.filter-choice-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.filter-choice-tile:hover {
+  border-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.12);
+}
+
+.filter-choice-tile.is-active {
+  background: #f0f9ff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+}
+
+.tile-icon {
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.tile-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tile-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.filter-choice-tile.is-active .tile-title {
+  color: #0284c7;
+}
+
+.tile-count {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tile-checked-icon {
   font-size: 0.95rem;
+  color: #0284c7;
 }
 
-/* Responsive */
+/* Danh sách dọc các dòng lựa chọn (Vertical List Rows) */
+.options-vertical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-list-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.filter-list-row:hover {
+  border-color: #0284c7;
+  background: #f8fafc;
+}
+
+.filter-list-row.is-active {
+  background: #f0f9ff;
+  border-color: #0284c7;
+}
+
+.row-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.radio-dot.checked {
+  border-color: #0284c7;
+  background: #0284c7;
+}
+
+.radio-dot.checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.row-title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.filter-list-row.is-active .row-title {
+  color: #0284c7;
+}
+
+.row-desc {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* Ô tìm kiếm nhanh trong modal */
+.pane-quick-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pane-search-input {
+  width: 100%;
+  padding: 10px 38px 10px 38px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.88rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.pane-search-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+.quick-search-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+/* Modal Footer Bar */
+.filter-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.btn-modal-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-reset:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn-modal-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 800;
+  padding: 11px 26px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+.btn-modal-apply:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN (CLAUDE-DESIGN OPTIMIZATIONS)
+   ======================================================== */
 @media (max-width: 1200px) {
   .tours-grid-list {
     grid-template-columns: repeat(2, 1fr);
@@ -776,14 +896,43 @@
 }
 
 @media (max-width: 900px) {
-  .layout-grid {
-    grid-template-columns: 1fr;
+  .quick-filter-toolbar {
+    flex-direction: column;
+    align-items: stretch;
   }
-  .sidebar {
-    position: static;
+  .toolbar-quick-selects {
+    width: 100%;
+    justify-content: space-between;
   }
-  .smart-filter-lanes-container {
-    padding: 16px;
+  .toolbar-select {
+    flex: 1 1 45%;
+  }
+  .btn-open-filter-modal {
+    width: 100%;
+    justify-content: center;
+  }
+  .filter-modal-dialog {
+    height: 94vh;
+  }
+  .filter-modal-body {
+    flex-direction: column;
+  }
+  .filter-tabs-nav {
+    width: 100%;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    overflow-x: auto;
+    padding: 8px 12px;
+  }
+  .filter-nav-btn {
+    white-space: nowrap;
+    width: auto;
+    padding: 9px 14px;
+    font-size: 0.85rem;
+  }
+  .filter-tab-content-panel {
+    max-height: calc(94vh - 220px);
   }
 }
 
@@ -791,16 +940,21 @@
   .tours-grid-list {
     grid-template-columns: 1fr;
   }
-  .search-bar-top {
+  .toolbar-select {
+    flex: 1 1 100%;
+  }
+  .options-grid-tiles {
+    grid-template-columns: 1fr;
+  }
+  .modal-title {
+    font-size: 1.05rem;
+  }
+  .modal-subtitle {
+    display: none;
+  }
+  .tour-pagination-wrapper {
     flex-direction: column;
-    align-items: stretch;
-  }
-  .sort-select {
-    width: 100%;
-  }
-  .lane-chips-wrap {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 4px;
+    align-items: center;
+    text-align: center;
   }
 }

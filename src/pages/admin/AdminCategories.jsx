@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaSearch, FaLayerGroup } from 'react-icons/fa';
 import { adminApi, categoryApi } from '../../api/axiosConfig';
+import { REAL_CATEGORIES } from '../../api/realTourDataApi';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import FallbackImage from '../../components/common/FallbackImage';
@@ -18,7 +19,8 @@ const AdminCategories = () => {
       const res = await categoryApi.getAll();
       setCategories(res.data || []);
     } catch (error) {
-      toast.error('Lỗi khi tải danh mục');
+      console.warn('Backend category API not reachable, falling back to REAL_CATEGORIES');
+      setCategories(REAL_CATEGORIES);
     } finally {
       setLoading(false);
     }

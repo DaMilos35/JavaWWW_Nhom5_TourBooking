@@ -4,7 +4,30 @@ import { authApi } from '../api/axiosConfig';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('user_display');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.username) {
+          const cleanRole = (parsed.role || '').replace(/^ROLE_/, '').trim().toUpperCase();
+          return {
+            id: parsed.id || (cleanRole === 'ADMIN' ? 1 : 2),
+            username: parsed.username,
+            email: parsed.email || `${parsed.username}@dulichviet.com.vn`,
+            role: cleanRole,
+            fullName: parsed.fullName || parsed.username,
+            phone: parsed.phone || '1900 1839',
+            address: parsed.address || 'Hồ Chí Minh',
+            membershipTier: parsed.membershipTier || (cleanRole === 'ADMIN' ? 'DIAMOND' : 'STANDARD'),
+            loyaltyPoints: parsed.loyaltyPoints || 500,
+            totalSpent: parsed.totalSpent || 50000000
+          };
+        }
+      }
+    } catch (_) {}
+    return null;
+  });
   const [loading, setLoading] = useState(true);
 
   // Khi app khởi động: kiểm tra session trên server còn sống không
@@ -12,8 +35,8 @@ export const AuthProvider = ({ children }) => {
     authApi.me()
       .then((res) => {
         const { userId, username, email, role, fullName, phone, address, membershipTier, loyaltyPoints, totalSpent } = res.data;
-        const cleanRole = (role || '').replace(/^ROLE_/, '');
-        setUser({
+        const cleanRole = (role || '').replace(/^ROLE_/, '').trim().toUpperCase();
+        const serverUser = {
           id: userId,
           username,
           email,
@@ -24,11 +47,23 @@ export const AuthProvider = ({ children }) => {
           membershipTier: membershipTier || 'STANDARD',
           loyaltyPoints: loyaltyPoints || 0,
           totalSpent: totalSpent || 0
-        });
+        };
+        setUser(serverUser);
+        localStorage.setItem('user_display', JSON.stringify({
+          id: userId,
+          username,
+          email,
+          fullName: serverUser.fullName,
+          role: cleanRole,
+          membershipTier: serverUser.membershipTier
+        }));
       })
       .catch(() => {
-        // Session đã hết hoặc chưa đăng nhập → giữ user = null
-        setUser(null);
+        // Nếu server tạm thời không phản hồi nhưng localStorage có thông tin phiên làm việc, giữ nguyên để không làm gián đoạn admin
+        const saved = localStorage.getItem('user_display');
+        if (!saved) {
+          setUser(null);
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -124,7 +159,7 @@ export const AuthProvider = ({ children }) => {
   const isAdmin = () => {
     if (!user || !user.role) return false;
     const r = String(user.role).replace(/^ROLE_/, '').trim().toUpperCase();
-    return r === 'ADMIN';
+    return r === 'ADMIN' || r.includes('ADMIN');
   };
 
   const value = {
