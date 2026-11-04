@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHeadset, FaPaperPlane, FaTimes, FaStar, FaCompass, FaBrain, FaShieldAlt } from 'react-icons/fa';
+import { FaHeadset, FaPaperPlane, FaTimes, FaStar } from 'react-icons/fa';
 import { aiApi } from '../../api/axiosConfig';
 import { realTourApi, removeVietnameseTones } from '../../api/realTourDataApi';
 import { context7Engine } from '../../utils/context7Engine';
@@ -13,12 +13,12 @@ import FallbackImage from './FallbackImage';
 import './AiChatWidget.css';
 
 const DEFAULT_PROMPTS = [
-  '🌐 Thủ tục Visa & Hộ chiếu tour Quốc tế',
-  '⚖️ So sánh Tour Trong Nước vs Quốc Tế',
-  '🛡️ Chính sách bảo lãnh hoàn 100% cọc khi trượt Visa',
-  '✈️ Quy định hành lý, chất lỏng & Ga T1/T2',
-  '🏖️ Gợi ý tour biển đảo & nghỉ dưỡng',
-  '🌲 Tour Đà Lạt & Vùng cao săn mây'
+  '🏖️ Gợi ý tour biển đảo',
+  '🌲 Tour Đà Lạt săn mây',
+  '🚢 Du thuyền Hạ Long 5 sao',
+  '💰 Tour tiết kiệm dưới 5 triệu',
+  '🌐 Tư vấn Visa & Hộ chiếu',
+  '🛡️ Chính sách cọc & hoàn hủy'
 ];
 
 const renderFormattedText = (text) => {
@@ -52,7 +52,7 @@ const AiChatWidget = () => {
     return [
       {
         sender: 'bot',
-        text: `Kính chào quý khách! Em là Trợ lý Lữ Hành Thông Minh của Du Lịch Việt. Em luôn sẵn sàng tư vấn các hành trình${departureHint}${favHint}, thẩm định thời hạn Hộ chiếu, tra cứu thủ tục Visa, so sánh quyền lợi Tour Nội Địa vs Quốc Tế hoặc tùy biến lịch trình 5 sao tối ưu nhất cho gia đình mình.`,
+        text: `Kính chào quý khách! Em là chuyên viên tư vấn của Du Lịch Việt. Em luôn sẵn sàng hỗ trợ giải đáp thông tin, gợi ý các chuyến đi${departureHint}${favHint} và tư vấn lịch trình phù hợp nhất cho anh/chị. Anh/chị đang quan tâm đến hành trình nào ạ?`,
         suggestedTours: []
       }
     ];
@@ -99,7 +99,7 @@ const AiChatWidget = () => {
         context: customerMemoryEngine.generatePersonalizedGroundingContext()
       });
 
-      let rawReply = res.data?.reply || 'Em đã chọn lọc những hành trình phù hợp nhất cho anh/chị:';
+      let rawReply = res.data?.reply || 'Em xin gửi đến anh/chị những hành trình phù hợp nhất:';
       
       // 3. Guardrails AI output scan & PII Redaction
       const guardrailResult = guardrailsEngine.scanOutput(rawReply);
@@ -124,7 +124,7 @@ const AiChatWidget = () => {
       });
 
     } catch {
-      // Smart client-side fallback supporting unaccented text, Context7 policy grounding & Agent-Reach intelligence
+      // Fallback tư vấn nội bộ hỗ trợ tiếng Việt không dấu, Context7 chính sách & Agent-Reach thông tin điểm đến
       try {
         const searchRes = await realTourApi.search(textToSend);
         const matches = (searchRes.data || []).slice(0, 3);
@@ -144,10 +144,10 @@ const AiChatWidget = () => {
         const groundingSources = [];
 
         if (relevantPolicy) {
-          replyIntro = `**[Thông Tin Chính Thống OTA - ${relevantPolicy.title}]**\n${relevantPolicy.content}\n\nDưới đây là một số hành trình nổi bật đang áp dụng chính sách này:`;
+          replyIntro = `**[Chính Sách & Quy Định - ${relevantPolicy.title}]**\n${relevantPolicy.content}\n\nDưới đây là một số hành trình đang áp dụng quy định này:`;
           groundingSources.push(relevantPolicy.id);
         } else if (destinationIntel) {
-          replyIntro = `**[Tình Báo Điểm Đến: ${destinationIntel.name}]**\n• **Thời điểm lý tưởng:** ${destinationIntel.bestSeasons}\n• **Khí hậu & Thời tiết:** ${destinationIntel.weatherProfile}\n• **Lưu ý hành lý:** ${destinationIntel.luggageTips}\n• **Văn hóa bản địa:** ${destinationIntel.cultureTips}\n\nDu Lịch Việt trân trọng gửi đến anh/chị các tour chọn lọc đến ${destinationIntel.name}:`;
+          replyIntro = `**[Cẩm Nang Du Lịch: ${destinationIntel.name}]**\n• **Thời điểm lý tưởng:** ${destinationIntel.bestSeasons}\n• **Khí hậu & Thời tiết:** ${destinationIntel.weatherProfile}\n• **Lưu ý hành lý:** ${destinationIntel.luggageTips}\n• **Văn hóa bản địa:** ${destinationIntel.cultureTips}\n\nDu Lịch Việt trân trọng gửi đến anh/chị các tour chọn lọc đến ${destinationIntel.name}:`;
           groundingSources.push('destination-ground-truth');
         } else if (unaccented.includes('chau au') || unaccented.includes('phap') || unaccented.includes('thuy si') || unaccented.includes('italy') || unaccented.includes('rome') || unaccented.includes('paris')) {
           if (unaccented.includes('duoi 10') || unaccented.includes('10 trieu') || unaccented.includes('gia re') || unaccented.includes('sinh vien')) {
@@ -195,7 +195,7 @@ const AiChatWidget = () => {
           ...prev,
           {
             sender: 'bot',
-            text: 'Hiện tại hệ thống tư vấn đang bận một chút. Quý khách có thể xem nhanh các tour gợi ý bên dưới hoặc tìm kiếm theo điểm đến trên trang chủ nhé!',
+            text: 'Dạ hiện tại kênh tư vấn đang có nhiều khách hàng liên hệ. Quý khách có thể xem nhanh các tour đề xuất hoặc tìm kiếm theo điểm đến trên trang chủ nhé!',
             suggestedTours: []
           }
         ]);
@@ -224,21 +224,24 @@ const AiChatWidget = () => {
   return (
     <div className="ai-widget-container">
       {isOpen && (
-        <div className="ai-chat-window">
+        <div className="ai-chat-window animate-slide-up">
           {/* Header */}
           <div className="ai-chat-header">
             <div className="ai-header-title">
               <span className="ai-status-indicator"></span>
-              <FaHeadset style={{ color: '#38bdf8', fontSize: '1.05rem' }} />
-              <div>
-                <span style={{ fontWeight: 600, display: 'block', lineHeight: 1.2 }}>Tư Vấn Du Lịch 24/7</span>
-                <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 400 }}>Mem0 Personalized • Guardrails 5★</span>
+              <div className="ai-header-icon-box">
+                <FaHeadset className="ai-header-icon" />
+              </div>
+              <div className="header-text-group">
+                <span className="header-main-title">Tư Vấn Tour Du Lịch</span>
+                <span className="header-sub-title">Trực tuyến 24/7 • Phản hồi tức thì</span>
               </div>
             </div>
             <button 
               className="ai-close-btn" 
               onClick={() => setIsOpen(false)}
               aria-label="Đóng khung tư vấn"
+              title="Đóng cửa sổ chat"
             >
               <FaTimes />
             </button>
@@ -314,7 +317,7 @@ const AiChatWidget = () => {
           <div className="ai-chat-input-area">
             <input
               type="text"
-              placeholder="Hỏi về điểm đến, thủ tục Visa, chính sách cọc..."
+              placeholder="Nhập câu hỏi hoặc điểm đến muốn đi..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -326,6 +329,7 @@ const AiChatWidget = () => {
               onClick={() => handleSend()}
               disabled={!input.trim() || loading}
               aria-label="Gửi tin nhắn"
+              title="Gửi"
             >
               <FaPaperPlane />
             </button>
@@ -335,12 +339,13 @@ const AiChatWidget = () => {
 
       {/* Floating Toggle Button */}
       <button
-        className="ai-chat-toggle-btn"
+        className={`ai-chat-toggle-btn ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Mở trợ lý du lịch AI"
-        title="Trợ lý du lịch AI 24/7"
+        aria-label="Tư vấn tour du lịch 24/7"
+        title="Tư vấn tour du lịch 24/7"
       >
         <FaHeadset className="ai-toggle-icon" />
+        <span className="ai-toggle-label">{isOpen ? 'Đóng chat' : 'Tư vấn tour'}</span>
         <span className="ai-toggle-pulse"></span>
       </button>
     </div>
