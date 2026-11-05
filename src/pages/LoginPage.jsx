@@ -79,7 +79,11 @@ const LoginPage = () => {
         rememberMe,
       });
       if (result.success) {
-        toast.success(`Chào mừng ${result.user.fullName || result.user.username} đã đăng nhập!`);
+        if (result.isOfflineMode) {
+          toast.success(`Đăng nhập thành công: ${result.user.fullName || result.user.username} (Chế độ Demo)!`);
+        } else {
+          toast.success(`Chào mừng ${result.user.fullName || result.user.username} đã đăng nhập!`);
+        }
         
         // Chuyển hướng thông minh: ưu tiên trang trước đó người dùng đang xem (ví dụ: /checkout, /tours/1)
         const redirectPath = location.state?.from?.pathname 
