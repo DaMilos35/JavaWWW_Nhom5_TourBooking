@@ -190,12 +190,54 @@ const TourDetailPage = () => {
 
   const [reviewsList, setReviewsList] = useState(initialReviews);
 
-  // Generate 4 dynamic upcoming departure dates
+  // Lấy tổng số lượng vé đã đặt của tour này để khấu trừ số chỗ còn lại theo thời gian thực
+  const getBookedCount = (tId, dateStr) => {
+    try {
+      let count = 0;
+      // 1. Quét từ các đơn hàng thực tế đã tạo thành công
+      const rawOrders = localStorage.getItem('dulichviet_local_orders');
+      if (rawOrders) {
+        const orders = JSON.parse(rawOrders);
+        orders.forEach((o) => {
+          if (o.status !== 'CANCELLED') {
+            (o.details || []).forEach((d) => {
+              const itemTourId = d.tour?.id || d.tour?.tourId || d.tourId;
+              if (String(itemTourId) === String(tId)) {
+                if (!d.selectedDepartureDate || d.selectedDepartureDate === dateStr) {
+                  count += Number(d.quantity || 1);
+                }
+              }
+            });
+          }
+        });
+      }
+
+      // 2. Quét map theo dõi vé đã đặt tức thì
+      const rawMap = localStorage.getItem('tour_booked_seats_map');
+      if (rawMap) {
+        const map = JSON.parse(rawMap);
+        const keyWithDate = `${tId}_${dateStr}`;
+        const extraCount = map[keyWithDate] !== undefined ? map[keyWithDate] : (map[tId] || 0);
+        count = Math.max(count, extraCount);
+      }
+
+      return count;
+    } catch {
+      return 0;
+    }
+  };
+
+  // Generate 4 dynamic upcoming departure dates với số chỗ khấu trừ tự động
   const generateUpcomingDepartures = () => {
     const dates = [];
     const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
     const basePrice = Number(tour?.price || 4890000);
     const now = new Date();
+    const tId = tour?.id || tour?.tourId;
+    
+    // Số chỗ cơ sở: Nếu tour có sẵn availableSeats <= 10 thì lấy đúng số đó, ngược lại mặc định 6 chỗ cho đợt 1
+    const rawSeats = Number(tour?.availableSeats !== undefined ? tour.availableSeats : (tour?.available_seats !== undefined ? tour.available_seats : 6));
+    const baseFirstBatchSeats = rawSeats > 0 && rawSeats <= 10 ? rawSeats : 6;
     
     for (let i = 1; i <= 4; i++) {
       const d = new Date(now.getTime() + (i * 7 + 2) * 24 * 60 * 60 * 1000);
@@ -204,13 +246,17 @@ const TourDetailPage = () => {
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const year = d.getFullYear();
       const dateStr = `${day}/${month}/${year}`;
-      const seats = i === 1 ? 6 : (12 + (i * 4));
+      
+      const nominalSeats = i === 1 ? baseFirstBatchSeats : (12 + (i * 4));
+      const booked = getBookedCount(tId, dateStr);
+      // Khấu trừ chính xác số vé đã đặt
+      const remainingSeats = Math.max(0, nominalSeats - booked);
       const p = i === 2 ? Math.round(basePrice * 0.95) : basePrice;
 
       dates.push({
         dayOfWeek: dow,
         dateStr: dateStr,
-        seats: seats,
+        seats: remainingSeats,
         price: p
       });
     }
@@ -336,6 +382,7 @@ const TourDetailPage = () => {
     addToCart({
       ...tour,
       price,
+      availableSeats,
       selectedDepartureDate: activeDepartureDate,
       departureDate: activeDepartureDate
     }, quantity);
@@ -351,6 +398,7 @@ const TourDetailPage = () => {
     if (addToCart({
       ...tour,
       price,
+      availableSeats,
       selectedDepartureDate: activeDepartureDate,
       departureDate: activeDepartureDate
     }, quantity)) {

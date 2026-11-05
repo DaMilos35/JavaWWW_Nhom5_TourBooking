@@ -28,8 +28,23 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // 1. Tự động tạo bảng remember-me persistent_logins (bảo vệ chống crash khi chọn Remember Me)
         try {
-            // Tự động tạo bảng user_activity_history nếu chưa có trong DB
+            jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS persistent_logins (
+                    username VARCHAR(64) NOT NULL,
+                    series VARCHAR(64) PRIMARY KEY,
+                    token VARCHAR(64) NOT NULL,
+                    last_used TIMESTAMP NOT NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """);
+            log.info("Bảng persistent_logins đã sẵn sàng.");
+        } catch (Exception e) {
+            log.debug("persistent_logins: {}", e.getMessage());
+        }
+
+        // 2. Tự động tạo bảng user_activity_history nếu chưa có trong DB
+        try {
             jdbcTemplate.execute("""
                 CREATE TABLE IF NOT EXISTS user_activity_history (
                     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -46,18 +61,36 @@ public class DataInitializer implements CommandLineRunner {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """);
         } catch (Exception e) {
-            log.debug("Bảng user_activity_history đã sẵn sàng hoặc tạo tự động: {}", e.getMessage());
+            log.debug("Bảng user_activity_history đã sẵn sàng: {}", e.getMessage());
         }
 
+        // 3. Đảm bảo các cột bảng users (hội viên, điểm thưởng, chi tiêu) tồn tại
         try {
-            // Đảm bảo cột provider_id tồn tại trong bảng tours nếu nâng cấp từ schema cũ
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS provider_id INT NULL");
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_tier VARCHAR(30) NOT NULL DEFAULT 'STANDARD'");
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS loyalty_points INT NOT NULL DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS total_spent DECIMAL(18,2) NOT NULL DEFAULT 0.00");
+            jdbcTemplate.execute("ALTER TABLE users MODIFY COLUMN role VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER' CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER'))");
         } catch (Exception e) {
-            log.debug("Cột provider_id đã sẵn sàng: {}", e.getMessage());
+            log.debug("Các cột bảng users đã sẵn sàng: {}", e.getMessage());
         }
 
+        // 4. Đảm bảo các cột bảng tours tồn tại
         try {
-            // Đảm bảo các cột order_code, is_b2b, discount_percent tồn tại trong bảng orders
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS provider_id INT NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS original_price DECIMAL(18,2) NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS vehicle VARCHAR(150) NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS hotel_star INT DEFAULT 3");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS badge VARCHAR(50) NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS highlights LONGTEXT NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS itinerary LONGTEXT NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS inclusions LONGTEXT NULL");
+            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS exclusions LONGTEXT NULL");
+        } catch (Exception e) {
+            log.debug("Các cột bảng tours đã sẵn sàng: {}", e.getMessage());
+        }
+
+        // 5. Đảm bảo các cột nghiệp vụ bảng orders tồn tại
+        try {
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_code VARCHAR(30) NULL");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS is_b2b TINYINT(1) DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_percent INT DEFAULT 0");
@@ -68,59 +101,90 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_account_number VARCHAR(50) NULL");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_account_name VARCHAR(100) NULL");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancellation_reason VARCHAR(255) NULL");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_type VARCHAR(20) NOT NULL DEFAULT 'FULL'");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS deposit_percent INT NOT NULL DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS deposit_amount DECIMAL(18,2) NOT NULL DEFAULT 0.00");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS remaining_amount DECIMAL(18,2) NOT NULL DEFAULT 0.00");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS deposit_deadline DATETIME NULL");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS points_used INT NOT NULL DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS points_discount DECIMAL(18,2) NOT NULL DEFAULT 0.00");
+            jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS member_discount DECIMAL(18,2) NOT NULL DEFAULT 0.00");
             jdbcTemplate.execute("ALTER TABLE orders MODIFY COLUMN payment_status VARCHAR(30) NOT NULL DEFAULT 'UNPAID' CHECK (payment_status IN ('UNPAID','PENDING_PAYMENT','PAID','REFUND_PENDING','REFUNDED','FAILED'))");
             jdbcTemplate.execute("CREATE OR REPLACE VIEW order_details AS SELECT * FROM orderdetails");
         } catch (Exception e) {
             log.debug("Các cột nghiệp vụ orders đã sẵn sàng: {}", e.getMessage());
         }
 
+        // 6. Tự động cuộn lịch khởi hành cho các tour sang tương lai (Rolling Departure Schedule)
         try {
-            // Mở rộng các trường đặc tả phong phú chuẩn Traveloka / OTA
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS original_price DECIMAL(12,2) NULL");
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS vehicle VARCHAR(150) NULL");
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS hotel_star INT DEFAULT 3");
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS badge VARCHAR(50) NULL");
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS highlights LONGTEXT NULL");
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS itinerary LONGTEXT NULL");
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS inclusions LONGTEXT NULL");
-            jdbcTemplate.execute("ALTER TABLE tours ADD COLUMN IF NOT EXISTS exclusions LONGTEXT NULL");
+            jdbcTemplate.execute("""
+                UPDATE tours 
+                SET start_date = DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY),
+                    end_date = DATE_ADD(CURRENT_DATE, INTERVAL (7 + IFNULL(duration, 3)) DAY)
+                WHERE start_date IS NULL OR start_date <= CURRENT_DATE
+            """);
+            log.info("Đã đồng bộ ngày khởi hành các tour sang ngày tương lai thành công.");
         } catch (Exception e) {
-            log.debug("Các cột thông tin phong phú Tours đã sẵn sàng: {}", e.getMessage());
+            log.debug("Cập nhật ngày khởi hành tours: {}", e.getMessage());
         }
 
+        // 7. Khởi tạo & Đồng bộ tài khoản demo chuẩn theo Bảng 5.3 trong Báo cáo (Mật khẩu đồng nhất: 123456)
         try {
-            // Nới lỏng CHECK constraint role trong bảng users nếu cần
-            jdbcTemplate.execute("ALTER TABLE users MODIFY COLUMN role VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER' CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER'))");
+            syncDemoUser("admin", "admin@tourbooking.com", "123456", "Quản Trị Viên Hệ Thống", "ADMIN", "0909999999");
+            syncDemoUser("saigontourist", "saigontourist@tourbooking.com", "123456", "Saigontourist Travel", "PROVIDER", "19001808");
+            syncDemoUser("vietravel", "vietravel@tourbooking.com", "123456", "Vietravel Corporation", "PROVIDER", "19001839");
+            syncDemoUser("fpt_corp", "fpt_corp@fpt.com", "123456", "Tập đoàn FPT Software", "CUSTOMER", "0987654321");
+            syncDemoUser("customer", "customer@tourbooking.com", "123456", "Khách Hàng Cá Nhân", "CUSTOMER", "0919999999");
+            syncDemoUser("nguyenvanan", "nguyenvanan@gmail.com", "123456", "Nguyễn Văn An (Khách hàng có đơn)", "CUSTOMER", "0912345678");
         } catch (Exception e) {
-            log.debug("Cột role đã hỗ trợ PROVIDER: {}", e.getMessage());
-        }
-
-        try {
-            // Khởi tạo các tài khoản demo chuẩn theo Bảng 5.3 trong Báo cáo (Mật khẩu đồng nhất: 123456)
-            seedUserIfNotExists("admin", "admin@tourbooking.com", "123456", "Quản Trị Viên Hệ Thống", "ADMIN", "0909999999");
-            seedUserIfNotExists("saigontourist", "saigontourist@tourbooking.com", "123456", "Saigontourist Travel", "PROVIDER", "19001808");
-            seedUserIfNotExists("vietravel", "vietravel@tourbooking.com", "123456", "Vietravel Corporation", "PROVIDER", "19001839");
-            seedUserIfNotExists("fpt_corp", "fpt_corp@fpt.com", "123456", "Tập đoàn FPT Software", "CUSTOMER", "0987654321");
-            seedUserIfNotExists("customer", "customer@tourbooking.com", "123456", "Khách Hàng Cá Nhân", "CUSTOMER", "0919999999");
-            seedUserIfNotExists("nguyenvanan", "nguyenvanan@gmail.com", "123456", "Nguyễn Văn An (Khách hàng có đơn)", "CUSTOMER", "0912345678");
-        } catch (Exception e) {
-            log.warn("Bỏ qua khởi tạo tài khoản demo (đã có dữ liệu hoặc DB chưa sẵn sàng): {}", e.getMessage());
+            log.warn("Lỗi khi đồng bộ tài khoản demo: {}", e.getMessage());
         }
     }
 
-    private void seedUserIfNotExists(String username, String email, String rawPassword, String fullName, String role, String phone) {
-        if (!userRepository.existsByUsername(username)) {
-            User user = new User();
-            user.setUsername(username);
-            user.setPassword(passwordEncoder.encode(rawPassword));
-            user.setEmail(email);
-            user.setFullName(fullName);
-            user.setRole(role);
-            user.setPhone(phone);
-            user.setActive(true);
-            user.setCreatedAt(LocalDateTime.now());
-            userRepository.save(user);
-            log.info("Tạo tài khoản demo thành công: {} / {} ({})", username, rawPassword, role);
+    /**
+     * Đồng bộ tài khoản demo: Tạo mới nếu chưa có, hoặc kích hoạt lại và đảm bảo mật khẩu khớp 123456
+     */
+    private void syncDemoUser(String username, String email, String rawPassword, String fullName, String role, String phone) {
+        try {
+            var opt = userRepository.findByUsername(username);
+            if (opt.isEmpty()) {
+                User user = new User();
+                user.setUsername(username);
+                user.setPassword(passwordEncoder.encode(rawPassword));
+                user.setEmail(email);
+                user.setFullName(fullName);
+                user.setRole(role);
+                user.setPhone(phone);
+                user.setActive(true);
+                user.setMembershipTier(role.equals("ADMIN") ? "DIAMOND" : "STANDARD");
+                user.setLoyaltyPoints(500);
+                user.setTotalSpent(java.math.BigDecimal.ZERO);
+                user.setCreatedAt(LocalDateTime.now());
+                userRepository.save(user);
+                log.info("Tạo mới tài khoản demo: {} / {} ({})", username, rawPassword, role);
+            } else {
+                User user = opt.get();
+                boolean changed = false;
+                if (!Boolean.TRUE.equals(user.getActive())) {
+                    user.setActive(true);
+                    changed = true;
+                }
+                // Nếu mật khẩu trong DB chưa khớp với rawPassword chuẩn, cập nhật lại mã hóa
+                if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+                    user.setPassword(passwordEncoder.encode(rawPassword));
+                    changed = true;
+                    log.info("Cập nhật lại mật khẩu mã hóa cho demo user '{}'", username);
+                }
+                if (user.getRole() == null || !user.getRole().equalsIgnoreCase(role)) {
+                    user.setRole(role);
+                    changed = true;
+                }
+                if (changed) {
+                    userRepository.save(user);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Không thể đồng bộ demo user {}: {}", username, e.getMessage());
         }
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TourOrderRepository extends JpaRepository<TourOrder, Integer> {
-    @EntityGraph(attributePaths = {"details", "details.tour"})
+    @EntityGraph(attributePaths = {"user", "details", "details.tour"})
     @Query("SELECT o FROM TourOrder o WHERE o.user.id = :userId ORDER BY o.orderDate DESC")
     List<TourOrder> findByUserIdWithDetails(Integer userId);
 

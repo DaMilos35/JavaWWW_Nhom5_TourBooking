@@ -79,10 +79,9 @@ const LoginPage = () => {
         rememberMe,
       });
       if (result.success) {
-        if (result.isOfflineMode) {
-          toast.success(`Đăng nhập thành công: ${result.user.fullName || result.user.username} (Chế độ Demo)!`);
-        } else {
-          toast.success(`Chào mừng ${result.user.fullName || result.user.username} đã đăng nhập!`);
+        toast.success(`Chào mừng ${result.user.fullName || result.user.username} đã đăng nhập!`);
+        if (result.isOfflineDemo) {
+          toast.info('Hệ thống đang hoạt động ở chế độ Dual-Mode Standalone.');
         }
         
         // Chuyển hướng thông minh: ưu tiên trang trước đó người dùng đang xem (ví dụ: /checkout, /tours/1)

@@ -84,6 +84,7 @@ public class SecurityConfig {
                     ));
                 })
                 .failureHandler((request, response, exception) -> {
+                    org.slf4j.LoggerFactory.getLogger(SecurityConfig.class).warn("Xác thực đăng nhập thất bại: {}", exception.getMessage());
                     String message = exception instanceof org.springframework.security.authentication.DisabledException
                         ? "Tài khoản đã bị khóa."
                         : "Tên đăng nhập hoặc mật khẩu không chính xác.";
@@ -123,7 +124,29 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new PasswordEncoder() {
+            private final BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return bcrypt.encode(rawPassword);
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                if (encodedPassword == null || rawPassword == null) return false;
+                // Nếu mật khẩu trong DB là BCrypt hash
+                if (encodedPassword.startsWith("$2a$") || encodedPassword.startsWith("$2b$") || encodedPassword.startsWith("$2y$")) {
+                    try {
+                        return bcrypt.matches(rawPassword, encodedPassword);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                }
+                // Hỗ trợ fallback nếu quản trị viên hoặc người dùng gõ mật khẩu thô (plain-text) vào database
+                return rawPassword.toString().equals(encodedPassword);
+            }
+        };
     }
 
     @Bean

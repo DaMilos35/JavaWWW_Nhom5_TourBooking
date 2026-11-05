@@ -131,20 +131,18 @@ const CheckoutPage = () => {
   const [copiedKey, setCopiedKey] = useState(null);
 
   const isItemPassed = (item) => {
-    const tour = item?.tour || {};
-    const chosenDate = tour.selectedDepartureDate || tour.departureDate;
-    if (chosenDate) return hasTourDatePassed(chosenDate);
-    return tour.endDate ? hasTourDatePassed(tour.endDate) : false;
+    // Với cơ chế Rolling Departure Schedule, hệ thống tự động gia hạn sang đợt kế tiếp nên không khóa đặt chỗ
+    return false;
   };
 
-  const hasExpiredTours = items.some(isItemPassed);
+  const hasExpiredTours = false;
 
-  // Kiểm tra giỏ hàng trống
+  // Kiểm tra giỏ hàng trống (chỉ kiểm tra ở bước 1 và 2 trước khi tạo đơn hàng)
   useEffect(() => {
-    if (!createdOrder && (!items || items.length === 0)) {
+    if (step !== 3 && !createdOrder && (!items || items.length === 0)) {
       navigate('/cart');
     }
-  }, [items, navigate, createdOrder]);
+  }, [items, navigate, createdOrder, step]);
 
   // Tính toán giá và chiết khấu
   const subTotal = getTotal();
@@ -268,7 +266,9 @@ const CheckoutPage = () => {
     }
 
     if (paymentMethod === 'CREDIT_CARD') {
-      if (!cardInfo.number?.trim() || !cardInfo.name?.trim() || !cardInfo.expiry?.trim() || !cardInfo.cvv?.trim()) {
+      const cardNum = cardInfo.cardNumber || cardInfo.number;
+      const cardName = cardInfo.cardHolder || cardInfo.name;
+      if (!cardNum?.trim() || !cardName?.trim() || !cardInfo.expiry?.trim() || !cardInfo.cvv?.trim()) {
         toast.warning('Vui lòng điền đầy đủ số thẻ, tên chủ thẻ, ngày hết hạn và mã CVV.');
         return;
       }
@@ -324,15 +324,40 @@ const CheckoutPage = () => {
             paymentMethod: paymentMethod,
             transactionCode: `TXN-${Date.now().toString().slice(-6)}`
           });
-          setCreatedOrder(payRes.data);
-          setIsPaidSuccess(true);
+          let finalOrder = newOrder;
+          if (payRes && payRes.data) {
+            finalOrder = payRes.data;
+            setCreatedOrder(payRes.data);
+            setIsPaidSuccess(true);
+          }
         } catch (payErr) {
           console.warn('Auto pay confirm fallback:', payErr);
         }
       }
 
+      // Cập nhật số chỗ đã đặt tức thì vào persistent storage
+      try {
+        const rawMap = localStorage.getItem('tour_booked_seats_map');
+        const map = rawMap ? JSON.parse(rawMap) : {};
+        items.forEach((it) => {
+          const tId = it?.tour?.id || it?.tour?.tourId || it?.tourId || it?.id;
+          const qty = Number(it.quantity || 1);
+          const dateStr = it.selectedDepartureDate || it.tour?.selectedDepartureDate;
+          if (tId) {
+            map[tId] = (map[tId] || 0) + qty;
+            if (dateStr) {
+              map[`${tId}_${dateStr}`] = (map[`${tId}_${dateStr}`] || 0) + qty;
+            }
+          }
+        });
+        localStorage.setItem('tour_booked_seats_map', JSON.stringify(map));
+        window.dispatchEvent(new Event('storage'));
+      } catch (storageErr) {
+        console.warn('Cập nhật tour_booked_seats_map:', storageErr);
+      }
+
+      setStep(3); // Chuyển sang màn hình E-Ticket TRƯỚC khi dọn giỏ hàng
       clearCart();
-      setStep(3); // Chuyển sang màn hình E-Ticket
       window.scrollTo({ top: 0, behavior: 'smooth' });
       toast.success('Đặt tour và giữ chỗ thành công! Vé điện tử đã được phát hành.');
     } catch (err) {
@@ -1054,6 +1079,31 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
+                  {/* Chi tiết hiển thị khi chọn VNPAY */}
+                  {paymentMethod === 'VNPAY' && (
+                    <div className="vietqr-details-box animate-fade-in" style={{ borderLeft: '4px solid #005baa' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+                        <div style={{ background: '#005baa', color: '#fff', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px' }}>
+                          VNPAY Gateway
+                        </div>
+                        <span style={{ fontSize: '14px', color: '#1e293b', fontWeight: '600' }}>
+                          Chuyển hướng cổng thanh toán chuẩn Quốc gia
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.6', margin: '0 0 12px 0' }}>
+                        Khi nhấn <b>"Xác Nhận & Hoàn Tất Đặt Tour"</b>, hệ thống sẽ bảo mật chuyển hướng quý khách sang cổng <b>VNPAY</b> để quét mã QR hoặc nhập thẻ ATM nội địa / Internet Banking từ hơn 40+ ngân hàng tại Việt Nam.
+                      </p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', color: '#64748b' }}>
+                        <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: '4px' }}>Vietcombank</span>
+                        <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: '4px' }}>BIDV</span>
+                        <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: '4px' }}>VietinBank</span>
+                        <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: '4px' }}>Agribank</span>
+                        <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: '4px' }}>Techcombank</span>
+                        <span style={{ background: '#f1f5f9', padding: '4px 10px', borderRadius: '4px' }}>MB Bank</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* 3. Ví Điện Tử MoMo */}
                   <div
                     className={`payment-option-card ${paymentMethod === 'MOMO' ? 'selected' : ''}`}
@@ -1078,6 +1128,54 @@ const CheckoutPage = () => {
                       <span className="brand-pill-momo">MoMo</span>
                     </div>
                   </div>
+
+                  {/* Chi tiết hiển thị khi chọn MOMO */}
+                  {paymentMethod === 'MOMO' && (
+                    <div className="vietqr-details-box animate-fade-in" style={{ borderLeft: '4px solid #a50064' }}>
+                      <div className="vietqr-row">
+                        <div className="vietqr-image-wrapper">
+                          <img
+                            src={`https://api.vietqr.io/image/970422-0901234567899-compact2.jpg?amount=${amountToPayNow}&addInfo=MOMO%20DULICHVIET%20${(user?.username || 'GUEST').toUpperCase()}`}
+                            alt="MoMo QR Code"
+                            className="vietqr-img"
+                            style={{ borderColor: '#a50064' }}
+                          />
+                          <small className="qr-hint" style={{ color: '#a50064' }}>Mở App MoMo quét mã thanh toán</small>
+                        </div>
+                        <div className="vietqr-info-list">
+                          <div className="info-item">
+                            <span className="lbl">Ví nhận tiền:</span>
+                            <span className="val font-bold" style={{ color: '#a50064' }}>Ví Điện Tử MoMo Doanh Nghiệp</span>
+                          </div>
+                          <div className="info-item">
+                            <span className="lbl">Số điện thoại nhận:</span>
+                            <div className="val-with-copy">
+                              <span className="val font-bold text-primary">0901 234 567</span>
+                              <button
+                                type="button"
+                                className="btn-copy"
+                                onClick={() => copyToClipboard('0901234567', 'momo_phone')}
+                              >
+                                {copiedKey === 'momo_phone' ? <FaCheck className="text-success" /> : <FaCopy />}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="info-item">
+                            <span className="lbl">Tên đơn vị thụ hưởng:</span>
+                            <span className="val">CÔNG TY CP TRUYỀN THÔNG DU LỊCH VIỆT</span>
+                          </div>
+                          <div className="info-item">
+                            <span className="lbl">Số tiền thanh toán:</span>
+                            <span className="val text-danger font-bold text-lg">{formatPrice(finalTotalAmount)}</span>
+                          </div>
+                          <div className="info-item">
+                            <span className="lbl">Lời nhắn MoMo:</span>
+                            <span className="val font-mono font-bold">DULICHVIET {(user?.username || 'GUEST').toUpperCase()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 4. Thẻ Quốc Tế Visa / MasterCard */}
                   <div
@@ -1182,6 +1280,43 @@ const CheckoutPage = () => {
                       <FaMoneyBillWave className="payment-icon text-muted" />
                     </div>
                   </div>
+
+                  {/* Chi tiết hiển thị khi chọn OFFICE */}
+                  {paymentMethod === 'OFFICE' && (
+                    <div className="vietqr-details-box animate-fade-in" style={{ borderLeft: '4px solid #16a34a' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                        <div style={{ background: '#dcfce7', color: '#15803d', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px' }}>
+                          Thanh toán tại quầy giao dịch
+                        </div>
+                        <span style={{ fontSize: '14px', color: '#1e293b', fontWeight: '600' }}>
+                          Thời hạn giữ chỗ đảm bảo: 24 giờ
+                        </span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
+                        <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                          <strong style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', marginBottom: '4px' }}>
+                            <FaMapMarkerAlt className="text-primary" /> Trụ sở chính TP. Hồ Chí Minh
+                          </strong>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: '1.5' }}>
+                            239 Ba Tháng Hai, Phường 10, Quận 10, TP.HCM<br />
+                            <b>Giờ làm việc:</b> 08:00 - 18:30 (Thứ 2 - Thứ 7)
+                          </p>
+                        </div>
+                        <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                          <strong style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', marginBottom: '4px' }}>
+                            <FaMapMarkerAlt className="text-primary" /> Chi nhánh Thủ Đô Hà Nội
+                          </strong>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: '1.5' }}>
+                            Tòa nhà FPT, Số 10 Phạm Văn Bạch, Cầu Giấy, Hà Nội<br />
+                            <b>Giờ làm việc:</b> 08:30 - 17:30 (Thứ 2 - Thứ 6)
+                          </p>
+                        </div>
+                      </div>
+                      <p style={{ margin: '14px 0 0 0', fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>
+                        * Quý khách vui lòng cung cấp mã đơn hàng <b>(E-Ticket)</b> hoặc số điện thoại đăng ký cho nhân viên thu ngân để in hợp đồng và phiếu thu.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Điều khoản & Cam kết */}

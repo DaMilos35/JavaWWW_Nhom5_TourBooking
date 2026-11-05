@@ -16,7 +16,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsernameOrEmailIgnoreCase(username)
+        String clean = username != null ? username.trim() : "";
+        return userRepository.findByUsernameOrEmailIgnoreCase(clean)
                 .map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("Tên đăng nhập hoặc mật khẩu không chính xác."));
     }

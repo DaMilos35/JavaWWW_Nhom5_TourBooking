@@ -42,6 +42,7 @@ public class OrderService {
     }
 
     /** Lấy đơn hàng của chính user đang đăng nhập */
+    @Transactional(readOnly = true)
     public List<OrderDto> getMyOrders(Integer userId) {
         return orderRepository.findByUserIdWithDetails(userId).stream()
                 .map(OrderDto::from)
@@ -119,7 +120,11 @@ public class OrderService {
                 throw new ApiException(400, "Tour '" + tour.getName() + "' hiện không mở bán");
             }
             if (tour.getStartDate() != null && tour.getStartDate().isBefore(java.time.LocalDate.now())) {
-                throw new ApiException(400, "Tour '" + tour.getName() + "' đã quá ngày khởi hành");
+                // Tour đang mở bán nhưng ngày khởi hành mẫu trong DB đã qua -> Tự động gia hạn sang đợt khởi hành kế tiếp (+7 ngày)
+                int dur = (tour.getDuration() != null && tour.getDuration() > 0) ? tour.getDuration() : 3;
+                tour.setStartDate(java.time.LocalDate.now().plusDays(7));
+                tour.setEndDate(java.time.LocalDate.now().plusDays(7 + dur));
+                tourRepository.save(tour);
             }
             if (tour.getAvailableSeats() < item.quantity()) {
                 throw new ApiException(400, "Tour '" + tour.getName() + "' chỉ còn " + tour.getAvailableSeats() + " chỗ trống");

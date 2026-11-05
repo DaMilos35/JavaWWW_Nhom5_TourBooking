@@ -12,6 +12,19 @@ export const REAL_TOURS = rawTours.map((t) => {
   const inclusions = Array.isArray(t.inclusions) ? t.inclusions : JSON.parse(t.inclusions || '[]');
   const exclusions = Array.isArray(t.exclusions) ? t.exclusions : JSON.parse(t.exclusions || '[]');
 
+  // Đảm bảo lịch khởi hành luôn hợp lệ ở tương lai (Rolling Departure Invariant)
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  let tourStartDate = t.start_date;
+  let tourEndDate = t.end_date;
+  const dur = Number(t.duration) || 3;
+  if (!tourStartDate || new Date(tourStartDate) <= now) {
+    const nextStart = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const nextEnd = new Date(nextStart.getTime() + dur * 24 * 60 * 60 * 1000);
+    tourStartDate = nextStart.toISOString().slice(0, 10);
+    tourEndDate = nextEnd.toISOString().slice(0, 10);
+  }
+
   return {
     id: t.tour_id,
     tourId: t.tour_id,
@@ -26,8 +39,8 @@ export const REAL_TOURS = rawTours.map((t) => {
     image_url: t.image_url,
     availableSeats: t.available_seats,
     available_seats: t.available_seats,
-    startDate: t.start_date,
-    endDate: t.end_date,
+    startDate: tourStartDate,
+    endDate: tourEndDate,
     status: t.status,
     rating: Number(t.rating),
     vehicle: t.vehicle,

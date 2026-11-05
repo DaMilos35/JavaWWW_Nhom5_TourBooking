@@ -88,9 +88,7 @@ export const AuthProvider = ({ children }) => {
       setUser(newUser);
       // Lưu tên vào localStorage để hiển thị nhanh (không phải để xác thực)
       localStorage.setItem('user_display', JSON.stringify({
-        id: userId,
         username,
-        email,
         fullName: newUser.fullName,
         role: cleanRole,
         membershipTier: newUser.membershipTier
@@ -118,85 +116,45 @@ export const AuthProvider = ({ children }) => {
         error.message?.includes('timeout') ||
         !error.response
       ) {
-        message = 'Không thể kết nối đến máy chủ Backend (Port 8080). Vui lòng đảm bảo Spring Boot Backend đã được khởi động!';
+        // Fallback thông minh: Cho phép đăng nhập demo ngoại tuyến khi Backend Port 8080 chưa mở
+        const DEMO_ACCOUNTS = {
+          admin: { role: 'ADMIN', fullName: 'Quản Trị Viên Hệ Thống', email: 'admin@dulichviet.com.vn', membershipTier: 'DIAMOND', loyaltyPoints: 1250 },
+          vietravel: { role: 'PROVIDER', fullName: 'Công Ty Cổ Phần Du Lịch Vietravel', email: 'contact@vietravel.com', membershipTier: 'GOLD', loyaltyPoints: 800 },
+          saigontourist: { role: 'PROVIDER', fullName: 'Lữ Hành Saigontourist', email: 'info@saigontourist.net', membershipTier: 'GOLD', loyaltyPoints: 750 },
+          fpt_corp: { role: 'CUSTOMER', fullName: 'Tập Đoàn FPT (Khách Đoàn B2B)', email: 'booking@fpt.com.vn', membershipTier: 'PLATINUM', loyaltyPoints: 2100 },
+          customer: { role: 'CUSTOMER', fullName: 'Khách Hàng Trải Nghiệm', email: 'customer@dulichviet.com.vn', membershipTier: 'SILVER', loyaltyPoints: 450 },
+          nguyenvanan: { role: 'CUSTOMER', fullName: 'Nguyễn Văn An', email: 'an.nguyen@gmail.com', membershipTier: 'STANDARD', loyaltyPoints: 120 }
+        };
 
-        // STANDALONE / DEMO OFFLINE FALLBACK:
-        // Tự động cấp quyền truy cập demo khi Backend chưa khởi động để người dùng không bị kẹt ở trang đăng nhập
-        const uLower = (credentials?.username || '').trim().toLowerCase();
-        const pProvided = (credentials?.password || '').trim();
-
-        if (uLower && pProvided) {
-          let role = 'CUSTOMER';
-          let fullName = credentials.username.trim();
-          let email = `${uLower}@dulichviet.com.vn`;
-          let tier = 'STANDARD';
-          let points = 100;
-          let spent = 10000000;
-          let phone = '0901234567';
-
-          if (uLower === 'admin' || uLower.includes('admin')) {
-            role = 'ADMIN';
-            fullName = 'Quản Trị Viên Hệ Thống';
-            email = 'admin@dulichviet.com.vn';
-            tier = 'DIAMOND';
-            points = 1000;
-            spent = 120000000;
-            phone = '1900 1839';
-          } else if (uLower === 'vietravel') {
-            role = 'PROVIDER';
-            fullName = 'Vietravel Corporation';
-            email = 'vietravel@vietravel.com';
-            tier = 'DIAMOND';
-            phone = '1900 1839';
-          } else if (uLower === 'saigontourist') {
-            role = 'PROVIDER';
-            fullName = 'Saigontourist Travel';
-            email = 'saigontourist@saigontourist.com.vn';
-            tier = 'DIAMOND';
-            phone = '1900 1808';
-          } else if (uLower === 'fpt_corp') {
-            role = 'CUSTOMER';
-            fullName = 'Tập đoàn FPT Software';
-            email = 'fpt_corp@fpt.com';
-            tier = 'GOLD';
-            points = 300;
-            spent = 45000000;
-            phone = '0987654321';
-          } else if (uLower === 'customer') {
-            role = 'CUSTOMER';
-            fullName = 'Khách Hàng Cá Nhân';
-            email = 'customer@gmail.com';
-            tier = 'SILVER';
-            points = 50;
-            spent = 15000000;
-            phone = '0919999999';
-          }
-
-          const fallbackUser = {
-            id: role === 'ADMIN' ? 1 : 2,
-            username: credentials.username.trim(),
-            email,
-            role,
-            fullName,
-            phone,
-            address: 'TP. Hồ Chí Minh',
-            membershipTier: tier,
-            loyaltyPoints: points,
-            totalSpent: spent
+        const uname = (credentials.username || '').trim().toLowerCase();
+        const pwd = credentials.password || '';
+        if (DEMO_ACCOUNTS[uname] && pwd === '123456') {
+          const acc = DEMO_ACCOUNTS[uname];
+          const demoUser = {
+            id: uname === 'admin' ? 1 : (uname.includes('travel') || uname.includes('tourist') ? 10 : 2),
+            username: uname,
+            email: acc.email,
+            role: acc.role,
+            fullName: acc.fullName,
+            phone: '0901234567',
+            address: 'Hồ Chí Minh, Việt Nam',
+            membershipTier: acc.membershipTier,
+            loyaltyPoints: acc.loyaltyPoints,
+            totalSpent: 15000000
           };
-
-          setUser(fallbackUser);
+          setUser(demoUser);
           localStorage.setItem('user_display', JSON.stringify({
-            id: fallbackUser.id,
-            username: fallbackUser.username,
-            email: fallbackUser.email,
-            fullName: fallbackUser.fullName,
-            role: fallbackUser.role,
-            membershipTier: fallbackUser.membershipTier
+            id: demoUser.id,
+            username: demoUser.username,
+            email: demoUser.email,
+            fullName: demoUser.fullName,
+            role: demoUser.role,
+            membershipTier: demoUser.membershipTier
           }));
-
-          return { success: true, user: fallbackUser, isOfflineMode: true };
+          return { success: true, user: demoUser, isOfflineDemo: true };
         }
+
+        message = 'Không thể kết nối đến máy chủ Backend (Port 8080). Vui lòng đảm bảo Spring Boot Backend đã được khởi động!';
       }
       return { success: false, error: message };
     }

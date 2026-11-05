@@ -8,7 +8,8 @@
     "build": "vite build",
     "start": "vite preview",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "node scripts/project_integrity_and_health_check.cjs && node scripts/test_geographic_isolation.cjs && node scripts/test_admin_suite_and_extensions.cjs && node scripts/comprehensive_test_suite.cjs",
+    "test": "node scripts/project_integrity_and_health_check.cjs && node scripts/test_geographic_isolation.cjs && node scripts/test_admin_suite_and_extensions.cjs && node scripts/comprehensive_test_suite.cjs && node scripts/test_all_roles_and_flows.cjs",
+    "test:roles": "node scripts/test_all_roles_and_flows.cjs",
     "test:admin": "node scripts/test_admin_suite_and_extensions.cjs",
     "audit:health": "node scripts/project_integrity_and_health_check.cjs"
   },
