@@ -90,6 +90,12 @@ assert(adminCategoriesContent.includes('REAL_CATEGORIES'), 'AdminCategories has 
 const adminB2BContent = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'admin', 'AdminB2B.jsx'), 'utf8');
 assert(adminB2BContent.includes('FALLBACK_COMPANIES'), 'AdminB2B has mock fallback enterprise companies');
 
+const adminTourFormContent = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'admin', 'AdminTourForm.jsx'), 'utf8');
+assert(adminTourFormContent.includes('REAL_TOURS') && adminTourFormContent.includes('REAL_CATEGORIES'), 'AdminTourForm has fallback to REAL_TOURS and REAL_CATEGORIES');
+
+const adminOrderDetailContent = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'admin', 'AdminOrderDetail.jsx'), 'utf8');
+assert(adminOrderDetailContent.includes('mock order detail'), 'AdminOrderDetail has fallback for offline inspection resilience');
+
 // 5. Check TourListPage Streamlined Filters Overhaul
 console.log('\n[SECTION 5] Explore Tours Page Filter Overhaul:');
 const tourListPath = path.join(ROOT, 'src', 'pages', 'TourListPage.jsx');

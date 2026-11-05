@@ -273,13 +273,15 @@ const MyOrdersPage = () => {
     toast.success(`Đã sao chép ${label}!`);
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status, order) => {
+    const is50 = order?.depositPercent === 50 || (order?.depositAmount && order?.totalAmount && Math.round((order.depositAmount / order.totalAmount) * 100) === 50);
+    const depositLabel = is50 ? 'Đã cọc 50%' : (order?.depositPercent ? `Đã cọc ${order.depositPercent}%` : 'Đã cọc giữ chỗ');
     const statusMap = {
       'PENDING': { label: 'Chờ Admin xác nhận', bg: '#fef3c7', color: '#b45309' },
       'CONFIRMED': { label: 'Đã xác nhận', bg: '#dcfce7', color: '#15803d' },
       'CANCELLED': { label: 'Đã hủy', bg: '#fee2e2', color: '#b91c1c' },
       'COMPLETED': { label: 'Hoàn thành', bg: '#e0f2fe', color: '#0369a1' },
-      'DEPOSITED': { label: 'Đã cọc 30%', bg: '#fef3c7', color: '#b45309' }
+      'DEPOSITED': { label: depositLabel, bg: '#fef3c7', color: '#b45309' }
     };
     const s = statusMap[status] || { label: status, bg: '#f1f5f9', color: '#475569' };
     return (
@@ -434,7 +436,7 @@ const MyOrdersPage = () => {
                       </span>
                     </div>
                     <div className="oh-status">
-                      {getStatusBadge(order.status)}
+                      {getStatusBadge(order.status, order)}
                       <span className="order-total">{formatPrice(order.totalAmount)}</span>
                       <button 
                         style={{
@@ -487,15 +489,15 @@ const MyOrdersPage = () => {
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', fontSize: '0.88rem' }}>
                             <div>
-                              <span style={{ color: '#78350f', display: 'block' }}>Đợt 1 (Đã cọc 30%):</span>
+                              <span style={{ color: '#78350f', display: 'block' }}>Đợt 1 (Đã cọc {order.depositPercent || 30}%):</span>
                               <strong style={{ color: '#15803d', fontSize: '1.05rem' }}>
-                                {formatPrice(order.depositAmount || (order.totalAmount * 0.3))} (Đã nộp)
+                                {formatPrice(order.depositAmount || (order.totalAmount * ((order.depositPercent || 30) / 100)))} (Đã nộp)
                               </strong>
                             </div>
                             <div>
-                              <span style={{ color: '#78350f', display: 'block' }}>Đợt 2 (Còn lại 70%):</span>
+                              <span style={{ color: '#78350f', display: 'block' }}>Đợt 2 (Còn lại {100 - (order.depositPercent || 30)}%):</span>
                               <strong style={{ color: '#dc2626', fontSize: '1.05rem' }}>
-                                {formatPrice(order.remainingAmount || (order.totalAmount * 0.7))}
+                                {formatPrice(order.remainingAmount || (order.totalAmount - (order.depositAmount || (order.totalAmount * ((order.depositPercent || 30) / 100)))))}
                               </strong>
                             </div>
                             <div>

@@ -51,9 +51,12 @@ const VnPayReturnPage = () => {
 
   // Xác thực trạng thái thành công dựa trên response backend & mã vnp_ResponseCode
   const responseCode = searchParams.get('vnp_ResponseCode');
+  const isDeposit = result?.status === 'DEPOSITED' || result?.paymentStatus === 'PARTIALLY_PAID';
   const isSuccess = 
     result?.paymentStatus === 'PAID' || 
+    result?.paymentStatus === 'PARTIALLY_PAID' ||
     result?.status === 'CONFIRMED' || 
+    result?.status === 'DEPOSITED' || 
     responseCode === '00' ||
     result?.success === true;
 
@@ -61,6 +64,7 @@ const VnPayReturnPage = () => {
   const orderCode = result?.orderCode || ('ORD-' + orderId);
   const transactionId = result?.paymentTransactionId || searchParams.get('vnp_TransactionNo') || 'VNP-' + Date.now();
   const totalAmount = result?.totalAmount || (searchParams.get('vnp_Amount') ? Number(searchParams.get('vnp_Amount')) / 100 : 0);
+  const paidAmount = isDeposit && result?.depositAmount ? result.depositAmount : totalAmount;
 
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '85vh', padding: '48px 16px 80px' }}>
@@ -119,13 +123,26 @@ const VnPayReturnPage = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <span style={{ color: '#64748b' }}>Trạng thái vé:</span>
-                  <span style={{ color: '#15803d', background: '#dcfce7', padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem' }}>
-                    ĐÃ XÁC NHẬN (CONFIRMED)
+                  <span style={{
+                    color: isDeposit ? '#b45309' : '#15803d',
+                    background: isDeposit ? '#fef3c7' : '#dcfce7',
+                    padding: '3px 10px',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.8rem'
+                  }}>
+                    {isDeposit ? 'ĐÃ ĐẶT CỌC GIỮ CHỖ (DEPOSITED)' : 'ĐÃ XÁC NHẬN (CONFIRMED)'}
                   </span>
                 </div>
+                {isDeposit && result?.remainingAmount && Number(result.remainingAmount) > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.88rem' }}>
+                    <span style={{ color: '#b45309' }}>Số tiền còn lại (đợt 2):</span>
+                    <strong style={{ color: '#dc2626' }}>{formatPrice(result.remainingAmount)}</strong>
+                  </div>
+                )}
                 <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '16px', marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#0f172a', fontWeight: 600 }}>Số tiền đã thanh toán:</span>
-                  <strong style={{ color: '#ff5e1f', fontSize: '1.4rem', fontWeight: 800 }}>{formatPrice(totalAmount)}</strong>
+                  <span style={{ color: '#0f172a', fontWeight: 600 }}>{isDeposit ? 'Số tiền cọc đã thanh toán:' : 'Số tiền đã thanh toán:'}</span>
+                  <strong style={{ color: '#ff5e1f', fontSize: '1.4rem', fontWeight: 800 }}>{formatPrice(paidAmount)}</strong>
                 </div>
               </div>
 

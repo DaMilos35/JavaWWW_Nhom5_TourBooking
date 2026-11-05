@@ -472,6 +472,11 @@ public class OrderService {
         String method = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim() : "Chuyển khoản VietQR";
         String tx = (transactionCode != null && !transactionCode.isBlank()) ? transactionCode.trim() : ("TXN-REM-" + System.currentTimeMillis());
 
+        // Tích điểm & thăng hạng cho phần còn lại thực tế vừa thanh toán (70%)
+        BigDecimal remainingSettled = order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0
+                ? order.getRemainingAmount()
+                : order.getTotalAmount().subtract(order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO);
+
         order.setStatus("CONFIRMED");
         order.setPaymentStatus("PAID");
         order.setRemainingAmount(BigDecimal.ZERO);
@@ -482,10 +487,6 @@ public class OrderService {
 
         TourOrder saved = orderRepository.save(order);
 
-        // Tích điểm & thăng hạng cho phần còn lại thực tế vừa thanh toán (70%)
-        BigDecimal remainingSettled = order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0
-                ? order.getRemainingAmount()
-                : order.getTotalAmount().subtract(order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO);
         updateUserLoyalty(order.getUser(), remainingSettled);
 
         emailService.sendOrderConfirmation(saved);

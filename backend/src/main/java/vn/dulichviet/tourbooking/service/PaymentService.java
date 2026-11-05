@@ -105,7 +105,13 @@ public class PaymentService {
         orderRepository.save(order);
 
         String code = order.getOrderCode() != null ? order.getOrderCode() : ("ORD-" + order.getId());
-        long amountInVnd = order.getTotalAmount().longValue() * 100; // VNPay tính bằng đơn vị xu/đồng x 100
+        BigDecimal chargeAmount = order.getTotalAmount();
+        if ("DEPOSIT".equalsIgnoreCase(order.getPaymentType()) && order.getDepositAmount() != null && order.getDepositAmount().compareTo(BigDecimal.ZERO) > 0 && !"DEPOSITED".equalsIgnoreCase(order.getStatus())) {
+            chargeAmount = order.getDepositAmount();
+        } else if ("DEPOSITED".equalsIgnoreCase(order.getStatus()) && order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0) {
+            chargeAmount = order.getRemainingAmount();
+        }
+        long amountInVnd = chargeAmount.longValue() * 100; // VNPay tính bằng đơn vị xu/đồng x 100
 
         String returnUrl = (clientReturnUrl != null && !clientReturnUrl.isBlank()) ? clientReturnUrl : vnpReturnUrl;
         String vnpIp = (ipAddress != null && !ipAddress.isBlank() && !ipAddress.equals("0:0:0:0:0:0:0:1")) ? ipAddress : "127.0.0.1";
@@ -210,11 +216,18 @@ public class PaymentService {
         }
 
         if ("00".equals(responseCode)) {
-            order.setPaymentStatus("PAID");
-            order.setStatus("CONFIRMED");
+            boolean isDeposit = "DEPOSIT".equalsIgnoreCase(order.getPaymentType());
+            if (isDeposit && order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0 && !"DEPOSITED".equalsIgnoreCase(order.getStatus())) {
+                order.setStatus("DEPOSITED");
+                order.setPaymentStatus("PARTIALLY_PAID");
+            } else {
+                order.setStatus("CONFIRMED");
+                order.setPaymentStatus("PAID");
+                order.setRemainingAmount(BigDecimal.ZERO);
+            }
             order.setPaymentMethod("VNPAY");
             order.setPaymentTransactionId(transactionNo != null ? transactionNo : ("VNP-" + System.currentTimeMillis()));
-            log.info("VNPay payment SUCCESS for order {}. Transaction: {}", orderCode, transactionNo);
+            log.info("VNPay payment SUCCESS for order {}. Status: {}, Transaction: {}", orderCode, order.getStatus(), transactionNo);
         } else {
             log.warn("VNPay payment FAILED or CANCELLED for order {}. Code: {}", orderCode, responseCode);
         }
@@ -237,12 +250,20 @@ public class PaymentService {
         String pm = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim().toUpperCase() : "VIETQR";
         String txId = (transactionId != null && !transactionId.isBlank()) ? transactionId.trim() : ("TX-" + System.currentTimeMillis());
 
+        boolean isDeposit = "DEPOSIT".equalsIgnoreCase(order.getPaymentType());
+        if (isDeposit && order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0 && !"DEPOSITED".equalsIgnoreCase(order.getStatus())) {
+            order.setStatus("DEPOSITED");
+            order.setPaymentStatus("PARTIALLY_PAID");
+        } else {
+            order.setStatus("CONFIRMED");
+            order.setPaymentStatus("PAID");
+            order.setRemainingAmount(BigDecimal.ZERO);
+        }
+
         order.setPaymentMethod(pm);
-        order.setPaymentStatus("PAID");
-        order.setStatus("CONFIRMED");
         order.setPaymentTransactionId(txId);
 
-        log.info("Payment confirmed for order {}. Method: {}, TxId: {}", order.getId(), pm, txId);
+        log.info("Payment confirmed for order {}. Status: {}, Method: {}, TxId: {}", order.getId(), order.getStatus(), pm, txId);
         return OrderDto.from(orderRepository.save(order));
     }
 
