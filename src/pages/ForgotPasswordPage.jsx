@@ -26,7 +26,7 @@ const ForgotPasswordPage = () => {
   // Các bước:
   // 1: Nhập Email hoặc SĐT
   // 'EMAIL_SENT': Đã gửi email, chờ người dùng mở email nhấp link
-  // 2: Nhập OTP (khi chọn SMS)
+  // 2: Nhập OTP (khi chọn SMS) hoặc mã PIN (khi chọn Email)
   // 3: Đặt lại mật khẩu mới
   // 4: Hoàn tất thành công
   const [step, setStep] = useState(1);
@@ -39,11 +39,20 @@ const ForgotPasswordPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [maskedTarget, setMaskedTarget] = useState('');
+  const [fullTarget, setFullTarget] = useState('');
+  const [resetLink, setResetLink] = useState('');
   const [countdown, setCountdown] = useState(0);
+  // Gmail modal đã được loại bỏ — email thật được gửi đến hộp thư Gmail thực
 
   // Tự động nhận diện Token khi người dùng nhấn vào liên kết từ email:
   // Ví dụ: /reset-password?token=... hoặc /forgot-password?token=...
   useEffect(() => {
+    const urlPin = searchParams.get('pin');
+    if (urlPin) {
+      setOtp(urlPin);
+      setStep(2);
+      toast.info(`Đã nhận diện mã PIN: ${urlPin}`);
+    }
     const urlToken = searchParams.get('token');
     if (urlToken) {
       setResetToken(urlToken);
@@ -73,8 +82,8 @@ const ForgotPasswordPage = () => {
   const handleQuickFill = (type) => {
     if (type === 'real_email') {
       setChannel('EMAIL');
-      setIdentifier('levietcaoson27@gmail.com');
-      toast.info('Đã chọn email: levietcaoson27@gmail.com');
+      setIdentifier('levietcaoson2005ht@gmail.com');
+      toast.info('Đã chọn email: levietcaoson2005ht@gmail.com');
     } else if (type === 'email') {
       setChannel('EMAIL');
       setIdentifier('admin@dulichviet.vn');
@@ -106,21 +115,16 @@ const ForgotPasswordPage = () => {
         setMaskedTarget(res.data.target || identifier);
         setCountdown(res.data.expiresInSeconds || (channel === 'SMS' ? 300 : 900));
 
-        if (channel === 'SMS') {
-          // Kênh SMS -> chuyển sang Bước 2 xác thực OTP
-          setStep(2);
-          if (res.data.simulatedOtp) {
-            setOtp(res.data.simulatedOtp);
-            toast.info(`Mã OTP nhận được: ${res.data.simulatedOtp}`);
-          }
+        setFullTarget(res.data.fullTarget || identifier);
+        setResetLink(res.data.resetLink || '');
+
+        // Chuyển sang Bước 2: Nhập mã PIN (Email) hoặc OTP (SMS)
+        setStep(2);
+        setOtp(''); // Tuyệt đối KHÔNG tự điền mã PIN - người dùng tự nhập từ Gmail thật
+        if (channel === 'EMAIL') {
+          toast.success('Mã PIN đã được gửi về hộp thư Gmail thật của bạn! Vui lòng kiểm tra hòm thư.');
         } else {
-          // Kênh Email -> KHÔNG NHẢY BƯỚC 3!
-          // Chuyển sang màn hình thông báo ĐÃ GỬI EMAIL, hướng dẫn người dùng kiểm tra hòm thư
-          setStep('EMAIL_SENT');
-          if (res.data.simulatedToken) {
-            // Lưu ngầm token nếu người dùng muốn bấm "Nhập thủ công"
-            setResetToken(res.data.simulatedToken);
-          }
+          toast.info('Mã OTP đã được gửi về SMS!');
         }
       }
     } catch (err) {
@@ -134,7 +138,7 @@ const ForgotPasswordPage = () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp.trim() || otp.trim().length !== 6) {
-      toast.error('Vui lòng nhập đúng mã OTP gồm 6 chữ số!');
+      toast.error(channel === 'EMAIL' ? 'Vui lòng nhập đúng mã PIN gồm 6 chữ số!' : 'Vui lòng nhập đúng mã OTP gồm 6 chữ số!');
       return;
     }
 
@@ -146,13 +150,13 @@ const ForgotPasswordPage = () => {
       });
 
       if (res.data.success && res.data.resetToken) {
-        toast.success('Xác thực OTP thành công!');
+        toast.success(channel === 'EMAIL' ? 'Xác thực mã PIN thành công! Hãy tạo mật khẩu mới.' : 'Xác thực OTP thành công!');
         setResetToken(res.data.resetToken);
         setCountdown(res.data.expiresInSeconds || 900);
         setStep(3); // Chuyển sang bước 3 đặt mật khẩu mới
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Mã xác thực OTP không chính xác!');
+      toast.error(err.response?.data?.message || (channel === 'EMAIL' ? 'Mã PIN không chính xác!' : 'Mã xác thực OTP không chính xác!'));
     } finally {
       setLoading(false);
     }
@@ -226,7 +230,7 @@ const ForgotPasswordPage = () => {
             <p className="auth-subtitle">
               {step === 1 && 'Chọn kênh nhận mã xác thực để khôi phục tài khoản của bạn'}
               {step === 'EMAIL_SENT' && 'Vui lòng kiểm tra hòm thư Email'}
-              {step === 2 && `Nhập mã OTP 6 số đã gửi đến ${maskedTarget}`}
+              {step === 2 && (channel === 'EMAIL' ? `Nhập mã PIN 6 số đã gửi về ${fullTarget || maskedTarget}` : `Nhập mã OTP 6 số đã gửi đến ${maskedTarget}`)}
               {step === 3 && 'Tạo mật khẩu mới an toàn cho tài khoản'}
               {step === 4 && 'Đổi mật khẩu thành công!'}
             </p>
@@ -275,7 +279,7 @@ const ForgotPasswordPage = () => {
                   onClick={() => handleQuickFill('real_email')}
                   style={{
                     gridColumn: '1 / -1',
-                    background: identifier === 'levietcaoson27@gmail.com' ? '#dcfce7' : '#f0fdf4',
+                    background: identifier === 'levietcaoson2005ht@gmail.com' ? '#dcfce7' : '#f0fdf4',
                     border: '1px solid #86efac',
                     color: '#166534',
                     padding: '7px 10px',
@@ -289,13 +293,13 @@ const ForgotPasswordPage = () => {
                     gap: '6px'
                   }}
                 >
-                  ✨ Chọn Email thật: levietcaoson27@gmail.com
+                  ✨ Chọn Email thật: levietcaoson2005ht@gmail.com
                 </button>
                 <button
                   type="button"
                   onClick={() => handleQuickFill('email')}
                   style={{
-                    background: channel === 'EMAIL' && identifier !== 'levietcaoson27@gmail.com' ? '#e0f2fe' : '#ffffff',
+                    background: channel === 'EMAIL' && identifier !== 'levietcaoson2005ht@gmail.com' ? '#e0f2fe' : '#ffffff',
                     border: '1px solid #bae6fd',
                     color: '#0284c7',
                     padding: '6px 10px',
@@ -380,7 +384,7 @@ const ForgotPasswordPage = () => {
                   {channel === 'EMAIL' ? <FaEnvelope className="input-icon" /> : <FaPhoneAlt className="input-icon" />}
                   <input
                     type={channel === 'EMAIL' ? 'email' : 'tel'}
-                    placeholder={channel === 'EMAIL' ? 'Nhập email (VD: levietcaoson27@gmail.com)' : 'Nhập SĐT (VD: 0901234567)'}
+                    placeholder={channel === 'EMAIL' ? 'Nhập email (VD: levietcaoson2005ht@gmail.com)' : 'Nhập SĐT (VD: 0901234567)'}
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required
@@ -539,44 +543,112 @@ const ForgotPasswordPage = () => {
             </div>
           )}
 
-          {/* STEP 2: FORM XÁC THỰC OTP (SMS) */}
+          {/* STEP 2: FORM XÁC THỰC MÃ PIN (GMAIL) HOẶC OTP (SMS) */}
           {step === 2 && (
             <form onSubmit={handleVerifyOtp}>
+              {/* Huy hiệu Kênh */}
+              <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: '#ecfdf5',
+                  color: '#065f46',
+                  border: '1px solid #a7f3d0',
+                  padding: '4px 14px',
+                  borderRadius: '20px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700
+                }}>
+                  <FaShieldAlt style={{ color: '#10b981' }} /> {channel === 'EMAIL' ? 'Kênh Trung Gian (Gửi mã PIN về Gmail)' : 'Kênh SMS OTP Gateway'}
+                </span>
+              </div>
+
               <div style={{
                 textAlign: 'center',
                 background: '#f0f9ff',
-                padding: '12px',
+                border: '1px solid #bae6fd',
+                padding: '12px 14px',
                 borderRadius: '8px',
-                marginBottom: '18px',
-                fontSize: '0.85rem',
+                marginBottom: '16px',
+                fontSize: '0.88rem',
                 color: '#0369a1'
               }}>
-                Mã xác thực OTP đã được gửi đến: <strong>{maskedTarget}</strong>
+                <div>{channel === 'EMAIL' ? 'Mã PIN ngẫu nhiên 6 chữ số đã được gửi đến:' : 'Mã xác thực OTP đã được gửi đến:'}</div>
+                <div style={{ fontWeight: 700, fontSize: '0.98rem', color: '#0284c7', marginTop: '4px' }}>
+                  {fullTarget || maskedTarget || identifier}
+                </div>
                 {countdown > 0 && (
-                  <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', color: '#e8400c', fontWeight: 600 }}>
-                    <FaClock /> Hiệu lực còn: {formatCountdown(countdown)}
+                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', color: '#e8400c', fontWeight: 600, fontSize: '0.82rem' }}>
+                    <FaClock /> Thời hạn hiệu lực: {formatCountdown(countdown)}
                   </div>
                 )}
               </div>
 
+              {/* Nút mở Gmail thật để kiểm tra email chứa mã PIN */}
+              {channel === 'EMAIL' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <a
+                    href="https://mail.google.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      width: '100%',
+                      padding: '11px 16px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #ea4335 0%, #c5221f 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 12px rgba(234, 67, 53, 0.25)',
+                      textDecoration: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <FaEnvelope style={{ fontSize: '1.05rem' }} />
+                    Mở Gmail để xem mã PIN ({fullTarget || maskedTarget})
+                    <FaExternalLinkAlt style={{ fontSize: '0.8rem', opacity: 0.85 }} />
+                  </a>
+                  <p style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '7px', textAlign: 'center' }}>
+                    📬 Mã PIN đã được gửi vào hòm thư Gmail thật của bạn — kiểm tra cả mục <strong>Spam</strong> nếu không thấy.
+                  </p>
+                </div>
+              )}
+
+              {/* Ô nhập mã PIN / OTP (để trống để người dùng tự gõ) */}
               <div className="form-group">
-                <label>Mã xác thực OTP (6 chữ số)</label>
+                <label style={{ fontWeight: 600, color: '#334155' }}>
+                  {channel === 'EMAIL' ? 'Nhập mã PIN xác thực (6 chữ số)' : 'Nhập mã xác thực OTP (6 chữ số)'}
+                </label>
                 <div className="input-icon-wrapper">
                   <FaKey className="input-icon" />
                   <input
                     type="text"
                     maxLength={6}
-                    placeholder="Nhập 6 chữ số OTP..."
+                    placeholder="Nhập 6 chữ số..."
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    style={{ letterSpacing: '6px', fontSize: '1.2rem', textAlign: 'center' }}
+                    style={{ letterSpacing: '8px', fontSize: '1.4rem', fontWeight: 700, textAlign: 'center', color: '#0284c7' }}
                     required
+                    autoFocus
                   />
                 </div>
+                <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '6px', textAlign: 'center' }}>
+                  {channel === 'EMAIL' 
+                    ? '💡 Nhấn nút "Mở Hộp Thoại Gmail" ở trên để xem mã PIN gửi về hòm thư, sau đó nhập vào đây.'
+                    : '💡 Nhập 6 chữ số mã xác thực OTP nhận được qua tin nhắn SMS.'
+                  }
+                </p>
               </div>
 
-              <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-                {loading ? 'Đang kiểm tra...' : 'Xác thực OTP & Tiếp tục'}
+              <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ padding: '12px', fontSize: '0.95rem', fontWeight: 700 }}>
+                {loading ? 'Đang kiểm tra...' : (channel === 'EMAIL' ? 'Xác thực mã PIN & Đổi mật khẩu' : 'Xác thực OTP & Tiếp tục')}
               </button>
 
               <button
@@ -584,7 +656,7 @@ const ForgotPasswordPage = () => {
                 onClick={() => setStep(1)}
                 style={{
                   width: '100%',
-                  marginTop: '10px',
+                  marginTop: '12px',
                   background: 'transparent',
                   border: 'none',
                   color: '#64748b',
@@ -592,7 +664,7 @@ const ForgotPasswordPage = () => {
                   cursor: 'pointer'
                 }}
               >
-                Gửi lại mã hoặc đổi số điện thoại
+                &larr; Gửi lại mã hoặc đổi {channel === 'EMAIL' ? 'email' : 'số điện thoại'} khác
               </button>
             </form>
           )}

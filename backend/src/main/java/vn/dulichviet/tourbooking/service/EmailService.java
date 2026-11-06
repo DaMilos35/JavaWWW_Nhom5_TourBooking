@@ -1,6 +1,12 @@
 package vn.dulichviet.tourbooking.service;
 
 import jakarta.mail.internet.MimeMessage;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +37,12 @@ public class EmailService {
 
     @Value("${spring.mail.username:}")
     private String fromEmail;
+
+    @Value("${app.email.relay-url:${EMAIL_RELAY_URL:}}")
+    private String relayUrl;
+
+    @Value("${app.email.relay-key:${EMAIL_RELAY_KEY:}}")
+    private String relayKey;
 
     /**
      * Gửi mã xác thực OTP đăng ký tài khoản qua Gmail
@@ -302,42 +314,124 @@ public class EmailService {
 
         try {
             String sender = (fromEmail != null && !fromEmail.isBlank()) ? fromEmail : "hotro@dulichviet.vn";
+            String subject = "[Du Lịch Việt] Mã PIN xác thực đặt lại mật khẩu: " + rawToken;
             String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);'>"
                     + "<div style='background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 28px; text-align: center;'>"
                     + "<h1 style='margin: 0; font-size: 26px; letter-spacing: 1px;'>DU LỊCH VIỆT</h1>"
-                    + "<p style='margin: 8px 0 0; font-size: 15px; opacity: 0.95;'>Yêu Cầu Đặt Lại Mật Khẩu</p>"
+                    + "<p style='margin: 8px 0 0; font-size: 15px; opacity: 0.95;'>Mã PIN Xác Thực Đặt Lại Mật Khẩu</p>"
                     + "</div>"
                     + "<div style='padding: 28px; color: #334155; line-height: 1.6; background: #ffffff;'>"
                     + "<p>Xin chào quý khách,</p>"
-                    + "<p>Hệ thống nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với địa chỉ email này. Để tiến hành đặt mật khẩu mới, bạn vui lòng nhấn vào nút bên dưới:</p>"
+                    + "<p>Hệ thống nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với địa chỉ email: <strong>" + toEmail + "</strong>.</p>"
+                    + "<p>Dưới đây là mã PIN xác thực ngẫu nhiên gồm 6 chữ số của bạn:</p>"
                     + "<div style='text-align: center; margin: 28px 0;'>"
-                    + "<a href='" + resetLink + "' style='display: inline-block; background: #0284c7; color: #ffffff; text-decoration: none; font-weight: bold; padding: 14px 32px; border-radius: 8px; font-size: 16px; box-shadow: 0 2px 6px rgba(2,132,199,0.3);'>Đặt Lại Mật Khẩu Ngay</a>"
-                    + "<p style='font-size: 13px; color: #64748b; margin-top: 14px;'>Hoặc sử dụng mã Reset Token này: <strong style='font-family:monospace; color:#0284c7;'>" + rawToken + "</strong></p>"
-                    + "<p style='font-size: 13px; color: #64748b; margin-top: 6px;'>Liên kết có hiệu lực trong vòng <strong>15 phút</strong> và chỉ sử dụng được 01 lần duy nhất.</p>"
+                    + "<div style='display: inline-block; background: #f0f9ff; border: 2px dashed #0284c7; border-radius: 12px; padding: 16px 36px; font-size: 34px; font-weight: 800; letter-spacing: 10px; color: #0284c7; font-family: monospace;'>"
+                    + rawToken
+                    + "</div>"
+                    + "<p style='font-size: 13px; color: #64748b; margin-top: 14px;'>Mã PIN có hiệu lực trong vòng <strong>15 phút</strong>. Nhập mã này trên trang web để mở khóa đổi mật khẩu.</p>"
                     + "</div>"
                     + "<div style='background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 6px; font-size: 13px; color: #92400e;'>"
-                    + "<strong>Cảnh báo bảo mật:</strong> Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này hoặc liên hệ hotline 1900 1234 ngay lập tức để bảo vệ tài khoản."
+                    + "<strong>Cảnh báo bảo mật:</strong> Nếu bạn không yêu cầu đổi mật khẩu, tuyệt đối không chia sẻ mã PIN này cho bất kỳ ai hoặc liên hệ hotline 1900 1234 ngay lập tức."
                     + "</div>"
                     + "<p style='margin-top: 28px; font-size: 13px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 16px;'>"
-                    + "Trân trọng,<br><strong>Đội ngũ Du Lịch Việt Security Team</strong>"
+                    + "Trân trọng,<br><strong>Đội ngũ An ninh Du Lịch Việt</strong>"
                     + "</p>"
                     + "</div>"
                     + "</div>";
 
+            // ƯU TIÊN 1: Chuyển tiếp qua Kênh Trung Gian HTTP Relay (Google Apps Script / Webhook - Không cần password)
+            if (relayUrl != null && !relayUrl.isBlank()) {
+                boolean sentViaRelay = sendViaHttpRelay(toEmail, subject, content, resetLink, rawToken);
+                if (sentViaRelay) {
+                    return;
+                }
+            }
+
+            // ƯU TIÊN 2: Gửi qua SMTP Gmail nếu có cấu hình mật khẩu ứng dụng
             if (mailSender != null && fromEmail != null && !fromEmail.isBlank()) {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
                 helper.setFrom(sender);
                 helper.setTo(toEmail);
-                helper.setSubject("[Du Lịch Việt] Hướng dẫn đặt lại mật khẩu tài khoản");
+                helper.setSubject(subject);
                 helper.setText(content, true);
                 mailSender.send(message);
-                log.info("Password reset email sent to {}", toEmail);
+                log.info("Password reset PIN email sent via SMTP to {}", toEmail);
             } else {
-                log.info("[SIMULATED EMAIL] Password reset email for {}: Link = [{}], Token = [{}]", toEmail, resetLink, rawToken);
+                log.info("[SIMULATED EMAIL RELAY] Password reset PIN for {}: PIN = [{}], Link = [{}]", toEmail, rawToken, resetLink);
             }
         } catch (Exception e) {
-            log.warn("Failed to send password reset email to {}: {}", toEmail, e.getMessage());
+            log.warn("Failed to send password reset PIN email to {}: {}", toEmail, e.getMessage());
         }
+    }
+
+    /**
+     * Gửi email thông qua kênh chuyển tiếp trung gian (HTTP Relay / Webhook)
+     * Hoàn toàn KHÔNG cần cấu hình mật khẩu email (No password required).
+     */
+    public boolean sendViaHttpRelay(String toEmail, String subject, String htmlContent, String resetLink, String rawToken) {
+        if (relayUrl == null || relayUrl.isBlank()) {
+            return false;
+        }
+
+        try {
+            HttpClient client = HttpClient.newBuilder()
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .build();
+
+            StringBuilder json = new StringBuilder("{");
+            json.append("\"to\":\"").append(escapeJson(toEmail)).append("\",");
+            json.append("\"subject\":\"").append(escapeJson(subject)).append("\",");
+            json.append("\"htmlBody\":\"").append(escapeJson(htmlContent)).append("\",");
+            if (resetLink != null) {
+                json.append("\"resetLink\":\"").append(escapeJson(resetLink)).append("\",");
+            }
+            if (rawToken != null) {
+                json.append("\"pin\":\"").append(escapeJson(rawToken)).append("\",");
+                json.append("\"token\":\"").append(escapeJson(rawToken)).append("\",");
+            }
+            json.append("\"appName\":\"Du Lịch Việt\"");
+            json.append("}");
+
+            var requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(relayUrl.trim()))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .header("User-Agent", "DuLichViet-TourBooking/2.0")
+                    .timeout(Duration.ofSeconds(15))
+                    .POST(HttpRequest.BodyPublishers.ofString(json.toString(), StandardCharsets.UTF_8));
+
+            if (relayKey != null && !relayKey.isBlank()) {
+                requestBuilder.header("Authorization", "Bearer " + relayKey.trim());
+            }
+
+            HttpResponse<String> response = client.send(
+                    requestBuilder.build(),
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info("[HTTP RELAY SUCCESS] Đã gửi email PIN qua kênh trung gian tới {}. Status: {}", toEmail, response.statusCode());
+                return true;
+            } else {
+                log.warn("[HTTP RELAY WARNING] Gửi email qua kênh trung gian trả về HTTP {}: {}", response.statusCode(), response.body());
+                return false;
+            }
+        } catch (Exception e) {
+            log.warn("[HTTP RELAY ERROR] Lỗi kết nối tới máy chủ trung gian ({}): {}", relayUrl, e.getMessage());
+            return false;
+        }
+    }
+
+    private String escapeJson(String raw) {
+        if (raw == null) return "";
+        return raw.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }

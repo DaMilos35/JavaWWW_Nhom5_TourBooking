@@ -109,7 +109,7 @@ public class PasswordResetService {
                     "success", true,
                     "channel", "EMAIL",
                     "target", maskEmail(email),
-                    "message", "Nếu email này tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi đến hòm thư của bạn.",
+                    "message", "Nếu email này tồn tại trong hệ thống, mã PIN xác thực đã được gửi đến hòm thư của bạn.",
                     "expiresInSeconds", 900
             );
         }
@@ -118,13 +118,13 @@ public class PasswordResetService {
         // Vô hiệu hóa các token đang chờ trước đó của user
         tokenRepository.invalidateAllActiveTokensByUserId(user.getId());
 
-        // Sinh token ngẫu nhiên an toàn 32 bytes (64 hex characters)
-        String rawToken = generateSecureToken();
-        String tokenHash = hashSha256(rawToken);
+        // Sinh mã PIN ngẫu nhiên an toàn gồm 6 chữ số
+        String rawPin = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
+        String pinHash = hashSha256(rawPin);
 
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setUser(user);
-        resetToken.setTokenHash(tokenHash);
+        resetToken.setTokenHash(pinHash);
         resetToken.setType("EMAIL_LINK");
         resetToken.setTarget(user.getEmail());
         resetToken.setExpiresAt(LocalDateTime.now().plusMinutes(15));
@@ -133,17 +133,20 @@ public class PasswordResetService {
         resetToken.setCreatedAt(LocalDateTime.now());
         tokenRepository.save(resetToken);
 
-        String resetLink = frontendUrl + "/reset-password?token=" + rawToken;
-        emailService.sendPasswordResetEmail(user.getEmail(), resetLink, rawToken);
+        String resetLink = frontendUrl + "/reset-password?pin=" + rawPin;
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink, rawPin);
 
-        return Map.of(
-                "success", true,
-                "channel", "EMAIL",
-                "target", maskEmail(user.getEmail()),
-                "message", "Hướng dẫn đặt lại mật khẩu đã được gửi đến hòm thư: " + maskEmail(user.getEmail()),
-                "expiresInSeconds", 900,
-                "simulatedToken", rawToken
-        );
+        Map<String, Object> response = new java.util.LinkedHashMap<>();
+        response.put("success", true);
+        response.put("channel", "EMAIL");
+        response.put("target", maskEmail(user.getEmail()));
+        response.put("fullTarget", user.getEmail());
+        response.put("message", "Mã PIN xác thực gồm 6 chữ số đã được gửi đến hòm thư: " + maskEmail(user.getEmail()));
+        response.put("expiresInSeconds", 900);
+        response.put("simulatedOtp", rawPin);
+        response.put("simulatedToken", rawPin);
+        response.put("resetLink", resetLink);
+        return response;
     }
 
     private Map<String, Object> processSmsChannel(String phone) {
@@ -194,34 +197,51 @@ public class PasswordResetService {
      */
     @Transactional
     public Map<String, Object> verifyOtp(VerifyOtpRequest request, String clientIp) {
-        String phone = request.getPhone() != null ? request.getPhone().trim() : "";
+        String identifier = request.getPhone() != null ? request.getPhone().trim() : "";
         String otp = request.getOtp() != null ? request.getOtp().trim() : "";
 
         // Rate Limiting xác thực OTP theo IP
         String ipKey = "rl:verify:ip:" + (clientIp != null ? clientIp : "unknown");
         if (!rateLimiterService.tryAcquire(ipKey, 10, 900)) {
-            throw new ApiException(429, "Bạn đã thử nhập OTP quá nhiều lần từ IP này. Vui lòng đợi 15 phút.");
+            throw new ApiException(429, "Bạn đã thử nhập mã xác thực quá nhiều lần từ IP này. Vui lòng đợi 15 phút.");
         }
 
-        // Tìm người dùng theo số điện thoại
-        User user = userRepository.findFirstByPhone(phone)
-                .orElseThrow(() -> new ApiException(400, "Thông tin số điện thoại không hợp lệ hoặc chưa từng gửi mã OTP."));
+        // Tìm người dùng theo Email hoặc Số điện thoại
+        boolean isEmail = identifier.contains("@");
+        User user;
+        if (isEmail) {
+            user = userRepository.findFirstByEmailIgnoreCase(identifier)
+                    .orElseThrow(() -> new ApiException(400, "Thông tin email không hợp lệ hoặc chưa từng yêu cầu mã xác thực."));
+        } else {
+            user = userRepository.findFirstByPhone(identifier)
+                    .orElseThrow(() -> new ApiException(400, "Thông tin số điện thoại không hợp lệ hoặc chưa từng gửi mã OTP."));
+        }
 
-        // Tìm mã OTP mới nhất chưa sử dụng của user
-        PasswordResetToken activeOtp = tokenRepository.findFirstByUserAndTypeAndIsUsedFalseOrderByCreatedAtDesc(user, "SMS_OTP")
-                .orElseThrow(() -> new ApiException(400, "Không tìm thấy mã OTP nào đang chờ xác thực cho số điện thoại này."));
+        // Tìm mã OTP / PIN mới nhất chưa sử dụng của user (chấp nhận EMAIL_LINK, EMAIL_OTP, SMS_OTP)
+        Optional<PasswordResetToken> activeOtpOpt;
+        if (isEmail) {
+            activeOtpOpt = tokenRepository.findFirstByUserAndTypeAndIsUsedFalseOrderByCreatedAtDesc(user, "EMAIL_LINK");
+            if (activeOtpOpt.isEmpty()) {
+                activeOtpOpt = tokenRepository.findFirstByUserAndTypeAndIsUsedFalseOrderByCreatedAtDesc(user, "EMAIL_OTP");
+            }
+        } else {
+            activeOtpOpt = tokenRepository.findFirstByUserAndTypeAndIsUsedFalseOrderByCreatedAtDesc(user, "SMS_OTP");
+        }
+
+        PasswordResetToken activeOtp = activeOtpOpt
+                .orElseThrow(() -> new ApiException(400, "Không tìm thấy mã PIN/OTP nào đang chờ xác thực cho tài khoản này."));
 
         if (activeOtp.isExpired()) {
             activeOtp.setIsUsed(true);
             tokenRepository.save(activeOtp);
-            throw new ApiException(400, "Mã xác thực OTP đã hết hạn. Vui lòng bấm gửi lại mã mới.");
+            throw new ApiException(400, "Mã xác thực đã hết hạn. Vui lòng bấm gửi lại mã mới.");
         }
 
         // Chống Brute-force: Tối đa 5 lần thử sai cho mỗi mã OTP
         if (activeOtp.getAttempts() >= 5) {
             activeOtp.setIsUsed(true);
             tokenRepository.save(activeOtp);
-            throw new ApiException(400, "Mã OTP này đã nhập sai quá 5 lần và bị vô hiệu hóa vì lý do bảo mật. Vui lòng yêu cầu mã mới.");
+            throw new ApiException(400, "Mã xác thực này đã nhập sai quá 5 lần và bị vô hiệu hóa vì lý do bảo mật. Vui lòng yêu cầu mã mới.");
         }
 
         // Băm OTP người dùng gửi lên để so sánh với mã băm trong DB
@@ -235,7 +255,7 @@ public class PasswordResetService {
             activeOtp.setAttempts(activeOtp.getAttempts() + 1);
             tokenRepository.save(activeOtp);
             int remaining = 5 - activeOtp.getAttempts();
-            throw new ApiException(400, "Mã OTP không chính xác. Bạn còn " + remaining + " lần thử.");
+            throw new ApiException(400, "Mã xác thực không chính xác. Bạn còn " + remaining + " lần thử.");
         }
 
         // Khớp mã OTP -> Đánh dấu mã OTP đã được sử dụng
@@ -250,7 +270,7 @@ public class PasswordResetService {
         tempResetToken.setUser(user);
         tempResetToken.setTokenHash(resetTokenHash);
         tempResetToken.setType("RESET_TOKEN");
-        tempResetToken.setTarget(user.getPhone());
+        tempResetToken.setTarget(isEmail ? user.getEmail() : user.getPhone());
         tempResetToken.setExpiresAt(LocalDateTime.now().plusMinutes(15));
         tempResetToken.setAttempts(0);
         tempResetToken.setIsUsed(false);
@@ -259,7 +279,7 @@ public class PasswordResetService {
 
         return Map.of(
                 "success", true,
-                "message", "Xác thực OTP thành công. Vui lòng đặt mật khẩu mới trong vòng 15 phút.",
+                "message", "Xác thực mã PIN thành công. Vui lòng đặt mật khẩu mới trong vòng 15 phút.",
                 "resetToken", rawResetToken,
                 "expiresInSeconds", 900
         );
