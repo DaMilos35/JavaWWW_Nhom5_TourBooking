@@ -30,6 +30,7 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [hoveredMonth, setHoveredMonth] = useState(null);
 
   const fetchStats = async () => {
     setLoading(true);
@@ -75,8 +76,6 @@ const AdminDashboard = () => {
     const safeVal = isNaN(val) ? 0 : val;
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(safeVal);
   };
-
-  const [hoveredMonth, setHoveredMonth] = useState(null);
 
   const monthlyData = [
     { month: 'T5', label: 'Tháng 5/2026', revenue: 385000000, orders: 48, growth: '+12%', heightPct: 55 },

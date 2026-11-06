@@ -19,6 +19,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { adminApi } from '../../api/axiosConfig';
 import ErrorBoundary from '../../components/common/ErrorBoundary';
+import RouteProgressBar from '../../components/common/RouteProgressBar';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
@@ -76,6 +77,7 @@ const AdminLayout = () => {
 
   return (
     <div className="admin-wrapper">
+      <RouteProgressBar />
       {/* Lớp nền mờ khi mở sidebar trên điện thoại */}
       {sidebarOpen && (
         <div 
@@ -198,7 +200,9 @@ const AdminLayout = () => {
         {/* Vùng hiển thị các trang con của Admin */}
         <main className="admin-content-area">
           <ErrorBoundary>
-            <Outlet />
+            <div key={location.pathname} className="page-transition-wrapper">
+              <Outlet />
+            </div>
           </ErrorBoundary>
         </main>
       </div>

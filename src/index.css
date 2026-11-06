@@ -82,6 +82,12 @@
   --touch-target-min: 44px;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -110,8 +116,13 @@ h1, h2, h3, h4, h5, h6 {
 .text-accent { color: var(--accent-orange) !important; }
 .text-primary { color: var(--accent-blue) !important; }
 
-/* Buttons & Micro-interactions */
+/* ========================================================
+   BUTTONS & MICRO-INTERACTIONS (UI/UX PRO MAX 2026)
+   Tactile Spring Curves, Ambient Elevation, Shimmer Sheen
+   ======================================================== */
 .btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -120,43 +131,77 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-normal);
   border: none;
   font-size: 0.95rem;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.2s ease,
+              border-color 0.2s ease,
+              color 0.2s ease;
+}
+
+/* Subtle Shimmer Sheen Sweep on Hover */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.btn:hover::before {
+  left: 100%;
 }
 
 .btn:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.97) !important;
+  transition-duration: 0.08s !important;
 }
 
 .btn-primary {
-  background: var(--accent-orange);
+  background: linear-gradient(135deg, #ff5e1f 0%, #ff7843 100%);
   color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(255, 94, 31, 0.3);
 }
 
 .btn-primary:hover {
-  background: var(--accent-orange-hover);
+  background: linear-gradient(135deg, #e04f14 0%, #ff5e1f 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 94, 31, 0.4);
+  box-shadow: 0 8px 24px -2px rgba(255, 94, 31, 0.45), 0 2px 6px rgba(255, 94, 31, 0.2);
 }
 
 .btn-primary:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 2px 8px rgba(255, 94, 31, 0.35);
 }
 
 .btn-secondary {
-  background: var(--accent-blue);
+  background: linear-gradient(135deg, #0194f3 0%, #0284c7 100%);
   color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(1, 148, 243, 0.3);
 }
 
 .btn-secondary:hover {
-  background: var(--accent-blue-hover);
+  background: linear-gradient(135deg, #0076c7 0%, #0194f3 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(1, 148, 243, 0.4);
+  box-shadow: 0 8px 24px -2px rgba(1, 148, 243, 0.45), 0 2px 6px rgba(1, 148, 243, 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 2px 8px rgba(1, 148, 243, 0.35);
 }
 
 .btn-outline {
@@ -171,7 +216,53 @@ h1, h2, h3, h4, h5, h6 {
   background: #eff6ff;
   color: var(--accent-blue) !important;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 6px 20px rgba(1, 148, 243, 0.16);
+}
+
+.btn-outline:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(239, 68, 68, 0.42);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.42);
+}
+
+/* Universal Tactile Micro-Interactions for All Interactive Elements */
+button,
+a.btn,
+.clickable {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease;
+}
+
+button:active,
+a.btn:active,
+.clickable:active {
+  transform: scale(0.97);
 }
 
 /* Accessibility Focus States (WCAG AAA) */

@@ -1,0 +1,28 @@
+/* Top Navigation Loading Bar (Buttery Smooth Page Transition) */
+.route-progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 99999;
+  pointer-events: none;
+  background: transparent;
+  overflow: hidden;
+}
+
+.route-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0194f3 0%, #06b6d4 40%, #ff5e1f 80%, #ff8c42 100%);
+  box-shadow: 0 0 10px rgba(1, 148, 243, 0.7), 0 0 5px rgba(255, 94, 31, 0.5);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  will-change: width, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-progress-container {
+    display: none !important;
+  }
+}
+

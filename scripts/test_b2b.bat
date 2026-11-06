@@ -115,7 +115,7 @@ if !errorlevel!==0 (
     echo   [PASS] Booking B2B tao thanh cong - 200 OK
     echo !FULL! | find "PENDING_APPROVAL" >nul
     if !errorlevel!==0 (
-        echo   [INFO] Trang thai: PENDING_APPROVAL (viet han muc dung)
+        echo   [INFO] Trang thai: PENDING_APPROVAL - vuot han muc dung
     )
     set /a PASS+=1
 ) else (
@@ -140,9 +140,10 @@ if "!CODE!"=="HTTP:200" (
 
 :: TEST 10: POST create new company
 echo [TEST 10] POST tao cong ty moi
+set RAND_TAX=99%RANDOM%
 curl -s -o nul -w "HTTP:%%{http_code}" -X POST %BASE%/companies ^
   -H "Content-Type: application/json" ^
-  -d "{\"companyName\":\"Cong Ty TNHH Test Auto\",\"taxCode\":\"1122334455\",\"emailDomain\":\"autotest.vn\",\"billingEmail\":\"finance@autotest.vn\",\"industry\":\"Cong nghe\",\"companySize\":\"SME\",\"paymentMethod\":\"PAY_AS_YOU_GO\",\"vatName\":\"Cong Ty Test\",\"vatAddress\":\"Ha Noi\"}" > temp_resp.txt
+  -d "{\"companyName\":\"Cong Ty TNHH Test Auto\",\"taxCode\":\"!RAND_TAX!\",\"emailDomain\":\"autotest.vn\",\"billingEmail\":\"finance@autotest.vn\",\"industry\":\"Cong nghe\",\"companySize\":\"SME\",\"paymentMethod\":\"PAY_AS_YOU_GO\",\"vatName\":\"Cong Ty Test\",\"vatAddress\":\"Ha Noi\"}" > temp_resp.txt
 set /p CODE=<temp_resp.txt
 del temp_resp.txt
 if "!CODE!"=="HTTP:200" (

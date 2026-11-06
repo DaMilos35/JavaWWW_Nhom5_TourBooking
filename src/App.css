@@ -1,1 +1,195 @@
-﻿
+/* ========================================================
+   GLOBAL FLUID PAGE TRANSITIONS (UI/UX PRO MAX 2026)
+   Apple/Vercel-grade smooth entrance & micro-interactions
+   ======================================================== */
+
+@keyframes pageFluidEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition-wrapper {
+  animation: pageFluidEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+  width: 100%;
+}
+
+/* User layout main content container */
+.user-main-content {
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Enhanced Hover & Active States for All Interactive Elements */
+button,
+a,
+input[type="submit"],
+input[type="button"],
+.btn,
+.icon-btn,
+.btn-icon,
+.tab-btn,
+.filter-chip,
+.cat-tab-pill {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Global button hover lift & shadow glow */
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-outline:hover,
+.btn-danger:hover,
+.btn-success:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-outline:active,
+.btn-danger:active,
+.btn-success:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* Icon Buttons Hover & Active */
+.icon-btn,
+.btn-icon,
+.tour-save-btn,
+.td-save-btn,
+.btn-icon-accessible,
+.toggle-btn,
+.logout-btn {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease !important;
+}
+
+.icon-btn:hover,
+.btn-icon:hover,
+.tour-save-btn:hover,
+.td-save-btn:hover,
+.btn-icon-accessible:hover {
+  transform: translateY(-2px) scale(1.06);
+}
+
+.icon-btn:active,
+.btn-icon:active,
+.tour-save-btn:active,
+.td-save-btn:active,
+.btn-icon-accessible:active {
+  transform: translateY(0) scale(0.94) !important;
+}
+
+/* Navigation Links Smooth Hover */
+.nav-links a {
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              color 0.2s ease !important;
+}
+
+.nav-links a:hover {
+  transform: translateY(-1px);
+}
+
+.nav-links a:active {
+  transform: scale(0.96);
+}
+
+/* Admin Sidebar Menu Items */
+.sidebar-nav a {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              color 0.2s ease !important;
+}
+
+.sidebar-nav a:hover {
+  transform: translateX(4px);
+}
+
+.sidebar-nav a:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+/* Category & Filter Tabs Pill Smooth Interaction */
+.cat-tab-pill,
+.search-tab-btn,
+.filter-chip,
+.filter-tab-pill {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease !important;
+}
+
+.cat-tab-pill:hover,
+.search-tab-btn:hover,
+.filter-chip:hover,
+.filter-tab-pill:hover {
+  transform: translateY(-2px);
+}
+
+.cat-tab-pill:active,
+.search-tab-btn:active,
+.filter-chip:active {
+  transform: scale(0.96) !important;
+}
+
+/* Cards & Surface Elevate on Hover */
+.tour-card {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.24s ease !important;
+}
+
+.tour-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 42px -10px rgba(20, 23, 26, 0.12), 0 3px 10px rgba(0, 0, 0, 0.04) !important;
+}
+
+.stat-card {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Admin Table Row Hover */
+.admin-table tbody tr {
+  transition: background-color 0.18s ease;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Accessibility: Disable motion for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-wrapper {
+    animation: none !important;
+  }
+  .btn:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .tour-card:hover,
+  .sidebar-nav a:hover,
+  .cat-tab-pill:hover {
+    transform: none !important;
+  }
+}

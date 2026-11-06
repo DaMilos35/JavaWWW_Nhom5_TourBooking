@@ -111,9 +111,9 @@ if %errorlevel%==0 (
 
 :: ---- TEST 9: GET tours public (khong can dang nhap) ----
 echo [TEST 9] GET /api/tours (public, khong can dang nhap)
-for /f "delims=" %%i in ('%CURL% -w "HTTP_CODE:%%{http_code}" %BASE%/api/tours?page=0^&size=3') do set RESP=%%i
-echo %RESP% | find "HTTP_CODE:200" >nul
-if %errorlevel%==0 (
+set RESP=
+for /f "delims=" %%i in ('curl -s -o nul -w "%%{http_code}" %BASE%/api/tours') do set RESP=%%i
+if "%RESP%"=="200" (
     echo   [PASS] Tours public - HTTP 200 OK
     set /a PASS+=1
 ) else (
@@ -123,8 +123,10 @@ if %errorlevel%==0 (
 
 :: ---- TEST 10: Dang nhap admin roi get /me ----
 echo [TEST 10] admin dang nhap roi GET /api/auth/me voi session
-for /f "delims=" %%i in ('%CURL% -c cookie.txt -X POST %BASE%/api/auth/login -d "username=admin&password=123456" -H "Content-Type: application/x-www-form-urlencoded"') do set RESP=%%i
-for /f "delims=" %%i in ('%CURL% -b cookie.txt %BASE%/api/auth/me') do set ME=%%i
+set ME=
+curl -s -c "%~dp0cookie.txt" -X POST %BASE%/api/auth/login -d "username=admin&password=123456" -H "Content-Type: application/x-www-form-urlencoded" >nul
+for /f "delims=" %%i in ('curl -s -b "%~dp0cookie.txt" %BASE%/api/auth/me') do set ME=%%i
+del "%~dp0cookie.txt" 2>nul
 echo %ME% | find "ADMIN" >nul
 if %errorlevel%==0 (
     echo   [PASS] Session hop le - /me tra ve thong tin admin
@@ -133,7 +135,6 @@ if %errorlevel%==0 (
     echo   [FAIL] Phan hoi /me: %ME%
     set /a FAIL+=1
 )
-del cookie.txt 2>nul
 
 echo.
 echo ==================================================================

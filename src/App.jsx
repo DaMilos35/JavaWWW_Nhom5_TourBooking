@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -10,6 +10,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AiChatWidget from './components/common/AiChatWidget';
 import ScrollToTop from './components/common/ScrollToTop';
+import RouteProgressBar from './components/common/RouteProgressBar';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import OmniSearchModal from './components/common/OmniSearchModal';
 import { PrivateRoute, AdminRoute } from './components/common/PrivateRoute';
@@ -45,14 +46,22 @@ import AdminDesignCanvas from './pages/admin/AdminDesignCanvas';
 
 import './App.css';
 
-const UserLayout = ({ children }) => (
-  <>
-    <Navbar />
-    <main style={{ minHeight: '80vh' }}>{children}</main>
-    <Footer />
-    <AiChatWidget />
-  </>
-);
+const UserLayout = ({ children }) => {
+  const location = useLocation();
+  return (
+    <>
+      <RouteProgressBar />
+      <Navbar />
+      <main style={{ minHeight: '80vh' }} className="user-main-content">
+        <div key={location.pathname} className="page-transition-wrapper">
+          {children}
+        </div>
+      </main>
+      <Footer />
+      <AiChatWidget />
+    </>
+  );
+};
 
 function App() {
   const [isOmniOpen, setIsOmniOpen] = React.useState(false);
