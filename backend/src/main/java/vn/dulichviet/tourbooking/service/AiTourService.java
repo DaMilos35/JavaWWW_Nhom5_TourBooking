@@ -390,12 +390,16 @@ public class AiTourService {
             BigDecimal finalMin = minPrice;
             // Nếu khách hỏi về Châu Âu nhưng kèm ngân sách thấp, giữ lại cả tour Châu Âu thực tế và các tour ngân sách thay thế
             boolean queryEurope = unaccented.contains("chau au") || unaccented.contains("phap") || unaccented.contains("thuy si");
-            matches = tours.stream().filter(t -> {
+            List<Tour> sourceList = matches.isEmpty() ? tours : matches;
+            List<Tour> budgetFiltered = sourceList.stream().filter(t -> {
                 if (queryEurope && t.getName().toLowerCase(Locale.ROOT).contains("châu âu")) return true;
                 if (finalMax != null && t.getPrice().compareTo(finalMax) > 0) return false;
                 if (finalMin != null && t.getPrice().compareTo(finalMin) < 0) return false;
                 return true;
             }).collect(Collectors.toList());
+            if (!budgetFiltered.isEmpty()) {
+                matches = budgetFiltered;
+            }
         }
 
         if (matches.isEmpty()) {
@@ -409,7 +413,8 @@ public class AiTourService {
                     .collect(Collectors.toList());
         }
 
-        return matches.stream().distinct().collect(Collectors.toList());
+        List<Tour> distinctMatches = matches.stream().distinct().collect(Collectors.toList());
+        return applyGeographicGuards(distinctMatches, tours, query);
     }
 
     /**
