@@ -1,396 +1,353 @@
--- ============================================================
--- TourBookingDB - MariaDB / MySQL Schema + Seed Data
--- Đề tài số 49: Website giới thiệu tour du lịch và cho phép đăng ký tour trực tuyến
--- Nhóm 5 - Lớp DHKTPM19ATT - GVHD: ThS. Nguyễn Vũ Lâm
--- ============================================================
+-- =================================================================================
+-- HỆ THỐNG ĐẶT TOUR DU LỊCH TRỰC TUYẾN DU LỊCH VIỆT (TOURBOOKING PLATFORM)
+-- BỘ TẬP LỆNH DDL: 01_schema_mariadb.sql
+-- Tương thích: MariaDB 10.6+ / MySQL 8.0+
+-- Đề tài số 49 - Khoa Công nghệ Thông tin - Trường ĐH Công nghiệp TP.HCM (IUH)
+-- =================================================================================
 
--- Chạy script này trên MariaDB/MySQL. Script xóa và tạo lại các bảng dữ liệu.
+-- 1. Khởi tạo Cơ sở Dữ liệu với mã hóa UTF-8 Tiếng Việt đa ngữ
 CREATE DATABASE IF NOT EXISTS TourBookingDB
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
 USE TourBookingDB;
 
--- ============================================================
--- XÓA BẢNG CŨ (nếu có) theo thứ tự phụ thuộc
--- ============================================================
+-- 2. Xóa các bảng cũ theo thứ tự ràng buộc khóa ngoại (Foreign Key Safe Drop)
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS approval_requests;
+DROP TABLE IF EXISTS corporate_bookings;
+DROP TABLE IF EXISTS credit_limits;
+DROP TABLE IF EXISTS travel_policies;
+DROP TABLE IF EXISTS corporate_users;
+DROP TABLE IF EXISTS companies;
+DROP TABLE IF EXISTS password_reset_tokens;
+DROP TABLE IF EXISTS persistent_logins;
 DROP TABLE IF EXISTS user_activity_history;
+DROP TABLE IF EXISTS orderdetails;
 DROP TABLE IF EXISTS OrderDetails;
+DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS Orders;
+DROP TABLE IF EXISTS tours;
 DROP TABLE IF EXISTS Tours;
+DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS Categories;
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS Users;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ============================================================
--- TẠO BẢNG USERS
--- ============================================================
-CREATE TABLE Users (
-    user_id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    username    VARCHAR(50)     NOT NULL UNIQUE,
-    password    VARCHAR(255)    NOT NULL,           -- BCrypt hash
-    email       VARCHAR(100)    NOT NULL UNIQUE,
-    full_name   VARCHAR(150)    NULL,
-    role        VARCHAR(20)     NOT NULL DEFAULT 'CUSTOMER'
-                                CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER', 'ROLE_ADMIN', 'ROLE_CUSTOMER', 'ROLE_PROVIDER')),
-    phone       VARCHAR(15)     NULL,
-    address     VARCHAR(255)    NULL,
-    is_active   TINYINT(1)       NOT NULL DEFAULT 1,
-    membership_tier VARCHAR(30)     NOT NULL DEFAULT 'STANDARD',
-    loyalty_points  INT             NOT NULL DEFAULT 0,
-    total_spent     DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
-    created_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
+-- =================================================================================
+-- BẢNG 1: USERS (Người dùng, Phân quyền RBAC, Hội viên Loyalty)
+-- =================================================================================
+CREATE TABLE users (
+    user_id             INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    username            VARCHAR(50)     NOT NULL UNIQUE,
+    password            VARCHAR(255)    NOT NULL,           -- BCrypt hash
+    email               VARCHAR(100)    NOT NULL UNIQUE,
+    full_name           VARCHAR(150)    NULL,
+    role                VARCHAR(20)     NOT NULL DEFAULT 'CUSTOMER'
+                        CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER', 'ROLE_ADMIN', 'ROLE_CUSTOMER', 'ROLE_PROVIDER')),
+    phone               VARCHAR(20)     NULL,
+    address             VARCHAR(255)    NULL,
+    is_active           TINYINT(1)      NOT NULL DEFAULT 1,
+    membership_tier     VARCHAR(30)     NOT NULL DEFAULT 'STANDARD', -- STANDARD, GOLD, DIAMOND, VIP_PLATINUM
+    loyalty_points      INT             NOT NULL DEFAULT 0,
+    total_spent         DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_users_role (role),
+    INDEX idx_users_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- TẠO BẢNG CATEGORIES
--- ============================================================
-CREATE TABLE Categories (
-    category_id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    category_name   VARCHAR(100)    NOT NULL,
-    description     VARCHAR(500)    NULL,
-    image_url       VARCHAR(500)    NULL
+-- =================================================================================
+-- BẢNG 2: CATEGORIES (Danh mục phân loại tuyến tour)
+-- =================================================================================
+CREATE TABLE categories (
+    category_id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    category_name       VARCHAR(100)    NOT NULL,
+    description         VARCHAR(500)    NULL,
+    image_url           VARCHAR(500)    NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- TẠO BẢNG TOURS
--- ============================================================
-CREATE TABLE Tours (
+-- =================================================================================
+-- BẢNG 3: TOURS (Thông tin Tour du lịch, Lịch trình, Giá vé, Khách sạn, Nhà xe)
+-- =================================================================================
+CREATE TABLE tours (
     tour_id             INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     category_id         INT             NOT NULL,
     provider_id         INT             NULL,
     tour_name           VARCHAR(300)    NOT NULL,
     description         LONGTEXT        NULL,
-    price               DECIMAL(18,2)   NOT NULL CHECK (price > 0),
-    duration            INT             NOT NULL DEFAULT 1,    -- số ngày
-    departure_location  VARCHAR(200)    NULL,
-    image_url           VARCHAR(500)    NULL,
-    available_seats     INT             NOT NULL DEFAULT 0 CHECK (available_seats >= 0),
-    start_date          DATE            NULL,
-    end_date            DATE            NULL,
-    status              VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE'
-                                        CHECK (status IN ('ACTIVE', 'INACTIVE')),
-    rating              DECIMAL(2,1)    NULL DEFAULT 4.5
-                                        CHECK (rating >= 0 AND rating <= 5),
+    price               DECIMAL(18,2)   NOT NULL CHECK (price >= 0),
     original_price      DECIMAL(18,2)   NULL,
-    vehicle             VARCHAR(100)    NULL,
-    hotel_star          INT             NULL DEFAULT 3,
+    duration            INT             NOT NULL DEFAULT 1 CHECK (duration >= 1),
+    departure_location  VARCHAR(200)    NULL,
+    vehicle             VARCHAR(150)    NULL DEFAULT 'Xe du lịch cao cấp',
+    hotel_star          INT             NULL DEFAULT 3 CHECK (hotel_star BETWEEN 1 AND 5),
     badge               VARCHAR(50)     NULL,
     highlights          LONGTEXT        NULL,
     itinerary           LONGTEXT        NULL,
     inclusions          LONGTEXT        NULL,
     exclusions          LONGTEXT        NULL,
+    image_url           VARCHAR(500)    NULL,
+    available_seats     INT             NOT NULL DEFAULT 0 CHECK (available_seats >= 0),
+    start_date          DATE            NULL,
+    end_date            DATE            NULL,
+    status              VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE')),
+    rating              DECIMAL(2,1)    NULL DEFAULT 4.8 CHECK (rating >= 0 AND rating <= 5),
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT FK_Tours_Categories FOREIGN KEY (category_id)
-        REFERENCES Categories(category_id),
-    CONSTRAINT FK_Tours_Provider FOREIGN KEY (provider_id)
-        REFERENCES Users(user_id) ON DELETE SET NULL
+    CONSTRAINT FK_Tours_Categories FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    CONSTRAINT FK_Tours_Provider   FOREIGN KEY (provider_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    INDEX idx_tours_cat_price (category_id, price),
+    INDEX idx_tours_status (status),
+    INDEX idx_tours_departure (departure_location)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- TẠO BẢNG ORDERS
--- ============================================================
-CREATE TABLE Orders (
-    order_id        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id         INT             NOT NULL,
-    order_date      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    total_amount    DECIMAL(18,2)   NOT NULL DEFAULT 0,
-    status          VARCHAR(20)     NOT NULL DEFAULT 'PENDING'
-                                    CHECK (status IN ('PENDING','CONFIRMED','CANCELLED','COMPLETED','PAID','DEPOSITED')),
-    contact_name    VARCHAR(150)    NOT NULL,
-    contact_phone   VARCHAR(15)     NOT NULL,
-    contact_email   VARCHAR(100)    NOT NULL,
-    notes           VARCHAR(500)    NULL,
-    order_code      VARCHAR(30)     NULL UNIQUE,
-    is_b2b          TINYINT(1)      NOT NULL DEFAULT 0,
-    discount_percent INT            NOT NULL DEFAULT 0,
-    payment_method   VARCHAR(50)     NULL DEFAULT 'CASH',
-    payment_status   VARCHAR(30)     NULL DEFAULT 'UNPAID',
+-- =================================================================================
+-- BẢNG 4: ORDERS (Đơn đặt tour, Thanh toán VietQR/VNPAY, Đặt cọc & Chiết khấu B2B)
+-- =================================================================================
+CREATE TABLE orders (
+    order_id            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id             INT             NOT NULL,
+    order_code          VARCHAR(30)     NULL UNIQUE,
+    order_date          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    total_amount        DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    status              VARCHAR(20)     NOT NULL DEFAULT 'PENDING'
+                        CHECK (status IN ('PENDING','CONFIRMED','CANCELLED','COMPLETED','PAID','DEPOSITED')),
+    contact_name        VARCHAR(150)    NOT NULL,
+    contact_phone       VARCHAR(20)     NOT NULL,
+    contact_email       VARCHAR(100)    NOT NULL,
+    notes               VARCHAR(500)    NULL,
+    is_b2b              TINYINT(1)      NOT NULL DEFAULT 0,
+    discount_percent    INT             NOT NULL DEFAULT 0,
+    payment_method      VARCHAR(50)     NULL DEFAULT 'CASH',
+    payment_status      VARCHAR(30)     NOT NULL DEFAULT 'UNPAID',
     payment_transaction_id VARCHAR(100) NULL,
-    cancellation_fee_percent INT     NULL DEFAULT 0,
-    cancellation_fee DECIMAL(18,2)   NULL DEFAULT 0.00,
-    refund_amount    DECIMAL(18,2)   NULL DEFAULT 0.00,
-    refund_bank_name VARCHAR(100)    NULL,
-    refund_account_number VARCHAR(50) NULL,
-    refund_account_name VARCHAR(100) NULL,
-    cancellation_reason VARCHAR(255) NULL,
-    payment_type    VARCHAR(20)     NOT NULL DEFAULT 'FULL',
-    deposit_percent INT             NOT NULL DEFAULT 0,
-    deposit_amount  DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
-    remaining_amount DECIMAL(18,2)  NOT NULL DEFAULT 0.00,
-    deposit_deadline DATETIME       NULL,
-    points_used     INT             NOT NULL DEFAULT 0,
-    points_discount DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
-    member_discount DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    cancellation_fee_percent INT        NULL DEFAULT 0,
+    cancellation_fee    DECIMAL(18,2)   NULL DEFAULT 0.00,
+    refund_amount       DECIMAL(18,2)   NULL DEFAULT 0.00,
+    refund_bank_name    VARCHAR(100)    NULL,
+    refund_account_number VARCHAR(50)   NULL,
+    refund_account_name VARCHAR(100)    NULL,
+    cancellation_reason VARCHAR(255)    NULL,
+    payment_type        VARCHAR(20)     NOT NULL DEFAULT 'FULL' CHECK (payment_type IN ('FULL', 'DEPOSIT')),
+    deposit_percent     INT             NOT NULL DEFAULT 0,
+    deposit_amount      DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    remaining_amount    DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    deposit_deadline    DATETIME        NULL,
+    points_used         INT             NOT NULL DEFAULT 0,
+    points_discount     DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    member_discount     DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
 
-    CONSTRAINT FK_Orders_Users FOREIGN KEY (user_id)
-        REFERENCES Users(user_id)
+    CONSTRAINT FK_Orders_Users FOREIGN KEY (user_id) REFERENCES users(user_id),
+    INDEX idx_orders_user_date (user_id, order_date DESC),
+    INDEX idx_orders_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- TẠO BẢNG ORDER DETAILS
--- ============================================================
-CREATE TABLE OrderDetails (
-    order_detail_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    order_id        INT             NOT NULL,
-    tour_id         INT             NOT NULL,
-    quantity        INT             NOT NULL DEFAULT 1 CHECK (quantity > 0),
-    unit_price      DECIMAL(18,2)   NOT NULL,
+-- =================================================================================
+-- BẢNG 5: ORDERDETAILS (Chi tiết vé trong đơn hàng)
+-- =================================================================================
+CREATE TABLE orderdetails (
+    order_detail_id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    order_id            INT             NOT NULL,
+    tour_id             INT             NOT NULL,
+    quantity            INT             NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    unit_price          DECIMAL(18,2)   NOT NULL,
 
-    CONSTRAINT FK_OrderDetails_Orders FOREIGN KEY (order_id)
-        REFERENCES Orders(order_id),
-    CONSTRAINT FK_OrderDetails_Tours FOREIGN KEY (tour_id)
-        REFERENCES Tours(tour_id)
+    CONSTRAINT FK_OrderDetails_Orders FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    CONSTRAINT FK_OrderDetails_Tours  FOREIGN KEY (tour_id)  REFERENCES tours(tour_id),
+    INDEX idx_orderdetails_order_tour (order_id, tour_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- TẠO BẢNG USER ACTIVITY HISTORY (Recommendation Tracking)
--- ============================================================
-CREATE TABLE IF NOT EXISTS user_activity_history (
-    id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id         INT NULL,
-    session_id      VARCHAR(100) NULL,
-    tour_id         INT NOT NULL,
-    activity_type   VARCHAR(50) NOT NULL, -- VIEW, ADD_TO_CART, BOOK
-    score           INT NOT NULL DEFAULT 1,
-    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+-- View tương thích cho cú pháp PascalCase / CamelCase
+CREATE OR REPLACE VIEW OrderDetails AS SELECT * FROM orderdetails;
+CREATE OR REPLACE VIEW Orders AS SELECT * FROM orders;
+CREATE OR REPLACE VIEW Tours AS SELECT * FROM tours;
+CREATE OR REPLACE VIEW Categories AS SELECT * FROM categories;
+CREATE OR REPLACE VIEW Users AS SELECT * FROM users;
+
+-- =================================================================================
+-- BẢNG 6: USER_ACTIVITY_HISTORY (Lưu vết hành vi phục vụ Recommendation Engine)
+-- =================================================================================
+CREATE TABLE user_activity_history (
+    id                  BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id             INT             NULL,
+    session_id          VARCHAR(100)    NULL,
+    tour_id             INT             NOT NULL,
+    activity_type       VARCHAR(50)     NOT NULL, -- VIEW, ADD_TO_CART, BOOK
+    score               INT             NOT NULL DEFAULT 1,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     INDEX idx_activity_user (user_id),
-    INDEX idx_activity_session (session_id),
     INDEX idx_activity_tour (tour_id),
-    INDEX idx_activity_created (created_at),
-
-    CONSTRAINT FK_Activity_Users FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-    CONSTRAINT FK_Activity_Tours FOREIGN KEY (tour_id) REFERENCES Tours(tour_id) ON DELETE CASCADE
+    CONSTRAINT FK_Activity_Users FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT FK_Activity_Tours FOREIGN KEY (tour_id) REFERENCES tours(tour_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- TẠO BẢNG PERSISTENT LOGINS (Spring Security Remember-Me)
--- ============================================================
-CREATE TABLE IF NOT EXISTS persistent_logins (
-    username    VARCHAR(64) NOT NULL,
-    series      VARCHAR(64) PRIMARY KEY,
-    token       VARCHAR(64) NOT NULL,
-    last_used   TIMESTAMP NOT NULL
+-- =================================================================================
+-- BẢNG 7: PERSISTENT_LOGINS (Spring Security Remember-Me Cookie Token)
+-- =================================================================================
+CREATE TABLE persistent_logins (
+    username            VARCHAR(64)     NOT NULL,
+    series              VARCHAR(64)     PRIMARY KEY,
+    token               VARCHAR(64)     NOT NULL,
+    last_used           TIMESTAMP       NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- TẠO BẢNG PASSWORD RESET TOKENS & OTP
--- ============================================================
-CREATE TABLE IF NOT EXISTS password_reset_tokens (
-    id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id     INT NOT NULL,
-    token_hash  VARCHAR(64) NOT NULL,
-    type        VARCHAR(20) NOT NULL,
-    target      VARCHAR(100) NULL,
-    expires_at  DATETIME NOT NULL,
-    attempts    INT NOT NULL DEFAULT 0,
-    is_used     TINYINT(1) NOT NULL DEFAULT 0,
-    created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+-- =================================================================================
+-- BẢNG 8: PASSWORD_RESET_TOKENS (Mã PIN & OTP Đặt lại Mật Khẩu qua Email)
+-- =================================================================================
+CREATE TABLE password_reset_tokens (
+    id                  BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id             INT             NOT NULL,
+    token_hash          VARCHAR(64)     NOT NULL,
+    type                VARCHAR(20)     NOT NULL,
+    target              VARCHAR(100)    NULL,
+    expires_at          DATETIME        NOT NULL,
+    attempts            INT             NOT NULL DEFAULT 0,
+    is_used             TINYINT(1)      NOT NULL DEFAULT 0,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     INDEX idx_token_hash (token_hash),
-    INDEX idx_user_type (user_id, type),
-    CONSTRAINT fk_prt_user FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    CONSTRAINT FK_Prt_Users FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- SEED DATA - CATEGORIES (3 danh mục)
--- ============================================================
-INSERT INTO Categories (category_name, description, image_url) VALUES
-(N'Tour Trong Nước',
- N'Khám phá vẻ đẹp thiên nhiên và văn hóa đa dạng của Việt Nam',
- 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=80'),
+-- =================================================================================
+-- BẢNG 9: COMPANIES (Doanh nghiệp B2B & Thông tin Xuất Hóa Đơn VAT)
+-- =================================================================================
+CREATE TABLE companies (
+    company_id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_name        VARCHAR(255)    NOT NULL,
+    tax_code            VARCHAR(20)     NOT NULL UNIQUE,
+    email_domain        VARCHAR(100)    NOT NULL,
+    registered_address  VARCHAR(500)    NULL,
+    industry            VARCHAR(100)    NULL,
+    company_size        VARCHAR(20)     NOT NULL DEFAULT 'ENTERPRISE',
+    kyb_status          VARCHAR(30)     NOT NULL DEFAULT 'VERIFIED',
+    kyb_verified_at     DATETIME        NULL,
+    kyb_doc_url         VARCHAR(500)    NULL,
+    payment_method      VARCHAR(20)     NOT NULL DEFAULT 'CREDIT_LINE',
+    billing_email       VARCHAR(150)    NOT NULL,
+    billing_cycle       VARCHAR(20)     NOT NULL DEFAULT 'MONTHLY',
+    vat_name            VARCHAR(300)    NULL,
+    vat_address         VARCHAR(500)    NULL,
+    is_active           TINYINT(1)      NOT NULL DEFAULT 1,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_companies_tax (tax_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-(N'Tour Quốc Tế',
- N'Trải nghiệm những điểm đến hấp dẫn nhất trên thế giới',
- 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'),
+-- =================================================================================
+-- BẢNG 10: CORPORATE_USERS (Người dùng thuộc doanh nghiệp B2B)
+-- =================================================================================
+CREATE TABLE corporate_users (
+    corp_user_id        BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id             INT             NOT NULL,
+    company_id          BIGINT          NOT NULL,
+    corp_role           VARCHAR(20)     NOT NULL DEFAULT 'EMPLOYEE',
+    employee_grade      VARCHAR(50)     NULL,
+    department          VARCHAR(100)    NULL,
+    manager_corp_user_id BIGINT         NULL,
+    cost_center         VARCHAR(50)     NULL,
+    is_active           TINYINT(1)      NOT NULL DEFAULT 1,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-(N'Tour Nghỉ Dưỡng',
-'Tận hưởng kỳ nghỉ thư giãn tại các khu resort, spa cao cấp',
-'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80');
+    CONSTRAINT FK_CorpUser_Users   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT FK_CorpUser_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- SEED DATA - TOURS (10 tour mẫu; lịch ngày được tạo tương đối theo ngày chạy script)
--- ============================================================
-INSERT INTO Tours (category_id, tour_name, description, price, duration, departure_location, image_url, available_seats, start_date, end_date, status, rating) VALUES
+-- =================================================================================
+-- BẢNG 11: TRAVEL_POLICIES (Chính sách Hạn mức Đặt Tour Công Tác Doanh Nghiệp)
+-- =================================================================================
+CREATE TABLE travel_policies (
+    policy_id           BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_id          BIGINT          NOT NULL,
+    policy_name         VARCHAR(150)    NOT NULL,
+    description         VARCHAR(500)    NULL,
+    is_default          TINYINT(1)      NOT NULL DEFAULT 0,
+    applicable_grades   VARCHAR(200)    NULL,
+    max_amount_per_trip DECIMAL(18,2)   NOT NULL,
+    advance_booking_days_min INT        NOT NULL DEFAULT 3,
+    require_approval_above DECIMAL(18,2) NULL,
+    created_by          BIGINT          NULL,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
--- Tour Trong Nước (category_id = 1)
-(1,
- N'Hà Nội - Hạ Long - Ninh Bình 4N3Đ',
- N'Hành trình khám phá những di sản thiên nhiên thế giới tuyệt vời tại miền Bắc Việt Nam. Tham quan Vịnh Hạ Long - Kỳ quan thiên nhiên thế giới, Tràng An - Ninh Bình với phong cảnh núi non hùng vĩ, và thủ đô Hà Nội nghìn năm văn hiến. Bao gồm: Vé tàu thăm vịnh, ăn sáng, ăn trưa, khách sạn 3 sao.',
- 4500000, 4, N'Hà Nội',
- 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=80',
- 20, DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 33 DAY), 'ACTIVE', 4.8),
+    CONSTRAINT FK_Policy_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-(1,
- N'Đà Nẵng - Hội An - Bà Nà Hills 3N2Đ',
- N'Tour khám phá miền Trung thơ mộng: tham quan phố cổ Hội An di sản văn hóa thế giới, tắm biển Mỹ Khê - một trong những bãi biển đẹp nhất châu Á, trải nghiệm Cầu Vàng trên đỉnh Bà Nà Hills huyền ảo. Bao gồm: Vé cáp treo Bà Nà, thuyền thúng Hội An, ăn sáng hàng ngày.',
- 3200000, 3, N'Đà Nẵng',
- 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80',
- 25, DATE_ADD(CURRENT_DATE, INTERVAL 35 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 37 DAY), 'ACTIVE', 4.9),
+-- =================================================================================
+-- BẢNG 12: CREDIT_LIMITS (Hạn mức Tín dụng & Công Nợ Doanh Nghiệp)
+-- =================================================================================
+CREATE TABLE credit_limits (
+    credit_id           BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_id          BIGINT          NOT NULL UNIQUE,
+    credit_limit        DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    used_credit         DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    account_status      VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE',
+    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-(1,
- N'Phú Quốc - Đảo Thiên Đường 4N3Đ',
- N'Nghỉ dưỡng tại đảo ngọc Phú Quốc - hòn đảo lớn nhất Việt Nam với bãi biển trong xanh, cát trắng mịn. Tham quan nhà tù Phú Quốc, làng chài Hàm Ninh, trải nghiệm lặn ngắm san hô và câu cá đêm thú vị. Bao gồm: Khách sạn 4 sao mặt biển, ăn sáng, tour lặn ngắm san hô.',
- 5800000, 4, N'TP. Hồ Chí Minh',
- 'https://images.unsplash.com/photo-1573790387438-4da905039392?w=800&q=80',
- 15, DATE_ADD(CURRENT_DATE, INTERVAL 40 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 43 DAY), 'ACTIVE', 4.7),
+    CONSTRAINT FK_Credit_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-(1,
- N'Sapa - Fansipan - Bản Cát Cát 3N2Đ',
- N'Chinh phục nóc nhà Đông Dương Fansipan 3143m bằng cáp treo hiện đại, tham quan bản làng người H''Mông, Dao, Tày với văn hóa đặc sắc. Ngắm ruộng bậc thang vàng óng vào mùa lúa chín. Bao gồm: Vé cáp treo Fansipan, xe đưa đón, ăn sáng.',
- 2800000, 3, N'Hà Nội',
- 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
- 30, DATE_ADD(CURRENT_DATE, INTERVAL 45 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 47 DAY), 'ACTIVE', 4.6),
+-- =================================================================================
+-- BẢNG 13: CORPORATE_BOOKINGS (Đơn đặt tour công tác B2B)
+-- =================================================================================
+CREATE TABLE corporate_bookings (
+    booking_id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    booking_code        VARCHAR(30)     NOT NULL UNIQUE,
+    company_id          BIGINT          NOT NULL,
+    booker_corp_user_id BIGINT          NOT NULL,
+    traveler_corp_user_id BIGINT        NOT NULL,
+    policy_id           BIGINT          NULL,
+    tour_id             INT             NOT NULL,
+    passenger_count     INT             NOT NULL DEFAULT 1,
+    total_amount        DECIMAL(18,2)   NOT NULL,
+    company_paid_amount DECIMAL(18,2)   NOT NULL,
+    employee_paid_amount DECIMAL(18,2)  NOT NULL DEFAULT 0.00,
+    requires_approval   TINYINT(1)      NOT NULL DEFAULT 0,
+    booking_status      VARCHAR(30)     NOT NULL DEFAULT 'CONFIRMED',
+    payment_status      VARCHAR(30)     NOT NULL DEFAULT 'PAID',
+    payment_type        VARCHAR(30)     NOT NULL DEFAULT 'CREDIT_LINE',
+    invoice_code        VARCHAR(50)     NULL,
+    trip_purpose        VARCHAR(255)    NULL,
+    contact_name        VARCHAR(150)    NOT NULL,
+    contact_phone       VARCHAR(20)     NOT NULL,
+    contact_email       VARCHAR(100)    NOT NULL,
+    notes               VARCHAR(500)    NULL,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    confirmed_at        DATETIME        NULL,
+    cancelled_at        DATETIME        NULL,
+    cancellation_reason VARCHAR(255)    NULL,
 
-(1,
- N'Nha Trang - Vinpearl Land 5N4Đ',
- N'Kỳ nghỉ biển hoàn hảo tại thành phố biển Nha Trang xinh đẹp. Tham quan Vinpearl Land - công viên giải trí lớn nhất Việt Nam, lặn ngắm san hô Hòn Mun, tham quan tháp Bà Ponagar nghìn tuổi. Bao gồm: Vé Vinpearl, khách sạn 4 sao, ăn sáng.',
- 6500000, 5, N'TP. Hồ Chí Minh',
- 'https://images.unsplash.com/photo-1553696590-5e0b9eff7e7e?w=800&q=80',
- 20, DATE_ADD(CURRENT_DATE, INTERVAL 50 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 54 DAY), 'ACTIVE', 4.5),
+    CONSTRAINT FK_CorpBooking_Company FOREIGN KEY (company_id) REFERENCES companies(company_id),
+    CONSTRAINT FK_CorpBooking_Tour    FOREIGN KEY (tour_id)    REFERENCES tours(tour_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tour Quốc Tế (category_id = 2)
-(2,
- N'Thái Lan - Bangkok - Pattaya 5N4Đ',
- N'Khám phá Đất Nước Chùa Vàng huyền bí: tham quan Grand Palace, Chùa Phật Ngọc, chợ nổi Damnoen Saduak. Vui chơi tại công viên giải trí Pattaya, xem show Alcazar nổi tiếng. Mua sắm thiên đường tại Chatuchak, Terminal 21. Bao gồm: Vé máy bay khứ hồi, khách sạn 4 sao, ăn sáng.',
- 12500000, 5, N'TP. Hồ Chí Minh',
- 'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800&q=80',
- 20, DATE_ADD(CURRENT_DATE, INTERVAL 60 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 64 DAY), 'ACTIVE', 4.8),
+-- =================================================================================
+-- BẢNG 14: APPROVAL_REQUESTS (Yêu cầu Phê duyệt Đơn Đặt Tour Vượt Hạn Mức B2B)
+-- =================================================================================
+CREATE TABLE approval_requests (
+    approval_id         BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    approval_code       VARCHAR(30)     NOT NULL UNIQUE,
+    company_id          BIGINT          NOT NULL,
+    booking_id          BIGINT          NOT NULL,
+    requester_corp_user_id BIGINT       NOT NULL,
+    approver_corp_user_id  BIGINT       NULL,
+    booking_amount      DECIMAL(18,2)   NOT NULL,
+    policy_max_amount   DECIMAL(18,2)   NOT NULL,
+    exceeded_amount     DECIMAL(18,2)   NOT NULL,
+    policy_id           BIGINT          NOT NULL,
+    approval_token      VARCHAR(500)    NOT NULL UNIQUE,
+    token_expires_at    DATETIME        NOT NULL,
+    status              VARCHAR(20)     NOT NULL DEFAULT 'PENDING',
+    approver_note       VARCHAR(500)    NULL,
+    resolved_at         DATETIME        NULL,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-(2,
- N'Singapore - Malaysia 6N5Đ',
- N'Hành trình khám phá 2 quốc gia hiện đại nhất Đông Nam Á. Singapore: Marina Bay Sands, Gardens by the Bay, Universal Studios. Kuala Lumpur: Petronas Twin Towers, Batu Caves. Mua sắm tại Orchard Road và Bukit Bintang. Bao gồm: Vé máy bay, khách sạn 4 sao, ăn sáng, visa.',
- 18500000, 6, N'Hà Nội',
- 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&q=80',
- 15, DATE_ADD(CURRENT_DATE, INTERVAL 70 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 75 DAY), 'ACTIVE', 4.9),
+    CONSTRAINT FK_Approval_Company FOREIGN KEY (company_id) REFERENCES companies(company_id),
+    CONSTRAINT FK_Approval_Booking FOREIGN KEY (booking_id) REFERENCES corporate_bookings(booking_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-(2,
- N'Nhật Bản - Tokyo - Osaka - Kyoto 7N6Đ',
- N'Trải nghiệm xứ sở hoa anh đào: Tokyo hiện đại với Disneyland và Shibuya Crossing. Cố đô Kyoto với hàng nghìn ngôi đền, chùa. Osaka nhộn nhịp với Dotonbori và Universal Studios Japan. Núi Phú Sĩ hùng vĩ biểu tượng Nhật Bản. Bao gồm: Vé máy bay, khách sạn 3 sao, ăn sáng, JR Pass 7 ngày.',
- 24900000, 7, N'TP. Hồ Chí Minh',
- 'https://images.unsplash.com/photo-1490761668535-35497554d8c5?w=800&q=80',
- 12, DATE_ADD(CURRENT_DATE, INTERVAL 80 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 86 DAY), 'ACTIVE', 5.0),
-
--- Tour Nghỉ Dưỡng (category_id = 3)
-(3,
- N'Mũi Né - Phan Thiết Resort 3N2Đ',
- N'Thư giãn tại resort 5 sao bên bờ biển Mũi Né thơ mộng. Tham quan đồi cát bay kỳ ảo, làng chài Mũi Né bình yên, suối Tiên nguyên sơ. Chiều tà ngắm hoàng hôn từ Mũi Né - khung cảnh tuyệt đẹp không thể quên. Bao gồm: Phòng deluxe hướng biển, ăn sáng kiểu Âu, hồ bơi vô cực.',
- 4200000, 3, N'TP. Hồ Chí Minh',
- 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
- 10, DATE_ADD(CURRENT_DATE, INTERVAL 90 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 92 DAY), 'ACTIVE', 4.7),
-
-(3,
- N'Đà Lạt - Thành Phố Ngàn Hoa 4N3Đ',
- N'Khám phá thành phố mộng mơ Đà Lạt với khí hậu mát mẻ quanh năm. Tham quan Hồ Xuân Hương, Thung Lũng Tình Yêu, vườn hoa Dalat Hasfarm rực rỡ. Trải nghiệm cà phê đặc sản, dâu tây hái tươi, lang thang phố thị sương mờ. Bao gồm: Khách sạn boutique, ăn sáng, xe tham quan.',
- 3800000, 4, N'TP. Hồ Chí Minh',
- 'https://images.unsplash.com/photo-1586016413664-864c0dd76f53?w=800&q=80',
- 18, DATE_ADD(CURRENT_DATE, INTERVAL 100 DAY), DATE_ADD(CURRENT_DATE, INTERVAL 103 DAY), 'ACTIVE', 4.8);
-
--- ============================================================
--- SEED DATA - USERS (admin + customer)
--- Password BCrypt của '123456': $2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG
--- ============================================================
-INSERT INTO Users (username, password, email, full_name, role, phone, address, is_active) VALUES
-('admin',
- '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG',
- 'admin@tourbooking.com',
- N'Quản Trị Viên Hệ Thống',
- 'ADMIN',
- '0900000000',
- N'Hồ Chí Minh',
- 1),
-
-('saigontourist',
- '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG',
- 'saigontourist@tourbooking.com',
- N'Công ty Lữ hành Saigontourist',
- 'PROVIDER',
- '19001808',
- N'TP. Hồ Chí Minh',
- 1),
-
-('vietravel',
- '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG',
- 'vietravel@tourbooking.com',
- N'Tập đoàn Du lịch Vietravel',
- 'PROVIDER',
- '19001839',
- N'Hà Nội',
- 1),
-
-('fpt_corp',
- '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG',
- 'fpt_corp@fpt.com',
- N'Khách Hàng Doanh Nghiệp FPT',
- 'CUSTOMER',
- '0987654321',
- N'Hà Nội',
- 1),
-
-('customer',
- '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG',
- 'customer@tourbooking.com',
- N'Khách Hàng Cá Nhân',
- 'CUSTOMER',
- '0901234567',
- N'123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh',
- 1),
-
-('nguyenvanan',
- '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG',
- 'nguyenvanan@gmail.com',
- N'Nguyễn Văn An (Có đơn hàng cũ)',
- 'CUSTOMER',
- '0912345678',
- N'456 Lê Duẩn, Quận 1, TP. Hồ Chí Minh',
- 1);
-
--- ============================================================
--- SEED DATA - ORDERS (2 đơn hàng mẫu)
--- ============================================================
-INSERT INTO Orders (user_id, order_date, total_amount, status, contact_name, contact_phone, contact_email, notes) VALUES
-(2, CURRENT_TIMESTAMP - INTERVAL 10 DAY, 9000000, 'CONFIRMED',
- N'Nguyễn Văn An', '0901234567', 'customer@tourbooking.com',
- N'Đặt phòng đôi, yêu cầu view biển'),
-
-(2, CURRENT_TIMESTAMP - INTERVAL 5 DAY, 4500000, 'PENDING',
- N'Nguyễn Văn An', '0901234567', 'customer@tourbooking.com', NULL);
-
--- Order Details
-INSERT INTO OrderDetails (order_id, tour_id, quantity, unit_price) VALUES
-(1, 3, 1, 5800000),  -- Phú Quốc
-(1, 9, 1, 4200000),  -- Mũi Né -> sum = 10000000, but we set 9000000 for test
-(2, 1, 1, 4500000);  -- Hạ Long
-
--- Cập nhật lại total_amount cho chính xác
-UPDATE Orders SET total_amount = (
-    SELECT COALESCE(SUM(od.quantity * od.unit_price), 0)
-    FROM OrderDetails od WHERE od.order_id = Orders.order_id
-);
-
--- ============================================================
--- VIEWS hữu ích (tùy chọn)
--- ============================================================
-CREATE OR REPLACE VIEW vw_OrderSummary AS
-SELECT
-    o.order_id,
-    o.order_date,
-    o.total_amount,
-    o.status,
-    o.contact_name,
-    o.contact_phone,
-    o.contact_email,
-    u.username,
-    u.email AS user_email,
-    COUNT(od.order_detail_id) AS item_count
-FROM Orders o
-JOIN Users u ON o.user_id = u.user_id
-LEFT JOIN OrderDetails od ON o.order_id = od.order_id
-GROUP BY o.order_id, o.order_date, o.total_amount, o.status,
-         o.contact_name, o.contact_phone, o.contact_email,
-         u.username, u.email;
-
-SELECT 'TourBookingDB created successfully with seed data!' AS message;
-SELECT 'Default passwords for all demo users: 123456' AS message;
+SELECT 'Tất cả 14 bảng dữ liệu MariaDB/MySQL đã được khởi tạo thành công!' AS status;
