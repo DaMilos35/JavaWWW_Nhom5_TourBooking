@@ -461,9 +461,21 @@
   position: sticky;
   top: 90px;
   height: fit-content;
+  max-height: calc(100vh - 105px);
+  overflow-y: auto;
   align-self: flex-start;
-  overflow: visible;
   z-index: 10;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(203, 213, 225, 0.4) transparent;
+}
+
+.td-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.td-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.5);
+  border-radius: 4px;
 }
 
 .booking-card {
@@ -1222,11 +1234,25 @@
 .schedule-pills-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 165px;
+  gap: 7px;
+  max-height: 225px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.schedule-pills-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.schedule-pills-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.schedule-pills-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
 .schedule-pill-card {
@@ -1236,9 +1262,9 @@
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: 7px 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .schedule-pill-card:hover {
