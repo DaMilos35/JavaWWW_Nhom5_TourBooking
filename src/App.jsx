@@ -99,6 +99,8 @@ function App() {
                 <Route path="/tours/:id" element={<UserLayout><TourDetailPage /></UserLayout>} />
                 <Route path="/cart" element={<UserLayout><CartPage /></UserLayout>} />
                 <Route path="/help" element={<UserLayout><HelpCenterPage /></UserLayout>} />
+                <Route path="/about" element={<UserLayout><HelpCenterPage /></UserLayout>} />
+                <Route path="/terms" element={<UserLayout><HelpCenterPage /></UserLayout>} />
                 <Route path="/payment/vnpay-return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
                 <Route path="/vnpay/return" element={<UserLayout><VnPayReturnPage /></UserLayout>} />
                 <Route path="/login" element={<UserLayout><LoginPage /></UserLayout>} />

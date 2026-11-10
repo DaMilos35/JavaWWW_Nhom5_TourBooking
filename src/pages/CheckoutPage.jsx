@@ -1325,7 +1325,7 @@ const CheckoutPage = () => {
                     <FaShieldAlt className="text-primary mr-2" />
                     <span>
                       Bằng việc nhấn <b>"Xác Nhận & Hoàn Tất Đặt Tour"</b>, quý khách đồng ý với{' '}
-                      <Link to="/about" target="_blank" className="text-primary underline">Điều khoản dịch vụ & Chính sách hoàn hủy</Link>{' '}
+                      <Link to="/help?tab=don-dat" target="_blank" className="text-primary underline">Điều khoản dịch vụ & Chính sách hoàn hủy</Link>{' '}
                       của Công ty Du Lịch Việt.
                     </span>
                   </div>
