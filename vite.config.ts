@@ -28,11 +28,31 @@ export default defineConfig({
     },
   },
   build: {
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'axios'],
-          icons: ['react-icons'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom') || id.includes('axios')) {
+              return 'vendor';
+            }
+            if (id.includes('react-icons')) {
+              return 'icons';
+            }
+            if (id.includes('react-toastify')) {
+              return 'toastify';
+            }
+            return 'vendor-libs';
+          }
+          if (id.includes('pages/admin') || id.includes('pages\\admin')) {
+            return 'admin-suite';
+          }
+          if (id.includes('utils/tourImages') || id.includes('utils\\tourImages') || id.includes('api/realTourDataApi') || id.includes('api\\realTourDataApi')) {
+            return 'tour-data';
+          }
+          if (id.includes('utils/codeGraphEngine') || id.includes('utils\\codeGraphEngine') || id.includes('utils/context7Engine') || id.includes('utils\\context7Engine')) {
+            return 'agent-engines';
+          }
         },
       },
     },

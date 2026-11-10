@@ -450,19 +450,30 @@ JavaWWW_Nhom5_TourBooking/
 │   ├── schema.sql                         # Khởi tạo bảng, khóa ngoại, chỉ mục (Index)
 │   ├── data.sql                           # Nạp dữ liệu mẫu hoàn chỉnh (Users, Tours, Orders)
 │   └── seed_vi.sql                        # Dữ liệu tour du lịch Việt Nam mở rộng
-├── docs/                                  # Tài liệu báo cáo chính thức
-│   ├── Nhom5_Detai49_BaoCaoCuoiKy.docx    # Báo cáo chuẩn Khóa luận tốt nghiệp IUH (14.000 từ)
+├── docs/                                  # Tài liệu báo cáo chính thức & Kịch bản thực nghiệm
+│   ├── Nhom5_Detai49_BaoCaoCuoiKy.docx    # Báo cáo chuẩn Khóa luận tốt nghiệp IUH (14.000 từ + Mục 4.9 AI Vector DB)
+│   ├── KICH_BAN_TEST_VA_DEMO_TOURBOOKING.docx # Kịch bản kiểm thử & kịch bản demo hệ thống chuẩn hội đồng
+│   ├── DACTAC_KIENTRUC_VA_CHUNANG.md      # Đặc tả chi tiết kiến trúc, Use Cases, ERD, Sequence, RBAC
+│   ├── KIENTRUC_XU_LY_1_TRIEU_NGUOI_DUNG_VA_DOCKER.md # Thiết kế mở rộng chịu tải & cụm Docker
 │   ├── 23637711_DangkyDetai.docx          # Phiếu đăng ký đề tài chính thức
 │   └── YeuCau_BaiTap_Nhom_...docx         # Đặc tả yêu cầu môn học của giảng viên
+├── scripts/                               # Bộ kịch bản kiểm thử tự động & Công cụ Scraper
+│   ├── project_integrity_and_health_check.cjs # Kiểm tra toàn vẹn định tuyến và tài nguyên (28 tests)
+│   ├── test_geographic_isolation.cjs      # Kiểm thử rào chắn cách ly địa lý AI & Vector DB (12 tests)
+│   ├── test_admin_suite_and_extensions.cjs# Kiểm thử toàn diện phân hệ quản trị Admin
+│   ├── comprehensive_test_suite.cjs       # Bộ kiểm thử 175 ca E2E & Invariants
+│   ├── test_all_roles_and_flows.cjs       # Kiểm thử 5 vai trò (Customer, B2B, Provider, Admin)
+│   └── scrape_real_tours.cjs              # Công cụ thu thập dữ liệu 40 tour thực tế chuẩn OTA
 ├── src/                                   # Mã nguồn Frontend React SPA
-│   ├── api/                               # Cấu hình Axios Interceptors, CSRF & Bearer Tokens
-│   ├── components/                        # UI Components (Header, Footer, TourCard, AiChatWidget)
-│   ├── context/                           # React Context (AuthContext, CartContext, Wishlist)
+│   ├── api/                               # Cấu hình Axios Interceptors, Smart Dual-Mode API Client
+│   ├── components/                        # UI Components (Header, Footer, TourCard, AiChatWidget, Modals)
+│   ├── context/                           # React Context (AuthContext, CartContext, WishlistContext)
 │   ├── pages/                             # Các trang giao diện (Home, Detail, Checkout, Admin,...)
-│   ├── App.jsx                            # Điều hướng Route chính
-│   └── main.jsx                           # Điểm nhập React DOM
+│   ├── utils/                             # Tiện ích phân tích, luật nghiệp vụ, hình ảnh chất lượng cao
+│   ├── App.jsx                            # Điều hướng Route chính & Top Loading Bar
+│   └── index.jsx                          # Điểm nhập React DOM (18 SPA)
 ├── package.json                           # Cấu hình phụ thuộc Node.js & Vite
-├── vite.config.ts                         # Cấu hình Vite Dev Server & Reverse Proxy
+├── vite.config.ts                         # Cấu hình Vite Chunk Splitting, Dev Server & Reverse Proxy
 └── README.md                              # Tài liệu hướng dẫn dự án chuẩn GitHub
 ```
 
