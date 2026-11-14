@@ -28,16 +28,30 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        boolean h2 = isH2();
+        log.info("Khởi chạy DataInitializer trên nền tảng CSDL: {}", h2 ? "H2 In-Memory" : "MariaDB/MySQL");
+
         // 1. Tự động tạo bảng remember-me persistent_logins (bảo vệ chống crash khi chọn Remember Me)
         try {
-            jdbcTemplate.execute("""
-                CREATE TABLE IF NOT EXISTS persistent_logins (
-                    username VARCHAR(64) NOT NULL,
-                    series VARCHAR(64) PRIMARY KEY,
-                    token VARCHAR(64) NOT NULL,
-                    last_used TIMESTAMP NOT NULL
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-            """);
+            if (h2) {
+                jdbcTemplate.execute("""
+                    CREATE TABLE IF NOT EXISTS persistent_logins (
+                        username VARCHAR(64) NOT NULL,
+                        series VARCHAR(64) PRIMARY KEY,
+                        token VARCHAR(64) NOT NULL,
+                        last_used TIMESTAMP NOT NULL
+                    );
+                """);
+            } else {
+                jdbcTemplate.execute("""
+                    CREATE TABLE IF NOT EXISTS persistent_logins (
+                        username VARCHAR(64) NOT NULL,
+                        series VARCHAR(64) PRIMARY KEY,
+                        token VARCHAR(64) NOT NULL,
+                        last_used TIMESTAMP NOT NULL
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                """);
+            }
             log.info("Bảng persistent_logins đã sẵn sàng.");
         } catch (Exception e) {
             log.debug("persistent_logins: {}", e.getMessage());
@@ -45,21 +59,39 @@ public class DataInitializer implements CommandLineRunner {
 
         // 2. Tự động tạo bảng user_activity_history nếu chưa có trong DB
         try {
-            jdbcTemplate.execute("""
-                CREATE TABLE IF NOT EXISTS user_activity_history (
-                    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    user_id INT NULL,
-                    session_id VARCHAR(100) NULL,
-                    tour_id INT NOT NULL,
-                    activity_type VARCHAR(50) NOT NULL,
-                    score INT NOT NULL DEFAULT 1,
-                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    INDEX idx_activity_user (user_id),
-                    INDEX idx_activity_session (session_id),
-                    INDEX idx_activity_tour (tour_id),
-                    INDEX idx_activity_created (created_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-            """);
+            if (h2) {
+                jdbcTemplate.execute("""
+                    CREATE TABLE IF NOT EXISTS user_activity_history (
+                        id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                        user_id INT NULL,
+                        session_id VARCHAR(100) NULL,
+                        tour_id INT NOT NULL,
+                        activity_type VARCHAR(50) NOT NULL,
+                        score INT NOT NULL DEFAULT 1,
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    );
+                """);
+                jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_activity_user ON user_activity_history (user_id)");
+                jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_activity_session ON user_activity_history (session_id)");
+                jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_activity_tour ON user_activity_history (tour_id)");
+                jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_activity_created ON user_activity_history (created_at)");
+            } else {
+                jdbcTemplate.execute("""
+                    CREATE TABLE IF NOT EXISTS user_activity_history (
+                        id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                        user_id INT NULL,
+                        session_id VARCHAR(100) NULL,
+                        tour_id INT NOT NULL,
+                        activity_type VARCHAR(50) NOT NULL,
+                        score INT NOT NULL DEFAULT 1,
+                        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        INDEX idx_activity_user (user_id),
+                        INDEX idx_activity_session (session_id),
+                        INDEX idx_activity_tour (tour_id),
+                        INDEX idx_activity_created (created_at)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                """);
+            }
         } catch (Exception e) {
             log.debug("Bảng user_activity_history đã sẵn sàng: {}", e.getMessage());
         }
@@ -69,7 +101,11 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_tier VARCHAR(30) NOT NULL DEFAULT 'STANDARD'");
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS loyalty_points INT NOT NULL DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS total_spent DECIMAL(18,2) NOT NULL DEFAULT 0.00");
-            jdbcTemplate.execute("ALTER TABLE users MODIFY COLUMN role VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER' CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER'))");
+            if (h2) {
+                jdbcTemplate.execute("ALTER TABLE users ALTER COLUMN role VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER'");
+            } else {
+                jdbcTemplate.execute("ALTER TABLE users MODIFY COLUMN role VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER' CHECK (role IN ('ADMIN', 'CUSTOMER', 'PROVIDER'))");
+            }
         } catch (Exception e) {
             log.debug("Các cột bảng users đã sẵn sàng: {}", e.getMessage());
         }
@@ -109,7 +145,11 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS points_used INT NOT NULL DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS points_discount DECIMAL(18,2) NOT NULL DEFAULT 0.00");
             jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS member_discount DECIMAL(18,2) NOT NULL DEFAULT 0.00");
-            jdbcTemplate.execute("ALTER TABLE orders MODIFY COLUMN payment_status VARCHAR(30) NOT NULL DEFAULT 'UNPAID' CHECK (payment_status IN ('UNPAID','PENDING_PAYMENT','PAID','REFUND_PENDING','REFUNDED','FAILED'))");
+            if (h2) {
+                jdbcTemplate.execute("ALTER TABLE orders ALTER COLUMN payment_status VARCHAR(30) NOT NULL DEFAULT 'UNPAID'");
+            } else {
+                jdbcTemplate.execute("ALTER TABLE orders MODIFY COLUMN payment_status VARCHAR(30) NOT NULL DEFAULT 'UNPAID' CHECK (payment_status IN ('UNPAID','PENDING_PAYMENT','PAID','REFUND_PENDING','REFUNDED','FAILED'))");
+            }
             jdbcTemplate.execute("CREATE OR REPLACE VIEW order_details AS SELECT * FROM orderdetails");
         } catch (Exception e) {
             log.debug("Các cột nghiệp vụ orders đã sẵn sàng: {}", e.getMessage());
@@ -117,12 +157,21 @@ public class DataInitializer implements CommandLineRunner {
 
         // 6. Tự động cuộn lịch khởi hành cho các tour sang tương lai (Rolling Departure Schedule)
         try {
-            jdbcTemplate.execute("""
-                UPDATE tours 
-                SET start_date = DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY),
-                    end_date = DATE_ADD(CURRENT_DATE, INTERVAL (7 + IFNULL(duration, 3)) DAY)
-                WHERE start_date IS NULL OR start_date <= CURRENT_DATE
-            """);
+            if (h2) {
+                jdbcTemplate.execute("""
+                    UPDATE tours 
+                    SET start_date = DATEADD('DAY', 7, CURRENT_DATE),
+                        end_date = DATEADD('DAY', 7 + COALESCE(duration, 3), CURRENT_DATE)
+                    WHERE start_date IS NULL OR start_date <= CURRENT_DATE
+                """);
+            } else {
+                jdbcTemplate.execute("""
+                    UPDATE tours 
+                    SET start_date = DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY),
+                        end_date = DATE_ADD(CURRENT_DATE, INTERVAL (7 + IFNULL(duration, 3)) DAY)
+                    WHERE start_date IS NULL OR start_date <= CURRENT_DATE
+                """);
+            }
             log.info("Đã đồng bộ ngày khởi hành các tour sang ngày tương lai thành công.");
         } catch (Exception e) {
             log.debug("Cập nhật ngày khởi hành tours: {}", e.getMessage());
@@ -186,5 +235,22 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             log.warn("Không thể đồng bộ demo user {}: {}", username, e.getMessage());
         }
+    }
+
+    /**
+     * Kiểm tra dialect CSDL hiện tại có phải là H2 hay không.
+     */
+    private boolean isH2() {
+        try {
+            if (jdbcTemplate.getDataSource() != null) {
+                try (java.sql.Connection conn = jdbcTemplate.getDataSource().getConnection()) {
+                    String productName = conn.getMetaData().getDatabaseProductName();
+                    return productName != null && productName.toLowerCase().contains("h2");
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Không thể xác định loại database qua metadata, mặc định MariaDB/MySQL: {}", e.getMessage());
+        }
+        return false;
     }
 }

@@ -7,8 +7,7 @@ import {
   FaCreditCard, FaCalendarAlt, FaHotel, FaCheck, FaTimes
 } from 'react-icons/fa';
 import './AdminB2B.css';
-
-const API = (import.meta.env.VITE_API_BASE_URL || '/api') + '/corporate';
+import api from '../../api/axiosConfig';
 
 const STATUS_BADGE = {
   VERIFIED:             { color: '#10b981', bg: '#d1fae5', label: 'Đã xác minh' },
@@ -95,82 +94,90 @@ export default function AdminB2B() {
   const fetchCompanies = async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${API}/companies`);
-      if (r.ok) {
-        setCompanies(await r.json());
+      const res = await api.get('/corporate/companies');
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setCompanies(res.data);
       } else {
         setCompanies(FALLBACK_COMPANIES);
       }
     } catch {
       setCompanies(FALLBACK_COMPANIES);
+    } finally {
+      setLoading(false);
     }
-    finally { setLoading(false); }
   };
 
   const selectCompany = async (company) => {
     setSelectedCompany(company);
     setTab('detail');
-    const [creditR, policiesR, bookingsR, approvalsR] = await Promise.all([
-      fetch(`${API}/companies/${company.companyId}/credit`),
-      fetch(`${API}/companies/${company.companyId}/policies`),
-      fetch(`${API}/companies/${company.companyId}/bookings`),
-      fetch(`${API}/companies/${company.companyId}/approvals?status=${approvalFilter}`),
-    ]);
-    setCredit(creditR.ok ? await creditR.json() : null);
-    setPolicies(policiesR.ok ? await policiesR.json() : []);
-    const bkData = bookingsR.ok ? await bookingsR.json() : { data: [] };
-    setBookings(bkData.data || []);
-    const apData = approvalsR.ok ? await approvalsR.json() : { data: [] };
-    setApprovals(apData.data || []);
+    try {
+      const [creditRes, policiesRes, bookingsRes, approvalsRes] = await Promise.allSettled([
+        api.get(`/corporate/companies/${company.companyId}/credit`),
+        api.get(`/corporate/companies/${company.companyId}/policies`),
+        api.get(`/corporate/companies/${company.companyId}/bookings`),
+        api.get(`/corporate/companies/${company.companyId}/approvals`, {
+          params: approvalFilter ? { status: approvalFilter } : {}
+        }),
+      ]);
+
+      setCredit(creditRes.status === 'fulfilled' && creditRes.value?.data ? creditRes.value.data : null);
+      setPolicies(policiesRes.status === 'fulfilled' && Array.isArray(policiesRes.value?.data) ? policiesRes.value.data : []);
+      const bkData = bookingsRes.status === 'fulfilled' ? bookingsRes.value?.data : null;
+      setBookings(bkData?.data || (Array.isArray(bkData) ? bkData : []));
+      const apData = approvalsRes.status === 'fulfilled' ? approvalsRes.value?.data : null;
+      setApprovals(apData?.data || (Array.isArray(apData) ? apData : []));
+    } catch {
+      setCredit(null);
+      setPolicies([]);
+      setBookings([]);
+      setApprovals([]);
+    }
   };
 
   const updateKyb = async (companyId, status) => {
-    const r = await fetch(`${API}/companies/${companyId}/kyb`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    if (r.ok) {
+    try {
+      await api.patch(`/corporate/companies/${companyId}/kyb`, { status });
       toast.success('Cập nhật KYB thành công!');
       fetchCompanies();
       if (selectedCompany?.companyId === companyId) {
-        setSelectedCompany(prev => ({ ...prev, kybStatus: status }));
+        setSelectedCompany((prev) => ({ ...prev, kybStatus: status }));
       }
-    } else toast.error('Cập nhật thất bại');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Cập nhật thất bại');
+    }
   };
 
   const resolveApproval = async (approvalId, action) => {
-    const note = action === 'approve' ? 'Đã phê duyệt' : prompt('Lý do từ chối:') || '';
+    const note = action === 'approve' ? 'Đã phê duyệt' : prompt('Lý do từ chối:');
+    if (action !== 'approve' && note === null) return;
     const endpoint = action === 'approve' ? 'approve' : 'reject';
     const key = action === 'approve' ? 'note' : 'reason';
-    const r = await fetch(`${API}/approvals/${approvalId}/${endpoint}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ approverCorpUserId: 1, [key]: note })
-    });
-    if (r.ok) {
+    try {
+      await api.post(`/corporate/approvals/${approvalId}/${endpoint}`, {
+        approverCorpUserId: 1,
+        [key]: note || '',
+      });
       toast.success(action === 'approve' ? 'Đã phê duyệt yêu cầu thành công!' : 'Đã từ chối yêu cầu.');
       if (selectedCompany) selectCompany(selectedCompany);
-    } else {
-      const err = await r.json();
-      toast.error(err.message || 'Thao tác thất bại');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Thao tác thất bại');
     }
   };
 
   const createCompany = async (e) => {
     e.preventDefault();
-    const r = await fetch(`${API}/companies`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCompanyForm)
-    });
-    if (r.ok) {
+    try {
+      await api.post('/corporate/companies', newCompanyForm);
       toast.success('Tạo công ty thành công!');
       setShowCreateModal(false);
       fetchCompanies();
-      setNewCompanyForm({ companyName: '', taxCode: '', emailDomain: '', billingEmail: '',
+      setNewCompanyForm({
+        companyName: '', taxCode: '', emailDomain: '', billingEmail: '',
         registeredAddress: '', industry: '', companySize: 'ENTERPRISE',
-        paymentMethod: 'CREDIT_LINE', vatName: '', vatAddress: '' });
-    } else {
-      const err = await r.json();
-      toast.error(err.message || 'Tạo thất bại');
+        paymentMethod: 'CREDIT_LINE', vatName: '', vatAddress: '',
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Tạo thất bại');
     }
   };
 

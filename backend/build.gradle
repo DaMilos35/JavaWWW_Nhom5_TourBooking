@@ -17,6 +17,10 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    mockitoAgent
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -30,8 +34,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    mockitoAgent('org.mockito:mockito-core') { transitive = false }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -42,6 +47,6 @@ tasks.named('test') {
     useJUnitPlatform()
     maxParallelForks = 1
     forkEvery = 0
-    maxHeapSize = '192m'
-    jvmArgs(['-XX:+EnableDynamicAgentLoading', '-XX:+UseSerialGC', '-Xms64m', '-Xmx192m'])
+    maxHeapSize = '256m'
+    jvmArgs(['-XX:+UseSerialGC', '-Xms64m', '-Xmx256m', "-javaagent:${configurations.mockitoAgent.asPath}"])
 }

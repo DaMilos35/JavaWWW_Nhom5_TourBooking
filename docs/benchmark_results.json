@@ -5,7 +5,7 @@
     "mrr": 0.8375,
     "ndcg_at_5": 0.7909518909490323,
     "zero_hit_rate": 0.04,
-    "avg_latency_ms": 0.1069849991472438
+    "avg_latency_ms": 0.05407900549471378
   },
   "dense_vector": {
     "precision_at_3": 0.5033333333333333,
@@ -13,7 +13,7 @@
     "mrr": 0.7225,
     "ndcg_at_5": 0.7321214256937917,
     "zero_hit_rate": 0.15,
-    "avg_latency_ms": 0.7052259979536757
+    "avg_latency_ms": 0.36580099491402507
   },
   "hybrid_rrf": {
     "precision_at_3": 0.525,
@@ -21,6 +21,6 @@
     "mrr": 0.93,
     "ndcg_at_5": 0.9006487406367679,
     "zero_hit_rate": 0.0,
-    "avg_latency_ms": 0.8832480013370514
+    "avg_latency_ms": 0.41123899165540934
   }
 }

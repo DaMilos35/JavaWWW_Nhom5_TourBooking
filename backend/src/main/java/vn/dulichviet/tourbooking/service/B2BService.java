@@ -10,6 +10,7 @@ import vn.dulichviet.tourbooking.entity.*;
 import vn.dulichviet.tourbooking.repository.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -163,7 +164,7 @@ public class B2BService {
         BigDecimal unitPrice = tour.getPrice();
         BigDecimal totalAmount = unitPrice.multiply(BigDecimal.valueOf(quantity));
         int disc = discountPercent != null ? discountPercent : 0;
-        BigDecimal finalAmount = totalAmount.multiply(BigDecimal.valueOf(100 - disc)).divide(BigDecimal.valueOf(100));
+        BigDecimal finalAmount = totalAmount.multiply(BigDecimal.valueOf(100 - disc)).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
         // Kiểm tra over-policy
         boolean isOverPolicy = policy.getMaxAmountPerTrip() != null &&

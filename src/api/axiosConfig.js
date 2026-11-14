@@ -200,7 +200,12 @@ export { realTourApi, realCategoryApi };
 const getLocalOrders = () => {
   try {
     const raw = localStorage.getItem('dulichviet_local_orders');
-    return raw ? JSON.parse(raw) : [];
+    const orders = raw ? JSON.parse(raw) : [];
+    return orders.map((o) => ({
+      ...o,
+      totalAmount: o.totalAmount !== undefined ? o.totalAmount : o.totalPrice,
+      totalPrice: o.totalPrice !== undefined ? o.totalPrice : o.totalAmount,
+    }));
   } catch {
     return [];
   }
@@ -278,6 +283,7 @@ export const orderApi = {
           contactName: data.contactName || currentUser?.fullName || 'Khách Hàng',
           contactPhone: data.contactPhone || '0901234567',
           contactEmail: data.contactEmail || 'customer@dulichviet.com.vn',
+          totalAmount: total,
           totalPrice: total,
           status: 'PENDING',
           paymentStatus: 'UNPAID',
@@ -530,7 +536,27 @@ export const adminApi = {
 export const aiApi = {
   chat: (data) => api.post('/ai/chat', data),
   recommend: (data) => api.post('/ai/recommend', data),
-  itinerary: (data) => api.post('/ai/itinerary', data),
+  itinerary: async (data) => {
+    try {
+      return await api.post('/ai/itinerary', data);
+    } catch (err) {
+      // Safeguard: Backend AiTourController chưa cung cấp riêng endpoint /ai/itinerary.
+      // Tự động chuyển hướng gọi /ai/chat với prompt tạo lịch trình hoặc trả mock response an toàn.
+      try {
+        const destination = data?.destination || data?.title || 'điểm đến yêu cầu';
+        const days = data?.days || data?.duration || 3;
+        const prompt = `Lập lịch trình tour chi tiết ${days} ngày cho điểm đến ${destination}`;
+        return await api.post('/ai/chat', { message: prompt, query: prompt });
+      } catch (fallbackErr) {
+        return {
+          data: {
+            reply: `Lịch trình gợi ý khám phá điểm đến ${data?.destination || ''} trong ${data?.duration || 3} ngày: Trải nghiệm ẩm thực địa phương, tham quan danh lam thắng cảnh và nghỉ dưỡng tiêu chuẩn cao cấp.`,
+            itinerary: [],
+          },
+        };
+      }
+    }
+  },
   semanticSearch: (query, limit = 6) => api.get('/ai/semantic-search?q=' + encodeURIComponent(query) + '&limit=' + limit),
   getVectorDbStatus: () => api.get('/ai/vector-db/status'),
   reindexVectorDb: () => api.post('/ai/vector-db/reindex'),
