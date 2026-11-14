@@ -41,6 +41,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminB2B from './pages/admin/AdminB2B';
+import AdminActivityLog from './pages/admin/AdminActivityLog';
 import AdminArchitectureGraph from './pages/admin/AdminArchitectureGraph';
 import AdminDesignCanvas from './pages/admin/AdminDesignCanvas';
 
@@ -133,6 +134,7 @@ function App() {
                   <Route path="orders/:id" element={<AdminOrderDetail />} />
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="b2b" element={<AdminB2B />} />
+                  <Route path="activity-log" element={<AdminActivityLog />} />
                   <Route path="architecture" element={<AdminArchitectureGraph />} />
                   <Route path="design-canvas" element={<AdminDesignCanvas />} />
                 </Route>

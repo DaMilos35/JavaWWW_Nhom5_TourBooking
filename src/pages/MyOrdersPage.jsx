@@ -11,6 +11,43 @@ import {
 } from 'react-icons/fa';
 import './MyOrdersPage.css';
 
+// ---- Chính sách hoàn hủy dạng accordion nhẹ ----
+const POLICIES = [
+  { icon: '✅', color: '#22c55e', title: 'Đơn chưa thanh toán', desc: 'Hủy bất cứ lúc nào — miễn phí 100%, không mất một đồng.' },
+  { icon: '🔵', color: '#38bdf8', title: 'Hủy trước ≥ 7 ngày', desc: 'Hoàn trả 100% tiền cọc hoặc đổi lịch trình hoàn toàn miễn phí.' },
+  { icon: '🟡', color: '#eab308', title: 'Hủy từ 3–6 ngày trước', desc: 'Phí hủy 30% giá tour. Bạn được hoàn lại 70%.' },
+  { icon: '🔴', color: '#ef4444', title: 'Hủy trong 48 giờ', desc: 'Phí hủy 70% giá tour. Hoàn lại 30%.' },
+  { icon: '🟣', color: '#a855f7', title: 'Bất khả kháng', desc: 'Dời lịch hoặc bảo lưu giá trị tour lên đến 12 tháng.' },
+];
+
+const PolicyAccordion = () => {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', marginBottom: '24px', background: '#fff', overflow: 'hidden' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <FaShieldAlt style={{ color: '#6366f1', fontSize: '1rem' }} />
+          <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.95rem' }}>Chính sách đặt, đổi & hoàn hủy tour</span>
+        </div>
+        <span style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: 600 }}>{open ? '▲ Thu gọn' : '▼ Xem chi tiết'}</span>
+      </button>
+      {open && (
+        <div style={{ padding: '0 20px 18px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '10px' }}>
+          {POLICIES.map(p => (
+            <div key={p.title} style={{ background: '#f8fafc', borderRadius: '10px', padding: '12px 14px', borderLeft: `3px solid ${p.color}` }}>
+              <div style={{ fontWeight: 700, color: '#1e293b', marginBottom: '4px', fontSize: '0.88rem' }}>{p.icon} {p.title}</div>
+              <div style={{ color: '#475569', fontSize: '0.82rem', lineHeight: 1.5 }}>{p.desc}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const POPULAR_BANKS = [
   'MBBank (Quân Đội)',
   'Vietcombank (Ngoại Thương)',
@@ -362,41 +399,8 @@ const MyOrdersPage = () => {
           <h2 style={{ margin: 0 }}>LỊCH SỬ ĐẶT TOUR CỦA TÔI</h2>
         </div>
 
-        {/* Banner Chính sách đặt, đổi và hoàn hủy tour */}
-        <div style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-          border: '1px solid rgba(56, 189, 248, 0.4)',
-          borderRadius: '14px',
-          padding: '20px 24px',
-          marginBottom: '26px',
-          boxShadow: '0 10px 25px -5px rgba(0,0,0,0.18)',
-          color: '#f8fafc'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#38bdf8', fontWeight: 800, fontSize: '1.05rem', marginBottom: '14px' }}>
-            <FaShieldAlt style={{ fontSize: '1.3rem' }} />
-            <span>Chính Sách Đặt, Đổi & Hoàn Hủy Tour Du Lịch Việt</span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px', fontSize: '0.86rem', color: '#e2e8f0', lineHeight: 1.55 }}>
-            <div style={{ background: 'rgba(34, 197, 94, 0.12)', padding: '10px 14px', borderRadius: '8px', borderLeft: '3px solid #22c55e' }}>
-              • <strong style={{ color: '#4ade80' }}>Đơn chưa thanh toán:</strong> Hủy tour bất cứ lúc nào, <strong>hoàn toàn miễn phí 100%</strong>.
-            </div>
-            <div style={{ background: 'rgba(56, 189, 248, 0.08)', padding: '10px 14px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
-              • <strong>1. Quy trình đặt tour:</strong> Tạm giữ chỗ & gửi email xác nhận. Nhân viên tư vấn liên hệ xác nhận.
-            </div>
-            <div style={{ background: 'rgba(56, 189, 248, 0.08)', padding: '10px 14px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
-              • <strong>2. Hủy trước 7 ngày:</strong> Hoàn trả <strong>100%</strong> số tiền hoặc đổi hành trình miễn phí.
-            </div>
-            <div style={{ background: 'rgba(234, 179, 8, 0.1)', padding: '10px 14px', borderRadius: '8px', borderLeft: '3px solid #eab308' }}>
-              • <strong>3. Hủy từ 3 - 6 ngày:</strong> Phí đổi hủy <strong>30%</strong> giá tour (hoàn lại 70%).
-            </div>
-            <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '10px 14px', borderRadius: '8px', borderLeft: '3px solid #ef4444' }}>
-              • <strong>4. Hủy trong vòng 48h:</strong> Phí đổi hủy <strong>70%</strong> giá tour (hoàn lại 30%).
-            </div>
-            <div style={{ background: 'rgba(168, 85, 247, 0.1)', padding: '10px 14px', borderRadius: '8px', borderLeft: '3px solid #a855f7' }}>
-              • <strong>5. Bất khả kháng:</strong> Dời lịch trình hoặc bảo lưu giá trị lên đến <strong>12 tháng</strong>.
-            </div>
-          </div>
-        </div>
+        {/* Banner Chính sách đặt, đổi và hoàn hủy tour - accordion nhẹ */}
+        <PolicyAccordion />
         
         {loading ? (
           <LoadingSpinner />
