@@ -137,12 +137,25 @@ const CheckoutPage = () => {
 
   const hasExpiredTours = false;
 
-  // Kiểm tra giỏ hàng trống (chỉ kiểm tra ở bước 1 và 2 trước khi tạo đơn hàng)
+  const hasInactiveTours = useMemo(() => {
+    return (items || []).some(item => {
+      const tour = item?.tour || {};
+      const status = tour.status || item.status;
+      if (status && status !== 'ACTIVE') return true;
+      if (tour.isActive === false || tour.is_active === 0) return true;
+      return false;
+    });
+  }, [items]);
+
+  // Kiểm tra giỏ hàng trống hoặc có tour tạm ẩn (chỉ kiểm tra ở bước 1 và 2 trước khi tạo đơn hàng)
   useEffect(() => {
     if (step !== 3 && !createdOrder && (!items || items.length === 0)) {
       navigate('/cart');
+    } else if (step !== 3 && !createdOrder && hasInactiveTours) {
+      toast.error('Có tour trong giỏ hàng đang tạm ngừng mở bán, vui lòng kiểm tra lại giỏ hàng');
+      navigate('/cart');
     }
-  }, [items, navigate, createdOrder, step]);
+  }, [items, navigate, createdOrder, step, hasInactiveTours]);
 
   // Tính toán giá và chiết khấu
   const subTotal = getTotal();
@@ -230,6 +243,11 @@ const CheckoutPage = () => {
   // Bước 1: Tiếp tục đến thanh toán
   const handleProceedToPayment = (e) => {
     e.preventDefault();
+    if (hasInactiveTours) {
+      toast.error('Có tour trong giỏ hàng đang tạm ngừng mở bán, vui lòng kiểm tra lại giỏ hàng');
+      navigate('/cart');
+      return;
+    }
     if (!formData.contactName?.trim() || !formData.contactPhone?.trim() || !formData.contactEmail?.trim()) {
       toast.error('Vui lòng cung cấp đầy đủ họ tên, số điện thoại và email nhận vé.');
       return;
@@ -260,6 +278,11 @@ const CheckoutPage = () => {
 
   // Bước 2: Tạo đơn và thanh toán
   const handlePlaceOrder = async () => {
+    if (hasInactiveTours) {
+      toast.error('Có tour trong giỏ hàng đang tạm ngừng mở bán, vui lòng kiểm tra lại giỏ hàng');
+      navigate('/cart');
+      return;
+    }
     if (hasExpiredTours) {
       toast.error('Tour đã hết hạn khởi hành. Vui lòng kiểm tra lại giỏ hàng.');
       return;
@@ -1336,7 +1359,7 @@ const CheckoutPage = () => {
                   <button
                     type="button"
                     className="btn btn-primary btn-submit-order btn-lg w-100"
-                    disabled={loading || hasExpiredTours}
+                    disabled={loading || hasExpiredTours || hasInactiveTours}
                     onClick={handlePlaceOrder}
                   >
                     {loading ? (
@@ -1463,38 +1486,40 @@ const CheckoutPage = () => {
                 <div className="breakdown-divider"></div>
 
                 <div className="breakdown-total-row">
-                  <div className="total-label-box">
-                    <span className="total-title">TỔNG THANH TOÁN</span>
-                    <small className="text-muted">Đã bao gồm toàn bộ thuế & phí</small>
-                  </div>
                   {memberDiscountAmount > 0 && (
-                    <div className="pricing-row discount-row text-success" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: '#16a34a' }}>
+                    <div className="breakdown-subrow discount-subrow">
                       <span>Đặc quyền {tierInfo.shortName} (-{tierInfo.discountPercent}%):</span>
                       <span>-{formatPrice(memberDiscountAmount)}</span>
                     </div>
                   )}
                   {pointsDiscountAmount > 0 && (
-                    <div className="pricing-row discount-row text-success" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: '#16a34a' }}>
+                    <div className="breakdown-subrow discount-subrow">
                       <span>Đổi điểm tích lũy ({maxPointsUsable} điểm):</span>
                       <span>-{formatPrice(pointsDiscountAmount)}</span>
                     </div>
                   )}
-                  <div className="pricing-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: '#475569' }}>
+                  <div className="breakdown-subrow plan-subrow">
                     <span>Hình thức:</span>
                     <strong style={{ color: paymentPlan === 'DEPOSIT' ? '#b45309' : '#0284c7' }}>
-                      {paymentPlan === 'DEPOSIT' ? 'Đặt cọc 30%' : 'Thanh toán 100%'}
+                      {paymentPlan === 'DEPOSIT' ? `Đặt cọc ${depositPercent}%` : 'Thanh toán 100%'}
                     </strong>
                   </div>
-                  <div className="total-amount-box text-right">
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>
-                      {paymentPlan === 'DEPOSIT' ? 'Số tiền thanh toán đợt 1 (30%):' : 'Tổng thanh toán:'}
+                  <div className="breakdown-total-main">
+                    <div className="total-label-box">
+                      <span className="total-title">TỔNG THANH TOÁN</span>
+                      <small className="text-muted">Đã bao gồm toàn bộ thuế & phí</small>
                     </div>
-                    <span className="final-price-text">{formatPrice(amountToPayNow)}</span>
-                    {paymentPlan === 'DEPOSIT' && (
-                      <div style={{ fontSize: '0.82rem', color: '#b45309', marginTop: '6px', fontWeight: 600 }}>
-                        Còn lại đợt 2 (70%): {formatPrice(remainingAmount)}
+                    <div className="total-amount-box text-right">
+                      <div className="payment-stage-note">
+                        {paymentPlan === 'DEPOSIT' ? `Số tiền thanh toán đợt 1 (${depositPercent}%):` : 'Tổng thanh toán:'}
                       </div>
-                    )}
+                      <span className="final-price-text">{formatPrice(amountToPayNow)}</span>
+                      {paymentPlan === 'DEPOSIT' && (
+                        <div className="payment-remaining-note">
+                          Còn lại đợt 2 ({100 - depositPercent}%): {formatPrice(remainingAmount)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

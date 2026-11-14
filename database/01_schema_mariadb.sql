@@ -64,7 +64,9 @@ CREATE TABLE categories (
     category_id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     category_name       VARCHAR(100)    NOT NULL,
     description         VARCHAR(500)    NULL,
-    image_url           VARCHAR(500)    NULL
+    image_url           VARCHAR(500)    NULL,
+    status              VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE')),
+    INDEX idx_categories_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================

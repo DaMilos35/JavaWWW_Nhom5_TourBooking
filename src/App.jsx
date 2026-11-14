@@ -91,7 +91,7 @@ function App() {
             <Router>
               <ScrollToTop />
               <OmniSearchModal isOpen={isOmniOpen} onClose={() => setIsOmniOpen(false)} />
-              <ToastContainer position="top-right" autoClose={3000} />
+              <ToastContainer position="top-right" autoClose={3500} hideProgressBar={false} pauseOnHover={true} />
               <Routes>
                 {/* Public User Routes */}
                 <Route path="/" element={<UserLayout><HomePage /></UserLayout>} />

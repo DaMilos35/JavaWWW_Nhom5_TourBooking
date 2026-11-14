@@ -30,6 +30,7 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const { user, login } = useAuth();
   const navigate = useNavigate();
@@ -284,7 +285,25 @@ const RegisterPage = () => {
                   <label>Xác nhận mật khẩu <span className="text-danger">*</span></label>
                   <div className="input-icon-wrapper">
                     <FaLock className="input-icon" />
-                    <input type={showPassword ? "text" : "password"} name="confirmPassword" placeholder="Nhập lại mật khẩu" value={formData.confirmPassword} onChange={handleChange} minLength="6" required />
+                    <input 
+                      type={showConfirmPassword ? "text" : "password"} 
+                      name="confirmPassword" 
+                      placeholder="Nhập lại mật khẩu" 
+                      value={formData.confirmPassword} 
+                      onChange={handleChange} 
+                      minLength="6" 
+                      required 
+                    />
+                    <div 
+                      className="password-toggle" 
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      title={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                      role="button"
+                      tabIndex={0}
+                      aria-label="Hiện/ẩn mật khẩu xác nhận"
+                    >
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </div>
                   </div>
                   {formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword && (
                     <small className="text-danger" style={{fontSize: '11px'}}>Mật khẩu xác nhận không khớp</small>

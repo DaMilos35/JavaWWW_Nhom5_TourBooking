@@ -46,6 +46,14 @@ public class CategoryController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<CategoryDto> updateStatus(@PathVariable Integer id,
+                                                    @RequestBody(required = false) java.util.Map<String, String> body) {
+        String status = (body != null && body.containsKey("status")) ? body.get("status") : null;
+        return ResponseEntity.ok(categoryService.updateStatus(id, status));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         categoryService.delete(id);

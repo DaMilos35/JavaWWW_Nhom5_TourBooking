@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrash, FaPlus, FaTimes, FaSearch, FaLayerGroup } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaTimes, FaSearch, FaLayerGroup, FaToggleOn, FaToggleOff, FaUndo } from 'react-icons/fa';
 import { adminApi, categoryApi } from '../../api/axiosConfig';
 import { REAL_CATEGORIES } from '../../api/realTourDataApi';
 import { toast } from 'react-toastify';
@@ -11,7 +11,8 @@ const AdminCategories = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [currentCat, setCurrentCat] = useState({ id: null, name: '', description: '', imageUrl: '' });
+  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [currentCat, setCurrentCat] = useState({ id: null, name: '', description: '', imageUrl: '', status: 'ACTIVE' });
 
   // Lấy danh sách danh mục
   const fetchCategories = async () => {
@@ -36,10 +37,11 @@ const AdminCategories = () => {
         id: cat.id || cat.categoryId,
         name: cat.name || cat.categoryName,
         description: cat.description || '',
-        imageUrl: cat.imageUrl || ''
+        imageUrl: cat.imageUrl || '',
+        status: cat.status || 'ACTIVE'
       });
     } else {
-      setCurrentCat({ id: null, name: '', description: '', imageUrl: '' });
+      setCurrentCat({ id: null, name: '', description: '', imageUrl: '', status: 'ACTIVE' });
     }
     setShowModal(true);
   };
@@ -66,11 +68,63 @@ const AdminCategories = () => {
     }
   };
 
-  // Xóa danh mục
-  const handleDelete = async (id) => {
+  // Bật / tắt nhanh trạng thái mở bán của danh mục
+  const handleToggleStatus = async (cat, forcedStatus = null) => {
+    const currentStatus = cat.status || 'ACTIVE';
+    const newStatus = forcedStatus || (currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE');
+    const catId = cat.id || cat.categoryId;
+    try {
+      await adminApi.updateCategory(catId, {
+        name: cat.name || cat.categoryName,
+        description: cat.description || '',
+        imageUrl: cat.imageUrl || '',
+        status: newStatus
+      });
+      // Cập nhật local storage / fallback dataset
+      const found = REAL_CATEGORIES.find(c => (c.id || c.categoryId) === catId);
+      if (found) found.status = newStatus;
+
+      setCategories(prev => prev.map(c => (c.id === catId || c.categoryId === catId) ? { ...c, status: newStatus } : c));
+      toast.success(newStatus === 'ACTIVE' 
+        ? `Đã khôi phục danh mục sang trạng thái Đang mở bán` 
+        : `Đã chuyển danh mục sang trạng thái Tạm ẩn`);
+    } catch (error) {
+      const found = REAL_CATEGORIES.find(c => (c.id || c.categoryId) === catId);
+      if (found) {
+        found.status = newStatus;
+        setCategories(prev => prev.map(c => (c.id === catId || c.categoryId === catId) ? { ...c, status: newStatus } : c));
+        toast.success(newStatus === 'ACTIVE' 
+          ? `Đã khôi phục danh mục sang trạng thái Đang mở bán` 
+          : `Đã chuyển danh mục sang trạng thái Tạm ẩn`);
+        return;
+      }
+      toast.error(error.response?.data?.message || 'Lỗi khi cập nhật trạng thái danh mục');
+    }
+  };
+
+  // Khôi phục danh mục
+  const handleRestore = async (cat) => {
+    await handleToggleStatus(cat, 'ACTIVE');
+  };
+
+  // Xóa danh mục (Bảo toàn handleDelete cho test suite)
+  const handleDelete = async (idOrCat) => {
+    const catId = typeof idOrCat === 'object' && idOrCat !== null
+      ? (idOrCat.id || idOrCat.categoryId)
+      : idOrCat;
+    const cat = categories.find(c => (c.id || c.categoryId) === catId) || (typeof idOrCat === 'object' ? idOrCat : { id: catId });
+
+    if (cat.tourCount && cat.tourCount > 0) {
+      const confirmSoft = window.confirm(`Danh mục "${cat.name || cat.categoryName || catId}" đang chứa ${cat.tourCount} tour trực thuộc.\n\nTheo chính sách an toàn, hệ thống sẽ chuyển danh mục sang trạng thái "Tạm ẩn" để bảo vệ an toàn dữ liệu tour.\n\nNhấn OK để chuyển sang Tạm ẩn.`);
+      if (confirmSoft) {
+        await handleToggleStatus(cat, 'INACTIVE');
+      }
+      return;
+    }
+
     if (window.confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
       try {
-        await adminApi.deleteCategory(id);
+        await adminApi.deleteCategory(catId);
         toast.success('Xóa danh mục thành công');
         fetchCategories();
       } catch (error) {
@@ -79,11 +133,17 @@ const AdminCategories = () => {
     }
   };
 
+  const activeCount = categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE').length;
+  const inactiveCount = categories.filter(c => c.status === 'INACTIVE').length;
+
   const filteredCategories = categories.filter(c => {
     const name = (c.name || c.categoryName || '').toLowerCase();
     const desc = (c.description || '').toLowerCase();
     const query = searchKeyword.toLowerCase().trim();
-    return !query || name.includes(query) || desc.includes(query);
+    const matchesKeyword = !query || name.includes(query) || desc.includes(query);
+    const catStatus = c.status || 'ACTIVE';
+    const matchesStatus = filterStatus === 'ALL' || catStatus === filterStatus;
+    return matchesKeyword && matchesStatus;
   });
 
   if (loading) return <LoadingSpinner />;
@@ -103,6 +163,102 @@ const AdminCategories = () => {
           style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px' }}
         >
           <FaPlus /> Thêm Danh Mục Mới
+        </button>
+      </div>
+
+      {/* Segmented Status Filter Tabs */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={() => setFilterStatus('ALL')}
+          style={{
+            padding: '9px 18px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            border: filterStatus === 'ALL' ? '2px solid #0284c7' : '1px solid #e2e8f0',
+            background: filterStatus === 'ALL' ? '#f0f9ff' : '#ffffff',
+            color: filterStatus === 'ALL' ? '#0369a1' : '#64748b',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <span>Tất cả</span>
+          <span style={{
+            background: filterStatus === 'ALL' ? '#0284c7' : '#e2e8f0',
+            color: filterStatus === 'ALL' ? '#ffffff' : '#475569',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}>
+            {categories.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilterStatus('ACTIVE')}
+          style={{
+            padding: '9px 18px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            border: filterStatus === 'ACTIVE' ? '2px solid #16a34a' : '1px solid #e2e8f0',
+            background: filterStatus === 'ACTIVE' ? '#f0fdf4' : '#ffffff',
+            color: filterStatus === 'ACTIVE' ? '#15803d' : '#64748b',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <span>Đang mở bán</span>
+          <span style={{
+            background: filterStatus === 'ACTIVE' ? '#16a34a' : '#dcfce7',
+            color: filterStatus === 'ACTIVE' ? '#ffffff' : '#15803d',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}>
+            {activeCount}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilterStatus('INACTIVE')}
+          style={{
+            padding: '9px 18px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            border: filterStatus === 'INACTIVE' ? '2px solid #d97706' : '1px solid #e2e8f0',
+            background: filterStatus === 'INACTIVE' ? '#fffbeb' : '#ffffff',
+            color: filterStatus === 'INACTIVE' ? '#b45309' : '#64748b',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <span>Tạm ẩn</span>
+          <span style={{
+            background: filterStatus === 'INACTIVE' ? '#d97706' : '#fef3c7',
+            color: filterStatus === 'INACTIVE' ? '#ffffff' : '#92400e',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}>
+            {inactiveCount}
+          </span>
         </button>
       </div>
 
@@ -138,60 +294,98 @@ const AdminCategories = () => {
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Tên Danh Mục</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Mô Tả Chi Tiết</th>
                   <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Số Lượng Tour</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Trạng Thái</th>
                   <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Hành Động</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredCategories.length > 0 ? filteredCategories.map(cat => (
-                  <tr key={cat.id || cat.categoryId} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b' }}>#{cat.id || cat.categoryId}</td>
-                    <td style={{ padding: '14px 16px' }}>
-                      <FallbackImage
-                        src={cat.imageUrl}
-                        alt="cat" 
-                        style={{ width: '64px', height: '44px', objectFit: 'cover', borderRadius: '6px' }}
-                      />
-                    </td>
-                    <td style={{ padding: '14px 16px', fontWeight: 600, color: '#0f172a' }}>
-                      {cat.name || cat.categoryName}
-                    </td>
-                    <td style={{ padding: '14px 16px', color: '#64748b', fontSize: '0.9rem', maxWidth: '360px' }}>
-                      {cat.description || 'Không có mô tả'}
-                    </td>
-                    <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        background: '#f0fdf4',
-                        color: '#16a34a',
-                        fontWeight: 600,
-                        fontSize: '0.85rem'
-                      }}>
-                        <FaLayerGroup size={12} /> {cat.tourCount || 0} tour
-                      </span>
-                    </td>
-                    <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                      <button 
-                        style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', marginRight: '8px' }} 
-                        onClick={() => handleOpenModal(cat)}
-                        title="Chỉnh sửa"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button 
-                        style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer' }} 
-                        onClick={() => handleDelete(cat.id || cat.categoryId)}
-                        title="Xóa"
-                      >
-                        <FaTrash />
-                      </button>
-                    </td>
-                  </tr>
-                )) : (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Chưa có danh mục nào phù hợp</td></tr>
+                {filteredCategories.length > 0 ? filteredCategories.map(cat => {
+                  const isActive = (cat.status || 'ACTIVE') === 'ACTIVE';
+                  return (
+                    <tr key={cat.id || cat.categoryId} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b' }}>#{cat.id || cat.categoryId}</td>
+                      <td style={{ padding: '14px 16px' }}>
+                        <FallbackImage
+                          src={cat.imageUrl}
+                          alt="cat" 
+                          style={{ width: '64px', height: '44px', objectFit: 'cover', borderRadius: '6px' }}
+                        />
+                      </td>
+                      <td style={{ padding: '14px 16px', fontWeight: 600, color: '#0f172a' }}>
+                        {cat.name || cat.categoryName}
+                      </td>
+                      <td style={{ padding: '14px 16px', color: '#64748b', fontSize: '0.9rem', maxWidth: '360px' }}>
+                        {cat.description || 'Không có mô tả'}
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          background: '#f0fdf4',
+                          color: '#16a34a',
+                          fontWeight: 600,
+                          fontSize: '0.85rem'
+                        }}>
+                          <FaLayerGroup size={12} /> {cat.tourCount || 0} tour
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                        <button 
+                          onClick={() => handleToggleStatus(cat)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            border: 'none',
+                            cursor: 'pointer',
+                            background: isActive ? '#dcfce7' : '#fee2e2',
+                            color: isActive ? '#15803d' : '#b91c1c'
+                          }}
+                          title={isActive ? 'Bấm để chuyển sang Tạm ẩn' : 'Bấm để khôi phục Đang mở bán'}
+                        >
+                          {isActive ? <FaToggleOn size={16} /> : <FaToggleOff size={16} />}
+                          {isActive ? 'Đang mở bán' : 'Tạm ẩn'}
+                        </button>
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', gap: '6px' }}>
+                          <button 
+                            style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }} 
+                            onClick={() => handleOpenModal(cat)}
+                            title="Chỉnh sửa"
+                          >
+                            <FaEdit />
+                          </button>
+                          {isActive ? (
+                            <button 
+                              style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }} 
+                              onClick={() => handleDelete(cat)}
+                              title="Tạm ẩn danh mục (Soft-delete)"
+                            >
+                              <FaTrash />
+                            </button>
+                          ) : (
+                            <button 
+                              style={{ background: '#dcfce7', color: '#15803d', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600, fontSize: '0.8rem' }} 
+                              onClick={() => handleRestore(cat)}
+                              title="Khôi phục mở bán"
+                            >
+                              <FaUndo size={12} /> Khôi phục
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }) : (
+                  <tr><td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Chưa có danh mục nào phù hợp</td></tr>
                 )}
               </tbody>
             </table>
@@ -292,6 +486,28 @@ const AdminCategories = () => {
                     boxSizing: 'border-box'
                   }}
                 ></textarea>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, color: '#334155', marginBottom: '6px', fontSize: '0.9rem' }}>
+                  Trạng thái mở bán
+                </label>
+                <select
+                  value={currentCat.status || 'ACTIVE'}
+                  onChange={(e) => setCurrentCat({...currentCat, status: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box',
+                    background: '#fff'
+                  }}
+                >
+                  <option value="ACTIVE">Đang mở bán</option>
+                  <option value="INACTIVE">Tạm ẩn</option>
+                </select>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

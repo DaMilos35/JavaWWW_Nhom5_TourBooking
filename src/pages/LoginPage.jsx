@@ -264,7 +264,7 @@ const LoginPage = () => {
             
             <div className="form-group">
               <label>Mật khẩu</label>
-              <div className="input-icon-wrapper" style={{ position: 'relative' }}>
+              <div className="input-icon-wrapper">
                 <FaLock className="input-icon" />
                 <input 
                   type={showPassword ? "text" : "password"} 
@@ -273,28 +273,12 @@ const LoginPage = () => {
                   value={credentials.password}
                   onChange={handleChange}
                   autoComplete="current-password"
-                  style={{ paddingRight: '45px' }}
                   required
                 />
                 <button
                   type="button"
+                  className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#64748b',
-                    cursor: 'pointer',
-                    fontSize: '1rem',
-                    padding: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '4px'
-                  }}
                   title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   aria-label="Hiện/ẩn mật khẩu"
                 >

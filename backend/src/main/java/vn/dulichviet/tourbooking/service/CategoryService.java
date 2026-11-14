@@ -54,6 +54,7 @@ public class CategoryService {
         category.setName(request.name());
         category.setDescription(request.description());
         category.setImageUrl(request.imageUrl());
+        category.setStatus(request.status() != null && !request.status().isBlank() ? request.status().toUpperCase() : "ACTIVE");
         Category saved = categoryRepository.save(category);
         return CategoryDto.from(saved, 0L);
     }
@@ -66,8 +67,33 @@ public class CategoryService {
         category.setName(request.name());
         category.setDescription(request.description());
         category.setImageUrl(request.imageUrl());
+        if (request.status() != null && !request.status().isBlank()) {
+            category.setStatus(request.status().toUpperCase());
+        }
         Category saved = categoryRepository.save(category);
         return CategoryDto.from(saved, tourRepository.countByCategoryId(id));
+    }
+
+    @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
+    public CategoryDto updateStatus(Integer id, String status) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ApiException(404, "Không tìm thấy danh mục"));
+        String nextStatus;
+        if (status != null && !status.isBlank()) {
+            nextStatus = status.toUpperCase();
+        } else {
+            nextStatus = "ACTIVE".equalsIgnoreCase(category.getStatus()) ? "INACTIVE" : "ACTIVE";
+        }
+        category.setStatus(nextStatus);
+        Category saved = categoryRepository.save(category);
+        return CategoryDto.from(saved, tourRepository.countByCategoryId(id));
+    }
+
+    @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
+    public CategoryDto toggleStatus(Integer id) {
+        return updateStatus(id, null);
     }
 
     @Transactional

@@ -8,5 +8,11 @@ public record CategoryRequest(
 
         String description,
 
-        String imageUrl) {
+        String imageUrl,
+
+        String status) {
+
+    public CategoryRequest(String name, String description, String imageUrl) {
+        this(name, description, imageUrl, "ACTIVE");
+    }
 }

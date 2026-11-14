@@ -116,23 +116,29 @@
 .tc-badge {
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 4px 9px;
+  height: 24px;
+  box-sizing: border-box;
+  padding: 0 9px;
   border-radius: 6px;
   letter-spacing: 0.3px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  white-space: nowrap;
   gap: 5px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
-  line-height: 1.2;
+  line-height: 1;
 }
 
 .tc-badge-icon {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  flex-shrink: 0;
 }
 
 .tc-marketing-badge {
   text-transform: uppercase;
   font-weight: 800;
+  border: 1px solid transparent;
 }
 
 .badge-hot {
@@ -208,8 +214,9 @@
 .tc-kicker {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
+  min-width: 0;
   margin-bottom: 8px;
 }
 
@@ -222,19 +229,26 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 
 .tc-rating {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
   color: #0f172a;
   font-weight: 700;
   font-size: 0.8rem;
   background: #fef3c7;
-  padding: 2px 7px;
+  padding: 0 7px;
   border-radius: 6px;
   flex-shrink: 0;
+  margin-left: auto;
+  height: 20px;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .star-icon {
@@ -242,21 +256,26 @@
   font-size: 0.75rem;
 }
 
-/* --- Tour Title (High-End Editorial Serif) --- */
+/* --- Tour Title (Modern Clean Display) --- */
 .tc-title {
-  font-family: var(--font-serif);
-  font-size: 1.08rem;
-  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: 1.02rem;
+  font-weight: 700;
   color: var(--text-ink, #14171a);
-  margin-bottom: 12px;
-  line-height: 1.45;
+  margin-bottom: 8px;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  word-break: break-word;
-  min-height: 3.1rem;
-  letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-wrap: pretty;
+  height: 2.86rem;
+  min-height: 2.86rem;
+  max-height: 2.86rem;
+  padding: 1px 0;
+  letter-spacing: -0.015em;
   transition: color 0.25s ease;
 }
 
@@ -466,13 +485,18 @@
 .tc-domain-pill {
   font-size: 0.65rem;
   font-weight: 800;
-  padding: 2px 7px;
+  padding: 0 7px;
   border-radius: 999px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   display: inline-flex;
   align-items: center;
-  margin-left: 6px;
+  justify-content: center;
+  margin-left: 0;
+  flex-shrink: 0;
+  height: 20px;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .tc-domain-pill.pill-intl {

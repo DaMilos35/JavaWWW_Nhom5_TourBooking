@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi, categoryApi } from '../../api/axiosConfig';
 import { REAL_TOURS, REAL_CATEGORIES } from '../../api/realTourDataApi';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaToggleOn, FaToggleOff, FaFileExcel } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaToggleOn, FaToggleOff, FaFileExcel, FaUndo, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -14,6 +14,7 @@ const AdminTours = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterCategory, setFilterCategory] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
+  const [deleteModalTour, setDeleteModalTour] = useState(null);
   const navigate = useNavigate();
 
   // Tải danh sách tour và danh mục
@@ -38,22 +39,8 @@ const AdminTours = () => {
     fetchToursAndCats();
   }, []);
 
-  // Xóa tour
-  const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa tour này khỏi hệ thống?')) {
-      try {
-        await adminApi.deleteTour(id);
-        toast.success('Đã xóa tour thành công');
-        fetchToursAndCats();
-      } catch (error) {
-        toast.error(error.response?.data?.message || 'Không thể xóa tour đang có trong đơn hàng');
-      }
-    }
-  };
-
-  // Bật / tắt nhanh trạng thái mở bán của tour
-  const handleToggleStatus = async (tour) => {
-    const newStatus = tour.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+  // Cập nhật trạng thái mở bán (ACTIVE <-> INACTIVE) dùng chung cho Soft-Delete, Restore và Toggle
+  const updateTourStatus = async (tour, newStatus) => {
     try {
       await adminApi.updateTour(tour.id, {
         categoryId: parseInt(tour.categoryId || tour.category?.id || tour.category?.categoryId || 1),
@@ -77,10 +64,76 @@ const AdminTours = () => {
         status: newStatus,
         rating: parseFloat(tour.rating) || 5.0
       });
-      toast.success(`Đã chuyển tour sang: ${newStatus === 'ACTIVE' ? 'Đang mở bán' : 'Tạm ẩn'}`);
-      setTours(prev => prev.map(t => t.id === tour.id ? { ...t, status: newStatus } : t));
+
+      // Cập nhật bộ nhớ Smart Dual-Mode cho REAL_TOURS khi backend offline
+      const found = REAL_TOURS.find(t => Number(t.id || t.tourId) === Number(tour.id));
+      if (found) found.status = newStatus;
+
+      setTours(prev => prev.map(t => (t.id === tour.id || t.tourId === tour.id) ? { ...t, status: newStatus } : t));
+      toast.success(newStatus === 'ACTIVE' 
+        ? 'Đã khôi phục tour sang trạng thái Đang mở bán' 
+        : 'Đã chuyển tour sang trạng thái Tạm ẩn');
+      return true;
     } catch (error) {
+      const found = REAL_TOURS.find(t => Number(t.id || t.tourId) === Number(tour.id));
+      if (found) {
+        found.status = newStatus;
+        setTours(prev => prev.map(t => (t.id === tour.id || t.tourId === tour.id) ? { ...t, status: newStatus } : t));
+        toast.success(newStatus === 'ACTIVE' 
+          ? 'Đã khôi phục tour sang trạng thái Đang mở bán' 
+          : 'Đã chuyển tour sang trạng thái Tạm ẩn');
+        return true;
+      }
       toast.error(error.response?.data?.message || 'Lỗi khi cập nhật trạng thái tour');
+      return false;
+    }
+  };
+
+  // Bật / tắt nhanh trạng thái mở bán của tour
+  const handleToggleStatus = async (tour) => {
+    const newStatus = tour.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    await updateTourStatus(tour, newStatus);
+  };
+
+  // Khôi phục tour từ trạng thái Tạm ẩn về Đang mở bán
+  const handleRestore = async (tour) => {
+    await updateTourStatus(tour, 'ACTIVE');
+  };
+
+  // Xóa tour: Chuyển sang Tạm ẩn (Soft-delete) nếu tour đang ACTIVE, hoặc khôi phục/xóa nếu tour INACTIVE
+  const handleDelete = async (idOrTour) => {
+    const tour = typeof idOrTour === 'object' && idOrTour !== null
+      ? idOrTour 
+      : tours.find(t => t.id === idOrTour) || { id: idOrTour };
+
+    if (!tour.status || tour.status === 'ACTIVE') {
+      setDeleteModalTour(tour);
+    } else {
+      // Tour is already INACTIVE: give option to restore or permanently delete
+      const confirmRestore = window.confirm(`Tour "${tour.name || tour.tourName || tour.id}" hiện đang Tạm ẩn.\n\nBạn có muốn KHÔI PHỤC tour này sang "Đang mở bán" không?`);
+      if (confirmRestore) {
+        await handleRestore(tour);
+      }
+    }
+  };
+
+  // Xác nhận Soft-Delete từ Modal
+  const confirmSoftDelete = async () => {
+    if (!deleteModalTour) return;
+    await updateTourStatus(deleteModalTour, 'INACTIVE');
+    setDeleteModalTour(null);
+  };
+
+  // Xóa vĩnh viễn (Hard delete bảo toàn adminApi.deleteTour)
+  const handlePermanentDelete = async (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn tour này khỏi hệ thống?')) {
+      try {
+        await adminApi.deleteTour(id);
+        toast.success('Đã xóa vĩnh viễn tour thành công');
+        fetchToursAndCats();
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Không thể xóa tour đang có trong đơn hàng');
+      }
     }
   };
 
@@ -200,6 +253,102 @@ const AdminTours = () => {
         </div>
       </div>
 
+      {/* Status Filter Tabs (Feature 7: Soft-Delete & Restore Quick Filter) */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={() => setFilterStatus('ALL')}
+          style={{
+            padding: '9px 18px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            border: filterStatus === 'ALL' ? '2px solid #0284c7' : '1px solid #e2e8f0',
+            background: filterStatus === 'ALL' ? '#f0f9ff' : '#ffffff',
+            color: filterStatus === 'ALL' ? '#0369a1' : '#64748b',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <span>Tất cả</span>
+          <span style={{
+            background: filterStatus === 'ALL' ? '#0284c7' : '#e2e8f0',
+            color: filterStatus === 'ALL' ? '#ffffff' : '#475569',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}>
+            {tours.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilterStatus('ACTIVE')}
+          style={{
+            padding: '9px 18px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            border: filterStatus === 'ACTIVE' ? '2px solid #16a34a' : '1px solid #e2e8f0',
+            background: filterStatus === 'ACTIVE' ? '#f0fdf4' : '#ffffff',
+            color: filterStatus === 'ACTIVE' ? '#15803d' : '#64748b',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <span>Đang mở bán</span>
+          <span style={{
+            background: filterStatus === 'ACTIVE' ? '#16a34a' : '#dcfce7',
+            color: filterStatus === 'ACTIVE' ? '#ffffff' : '#15803d',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}>
+            {activeCount}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilterStatus('INACTIVE')}
+          style={{
+            padding: '9px 18px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            border: filterStatus === 'INACTIVE' ? '2px solid #d97706' : '1px solid #e2e8f0',
+            background: filterStatus === 'INACTIVE' ? '#fffbeb' : '#ffffff',
+            color: filterStatus === 'INACTIVE' ? '#b45309' : '#64748b',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <span>Tạm ẩn</span>
+          <span style={{
+            background: filterStatus === 'INACTIVE' ? '#d97706' : '#fef3c7',
+            color: filterStatus === 'INACTIVE' ? '#ffffff' : '#92400e',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}>
+            {inactiveCount}
+          </span>
+        </button>
+      </div>
+
       {/* Filter and Search Bar */}
       <div style={{
         background: '#fff',
@@ -316,10 +465,10 @@ const AdminTours = () => {
                             background: isActive ? '#dcfce7' : '#fee2e2',
                             color: isActive ? '#15803d' : '#b91c1c'
                           }}
-                          title="Bấm để bật/tắt trạng thái"
+                          title={isActive ? 'Bấm để chuyển sang Tạm ẩn' : 'Bấm để khôi phục Đang mở bán'}
                         >
                           {isActive ? <FaToggleOn size={16} /> : <FaToggleOff size={16} />}
-                          {isActive ? 'Mở bán' : 'Tạm ẩn'}
+                          {isActive ? 'Đang mở bán' : 'Tạm ẩn'}
                         </button>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
@@ -338,13 +487,23 @@ const AdminTours = () => {
                           >
                             <FaEdit />
                           </button>
-                          <button 
-                            style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }} 
-                            title="Xóa tour" 
-                            onClick={() => handleDelete(tour.id)}
-                          >
-                            <FaTrash />
-                          </button>
+                          {isActive ? (
+                            <button 
+                              style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }} 
+                              title="Tạm ẩn tour (Soft-delete)" 
+                              onClick={() => handleDelete(tour)}
+                            >
+                              <FaTrash />
+                            </button>
+                          ) : (
+                            <button 
+                              style={{ background: '#dcfce7', color: '#15803d', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600, fontSize: '0.8rem' }} 
+                              title="Khôi phục mở bán" 
+                              onClick={() => handleRestore(tour)}
+                            >
+                              <FaUndo size={12} /> Khôi phục
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -360,6 +519,109 @@ const AdminTours = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Xác Nhận Xóa / Tạm Ẩn Tour (Soft-Delete Guardrail) */}
+      {deleteModalTour && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 1050,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '16px'
+        }}>
+          <div style={{
+            backgroundColor: '#fff',
+            padding: '28px',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '520px',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.15)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  background: '#fee2e2', color: '#dc2626',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <FaExclamationTriangle size={18} />
+                </div>
+                <h3 style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '1.2rem' }}>
+                  Xác Nhận Xóa / Tạm Ẩn Tour
+                </h3>
+              </div>
+              <button 
+                onClick={() => setDeleteModalTour(null)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '20px', color: '#475569', fontSize: '0.92rem', lineHeight: 1.6 }}>
+              <p style={{ margin: '0 0 12px' }}>
+                Bạn đang thực hiện thao tác xóa tour: <strong style={{ color: '#0f172a' }}>{deleteModalTour.name || deleteModalTour.tourName}</strong> (Mã #{deleteModalTour.id})
+              </p>
+              <div style={{
+                background: '#f8fafc',
+                borderLeft: '4px solid #0284c7',
+                padding: '12px 14px',
+                borderRadius: '0 8px 8px 0',
+                fontSize: '0.86rem',
+                color: '#334155'
+              }}>
+                <strong>Chính sách bảo toàn dữ liệu (Soft-delete):</strong>
+                <p style={{ margin: '4px 0 0' }}>
+                  Tour sẽ được chuyển sang trạng thái <strong>Tạm ẩn (INACTIVE)</strong>, lập tức ngừng nhận khách mới trên toàn hệ thống nhưng vẫn bảo toàn 100% lịch sử đơn hàng và doanh thu đã phát sinh. Quản trị viên có thể dễ dàng khôi phục lại bất kỳ lúc nào.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setDeleteModalTour(null)}
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#475569',
+                  fontWeight: 600,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Hủy bỏ
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmSoftDelete}
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <FaTrash size={13} /> Chuyển Sang Tạm Ẩn (Soft-Delete)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

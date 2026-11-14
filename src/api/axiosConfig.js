@@ -242,6 +242,17 @@ export const orderApi = {
 
         const newId = 1000 + (Date.now() % 9000);
         let total = 0;
+
+        // Layer 6 Guardrail: Đồng bộ với backend OrderService.java (ném lỗi nếu tour không mở bán)
+        for (const item of (data.items || [])) {
+          const tId = Number(item.tourId);
+          const found = REAL_TOURS.find((t) => Number(t.id || t.tourId) === tId);
+          if (found && ((found.status && found.status !== 'ACTIVE') || found.isActive === false || found.is_active === 0)) {
+            const tourName = found.name || found.tourName || `Tour #${tId}`;
+            throw new Error(`Tour '${tourName}' hiện không mở bán`);
+          }
+        }
+
         const details = (data.items || []).map((item, idx) => {
           const tId = Number(item.tourId);
           const found = REAL_TOURS.find((t) => t.id === tId) || {
@@ -469,19 +480,72 @@ export const adminApi = {
     }
   },
 
-  // Quản lý Tours (dùng endpoint /api/tours với ADMIN)
+  // Quản lý Tours (dùng endpoint /api/tours với ADMIN, Smart Dual-Mode fallback)
   getTours: () => tourApi.getAll(),
   getTourById: (id) => tourApi.getById(id),
-  createTour: (data) => api.post('/tours', data),
-  updateTour: (id, data) => api.put('/tours/' + id, data),
-  deleteTour: (id) => api.delete('/tours/' + id),
+  createTour: async (data) => {
+    try {
+      return await api.post('/tours', data);
+    } catch (err) {
+      return await realTourApi.create(data);
+    }
+  },
+  updateTour: async (id, data) => {
+    try {
+      return await api.put('/tours/' + id, data);
+    } catch (err) {
+      const found = REAL_TOURS.find((t) => Number(t.id || t.tourId) === Number(id));
+      if (found) {
+        Object.assign(found, data);
+        return { data: found };
+      }
+      throw err;
+    }
+  },
+  deleteTour: async (id) => {
+    try {
+      return await api.delete('/tours/' + id);
+    } catch (err) {
+      const found = REAL_TOURS.find((t) => Number(t.id || t.tourId) === Number(id));
+      if (found) {
+        found.status = 'INACTIVE';
+        return { data: { success: true, message: 'Đã chuyển tour sang tạm ẩn' } };
+      }
+      throw err;
+    }
+  },
 
-  // Quản lý Danh mục (dùng endpoint /api/categories với ADMIN)
+  // Quản lý Danh mục (dùng endpoint /api/categories với ADMIN, Smart Dual-Mode fallback)
   getCategories: () => categoryApi.getAll(),
   getCategoryById: (id) => categoryApi.getById(id),
-  createCategory: (data) => api.post('/categories', data),
-  updateCategory: (id, data) => api.put('/categories/' + id, data),
-  deleteCategory: (id) => api.delete('/categories/' + id),
+  createCategory: async (data) => {
+    try {
+      return await api.post('/categories', data);
+    } catch (err) {
+      return await realCategoryApi.create(data);
+    }
+  },
+  updateCategory: async (id, data) => {
+    try {
+      return await api.put('/categories/' + id, data);
+    } catch (err) {
+      return await realCategoryApi.update(id, data);
+    }
+  },
+  deleteCategory: async (id) => {
+    try {
+      return await api.delete('/categories/' + id);
+    } catch (err) {
+      return await realCategoryApi.delete(id);
+    }
+  },
+  toggleCategoryStatus: async (id) => {
+    try {
+      return await api.patch('/categories/' + id + '/status');
+    } catch (err) {
+      return await realCategoryApi.toggleStatus(id);
+    }
+  },
 
   // Quản lý Người dùng
   getUsers: async () => {

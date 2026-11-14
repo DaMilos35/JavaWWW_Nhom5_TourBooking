@@ -103,6 +103,7 @@ const TourCard = ({ tour }) => {
   const rawSeats = Number(tour?.availableSeats !== undefined ? tour.availableSeats : (tour?.available_seats !== undefined ? tour.available_seats : 6));
   const nominalSeats = rawSeats <= 0 ? 0 : (rawSeats <= 10 ? rawSeats : 6);
   const seats = Math.max(0, nominalSeats - bookedCount);
+  const isTourActive = tour?.status ? tour.status === 'ACTIVE' : (tour?.isActive === false || tour?.is_active === 0 ? false : true);
   const price = Number(tour.price || 0);
   const originalPrice = Number(tour.originalPrice || tour.original_price || 0);
   const hasDiscount = originalPrice > price;
@@ -130,6 +131,10 @@ const TourCard = ({ tour }) => {
   const handleQuickAdd = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isTourActive) {
+      toast.warn('Tour du lịch này hiện đang tạm ẩn / đóng nhận khách');
+      return;
+    }
     if (!user) {
       toast.info('Vui lòng đăng nhập tài khoản để đặt tour!');
       navigate('/login', { state: { from: location } });
@@ -180,8 +185,14 @@ const TourCard = ({ tour }) => {
             </span>
           </div>
 
-          {/* Huy hiệu số lượng chỗ khả dụng */}
-          {seats <= 0 ? (
+          {/* Huy hiệu số lượng chỗ khả dụng hoặc trạng thái mở bán */}
+          {!isTourActive ? (
+            <div className="tc-seats-corner">
+              <span className="tc-status-pill pill-inactive" style={{ background: 'rgba(100, 116, 139, 0.95)', color: '#ffffff' }}>
+                Tạm ngừng nhận chỗ
+              </span>
+            </div>
+          ) : seats <= 0 ? (
             <div className="tc-seats-corner">
               <span className="tc-status-pill pill-soldout">Hết chỗ</span>
             </div>
@@ -261,11 +272,11 @@ const TourCard = ({ tour }) => {
               <button
                 type="button"
                 className="btn-quick-add"
-                title="Đặt chỗ ngay tour này"
-                disabled={seats <= 0}
+                title={!isTourActive ? 'Tour này hiện đang tạm ẩn hoặc ngừng mở bán' : (seats <= 0 ? 'Tour hiện đã hết chỗ' : 'Đặt chỗ ngay tour này')}
+                disabled={seats <= 0 || !isTourActive}
                 onClick={handleQuickAdd}
               >
-                <FaShoppingCart className="btn-cart-icon" /> <span>{seats > 0 ? 'Đặt ngay' : 'Hết chỗ'}</span>
+                <FaShoppingCart className="btn-cart-icon" /> <span>{!isTourActive ? 'Tạm ẩn' : (seats > 0 ? 'Đặt ngay' : 'Hết chỗ')}</span>
               </button>
             </div>
           </div>

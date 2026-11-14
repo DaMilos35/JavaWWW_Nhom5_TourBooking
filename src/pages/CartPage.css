@@ -37,10 +37,36 @@
   top: 90px; 
 }
 
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .cart-table { 
   width: 100%; 
+  min-width: 640px;
   border-collapse: separate; 
-  border-spacing: 0 10px; 
+  border-spacing: 0; 
+  table-layout: fixed;
 }
 
 .cart-table th { 
@@ -48,16 +74,50 @@
   font-weight: 700; 
   text-transform: uppercase; 
   font-size: 0.82rem; 
-  padding-bottom: 12px; 
-  border-bottom: 1.5px solid #e2e8f0; 
-  text-align: left;
+  padding: 12px 10px; 
+  border-bottom: 2px solid #e2e8f0; 
 }
 
 .cart-table td { 
-  padding: 16px 0; 
+  padding: 16px 10px; 
   border-bottom: 1px solid #f1f5f9; 
   vertical-align: middle; 
   color: #1e293b;
+}
+
+.cart-table th:first-child, .cart-table td:first-child {
+  padding-left: 0;
+}
+
+.cart-table th:last-child, .cart-table td:last-child {
+  padding-right: 0;
+}
+
+.col-product, .cart-table th:nth-child(1), .cart-table td:nth-child(1) {
+  width: 44%;
+  text-align: left;
+}
+
+.col-price, .cart-table th:nth-child(2), .cart-table td:nth-child(2) {
+  width: 17%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.col-qty, .cart-table th:nth-child(3), .cart-table td:nth-child(3) {
+  width: 17%;
+  text-align: center;
+}
+
+.col-total, .cart-table th:nth-child(4), .cart-table td:nth-child(4) {
+  width: 16%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.col-action, .cart-table th:nth-child(5), .cart-table td:nth-child(5) {
+  width: 6%;
+  text-align: center;
 }
 
 .product-col { 
@@ -72,6 +132,20 @@
   object-fit: cover; 
   border-radius: 8px; 
   border: 1px solid #e2e8f0;
+}
+
+.product-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.product-info .tour-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .tour-name { 
@@ -124,6 +198,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto;
 }
 
 .btn-delete:hover { 
@@ -200,6 +275,7 @@
   border-radius: 8px;
   overflow: hidden;
   background: #ffffff;
+  margin: 0 auto;
 }
 
 .cart-qty button {
@@ -229,7 +305,7 @@
   outline: none;
 }
 
-@media (max-width: 900px) { 
+@media (max-width: 1024px) { 
   .cart-layout { 
     flex-direction: column; 
   } 

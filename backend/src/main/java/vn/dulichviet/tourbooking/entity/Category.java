@@ -27,4 +27,7 @@ public class Category {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "ACTIVE";
 }

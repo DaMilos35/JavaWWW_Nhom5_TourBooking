@@ -941,22 +941,66 @@
 
 .breakdown-total-row {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.breakdown-subrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #475569;
+  width: 100%;
+}
+
+.breakdown-subrow.discount-subrow {
+  color: #10b981;
+}
+
+.breakdown-total-main {
+  display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+  margin-top: 2px;
+  width: 100%;
+}
+
+.total-label-box {
+  flex: 1;
 }
 
 .total-title {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+.payment-stage-note {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 2px;
 }
 
 .final-price-text {
-  font-size: 1.55rem;
+  font-size: 1.6rem;
   font-weight: 900;
   color: #ff5e1f;
   letter-spacing: -0.5px;
+  display: block;
+  line-height: 1.1;
+}
+
+.payment-remaining-note {
+  font-size: 0.82rem;
+  color: #b45309;
+  margin-top: 6px;
+  font-weight: 600;
 }
 
 /* ---------------- TRUST BADGES ---------------- */

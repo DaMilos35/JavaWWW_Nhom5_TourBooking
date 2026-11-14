@@ -12,14 +12,14 @@ COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 INSERT INTO `categories` VALUES
-(1,'Biển Đảo & Nghỉ Dưỡng','Khám phá các thiên đường biển đảo hàng đầu Việt Nam: Phú Quốc, Nha Trang, Côn Đảo, Quy Nhơn.','https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800'),
-(2,'Miền Bắc & Tây Bắc Mùa Vàng','Chinh phục nóc nhà Đông Dương Fansipan, ruộng bậc thang Mù Cang Chải, thung lũng Mộc Châu hoa mận nở rộ.','https://images.unsplash.com/photo-1528127269322-539801943592?w=800'),
-(3,'Di Sản & Văn Hóa Miền Trung','Con đường di sản Cố đô Huế, Phố cổ Hội An đèn lồng lung linh, Cầu Vàng Bà Nà Hills và Động Thiên Đường kỳ vĩ.','https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800'),
-(4,'Cao Nguyên & Đà Lạt Ngàn Hoa','Không khí se lạnh lãng mạn xứ sương mù Đà Lạt, đồi chè Cầu Đất bát ngát, văn hóa cồng chiêng đại ngàn Tây Nguyên.','https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800'),
-(5,'Sông Nước & Miệt Vườn Miền Tây','Trải nghiệm Chợ nổi Cái Răng tấp nập, chèo xuồng ba lá rừng tràm Trà Sư, thưởng thức trái cây miệt vườn trĩu quả.','https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'),
-(6,'Du Thuyền Hạng Sang 5 Sao','Nghỉ dưỡng đẳng cấp thượng lưu trên Vịnh Hạ Long, Vịnh Lan Hạ và du ngoạn ngắm hoàng hôn sông Sài Gòn rực rỡ.','https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800'),
-(7,'Trekking & Thám Hiểm Thiên Nhiên','Chinh phục Hang Én Quảng Bình, Thác K50 huyền thoại, đỉnh Lảo Thẩn, Tà Xùa săn mây cho tín đồ đam mê phiêu lưu.','https://images.unsplash.com/photo-1551632811-561732d1e306?w=800'),
-(8,'Tour Quốc Tế Chọn Lọc','Hành trình khám phá xứ chùa Vàng Bangkok - Pattaya, Singapore - Malaysia, Tokyo ngắm hoa anh đào, Seoul Hàn Quốc.','https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800');
+(1,'Biển Đảo & Nghỉ Dưỡng','Khám phá các thiên đường biển đảo hàng đầu Việt Nam: Phú Quốc, Nha Trang, Côn Đảo, Quy Nhơn.','https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800','ACTIVE'),
+(2,'Miền Bắc & Tây Bắc Mùa Vàng','Chinh phục nóc nhà Đông Dương Fansipan, ruộng bậc thang Mù Cang Chải, thung lũng Mộc Châu hoa mận nở rộ.','https://images.unsplash.com/photo-1528127269322-539801943592?w=800','ACTIVE'),
+(3,'Di Sản & Văn Hóa Miền Trung','Con đường di sản Cố đô Huế, Phố cổ Hội An đèn lồng lung linh, Cầu Vàng Bà Nà Hills và Động Thiên Đường kỳ vĩ.','https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800','ACTIVE'),
+(4,'Cao Nguyên & Đà Lạt Ngàn Hoa','Không khí se lạnh lãng mạn xứ sương mù Đà Lạt, đồi chè Cầu Đất bát ngát, văn hóa cồng chiêng đại ngàn Tây Nguyên.','https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800','ACTIVE'),
+(5,'Sông Nước & Miệt Vườn Miền Tây','Trải nghiệm Chợ nổi Cái Răng tấp nập, chèo xuồng ba lá rừng tràm Trà Sư, thưởng thức trái cây miệt vườn trĩu quả.','https://images.unsplash.com/photo-1528181304800-259b08848526?w=800','ACTIVE'),
+(6,'Du Thuyền Hạng Sang 5 Sao','Nghỉ dưỡng đẳng cấp thượng lưu trên Vịnh Hạ Long, Vịnh Lan Hạ và du ngoạn ngắm hoàng hôn sông Sài Gòn rực rỡ.','https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800','ACTIVE'),
+(7,'Trekking & Thám Hiểm Thiên Nhiên','Chinh phục Hang Én Quảng Bình, Thác K50 huyền thoại, đỉnh Lảo Thẩn, Tà Xùa săn mây cho tín đồ đam mê phiêu lưu.','https://images.unsplash.com/photo-1551632811-561732d1e306?w=800','ACTIVE'),
+(8,'Tour Quốc Tế Chọn Lọc','Hành trình khám phá xứ chùa Vàng Bangkok - Pattaya, Singapore - Malaysia, Tokyo ngắm hoa anh đào, Seoul Hàn Quốc.','https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800','ACTIVE');
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;

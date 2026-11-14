@@ -5,6 +5,13 @@ import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
+const CART_TOAST_CONFIG = {
+  autoClose: 3500,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true
+};
+
 const getCartStorageKey = (user) => {
   if (!user) return 'cart_guest';
   return `cart_${user.id || user.username}`;
@@ -41,6 +48,12 @@ export const CartProvider = ({ children }) => {
       return false;
     }
 
+    // Availability Guardrail: Chặn thêm tour không mở bán / tạm ẩn
+    if (tour && ((tour.status && tour.status !== 'ACTIVE') || tour.isActive === false || tour.is_active === 0)) {
+      toast.error('Tour này hiện đang tạm ẩn hoặc ngừng mở bán, không thể đặt chỗ', CART_TOAST_CONFIG);
+      return false;
+    }
+
     const tourId = tour.id || tour.tourId;
     const availableSeats = Number(tour.availableSeats) || 20;
     const existingItem = items.find((item) => String(item.tour.id || item.tour.tourId) === String(tourId));
@@ -59,11 +72,11 @@ export const CartProvider = ({ children }) => {
     }
 
     if (!Number.isFinite(availableSeats) || availableSeats <= 0) {
-      toast.error('Tour hiện không còn chỗ trống');
+      toast.error('Tour hiện không còn chỗ trống', CART_TOAST_CONFIG);
       return false;
     }
     if (nextQuantity > availableSeats) {
-      toast.error(`Số lượng trong giỏ không thể vượt quá ${availableSeats} chỗ còn lại`);
+      toast.error(`Số lượng trong giỏ không thể vượt quá ${availableSeats} chỗ còn lại`, CART_TOAST_CONFIG);
       return false;
     }
 
@@ -73,10 +86,10 @@ export const CartProvider = ({ children }) => {
           ? { ...item, tour: { ...item.tour, ...tour }, quantity: nextQuantity }
           : item
       ));
-      toast.success('Đã cập nhật số lượng trong giỏ hàng');
+      toast.success('Đã cập nhật số lượng trong giỏ hàng', CART_TOAST_CONFIG);
     } else {
       setItems((prevItems) => [...prevItems, { tour, quantity }]);
-      toast.success('Đã thêm tour vào giỏ hàng');
+      toast.success('Đã thêm tour vào giỏ hàng', CART_TOAST_CONFIG);
     }
     return true;
   };
@@ -85,7 +98,7 @@ export const CartProvider = ({ children }) => {
     setItems((prevItems) => prevItems.filter(
       (item) => String(item.tour.id || item.tour.tourId) !== String(tourId)
     ));
-    toast.info('Đã xóa khỏi giỏ hàng');
+    toast.info('Đã xóa khỏi giỏ hàng', CART_TOAST_CONFIG);
   };
 
   const updateQuantity = (tourId, quantity) => {
@@ -96,7 +109,7 @@ export const CartProvider = ({ children }) => {
     const item = items.find((cartItem) => String(cartItem.tour.id || cartItem.tour.tourId) === String(tourId));
     const availableSeats = Number(item?.tour.availableSeats) || 20;
     if (item && (!Number.isFinite(availableSeats) || quantity > availableSeats)) {
-      toast.error(`Số lượng không thể vượt quá ${Number.isFinite(availableSeats) ? availableSeats : 0} chỗ còn lại`);
+      toast.error(`Số lượng không thể vượt quá ${Number.isFinite(availableSeats) ? availableSeats : 0} chỗ còn lại`, CART_TOAST_CONFIG);
       return;
     }
     setItems((prevItems) =>

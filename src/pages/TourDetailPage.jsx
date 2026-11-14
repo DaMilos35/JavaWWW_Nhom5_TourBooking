@@ -373,6 +373,10 @@ const TourDetailPage = () => {
   };
 
   const handleAddToCart = () => {
+    if (tour && tour.status && tour.status !== 'ACTIVE') {
+      toast.error('Tour du lịch này hiện đang tạm ẩn / đóng nhận khách, không thể đặt chỗ');
+      return;
+    }
     if (!user) {
       toast.info('Vui lòng đăng nhập tài khoản để đặt tour!');
       navigate('/login', { state: { from: location } });
@@ -389,6 +393,10 @@ const TourDetailPage = () => {
   };
 
   const handleBuyNow = () => {
+    if (tour && tour.status && tour.status !== 'ACTIVE') {
+      toast.error('Tour du lịch này hiện đang tạm ẩn / đóng nhận khách, không thể đặt chỗ');
+      return;
+    }
     if (!user) {
       toast.info('Vui lòng đăng nhập tài khoản để tiến hành đặt tour!');
       navigate('/login', { state: { from: location } });
@@ -438,6 +446,7 @@ const TourDetailPage = () => {
   const badge = tour.badge || (hasDiscount ? 'HOT DEAL' : null);
   const hotelStar = tour.hotelStar || tour.hotel_star || 4;
   const vehicle = tour.vehicle || 'Xe du lịch cao cấp';
+  const isTourActive = tour?.status ? tour.status === 'ACTIVE' : (tour?.isActive === false || tour?.is_active === 0 ? false : true);
 
   // Group / B2B discount: from 10 guests
   const isB2bEligible = quantity >= 10;
@@ -626,6 +635,29 @@ const TourDetailPage = () => {
             )}
             <span className="active">{tour.name || tour.tourName}</span>
           </div>
+
+          {!isTourActive && (
+            <div className="alert alert-warning mb-4" style={{
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: '#92400e',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <FaExclamationTriangle style={{ color: '#d97706', fontSize: '1.3rem', flexShrink: 0 }} />
+              <div>
+                <h5 style={{ margin: '0 0 4px', fontWeight: 700, color: '#b45309', fontSize: '1rem' }}>
+                  Tour du lịch này hiện đang tạm ẩn / đóng nhận khách
+                </h5>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                  Tour du lịch này hiện đang tạm ẩn / đóng nhận khách, vui lòng chọn tour khác hoặc liên hệ hotline để được hỗ trợ.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="td-title-row">
             <div>
@@ -1477,6 +1509,27 @@ const TourDetailPage = () => {
           {/* Sticky Booking Sidebar Right Column */}
           <div className="td-sidebar">
             <div className="booking-card">
+              {!isTourActive && (
+                <div style={{
+                  background: '#fffbeb',
+                  border: '1px solid #fde68a',
+                  borderRadius: '10px',
+                  padding: '12px 14px',
+                  marginBottom: '16px',
+                  color: '#92400e',
+                  fontSize: '0.86rem',
+                  lineHeight: '1.4',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px'
+                }}>
+                  <FaExclamationTriangle style={{ color: '#d97706', fontSize: '1.1rem', flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <strong style={{ display: 'block', marginBottom: '2px', color: '#b45309' }}>Tour đang tạm ẩn</strong>
+                    Tour du lịch này hiện đang tạm ẩn / đóng nhận khách, vui lòng chọn tour khác hoặc liên hệ hotline để được hỗ trợ.
+                  </div>
+                </div>
+              )}
               <div className="price-box">
                 {hasDiscount && (
                   <div className="sidebar-original-row">
@@ -1555,15 +1608,15 @@ const TourDetailPage = () => {
                 <button
                   type="button"
                   className="btn btn-primary btn-full btn-buy-now"
-                  disabled={!availableSeats || departureHasPassed}
+                  disabled={!isTourActive || !availableSeats || departureHasPassed}
                   onClick={handleBuyNow}
                 >
-                  <FaBolt /> {departureHasPassed ? 'Lịch khởi hành đã qua' : availableSeats ? 'ĐẶT TOUR NGAY' : 'Hiện hết chỗ'}
+                  <FaBolt /> {!isTourActive ? 'Tạm ngừng nhận chỗ' : (departureHasPassed ? 'Lịch khởi hành đã qua' : availableSeats ? 'ĐẶT TOUR NGAY' : 'Hiện hết chỗ')}
                 </button>
                 <button
                   type="button"
                   className="btn btn-outline btn-full btn-add-cart"
-                  disabled={!availableSeats || departureHasPassed}
+                  disabled={!isTourActive || !availableSeats || departureHasPassed}
                   onClick={handleAddToCart}
                 >
                   <FaShoppingCart /> Thêm Vào Giỏ Hàng
@@ -1642,10 +1695,10 @@ const TourDetailPage = () => {
           <button
             type="button"
             className="btn btn-primary mobile-bar-buy-btn"
-            disabled={!availableSeats || departureHasPassed}
+            disabled={!isTourActive || !availableSeats || departureHasPassed}
             onClick={handleBuyNow}
           >
-            <FaBolt /> {availableSeats ? 'Đặt Ngay' : 'Hết chỗ'}
+            <FaBolt /> {!isTourActive ? 'Tạm ẩn' : (availableSeats ? 'Đặt Ngay' : 'Hết chỗ')}
           </button>
         </div>
       </div>

@@ -7,12 +7,25 @@ public record CategoryDto(
         String name,
         String description,
         String imageUrl,
-        Long tourCount) {
+        Long tourCount,
+        String status) {
+
+    public CategoryDto(Integer id, String name, String description, String imageUrl, Long tourCount) {
+        this(id, name, description, imageUrl, tourCount, "ACTIVE");
+    }
+
     public static CategoryDto from(Category c) {
         return from(c, null);
     }
 
     public static CategoryDto from(Category c, Long tourCount) {
-        return new CategoryDto(c.getId(), c.getName(), c.getDescription(), c.getImageUrl(), tourCount);
+        return new CategoryDto(
+                c.getId(),
+                c.getName(),
+                c.getDescription(),
+                c.getImageUrl(),
+                tourCount,
+                c.getStatus() != null ? c.getStatus() : "ACTIVE"
+        );
     }
 }

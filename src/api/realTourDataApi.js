@@ -97,14 +97,14 @@ function getProviderName(pid) {
 }
 
 export const REAL_CATEGORIES = [
-  { id: 1, categoryId: 1, name: 'Biển Đảo & Nghỉ Dưỡng', categoryName: 'Biển Đảo & Nghỉ Dưỡng', description: 'Khám phá các thiên đường biển đảo hàng đầu Việt Nam: Phú Quốc, Nha Trang, Côn Đảo, Quy Nhơn.', imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800' },
-  { id: 2, categoryId: 2, name: 'Miền Bắc & Tây Bắc Mùa Vàng', categoryName: 'Miền Bắc & Tây Bắc Mùa Vàng', description: 'Chinh phục nóc nhà Đông Dương Fansipan, ruộng bậc thang Mù Cang Chải, thung lũng Mộc Châu hoa mận nở rộ.', imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800' },
-  { id: 3, categoryId: 3, name: 'Di Sản & Văn Hóa Miền Trung', categoryName: 'Di Sản & Văn Hóa Miền Trung', description: 'Con đường di sản Cố đô Huế, Phố cổ Hội An đèn lồng lung linh, Cầu Vàng Bà Nà Hills và Động Thiên Đường kỳ vĩ.', imageUrl: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800' },
-  { id: 4, categoryId: 4, name: 'Cao Nguyên & Đà Lạt Ngàn Hoa', categoryName: 'Cao Nguyên & Đà Lạt Ngàn Hoa', description: 'Không khí se lạnh lãng mạn xứ sương mù Đà Lạt, đồi chè Cầu Đất bát ngát, văn hóa cồng chiêng đại ngàn Tây Nguyên.', imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800' },
-  { id: 5, categoryId: 5, name: 'Sông Nước & Miệt Vườn Miền Tây', categoryName: 'Sông Nước & Miệt Vườn Miền Tây', description: 'Trải nghiệm Chợ nổi Cái Răng tấp nập, chèo xuồng ba lá rừng tràm Trà Sư, thưởng thức trái cây miệt vườn trĩu quả.', imageUrl: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800' },
-  { id: 6, categoryId: 6, name: 'Du Thuyền Hạng Sang 5 Sao', categoryName: 'Du Thuyền Hạng Sang 5 Sao', description: 'Nghỉ dưỡng đẳng cấp thượng lưu trên Vịnh Hạ Long, Vịnh Lan Hạ và du ngoạn ngắm hoàng hôn sông Sài Gòn rực rỡ.', imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800' },
-  { id: 7, categoryId: 7, name: 'Trekking & Thám Hiểm Thiên Nhiên', categoryName: 'Trekking & Thám Hiểm Thiên Nhiên', description: 'Chinh phục Hang Én Quảng Bình, Thác K50 huyền thoại, đỉnh Lảo Thẩn, Tà Xùa săn mây cho tín đồ đam mê phiêu lưu.', imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800' },
-  { id: 8, categoryId: 8, name: 'Tour Quốc Tế Chọn Lọc', categoryName: 'Tour Quốc Tế Chọn Lọc', description: 'Hành trình khám phá xứ chùa Vàng Bangkok - Pattaya, Singapore - Malaysia, Tokyo ngắm hoa anh đào, Seoul Hàn Quốc.', imageUrl: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800' }
+  { id: 1, categoryId: 1, name: 'Biển Đảo & Nghỉ Dưỡng', categoryName: 'Biển Đảo & Nghỉ Dưỡng', description: 'Khám phá các thiên đường biển đảo hàng đầu Việt Nam: Phú Quốc, Nha Trang, Côn Đảo, Quy Nhơn.', imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', status: 'ACTIVE' },
+  { id: 2, categoryId: 2, name: 'Miền Bắc & Tây Bắc Mùa Vàng', categoryName: 'Miền Bắc & Tây Bắc Mùa Vàng', description: 'Chinh phục nóc nhà Đông Dương Fansipan, ruộng bậc thang Mù Cang Chải, thung lũng Mộc Châu hoa mận nở rộ.', imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800', status: 'ACTIVE' },
+  { id: 3, categoryId: 3, name: 'Di Sản & Văn Hóa Miền Trung', categoryName: 'Di Sản & Văn Hóa Miền Trung', description: 'Con đường di sản Cố đô Huế, Phố cổ Hội An đèn lồng lung linh, Cầu Vàng Bà Nà Hills và Động Thiên Đường kỳ vĩ.', imageUrl: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800', status: 'ACTIVE' },
+  { id: 4, categoryId: 4, name: 'Cao Nguyên & Đà Lạt Ngàn Hoa', categoryName: 'Cao Nguyên & Đà Lạt Ngàn Hoa', description: 'Không khí se lạnh lãng mạn xứ sương mù Đà Lạt, đồi chè Cầu Đất bát ngát, văn hóa cồng chiêng đại ngàn Tây Nguyên.', imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', status: 'ACTIVE' },
+  { id: 5, categoryId: 5, name: 'Sông Nước & Miệt Vườn Miền Tây', categoryName: 'Sông Nước & Miệt Vườn Miền Tây', description: 'Trải nghiệm Chợ nổi Cái Răng tấp nập, chèo xuồng ba lá rừng tràm Trà Sư, thưởng thức trái cây miệt vườn trĩu quả.', imageUrl: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800', status: 'ACTIVE' },
+  { id: 6, categoryId: 6, name: 'Du Thuyền Hạng Sang 5 Sao', categoryName: 'Du Thuyền Hạng Sang 5 Sao', description: 'Nghỉ dưỡng đẳng cấp thượng lưu trên Vịnh Hạ Long, Vịnh Lan Hạ và du ngoạn ngắm hoàng hôn sông Sài Gòn rực rỡ.', imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800', status: 'ACTIVE' },
+  { id: 7, categoryId: 7, name: 'Trekking & Thám Hiểm Thiên Nhiên', categoryName: 'Trekking & Thám Hiểm Thiên Nhiên', description: 'Chinh phục Hang Én Quảng Bình, Thác K50 huyền thoại, đỉnh Lảo Thẩn, Tà Xùa săn mây cho tín đồ đam mê phiêu lưu.', imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800', status: 'ACTIVE' },
+  { id: 8, categoryId: 8, name: 'Tour Quốc Tế Chọn Lọc', categoryName: 'Tour Quốc Tế Chọn Lọc', description: 'Hành trình khám phá xứ chùa Vàng Bangkok - Pattaya, Singapore - Malaysia, Tokyo ngắm hoa anh đào, Seoul Hàn Quốc.', imageUrl: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800', status: 'ACTIVE' }
 ];
 
 export function removeVietnameseTones(str) {
@@ -330,7 +330,51 @@ export const realCategoryApi = {
     return { data: REAL_CATEGORIES };
   },
   getById: async (id) => {
-    const cat = REAL_CATEGORIES.find((c) => c.id === Number(id));
+    const cat = REAL_CATEGORIES.find((c) => Number(c.id || c.categoryId) === Number(id));
     return { data: cat || REAL_CATEGORIES[0] };
+  },
+  create: async (data) => {
+    const newId = REAL_CATEGORIES.length > 0 ? Math.max(...REAL_CATEGORIES.map(c => Number(c.id || c.categoryId))) + 1 : 1;
+    const newCat = {
+      id: newId,
+      categoryId: newId,
+      name: data.name,
+      categoryName: data.name,
+      description: data.description || '',
+      imageUrl: data.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+      status: data.status || 'ACTIVE'
+    };
+    REAL_CATEGORIES.push(newCat);
+    return { data: newCat };
+  },
+  update: async (id, data) => {
+    const found = REAL_CATEGORIES.find((c) => Number(c.id || c.categoryId) === Number(id));
+    if (found) {
+      if (data.name) {
+        found.name = data.name;
+        found.categoryName = data.name;
+      }
+      if (data.description !== undefined) found.description = data.description;
+      if (data.imageUrl !== undefined) found.imageUrl = data.imageUrl;
+      if (data.status !== undefined) found.status = data.status;
+      return { data: found };
+    }
+    throw new Error('Không tìm thấy danh mục');
+  },
+  toggleStatus: async (id) => {
+    const found = REAL_CATEGORIES.find((c) => Number(c.id || c.categoryId) === Number(id));
+    if (found) {
+      found.status = found.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+      return { data: found };
+    }
+    throw new Error('Không tìm thấy danh mục');
+  },
+  delete: async (id) => {
+    const found = REAL_CATEGORIES.find((c) => Number(c.id || c.categoryId) === Number(id));
+    if (found) {
+      found.status = 'INACTIVE';
+      return { data: { success: true, message: 'Đã chuyển danh mục sang tạm ẩn' } };
+    }
+    throw new Error('Không tìm thấy danh mục');
   }
 };
