@@ -214,10 +214,19 @@
 .tc-kicker {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 8px;
   min-width: 0;
   margin-bottom: 8px;
+}
+
+.tc-kicker-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
 }
 
 .tc-category-tag {
@@ -225,12 +234,12 @@
   font-weight: 700;
   text-transform: uppercase;
   color: #0284c7;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
-  flex: 0 1 auto;
+  flex-shrink: 1;
 }
 
 .tc-rating {

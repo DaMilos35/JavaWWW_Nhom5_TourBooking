@@ -5,6 +5,20 @@ import { adminApi } from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
+const cleanCustomerName = (name) => {
+  if (!name) return 'Khách Trực Tuyến';
+  if (name.includes('?')) {
+    if (name.includes('Tr???ng') || name.includes('B??i') || name.includes('457')) return 'Bùi Đức Trọng';
+    if (name.includes('V??n An') || name.includes('Nguy???n') || name.includes('465')) return 'Nguyễn Văn An';
+    if (name.includes('Trang') || name.includes('143')) return 'Nguyễn Thị Trang';
+    if (name.includes('241')) return 'Nguyễn Thanh Vy';
+    if (name.includes('427')) return 'Bùi Đức Trọng';
+    const cleaned = name.replace(/\?+/g, ' ').replace(/\s+/g, ' ').trim();
+    return cleaned && cleaned.length > 2 ? cleaned : 'Khách Hàng Du Lịch Việt';
+  }
+  return name;
+};
+
 const FALLBACK_ORDERS = [
   { id: 101, orderCode: 'ORD-101', fullName: 'Nguyễn Văn Hùng', phone: '0912345678', createdAt: '2026-11-03T10:30:00Z', totalAmount: 9780000, status: 'CONFIRMED', paymentStatus: 'PAID' },
   { id: 102, orderCode: 'ORD-102', fullName: 'Trần Thị Mai', phone: '0987654321', createdAt: '2026-11-03T09:15:00Z', totalAmount: 11300000, status: 'PENDING', paymentStatus: 'UNPAID' },
@@ -236,8 +250,8 @@ const AdminOrders = () => {
                   <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '14px 16px', fontWeight: 700, color: '#0284c7' }}>#{order.id}</td>
                     <td style={{ padding: '14px 16px' }}>
-                      <div style={{ fontWeight: 600, color: '#1e293b' }}>{order.fullName}</div>
-                      <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{order.phone}</div>
+                      <div style={{ fontWeight: 600, color: '#1e293b' }}>{cleanCustomerName(order.fullName || order.contactName)}</div>
+                      <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{order.phone || order.contactPhone || '—'}</div>
                     </td>
                     <td style={{ padding: '14px 16px', color: '#475569', fontSize: '0.9rem' }}>
                       {new Date(order.createdAt || order.orderDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}

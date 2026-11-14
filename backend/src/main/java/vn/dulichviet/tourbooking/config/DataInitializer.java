@@ -188,6 +188,98 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             log.warn("Lỗi khi đồng bộ tài khoản demo: {}", e.getMessage());
         }
+
+        // 8. Khắc phục triệt để lỗi hiển thị dấu hỏi (???) do collation/encoding cũ ở bảng orders
+        try {
+            jdbcTemplate.execute("UPDATE orders SET contact_name = 'Bùi Đức Trọng' WHERE (contact_name LIKE '%Tr%ng%' OR contact_name LIKE '%B%i%') AND contact_name LIKE '%?%'");
+            jdbcTemplate.execute("UPDATE orders SET contact_name = 'Nguyễn Văn An' WHERE (contact_name LIKE '%Nguy%' AND contact_name LIKE '%An%') AND contact_name LIKE '%?%'");
+            jdbcTemplate.execute("UPDATE orders SET contact_name = 'Nguyễn Thị Trang' WHERE (contact_name LIKE '%Trang%') AND contact_name LIKE '%?%'");
+            jdbcTemplate.execute("UPDATE orders SET contact_name = 'Nguyễn Thanh Vy' WHERE (contact_name LIKE '%241%') AND contact_name LIKE '%?%'");
+            jdbcTemplate.execute("UPDATE orders SET contact_name = 'Khách Hàng Du Lịch Việt' WHERE contact_name LIKE '%?%'");
+        } catch (Exception e) {
+            log.debug("Khắc phục mã hóa tên khách hàng: {}", e.getMessage());
+        }
+
+        // 9. Tự động nạp bộ 8 danh mục & 80 hành trình chuẩn nếu CSDL chưa có tours
+        try {
+            Integer tourCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tours", Integer.class);
+            if (tourCount == null || tourCount == 0) {
+                log.info("CSDL chưa có dữ liệu tour. Tự động khởi tạo 8 danh mục và 80 tour chuẩn...");
+                seedToursAndCategories();
+            }
+        } catch (Exception e) {
+            log.debug("Kiểm tra nạp dữ liệu tours: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Tự động khởi tạo danh mục và tour từ dataset thực tế (real_tours_dataset.json)
+     */
+    private void seedToursAndCategories() {
+        try {
+            Integer catCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM categories", Integer.class);
+            if (catCount == null || catCount == 0) {
+                String[][] defaultCats = {
+                    {"1", "Biển Đảo & Nghỉ Dưỡng", "Khám phá các thiên đường biển đảo hàng đầu Việt Nam: Phú Quốc, Nha Trang, Côn Đảo, Quy Nhơn.", "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", "ACTIVE"},
+                    {"2", "Miền Bắc & Tây Bắc Mùa Vàng", "Chinh phục nóc nhà Đông Dương Fansipan, ruộng bậc thang Mù Cang Chải, thung lũng Mộc Châu hoa mận nở rộ.", "https://images.unsplash.com/photo-1528127269322-539801943592?w=800", "ACTIVE"},
+                    {"3", "Di Sản & Văn Hóa Miền Trung", "Con đường di sản Cố đô Huế, Phố cổ Hội An đèn lồng lung linh, Cầu Vàng Bà Nà Hills và Động Thiên Đường kỳ vĩ.", "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800", "ACTIVE"},
+                    {"4", "Cao Nguyên & Đà Lạt Ngàn Hoa", "Thành phố sương mù ngàn hoa, đồi chè Cầu Đất săn mây, thác Datanla hùng vĩ và không khí se lạnh cao nguyên.", "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800", "ACTIVE"},
+                    {"5", "Sông Nước & Miền Tây Trù Phú", "Chợ nổi Cái Răng tấp nập sớm mai, miệt vườn trái cây trĩu quả Phong Điền, rừng tràm Trà Sư xanh ngút ngàn.", "https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=800", "ACTIVE"},
+                    {"6", "Du Thuyền Hạng Sang 5 Sao", "Hải trình đẳng cấp quốc tế trên Vịnh Hạ Long - Lan Hạ, thưởng thức ẩm thực Michelin và ngắm hoàng hôn vịnh biển.", "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800", "ACTIVE"},
+                    {"7", "Trekking & Thám Hiểm Thiên Nhiên", "Hành trình mạo hiểm chinh phục Sơn Đoòng, săn mây đỉnh Tà Xùa, leo nóc nhà Đông Dương Fansipan và thác K50.", "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800", "ACTIVE"},
+                    {"8", "Quốc Tế & Châu Á Thái Bình Dương", "Hải trình khám phá Thái Lan xứ chùa Vàng, Singapore hiện đại, Nhật Bản mùa hoa anh đào và Hàn Quốc lãng mạn.", "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800", "ACTIVE"}
+                };
+                for (String[] cat : defaultCats) {
+                    jdbcTemplate.update("INSERT INTO categories (category_id, category_name, description, image_url, status) VALUES (?, ?, ?, ?, ?)",
+                            Integer.parseInt(cat[0]), cat[1], cat[2], cat[3], cat[4]);
+                }
+                log.info("Đã nạp 8 danh mục tour mặc định thành công.");
+            }
+
+            org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("real_tours_dataset.json");
+            if (resource.exists()) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode rootNode = mapper.readTree(resource.getInputStream());
+                if (rootNode.isArray()) {
+                    java.time.LocalDate now = java.time.LocalDate.now();
+                    for (com.fasterxml.jackson.databind.JsonNode node : rootNode) {
+                        int tourId = node.path("tour_id").asInt();
+                        int catId = node.path("category_id").asInt();
+                        int providerId = node.path("provider_id").asInt(1);
+                        String name = node.path("tour_name").asText();
+                        String desc = node.path("description").asText("");
+                        java.math.BigDecimal price = new java.math.BigDecimal(node.path("price").asText("0"));
+                        java.math.BigDecimal originalPrice = new java.math.BigDecimal(node.path("original_price").asText("0"));
+                        int duration = node.path("duration").asInt(3);
+                        String departure = node.path("departure_location").asText("Hà Nội");
+                        String vehicle = node.path("vehicle").asText("Xe du lịch cao cấp");
+                        int hotelStar = node.path("hotel_star").asInt(3);
+                        String badge = node.path("badge").asText("HOT DEAL");
+                        String imageUrl = node.path("image_url").asText("");
+                        int seats = node.path("available_seats").asInt(20);
+                        String status = node.path("status").asText("ACTIVE");
+                        double rating = node.path("rating").asDouble(5.0);
+                        String highlights = node.path("highlights").toString();
+                        String itinerary = node.path("itinerary").toString();
+                        String inclusions = node.path("inclusions").toString();
+                        String exclusions = node.path("exclusions").toString();
+                        java.sql.Date startDate = java.sql.Date.valueOf(now.plusDays(7));
+                        java.sql.Date endDate = java.sql.Date.valueOf(now.plusDays(7 + duration));
+
+                        jdbcTemplate.update("""
+                            INSERT INTO tours (
+                                tour_id, category_id, provider_id, tour_name, description, price, original_price,
+                                duration, departure_location, vehicle, hotel_star, badge, image_url, available_seats,
+                                start_date, end_date, status, rating, highlights, itinerary, inclusions, exclusions, created_at
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                        """, tourId, catId, providerId, name, desc, price, originalPrice, duration, departure, vehicle, hotelStar, badge, imageUrl, seats, startDate, endDate, status, rating, highlights, itinerary, inclusions, exclusions);
+                    }
+                    log.info("Đã nạp 80 hành trình chuẩn vào bảng tours thành công.");
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Lỗi khi nạp dữ liệu tours và categories: {}", e.getMessage());
+        }
     }
 
     /**

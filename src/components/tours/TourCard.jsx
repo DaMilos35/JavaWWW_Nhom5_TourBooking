@@ -96,6 +96,18 @@ const TourCard = ({ tour }) => {
   };
 
   const categoryName = tour.category?.name || tour.category?.categoryName || tour.categoryName || 'Tour Du Lịch';
+  const formatCategoryDisplay = (name) => {
+    if (!name) return 'Tour Du Lịch';
+    if (name.includes('Trekking & Thám Hiểm')) return 'Trekking & Thám Hiểm';
+    if (name.includes('Biển Đảo & Nghỉ Dưỡng')) return 'Biển Đảo & Nghỉ Dưỡng';
+    if (name.includes('Miền Bắc & Tây Bắc')) return 'Miền Bắc & Tây Bắc';
+    if (name.includes('Di Sản & Văn Hóa')) return 'Di Sản Miền Trung';
+    if (name.includes('Cao Nguyên & Đà Lạt')) return 'Cao Nguyên & Đà Lạt';
+    if (name.includes('Sông Nước & Miền Tây')) return 'Sông Nước Miền Tây';
+    if (name.includes('Du Thuyền Hạng Sang')) return 'Du Thuyền Cao Cấp';
+    if (name.includes('Quốc Tế & Châu Á')) return 'Châu Á & Toàn Cầu';
+    return name;
+  };
   const saved = isSaved(tour);
 
   // Đồng bộ logic tính số chỗ khả dụng với TourDetailPage:
@@ -207,16 +219,18 @@ const TourCard = ({ tour }) => {
 
         <div className="tc-content">
           <div className="tc-kicker">
-            <span className="tc-category-tag">{categoryName}</span>
-            {isInternationalTour(tour) ? (
-              <span className="tc-domain-pill pill-intl" title="Hành trình Quốc Tế: Bay quốc tế, bảo hiểm toàn cầu 1 Tỷ, hỗ trợ Visa trọn gói">
-                <FaGlobeAsia style={{ fontSize: '0.62rem', marginRight: '3px' }} /> Quốc Tế
-              </span>
-            ) : (
-              <span className="tc-domain-pill pill-dom" title="Hành trình Nội Địa: Thủ tục CCCD nhanh gọn, bảo hiểm 100 Triệu">
-                Nội Địa
-              </span>
-            )}
+            <div className="tc-kicker-left">
+              <span className="tc-category-tag" title={categoryName}>{formatCategoryDisplay(categoryName)}</span>
+              {isInternationalTour(tour) ? (
+                <span className="tc-domain-pill pill-intl" title="Hành trình Quốc Tế: Bay quốc tế, bảo hiểm toàn cầu 1 Tỷ, hỗ trợ Visa trọn gói">
+                  <FaGlobeAsia style={{ fontSize: '0.62rem', marginRight: '3px' }} /> Quốc Tế
+                </span>
+              ) : (
+                <span className="tc-domain-pill pill-dom" title="Hành trình Nội Địa: Thủ tục CCCD nhanh gọn, bảo hiểm 100 Triệu">
+                  Nội Địa
+                </span>
+              )}
+            </div>
             <span className="tc-rating">
               <FaStar className="star-icon" /> {Number(tour.rating || 5).toFixed(1)}
             </span>

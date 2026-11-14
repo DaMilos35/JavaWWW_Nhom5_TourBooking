@@ -125,7 +125,7 @@ export const tourApi = {
         }
       });
       const res = await api.get('/tours/filter?' + query.toString());
-      if (res.data && Array.isArray(res.data)) return res;
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res;
       return await realTourApi.filter(params);
     } catch (e) {
       console.warn('Backend Filter API fallback to client-side Specification filter:', e.message);
@@ -135,7 +135,7 @@ export const tourApi = {
   search: async (keyword) => {
     try {
       const res = await api.get('/tours/search?keyword=' + encodeURIComponent(keyword));
-      if (res.data && Array.isArray(res.data)) return res;
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res;
       return await realTourApi.search(keyword);
     } catch (e) {
       return await realTourApi.search(keyword);

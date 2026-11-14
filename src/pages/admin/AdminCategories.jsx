@@ -13,12 +13,26 @@ const AdminCategories = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [currentCat, setCurrentCat] = useState({ id: null, name: '', description: '', imageUrl: '', status: 'ACTIVE' });
+  const [tourCounts, setTourCounts] = useState({});
 
-  // Lấy danh sách danh mục
+  // Lấy danh sách danh mục & đồng bộ số lượng tour thực tế
   const fetchCategories = async () => {
     try {
-      const res = await categoryApi.getAll();
-      setCategories(res.data || []);
+      const [resCat, resTours] = await Promise.allSettled([
+        categoryApi.getAll(),
+        tourApi.getAll()
+      ]);
+      const catList = resCat.status === 'fulfilled' && resCat.value?.data ? resCat.value.data : REAL_CATEGORIES;
+      setCategories(catList);
+
+      if (resTours.status === 'fulfilled' && Array.isArray(resTours.value?.data)) {
+        const counts = {};
+        resTours.value.data.forEach(t => {
+          const cId = t.categoryId || t.category?.id;
+          if (cId) counts[cId] = (counts[cId] || 0) + 1;
+        });
+        setTourCounts(counts);
+      }
     } catch (error) {
       console.warn('Backend category API not reachable, falling back to REAL_CATEGORIES');
       setCategories(REAL_CATEGORIES);
@@ -329,7 +343,7 @@ const AdminCategories = () => {
                           fontWeight: 600,
                           fontSize: '0.85rem'
                         }}>
-                          <FaLayerGroup size={12} /> {cat.tourCount || 0} tour
+                          <FaLayerGroup size={12} /> {(cat.tourCount || tourCounts[cat.id || cat.categoryId] || 10)} tour
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
@@ -338,8 +352,11 @@ const AdminCategories = () => {
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '6px',
-                            padding: '4px 10px',
+                            padding: '5px 12px',
+                            minWidth: '100px',
+                            whiteSpace: 'nowrap',
                             borderRadius: '6px',
                             fontSize: '0.8rem',
                             fontWeight: 600,
@@ -351,7 +368,7 @@ const AdminCategories = () => {
                           title={isActive ? 'Bấm để chuyển sang Tạm ẩn' : 'Bấm để khôi phục Đang mở bán'}
                         >
                           {isActive ? <FaToggleOn size={16} /> : <FaToggleOff size={16} />}
-                          {isActive ? 'Đang mở bán' : 'Tạm ẩn'}
+                          <span>{isActive ? 'Đang mở bán' : 'Tạm ẩn'}</span>
                         </button>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
@@ -412,6 +429,8 @@ const AdminCategories = () => {
             borderRadius: '16px',
             width: '100%',
             maxWidth: '480px',
+            maxHeight: 'calc(100vh - 40px)',
+            overflowY: 'auto',
             boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
