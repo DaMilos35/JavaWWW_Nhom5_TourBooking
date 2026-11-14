@@ -206,9 +206,14 @@
 /* Layout */
 .td-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 36px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 32px;
   align-items: start;
+}
+
+.td-main {
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Features Highlight Box */
@@ -460,6 +465,9 @@
 .td-sidebar {
   position: sticky;
   top: 90px;
+  width: 100%;
+  max-width: 380px;
+  min-width: 320px;
   height: fit-content;
   max-height: calc(100vh - 105px);
   overflow-y: auto;
