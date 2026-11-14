@@ -357,27 +357,27 @@ const AdminCategories = () => {
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                         <div style={{ display: 'inline-flex', gap: '6px' }}>
                           <button 
-                            style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }} 
+                            style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', width: '32px', height: '32px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} 
                             onClick={() => handleOpenModal(cat)}
                             title="Chỉnh sửa"
                           >
-                            <FaEdit />
+                            <FaEdit size={13} />
                           </button>
                           {isActive ? (
                             <button 
-                              style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }} 
+                              style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', width: '32px', height: '32px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} 
                               onClick={() => handleDelete(cat)}
                               title="Tạm ẩn danh mục (Soft-delete)"
                             >
-                              <FaTrash />
+                              <FaTrash size={13} />
                             </button>
                           ) : (
                             <button 
-                              style={{ background: '#dcfce7', color: '#15803d', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600, fontSize: '0.8rem' }} 
+                              style={{ background: '#dcfce7', color: '#15803d', border: 'none', width: '32px', height: '32px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} 
                               onClick={() => handleRestore(cat)}
                               title="Khôi phục mở bán"
                             >
-                              <FaUndo size={12} /> Khôi phục
+                              <FaUndo size={13} />
                             </button>
                           )}
                         </div>
