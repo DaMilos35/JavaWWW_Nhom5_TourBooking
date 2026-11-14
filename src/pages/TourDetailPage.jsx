@@ -1258,7 +1258,8 @@ const TourDetailPage = () => {
                         <FaBuilding style={{ color: '#16a34a' }} /> Chính Sách Khách Đoàn Doanh Nghiệp (B2B)
                       </div>
                       <ul className="policy-card-list">
-                        <li><strong>Chiết khấu 5%:</strong> Tự động giảm trực tiếp khi đăng ký đoàn từ 10 khách trở lên.</li>
+                        <li><strong>Chiết khấu 5%:</strong> Tự động giảm trực tiếp cho đoàn từ 10 - 19 khách.</li>
+                        <li><strong>Chiết khấu 10%:</strong> Tự động giảm trực tiếp cho đoàn từ 20 khách trở lên.</li>
                         <li><strong>Hóa đơn VAT điện tử:</strong> Hỗ trợ xuất hóa đơn tài chính hợp lệ ngay trong ngày.</li>
                         <li><strong>Gala Dinner & Teambuilding:</strong> Hỗ trợ thiết kế backdrop chụp ảnh và MC teambuilding.</li>
                       </ul>

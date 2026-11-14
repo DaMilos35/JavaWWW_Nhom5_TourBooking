@@ -935,6 +935,22 @@ const CheckoutPage = () => {
                             onChange={() => setPaymentPlan('DEPOSIT')} 
                           />
                           Đặt cọc giữ chỗ {depositPercent}%
+                          <span 
+                            className="deposit-tooltip-trigger" 
+                            title={hasIntlTour
+                              ? 'Tour Quốc Tế: Bắt buộc đặt cọc 50% để tiến hành nộp hồ sơ xin Visa và cam kết đặt chỗ vé máy bay quốc tế (thay vì 30% như tour nội địa).'
+                              : 'Tour Nội Địa: Áp dụng mức cọc linh hoạt 30% để giữ chỗ. Với tour Quốc tế áp dụng cọc 50% do quy định giữ vé máy bay và xét duyệt Visa.'}
+                            style={{
+                              marginLeft: '6px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              cursor: 'help',
+                              color: '#0284c7'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <FaInfoCircle size={14} />
+                          </span>
                         </span>
                         <span className="plan-badge deposit">CHỈ TRẢ TRƯỚC {depositPercent}%</span>
                       </div>
@@ -944,6 +960,29 @@ const CheckoutPage = () => {
                           ? 'Thanh toán trước 50% để khóa vé máy bay quốc tế và nộp hồ sơ xin Visa. Số tiền 50% còn lại thanh toán trước ngày khởi hành 15 ngày.'
                           : 'Chỉ cần thanh toán trước 30% để chốt chỗ giữ vé. Số tiền 70% còn lại thanh toán trước ngày khởi hành 7 ngày.'}
                       </p>
+                      <div 
+                        className="deposit-reason-info"
+                        style={{
+                          marginTop: '8px',
+                          padding: '8px 10px',
+                          backgroundColor: '#f0f9ff',
+                          borderRadius: '6px',
+                          border: '1px solid #bae6fd',
+                          fontSize: '0.8rem',
+                          color: '#0369a1',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '6px'
+                        }}
+                      >
+                        <FaInfoCircle style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
+                        <span>
+                          <strong>{hasIntlTour ? 'Chính sách cọc Quốc Tế 50%:' : 'Chính sách cọc Nội Địa 30%:'}</strong>{' '}
+                          {hasIntlTour 
+                            ? 'Bắt buộc cọc 50% để phục vụ quy trình xét duyệt hồ sơ Visa và cam kết giữ chỗ vé máy bay quốc tế.'
+                            : 'Mức cọc 30% giữ chỗ linh hoạt. Tour Quốc Tế yêu cầu cọc 50% do thủ tục hồ sơ Visa và vé máy bay.'}
+                        </span>
+                      </div>
                       <div className="plan-installment-detail">
                         <span>Đợt 2 ({100 - depositPercent}%): <strong>{formatPrice(remainingAmount)}</strong></span>
                       </div>

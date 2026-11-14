@@ -25,7 +25,7 @@ import {
 import './Navbar.css';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isStaff, isAdmin } = useAuth();
   const { getTotalItems } = useCart();
   const { savedTours } = useWishlist();
   const navigate = useNavigate();
@@ -36,6 +36,9 @@ const Navbar = () => {
   const [notificationError, setNotificationError] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navRef = useRef(null);
+
+  const userRole = String(user?.role || '').replace(/^ROLE_/, '').trim().toUpperCase();
+  const canAccessAdmin = (typeof isStaff === 'function' && isStaff()) || (typeof isAdmin === 'function' && isAdmin()) || userRole === 'ADMIN' || userRole === 'PROVIDER';
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -157,8 +160,8 @@ const Navbar = () => {
             <kbd className="nav-omni-kbd">⌘K</kbd>
           </button>
 
-          {/* Nút vào nhanh trang Quản Trị dành cho Admin */}
-          {user?.role === 'ADMIN' && (
+          {/* Nút vào nhanh trang Quản Trị dành cho Admin và Đối Tác */}
+          {canAccessAdmin && (
             <Link 
               to="/admin" 
               className="btn btn-outline admin-quick-btn"
@@ -278,7 +281,7 @@ const Navbar = () => {
               
               {openPanel === 'account' && (
                 <div className="dropdown-menu" role="menu">
-                  {user.role === 'ADMIN' && (
+                  {canAccessAdmin && (
                     <Link to="/admin" className="dropdown-item" role="menuitem" onClick={() => setOpenPanel(null)}>
                       <FaCog /> <span>Trang Quản Trị Hệ Thống</span>
                     </Link>
@@ -343,7 +346,7 @@ const Navbar = () => {
                 <li>
                   <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)}>Tour đã lưu ({savedTours.length})</Link>
                 </li>
-                {user.role === 'ADMIN' && (
+                {canAccessAdmin && (
                   <li>
                     <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>
                       <FaCog /> Trang Quản Trị Hệ Thống

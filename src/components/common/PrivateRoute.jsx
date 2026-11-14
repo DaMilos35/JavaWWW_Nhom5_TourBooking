@@ -16,7 +16,7 @@ export const PrivateRoute = ({ children }) => {
 };
 
 export const AdminRoute = ({ children }) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const { isAuthenticated, isAdmin, isStaff, user, loading } = useAuth();
   const location = useLocation();
 
   if (loading) return null;
@@ -25,7 +25,10 @@ export const AdminRoute = ({ children }) => {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  return isAdmin() ? (
+  const role = String(user?.role || '').replace(/^ROLE_/, '').trim().toUpperCase();
+  const hasAccess = (typeof isStaff === 'function' && isStaff()) || (typeof isAdmin === 'function' && isAdmin()) || role === 'PROVIDER' || role === 'ADMIN';
+
+  return hasAccess ? (
     children
   ) : (
     <Navigate to="/" replace />

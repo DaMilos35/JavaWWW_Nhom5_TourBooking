@@ -200,6 +200,12 @@ export const AuthProvider = ({ children }) => {
     return r === 'ADMIN' || r.includes('ADMIN');
   };
 
+  const isStaff = () => {
+    if (!user || !user.role) return false;
+    const r = String(user.role).replace(/^ROLE_/, '').trim().toUpperCase();
+    return r === 'ADMIN' || r.includes('ADMIN') || r === 'PROVIDER' || r.includes('PROVIDER');
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
@@ -209,6 +215,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     isAdmin,
+    isStaff,
   };
 
   return (

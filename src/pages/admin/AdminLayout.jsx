@@ -29,6 +29,10 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
+  const userRole = String(user?.role || '').replace(/^ROLE_/, '').trim().toUpperCase();
+  const isProvider = userRole === 'PROVIDER' || userRole.includes('PROVIDER');
+  const roleBadgeText = isProvider ? 'Đối Tác Lữ Hành' : 'Quản Trị Viên';
+
   // Tải số lượng đơn hàng đang chờ xử lý để hiển thị thông báo
   useEffect(() => {
     const fetchPendingOrders = async () => {
@@ -89,12 +93,12 @@ const AdminLayout = () => {
         <div className="sidebar-brand">
           <Link to="/admin">
             <div className="brand-icon"><FaCompass /></div>
-            {sidebarOpen && <span className="brand-text">Admin Panel</span>}
+            {sidebarOpen && <span className="brand-text">{isProvider ? 'Portal Đối Tác' : 'Admin Panel'}</span>}
           </Link>
         </div>
         
         <div className="sidebar-menu-label">
-          {sidebarOpen ? 'QUẢN TRỊ HỆ THỐNG' : '---'}
+          {sidebarOpen ? (isProvider ? 'CỔNG ĐỐI TÁC LỮ HÀNH' : 'QUẢN TRỊ HỆ THỐNG') : '---'}
         </div>
 
         <nav className="sidebar-nav">
@@ -128,6 +132,30 @@ const AdminLayout = () => {
             })}
           </ul>
         </nav>
+
+        {/* User profile badge in sidebar */}
+        <div className="sidebar-profile-badge" style={{
+          padding: sidebarOpen ? '14px 16px' : '12px 8px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          marginTop: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <div className="profile-avatar" style={{ minWidth: '32px', color: isProvider ? '#38bdf8' : '#60a5fa' }}>
+            <FaUserShield />
+          </div>
+          {sidebarOpen && (
+            <div className="profile-info" style={{ overflow: 'hidden' }}>
+              <div className="profile-name" style={{ fontWeight: 600, fontSize: '0.85rem', color: '#f8fafc', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                {user?.fullName || user?.username || (isProvider ? 'Đối Tác' : 'Admin')}
+              </div>
+              <div className="profile-role" style={{ fontSize: '0.75rem', color: isProvider ? '#38bdf8' : '#94a3b8', fontWeight: 500 }}>
+                {roleBadgeText}
+              </div>
+            </div>
+          )}
+        </div>
 
       </aside>
 
@@ -179,14 +207,14 @@ const AdminLayout = () => {
               <FaHome /> Về Website
             </Link>
             
-            {/* Thông tin hồ sơ admin */}
+            {/* Thông tin hồ sơ admin / đối tác */}
             <div className="header-profile">
               <div className="profile-avatar">
                 <FaUserShield />
               </div>
               <div className="profile-info">
-                <span className="profile-name">{user?.fullName || user?.username || 'Admin'}</span>
-                <span className="profile-role">Quản Trị Viên</span>
+                <span className="profile-name">{user?.fullName || user?.username || (isProvider ? 'Đối Tác' : 'Admin')}</span>
+                <span className="profile-role">{roleBadgeText}</span>
               </div>
               <button onClick={handleLogout} className="logout-btn" title="Đăng xuất khỏi hệ thống">
                 <FaSignOutAlt />

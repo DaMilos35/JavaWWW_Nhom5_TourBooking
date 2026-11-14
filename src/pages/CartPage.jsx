@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import FallbackImage from '../components/common/FallbackImage';
-import { FaTrash, FaShoppingBag, FaExclamationTriangle } from 'react-icons/fa';
+import { 
+  FaTrash, 
+  FaShoppingBag, 
+  FaExclamationTriangle,
+  FaSearch,
+  FaCompass,
+  FaMapMarkerAlt,
+  FaClock,
+  FaFire,
+  FaArrowRight
+} from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { hasTourDatePassed } from '../utils/tourDate';
+import { REAL_TOURS } from '../api/realTourDataApi';
 import { toast } from 'react-toastify';
 import './CartPage.css';
 
@@ -30,6 +41,21 @@ const CartPage = () => {
   const hasExpiredTours = items.some(isItemPassed);
   const hasInactiveTours = items.some(isItemInactive);
 
+  const recommendedTours = useMemo(() => {
+    return (REAL_TOURS || [])
+      .filter(t => t.status === 'ACTIVE' || t.isActive !== false)
+      .slice(0, 3);
+  }, []);
+
+  const popularSearches = [
+    { label: 'Đà Nẵng - Hội An', query: 'Đà Nẵng' },
+    { label: 'Phú Quốc Đảo Ngọc', query: 'Phú Quốc' },
+    { label: 'Hạ Long Kỳ Quan', query: 'Hạ Long' },
+    { label: 'Đà Lạt Ngàn Hoa', query: 'Đà Lạt' },
+    { label: 'Thái Lan Bangkok', query: 'Thái Lan' },
+    { label: 'Nhật Bản Mùa Hoa', query: 'Nhật Bản' }
+  ];
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
@@ -52,11 +78,181 @@ const CartPage = () => {
 
   if (items.length === 0) {
     return (
-      <div className="container py-4 text-center empty-cart">
-        <FaShoppingBag size={80} color="#ccc" className="mb-3" />
-        <h2>Giỏ hàng của bạn đang trống</h2>
-        <p>Hãy tìm và chọn những tour tuyệt vời cho chuyến đi của bạn.</p>
-        <Link to="/tours" className="btn btn-primary mt-3">Khám Phá Tour</Link>
+      <div className="container py-5 empty-cart">
+        <div className="text-center empty-cart-hero mb-5">
+          <div style={{
+            width: '90px',
+            height: '90px',
+            margin: '0 auto 16px',
+            background: 'linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#0284c7'
+          }}>
+            <FaShoppingBag size={44} />
+          </div>
+          <h2 style={{ fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>Giỏ hàng của bạn đang trống</h2>
+          <p style={{ color: '#64748b', maxWidth: '500px', margin: '0 auto 20px', fontSize: '0.95rem' }}>
+            Hãy tìm kiếm và khám phá những hành trình trải nghiệm tuyệt vời cùng Du Lịch Việt.
+          </p>
+          <Link to="/tours" className="btn btn-primary" style={{ padding: '10px 28px', fontWeight: 600, borderRadius: '8px' }}>
+            <FaCompass style={{ marginRight: '8px' }} /> Khám Phá Tour Ngay
+          </Link>
+        </div>
+
+        {/* Quick Search Links */}
+        <div className="empty-cart-searches mb-5" style={{
+          background: '#ffffff',
+          borderRadius: '16px',
+          padding: '24px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 16px -2px rgba(15, 23, 42, 0.04)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', color: '#0f172a', fontWeight: 700, fontSize: '0.95rem' }}>
+            <FaSearch style={{ color: '#0284c7' }} />
+            <span>Tìm kiếm nhanh các điểm đến thịnh hành:</span>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {popularSearches.map((item, idx) => (
+              <Link
+                key={idx}
+                to={`/tours?search=${encodeURIComponent(item.query)}`}
+                style={{
+                  padding: '7px 14px',
+                  background: '#f1f5f9',
+                  color: '#334155',
+                  borderRadius: '20px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <FaMapMarkerAlt style={{ color: '#0284c7', fontSize: '0.75rem' }} />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Recommended Tours Grid */}
+        {recommendedTours.length > 0 && (
+          <div className="empty-cart-recommendations">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FaFire style={{ color: '#ea580c' }} /> Gợi Ý Tour Nổi Bật Dành Cho Bạn
+                </h3>
+                <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+                  Những hành trình được yêu thích và đặt nhiều nhất trong tuần
+                </p>
+              </div>
+              <Link to="/tours" style={{ color: '#0284c7', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                Xem tất cả <FaArrowRight size={12} />
+              </Link>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '20px'
+            }}>
+              {recommendedTours.map((tour) => {
+                const tourId = tour.id || tour.tourId;
+                return (
+                  <div 
+                    key={tourId} 
+                    style={{
+                      background: '#ffffff',
+                      borderRadius: '14px',
+                      overflow: 'hidden',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 4px 16px -2px rgba(15, 23, 42, 0.05)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                  >
+                    <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
+                      <FallbackImage 
+                        src={tour.imageUrl} 
+                        alt={tour.name} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <span style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '12px',
+                        background: 'rgba(15, 23, 42, 0.75)',
+                        backdropFilter: 'blur(4px)',
+                        color: '#ffffff',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <FaClock size={11} /> {tour.duration || 3} ngày
+                      </span>
+                    </div>
+
+                    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <div style={{ fontSize: '0.8rem', color: '#0284c7', fontWeight: 600, marginBottom: '6px' }}>
+                        {tour.categoryName || 'Tour Trọn Gói'}
+                      </div>
+                      <Link 
+                        to={`/tours/${tourId}`} 
+                        style={{
+                          fontSize: '0.98rem',
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          textDecoration: 'none',
+                          lineHeight: 1.4,
+                          marginBottom: '10px',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}
+                        title={tour.name}
+                      >
+                        {tour.name}
+                      </Link>
+
+                      <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Giá từ</div>
+                          <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ea580c' }}>
+                            {formatPrice(tour.price || 0)}
+                          </div>
+                        </div>
+                        <Link 
+                          to={`/tours/${tourId}`} 
+                          className="btn btn-outline" 
+                          style={{
+                            padding: '6px 14px',
+                            fontSize: '0.82rem',
+                            fontWeight: 600,
+                            borderRadius: '6px'
+                          }}
+                        >
+                          Chi Tiết
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
