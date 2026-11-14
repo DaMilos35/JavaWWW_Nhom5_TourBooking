@@ -250,22 +250,24 @@ const Navbar = () => {
                 <div className="user-avatar">{getInitial(user.fullName || user.username)}</div>
                 <span className="user-name" title={user.fullName || user.username}>{getDisplayName(user)}</span>
                 {user.membershipTier && user.membershipTier !== 'STANDARD' && (
-                  <span style={{
+                  <span className="user-tier-badge" style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '5px',
+                    gap: '4px',
                     fontSize: '0.72rem',
                     fontWeight: 800,
-                    padding: '3px 9px',
+                    padding: '3px 8px',
                     borderRadius: '12px',
                     background: user.membershipTier === 'VIP_PLATINUM' ? 'linear-gradient(135deg, #4338ca, #6366f1)' :
                                 user.membershipTier === 'DIAMOND' ? 'linear-gradient(135deg, #0284c7, #38bdf8)' :
                                 'linear-gradient(135deg, #b45309, #f59e0b)',
                     color: '#ffffff',
-                    marginLeft: '6px',
+                    marginLeft: '4px',
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}>
                     {user.membershipTier === 'VIP_PLATINUM' ? (
                       <><FaCrown aria-hidden="true" style={{ fontSize: '0.75rem' }} /> VIP</>
