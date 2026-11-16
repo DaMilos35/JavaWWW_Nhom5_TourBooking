@@ -44,6 +44,10 @@ Thumbs.db
 .agents/*
 !.agents/skills/
 !.agents/skills/**
+docs/drawio-skill/
+docs/extracted_figures/
+docs/erd_ir.json
+docs/erd.drawio
 
 
 # Test & Demo documentation (Private, do not push)

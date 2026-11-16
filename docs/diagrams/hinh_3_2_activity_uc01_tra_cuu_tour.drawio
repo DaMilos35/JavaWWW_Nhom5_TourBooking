@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_3_2__s_____activity_uc01" name="Hinh 3.2: Sơ đồ Activity UC01">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1020" pageHeight="780" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="SƠ ĐỒ ACTIVITY: TRA CỨU VÀ TÌM KIẾM TOUR ĐA TIÊU CHÍ (UC01)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#0284c7;strokeColor=#0369a1;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane Khách Hàng -->
+        <mxCell id="sw_user" value="KHÁCH HÀNG (USER / CLIENT)" style="swimlane;startSize=30;fillColor=#f0f9ff;strokeColor=#0284c7;fontColor=#0369a1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="380" height="660" as="geometry" />
+        </mxCell>
+        <!-- Swimlane Hệ Thống -->
+        <mxCell id="sw_sys" value="HỆ THỐNG (BACKEND SPRING BOOT &amp; MARIADB)" style="swimlane;startSize=30;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#334155;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="80" width="400" height="660" as="geometry" />
+        </mxCell>
+
+        <!-- User Start -->
+        <mxCell id="start" value="" style="ellipse;fillColor=#0f172a;strokeColor=none;" vertex="1" parent="sw_user">
+          <mxGeometry x="175" y="50" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="u_act1" value="Truy cập Trang chủ hoặc&#xa;Trang Danh sách tour (/tours)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0284c7;" vertex="1" parent="sw_user">
+          <mxGeometry x="90" y="110" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="u_act2" value="Nhập từ khóa hoặc chọn:&#xa;• Tuyến danh mục (1 - 8)&#xa;• Điểm khởi hành (Hà Nội, TP.HCM...)&#xa;• Ngân sách, thời lượng, số sao" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0284c7;" vertex="1" parent="sw_user">
+          <mxGeometry x="90" y="190" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- System Processing -->
+        <mxCell id="s_act1" value="Tiếp nhận Query Params&#xa;tại TourController.filterTours()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="100" y="195" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="s_dec1" value="Có điều kiện&#xa;lọc không?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="135" y="280" width="130" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s_act2" value="Khởi tạo Dynamic JPA&#xa;TourSpecification.withFilter()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="30" y="380" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_act3" value="Lấy toàn bộ tour ACTIVE&#xa;với sắp xếp bestseller mặc định" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="210" y="380" width="165" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_act4" value="Truy vấn MariaDB qua HikariCP:&#xa;SELECT * FROM tours WHERE ..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#059669;fontColor=#065f46;" vertex="1" parent="sw_sys">
+          <mxGeometry x="100" y="460" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_dec2" value="Kết quả&#xa;tìm thấy?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="140" y="540" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- User Result -->
+        <mxCell id="u_res_empty" value="Hiển thị Empty State:&#xa;'Không tìm thấy tour phù hợp'&#xa;+ Gợi ý các tour Bán chạy nhất" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;" vertex="1" parent="sw_user">
+          <mxGeometry x="20" y="540" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="u_res_list" value="Kết xuất lưới danh sách tour&#xa;Traveloka Bento (9 tour/trang)&#xa;kèm số chỗ &amp; lịch khởi hành" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;" vertex="1" parent="sw_user">
+          <mxGeometry x="200" y="540" width="165" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="end" value="" style="ellipse;fillColor=#0f172a;strokeColor=#cbd5e1;strokeWidth=3;" vertex="1" parent="sw_user">
+          <mxGeometry x="175" y="620" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="endArrow=block;html=1;strokeColor=#0284c7;" edge="1" parent="1" source="start" target="u_act1" />
+        <mxCell id="e2" style="endArrow=block;html=1;strokeColor=#0284c7;" edge="1" parent="1" source="u_act1" target="u_act2" />
+        <mxCell id="e3" style="endArrow=block;html=1;strokeColor=#0284c7;" edge="1" parent="1" source="u_act2" target="s_act1" />
+        <mxCell id="e4" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act1" target="s_dec1" />
+        <mxCell id="e5" value="Có" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_dec1" target="s_act2" />
+        <mxCell id="e6" value="Không" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_dec1" target="s_act3" />
+        <mxCell id="e7" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act2" target="s_act4" />
+        <mxCell id="e8" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act3" target="s_act4" />
+        <mxCell id="e9" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act4" target="s_dec2" />
+        <mxCell id="e10" value="0 tour" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="s_dec2" target="u_res_empty" />
+        <mxCell id="e11" value="> 0 tour" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="s_dec2" target="u_res_list" />
+        <mxCell id="e12" style="endArrow=block;html=1;strokeColor=#0f172a;" edge="1" parent="1" source="u_res_empty" target="end" />
+        <mxCell id="e13" style="endArrow=block;html=1;strokeColor=#0f172a;" edge="1" parent="1" source="u_res_list" target="end" />
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

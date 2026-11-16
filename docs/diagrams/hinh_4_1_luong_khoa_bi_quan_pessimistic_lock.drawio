@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_4_1__s_____lu_ng_giao_d_ch_kh_a_bi_quan" name="Hinh 4.1: Sơ đồ Luồng giao dịch Khóa bi quan">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1380" pageHeight="760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title Banner -->
+        <mxCell id="t0" value="HỆ THỐNG DU LỊCH VIỆT — CƠ CHẾ KHÓA BI QUAN (@Lock PESSIMISTIC_WRITE) CHỐNG OVERSELLING" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1260" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane Khách Hàng A -->
+        <mxCell id="sw_a" value="GIAO DỊCH 1: KHÁCH HÀNG A (ĐẾN TRƯỚC T=0ms)" style="swimlane;startSize=30;fillColor=#f0fdf4;strokeColor=#16a34a;fontColor=#166534;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="360" height="660" as="geometry" />
+        </mxCell>
+        <!-- Swimlane Cơ Sở Dữ Liệu -->
+        <mxCell id="sw_db" value="MARIADB 12.2 (ROW-LEVEL LOCKING ENGINE)" style="swimlane;startSize=30;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#334155;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="460" y="80" width="460" height="660" as="geometry" />
+        </mxCell>
+        <!-- Swimlane Khách Hàng B -->
+        <mxCell id="sw_b" value="GIAO DỊCH 2: KHÁCH HÀNG B (ĐẾN SAU T=2ms)" style="swimlane;startSize=30;fillColor=#fef2f2;strokeColor=#dc2626;fontColor=#991b1b;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="960" y="80" width="360" height="660" as="geometry" />
+        </mxCell>
+
+        <!-- Initial DB State -->
+        <mxCell id="db_init" value="Trạng thái ban đầu: Tour #1 (Phú Quốc)&#xa;available_seats = 1 (Chỉ còn duy nhất 1 vé!)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_db">
+          <mxGeometry x="60" y="45" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Action A1 -->
+        <mxCell id="a_1" value="Gửi yêu cầu đặt 1 vé&#xa;(T=0ms, OrderRequest)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#16a34a;" vertex="1" parent="sw_a">
+          <mxGeometry x="80" y="105" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="db_lock_a" value="Thực thi: SELECT * FROM tours WHERE id=1 FOR UPDATE&#xa;-> Cấp Khóa Độc Quyền (Exclusive Lock) cho Giao Dịch A" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;fontColor=#166534;fontStyle=1;" vertex="1" parent="sw_db">
+          <mxGeometry x="40" y="105" width="380" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Action B1 Concurrent -->
+        <mxCell id="b_1" value="Cùng gửi yêu cầu đặt 1 vé&#xa;(T=2ms, cùng Tour #1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dc2626;" vertex="1" parent="sw_b">
+          <mxGeometry x="80" y="180" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="db_lock_b" value="Thực thi: SELECT ... FOR UPDATE&#xa;BỊ CHẶN (BLOCKED): Khóa đang do Giao Dịch A nắm giữ!&#xa;-> Giao Dịch B buộc phải chờ trong hàng đợi (Waiting Queue)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;fontStyle=1;" vertex="1" parent="sw_db">
+          <mxGeometry x="40" y="180" width="380" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- A Processing -->
+        <mxCell id="a_2" value="Đọc available_seats = 1 (Đủ vé)&#xa;Khấu trừ nguyên tử: 1 - 1 = 0&#xa;Tạo Order #101 thành công" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#16a34a;" vertex="1" parent="sw_a">
+          <mxGeometry x="80" y="260" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="db_update_a" value="UPDATE tours SET available_seats = 0 WHERE id = 1&#xa;COMMIT GIAO DỊCH A -> GIẢI PHÓNG KHÓA (LOCK RELEASED)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;fontColor=#166534;fontStyle=1;" vertex="1" parent="sw_db">
+          <mxGeometry x="40" y="260" width="380" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a_success" value="XÁC NHẬN ĐẶT TOUR THÀNH CÔNG&#xa;Nhận E-Ticket và Mã QR thanh toán" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#16a34a;strokeColor=#15803d;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="sw_a">
+          <mxGeometry x="70" y="335" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- B Resumes -->
+        <mxCell id="db_resume_b" value="GIAO DỊCH B ĐƯỢC ĐÁNH THỨC &amp; NHẬN KHÓA:&#xa;Đọc dữ liệu mới nhất: available_seats = 0 (ĐÃ HẾT CHỖ!)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_db">
+          <mxGeometry x="40" y="350" width="380" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b_2" value="Kiểm tra điều kiện: available_seats &lt; 1&#xa;-> PHÁT HIỆN HẾT CHỖ!&#xa;Rollback giao dịch, không trừ tiền" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dc2626;" vertex="1" parent="sw_b">
+          <mxGeometry x="80" y="420" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="b_fail" value="THÔNG BÁO: HẾT CHỖ&#xa;'Rất tiếc tour vừa hết vé trong giây lát!&#xa;Vui lòng chọn đợt khởi hành tiếp theo'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dc2626;strokeColor=#b91c1c;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="sw_b">
+          <mxGeometry x="70" y="500" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Conclusion Box -->
+        <mxCell id="res_box" value="KẾT QUẢ BẢO TOÀN TÍNH NGUYÊN TỬ (ACID): Tuyệt đối không xảy ra tình trạng bán âm vé (Overselling = 0). Dữ liệu tính nhất quán 100%!" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="60" y="680" width="1260" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="endArrow=block;html=1;strokeColor=#16a34a;" edge="1" parent="1" source="a_1" target="db_lock_a" />
+        <mxCell id="e2" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="b_1" target="db_lock_b" />
+        <mxCell id="e3" style="endArrow=block;html=1;strokeColor=#16a34a;" edge="1" parent="1" source="db_lock_a" target="a_2" />
+        <mxCell id="e4" style="endArrow=block;html=1;strokeColor=#16a34a;" edge="1" parent="1" source="a_2" target="db_update_a" />
+        <mxCell id="e5" style="endArrow=block;html=1;strokeColor=#16a34a;" edge="1" parent="1" source="db_update_a" target="a_success" />
+        <mxCell id="e6" style="endArrow=block;html=1;strokeColor=#d97706;dashed=1;" edge="1" parent="1" source="db_update_a" target="db_resume_b" />
+        <mxCell id="e7" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="db_resume_b" target="b_2" />
+        <mxCell id="e8" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="b_2" target="b_fail" />
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

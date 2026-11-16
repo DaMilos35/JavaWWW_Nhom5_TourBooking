@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_3_6__s_____activity_uc03_safe_delete" name="Hinh 3.6: Sơ đồ Activity UC03 Safe Delete">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1020" pageHeight="780" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="SƠ ĐỒ ACTIVITY: CƠ CHẾ KIỂM SOÁT XÓA AN TOÀN SAFE DELETE (UC03)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#dc2626;strokeColor=#991b1b;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="20" width="820" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane Admin -->
+        <mxCell id="sw_admin" value="QUẢN TRỊ VIÊN HỆ THỐNG (ADMINISTRATOR)" style="swimlane;startSize=30;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="380" height="660" as="geometry" />
+        </mxCell>
+        <!-- Swimlane Hệ Thống -->
+        <mxCell id="sw_sys" value="HỆ THỐNG KIỂM SOÁT TÍNH TOÀN VẸN (TOUR SERVICE &amp; DB)" style="swimlane;startSize=30;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#334155;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="80" width="420" height="660" as="geometry" />
+        </mxCell>
+
+        <mxCell id="start" value="" style="ellipse;fillColor=#0f172a;strokeColor=none;" vertex="1" parent="sw_admin">
+          <mxGeometry x="175" y="45" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="a_act1" value="Truy cập Bảng Quản trị Tour (/admin/tours)&#xa;hoặc Quản lý Danh mục (/admin/categories)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dc2626;" vertex="1" parent="sw_admin">
+          <mxGeometry x="80" y="100" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a_act2" value="Nhấn nút 'Xóa' trên một Tour&#xa;hoặc một Danh mục cụ thể" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dc2626;" vertex="1" parent="sw_admin">
+          <mxGeometry x="90" y="180" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- System Validation -->
+        <mxCell id="s_act1" value="Tiếp nhận DELETE Request&#xa;Kiểm tra đối tượng cần xóa" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="110" y="180" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s_act2" value="Truy vấn kiểm tra toàn vẹn:&#xa;• Nếu là Tour: OrderDetailRepository.countByTourId()&#xa;• Nếu là Danh mục: TourRepository.countByCategoryId()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="80" y="260" width="260" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_dec1" value="Số ràng buộc&#xa;phát sinh &gt; 0?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="140" y="350" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_blocked" value="KÍCH HOẠT RÀO CHẮN AN TOÀN:&#xa;• Ném ApiException(HTTP 400 Bad Request)&#xa;• Từ chối lệnh xóa cứng khỏi Database&#xa;• Bảo toàn lịch sử kế toán đơn hàng" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="sw_sys">
+          <mxGeometry x="10" y="450" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="s_allowed" value="CHO PHÉP XÓA AN TOÀN:&#xa;• Xóa bản ghi trong Database&#xa;• Xóa sạch Cache @CacheEvict&#xa;• Trả về HTTP 200 OK thành công" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="sw_sys">
+          <mxGeometry x="240" y="450" width="170" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Admin Alerts -->
+        <mxCell id="a_alert" value="Hiển thị Modal Cảnh Báo An Toàn:&#xa;'Không thể xóa do đã phát sinh dữ liệu!&#xa;Hệ thống đề xuất: Chuyển sang TẠM ẨN'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;fontStyle=1;" vertex="1" parent="sw_admin">
+          <mxGeometry x="70" y="455" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="a_toggle" value="Admin bấm nút 'Tạm ẩn'&#xa;-> Cập nhật status='INACTIVE'&#xa;(Ẩn khỏi Catalog nhưng giữ đơn)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_admin">
+          <mxGeometry x="85" y="555" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="end" value="" style="ellipse;fillColor=#0f172a;strokeColor=#cbd5e1;strokeWidth=3;" vertex="1" parent="sw_admin">
+          <mxGeometry x="175" y="630" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="start" target="a_act1" />
+        <mxCell id="e2" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="a_act1" target="a_act2" />
+        <mxCell id="e3" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="a_act2" target="s_act1" />
+        <mxCell id="e4" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act1" target="s_act2" />
+        <mxCell id="e5" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act2" target="s_dec1" />
+        <mxCell id="e6_yes" value="Có đơn hàng" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="s_dec1" target="s_blocked" />
+        <mxCell id="e6_no" value="Chưa có đơn" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="s_dec1" target="s_allowed" />
+        <mxCell id="e7" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="s_blocked" target="a_alert" />
+        <mxCell id="e8" style="endArrow=block;html=1;strokeColor=#d97706;" edge="1" parent="1" source="a_alert" target="a_toggle" />
+        <mxCell id="e9" style="endArrow=block;html=1;strokeColor=#0f172a;" edge="1" parent="1" source="a_toggle" target="end" />
+        <mxCell id="e10" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="s_allowed" target="end" />
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

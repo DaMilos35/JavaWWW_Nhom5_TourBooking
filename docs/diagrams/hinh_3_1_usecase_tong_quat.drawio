@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_3_1__s_____ca_s__d_ng_t_ng_qu_t" name="Hinh 3.1: Sơ đồ Ca sử dụng tổng quát">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1340" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Boundary Box -->
+        <mxCell id="sys_box" value="HỆ THỐNG ĐẶT VÀ QUẢN LÝ TOUR DU LỊCH VIỆT" style="swimlane;startSize=30;fillColor=#f8fafc;strokeColor=#0284c7;fontColor=#0369a1;fontStyle=1;rounded=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="240" y="30" width="880" height="740" as="geometry" />
+        </mxCell>
+
+        <!-- ACTORS ON LEFT -->
+        <mxCell id="act_guest" value="Khách Vãng Lai&#xa;(Guest)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;fillColor=#ffffff;strokeColor=#0284c7;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="60" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="act_customer" value="Khách Hàng&#xa;(Customer)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;fillColor=#ffffff;strokeColor=#059669;" vertex="1" parent="1">
+          <mxGeometry x="80" y="270" width="60" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="act_b2b" value="Khách Doanh Nghiệp&#xa;(B2B Customer)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;fillColor=#ffffff;strokeColor=#d97706;" vertex="1" parent="1">
+          <mxGeometry x="80" y="470" width="60" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ACTORS ON RIGHT -->
+        <mxCell id="act_admin" value="Quản Trị Viên&#xa;(Administrator)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;fillColor=#ffffff;strokeColor=#dc2626;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="180" width="60" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="act_provider" value="Nhà Cung Cấp Tour&#xa;(Tour Provider)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;fillColor=#ffffff;strokeColor=#7c3aed;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="420" width="60" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- USE CASES INSIDE BOUNDARY -->
+        <!-- Group 1: Search & Booking -->
+        <mxCell id="uc01" value="UC01: Tra cứu &amp; Tìm kiếm&#xa;Tour đa tiêu chí" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontColor=#0369a1;fontStyle=1;" vertex="1" parent="sys_box">
+          <mxGeometry x="50" y="50" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_detail" value="Xem chi tiết lịch trình,&#xa;timeline &amp; ảnh thực tế" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#38bdf8;fontColor=#0f172a;" vertex="1" parent="sys_box">
+          <mxGeometry x="320" y="50" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_cart" value="Thêm tour vào giỏ hàng&#xa;&amp; Danh sách đã lưu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#38bdf8;fontColor=#0f172a;" vertex="1" parent="sys_box">
+          <mxGeometry x="50" y="140" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc02" value="UC02: Đặt tour trực tuyến &amp;&#xa;Chiết khấu đoàn B2B" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sys_box">
+          <mxGeometry x="50" y="230" width="230" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_deposit" value="Đặt cọc linh hoạt&#xa;(30% Nội Địa, 50% Quốc Tế)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f59e0b;fontColor=#0f172a;" vertex="1" parent="sys_box">
+          <mxGeometry x="330" y="230" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_cancel" value="Hủy tour có hoàn tiền&#xa;theo thời gian quy định" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f59e0b;fontColor=#0f172a;" vertex="1" parent="sys_box">
+          <mxGeometry x="50" y="325" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Group 2: AI & Recommendation -->
+        <mxCell id="uc04" value="UC04: Gợi ý tour cá nhân hóa&#xa;dựa trên lịch sử hoạt động" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;fontStyle=1;" vertex="1" parent="sys_box">
+          <mxGeometry x="50" y="420" width="230" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="uc05" value="UC05: Tư vấn lịch trình qua&#xa;Trợ lý AI Google Gemini" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;fontStyle=1;" vertex="1" parent="sys_box">
+          <mxGeometry x="50" y="520" width="230" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_tailor" value="AI Smart Itinerary Tailor&#xa;&amp; Sentiment Summarizer" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontColor=#0f172a;" vertex="1" parent="sys_box">
+          <mxGeometry x="330" y="520" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Group 3: Admin & Provider Operations -->
+        <mxCell id="uc03" value="UC03: Quản lý Tour &amp;&#xa;Safe Delete Validation" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;fontStyle=1;" vertex="1" parent="sys_box">
+          <mxGeometry x="610" y="100" width="220" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_cat" value="Quản lý 8 Tuyến Danh Mục&#xa;&amp; Bật/Tắt mở bán" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ef4444;fontColor=#0f172a;" vertex="1" parent="sys_box">
+          <mxGeometry x="610" y="195" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_order_admin" value="Quản lý Đơn hàng, Xác nhận&#xa;VietQR/VNPAY &amp; Xuất Excel" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;fontStyle=1;" vertex="1" parent="sys_box">
+          <mxGeometry x="610" y="290" width="230" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_kpi" value="Xem Dashboard Doanh Thu&#xa;&amp; Báo cáo phân tích KPI" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ef4444;fontColor=#0f172a;" vertex="1" parent="sys_box">
+          <mxGeometry x="610" y="385" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_provider_iso" value="Quản lý Tour Trực Thuộc&#xa;(Provider Data Isolation)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f3ff;strokeColor=#7c3aed;fontColor=#5b21b6;fontStyle=1;" vertex="1" parent="sys_box">
+          <mxGeometry x="610" y="490" width="220" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Generalization / Extends / Includes -->
+        <mxCell id="inc1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="dashed=1;endArrow=open;html=1;strokeColor=#64748b;" edge="1" parent="sys_box" source="uc01" target="uc_detail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc2" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="dashed=1;endArrow=open;html=1;strokeColor=#64748b;" edge="1" parent="sys_box" source="uc02" target="uc_deposit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="inc3" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="dashed=1;endArrow=open;html=1;strokeColor=#64748b;" edge="1" parent="sys_box" source="uc_tailor" target="uc05">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Connections from Actors to Use Cases -->
+        <mxCell id="e_g1" style="endArrow=none;html=1;strokeColor=#0284c7;strokeWidth=1.5;" edge="1" parent="1" source="act_guest" target="uc01" />
+        <mxCell id="e_g2" style="endArrow=none;html=1;strokeColor=#0284c7;strokeWidth=1.5;" edge="1" parent="1" source="act_guest" target="uc_cart" />
+        <mxCell id="e_g3" style="endArrow=none;html=1;strokeColor=#0284c7;strokeWidth=1.5;" edge="1" parent="1" source="act_guest" target="uc05" />
+
+        <mxCell id="e_c1" style="endArrow=none;html=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="act_customer" target="uc01" />
+        <mxCell id="e_c2" style="endArrow=none;html=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="act_customer" target="uc02" />
+        <mxCell id="e_c3" style="endArrow=none;html=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="act_customer" target="uc_cancel" />
+        <mxCell id="e_c4" style="endArrow=none;html=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="act_customer" target="uc04" />
+        <mxCell id="e_c5" style="endArrow=none;html=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="act_customer" target="uc05" />
+
+        <mxCell id="e_b1" style="endArrow=none;html=1;strokeColor=#d97706;strokeWidth=1.5;" edge="1" parent="1" source="act_b2b" target="uc02" />
+        <mxCell id="e_b2" style="endArrow=none;html=1;strokeColor=#d97706;strokeWidth=1.5;" edge="1" parent="1" source="act_b2b" target="uc01" />
+
+        <mxCell id="e_a1" style="endArrow=none;html=1;strokeColor=#dc2626;strokeWidth=1.5;" edge="1" parent="1" source="act_admin" target="uc03" />
+        <mxCell id="e_a2" style="endArrow=none;html=1;strokeColor=#dc2626;strokeWidth=1.5;" edge="1" parent="1" source="act_admin" target="uc_cat" />
+        <mxCell id="e_a3" style="endArrow=none;html=1;strokeColor=#dc2626;strokeWidth=1.5;" edge="1" parent="1" source="act_admin" target="uc_order_admin" />
+        <mxCell id="e_a4" style="endArrow=none;html=1;strokeColor=#dc2626;strokeWidth=1.5;" edge="1" parent="1" source="act_admin" target="uc_kpi" />
+
+        <mxCell id="e_p1" style="endArrow=none;html=1;strokeColor=#7c3aed;strokeWidth=1.5;" edge="1" parent="1" source="act_provider" target="uc_provider_iso" />
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

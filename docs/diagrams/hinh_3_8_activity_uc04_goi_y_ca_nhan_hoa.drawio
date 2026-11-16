@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_3_8__s_____activity_uc04" name="Hinh 3.8: Sơ đồ Activity UC04">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1060" pageHeight="780" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="SƠ ĐỒ ACTIVITY: THUẬT TOÁN GỢI Ý TOUR CÁ NHÂN HÓA THEO MA TRẬN TRỌNG SỐ (UC04)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#059669;strokeColor=#047857;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="20" width="860" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane Khách Hàng -->
+        <mxCell id="sw_user" value="HÀNH VI KHÁCH HÀNG (CUSTOMER ACTIONS)" style="swimlane;startSize=30;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="380" height="660" as="geometry" />
+        </mxCell>
+        <!-- Swimlane Hệ Thống Gợi Ý -->
+        <mxCell id="sw_sys" value="BỘ MÁY GỢI Ý THÔNG MINH (RECOMMENDATION ENGINE &amp; DB)" style="swimlane;startSize=30;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#334155;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="80" width="460" height="660" as="geometry" />
+        </mxCell>
+
+        <mxCell id="start" value="" style="ellipse;fillColor=#0f172a;strokeColor=none;" vertex="1" parent="sw_user">
+          <mxGeometry x="175" y="45" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="u_act1" value="Khách hàng lướt web và tương tác:&#xa;• Xem chi tiết một tour du lịch&#xa;• Thêm tour vào Giỏ hàng / Wishlist&#xa;• Tiến hành Đặt vé tour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#059669;" vertex="1" parent="sw_user">
+          <mxGeometry x="80" y="100" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_act1" value="Ghi vết sự kiện tự động (Activity Logger):&#xa;• VIEW = +1 điểm&#xa;• WISHLIST / CART = +3 điểm&#xa;• BOOK = +5 điểm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;align=left;spacingLeft=10;" vertex="1" parent="sw_sys">
+          <mxGeometry x="110" y="100" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s_act2" value="Lưu vào bảng user_activity_history:&#xa;(user_id, session_id, tour_id, score)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="110" y="195" width="240" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u_act2" value="Người dùng mở Trang chủ hoặc&#xa;cuộn xuống mục 'Gợi ý dành cho bạn'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#059669;" vertex="1" parent="sw_user">
+          <mxGeometry x="80" y="270" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_act3" value="Truy vấn tổng hợp trọng số:&#xa;SELECT category_id, SUM(score)&#xa;GROUP BY category_id ORDER BY score DESC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#0f172a;" vertex="1" parent="sw_sys">
+          <mxGeometry x="100" y="270" width="260" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="s_dec1" value="Người dùng&#xa;đã có lịch sử?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="170" y="355" width="120" height="65" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_fallback" value="Cold-Start Fallback:&#xa;Lấy Top các tour có rating cao nhất&#xa;và số lượt đặt cao nhất hệ thống" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="250" y="445" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="s_personalized" value="Ma Trận Cá Nhân Hóa:&#xa;Lấy Top 2 danh mục có điểm cao nhất&#xa;-> Chọn các tour điểm cao tương ứng&#xa;-> Loại trừ các tour khách đã đặt vé" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="sw_sys">
+          <mxGeometry x="20" y="440" width="210" height="65" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_act4" value="Đóng gói Top 4 TourDto kèm thẻ&#xa;huy hiệu 'Dành riêng cho bạn'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#059669;fontStyle=1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="120" y="535" width="220" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u_render" value="Render thanh Carousel 4 thẻ tour&#xa;cá nhân hóa với hiệu ứng mượt mà" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;fontStyle=1;" vertex="1" parent="sw_user">
+          <mxGeometry x="80" y="535" width="220" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="end" value="" style="ellipse;fillColor=#0f172a;strokeColor=#cbd5e1;strokeWidth=3;" vertex="1" parent="sw_user">
+          <mxGeometry x="175" y="610" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="start" target="u_act1" />
+        <mxCell id="e2" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="u_act1" target="s_act1" />
+        <mxCell id="e3" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act1" target="s_act2" />
+        <mxCell id="e4" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="u_act2" target="s_act3" />
+        <mxCell id="e5" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act3" target="s_dec1" />
+        <mxCell id="e6_yes" value="Có" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="s_dec1" target="s_personalized" />
+        <mxCell id="e6_no" value="Chưa có" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_dec1" target="s_fallback" />
+        <mxCell id="e7_1" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_personalized" target="s_act4" />
+        <mxCell id="e7_2" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_fallback" target="s_act4" />
+        <mxCell id="e8" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="s_act4" target="u_render" />
+        <mxCell id="e9" style="endArrow=block;html=1;strokeColor=#0f172a;" edge="1" parent="1" source="u_render" target="end" />
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

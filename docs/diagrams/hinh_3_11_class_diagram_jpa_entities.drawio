@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_3_11__s_____l_p_th_c_th__jpa_class_diagram" name="Hinh 3.11: Sơ đồ Lớp Thực thể JPA Class Diagram">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1440" pageHeight="720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title Banner -->
+        <mxCell id="t0" value="HỆ THỐNG DU LỊCH VIỆT — SƠ ĐỒ LỚP THỰC THỂ HỆ THỐNG (JPA ENTITY CLASS DIAGRAM)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="50" y="20" width="1340" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: User -->
+        <mxCell id="c_user" value="User&#xa;(Bảng: Users)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#e0f2fe;strokeColor=#0284c7;fontColor=#0369a1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="90" width="230" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="c_user_f" value="- id: Integer {PK}&#xa;- username: String&#xa;- password: String (BCrypt)&#xa;- email: String&#xa;- fullName: String&#xa;- role: String (ADMIN/CUSTOMER/PROVIDER)&#xa;- phone: String&#xa;- membershipTier: String&#xa;- loyaltyPoints: Integer&#xa;- totalSpent: BigDecimal&#xa;- active: Boolean&#xa;- createdAt: LocalDateTime" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_user">
+          <mxGeometry y="30" width="230" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: Category -->
+        <mxCell id="c_cat" value="Category&#xa;(Bảng: Categories)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;" vertex="1" parent="1">
+          <mxGeometry x="360" y="90" width="210" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="c_cat_f" value="- id: Integer {PK}&#xa;- name: String&#xa;- description: String&#xa;- imageUrl: String&#xa;- status: String (ACTIVE/INACTIVE)&#xa;+ countTours(): Long" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_cat">
+          <mxGeometry y="30" width="210" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: Tour -->
+        <mxCell id="c_tour" value="Tour&#xa;(Bảng: Tours)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="640" y="90" width="250" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="c_tour_f" value="- id: Integer {PK}&#xa;- name: String&#xa;- description: String&#xa;- price: BigDecimal&#xa;- originalPrice: BigDecimal&#xa;- duration: Integer&#xa;- departureLocation: String&#xa;- vehicle: String&#xa;- hotelStar: Integer&#xa;- badge: String&#xa;- availableSeats: Integer&#xa;- startDate: LocalDate&#xa;- endDate: LocalDate&#xa;- status: String (ACTIVE/INACTIVE)&#xa;- rating: Double&#xa;- category: Category {FK}&#xa;- provider: User {FK}" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_tour">
+          <mxGeometry y="30" width="250" height="250" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: Order -->
+        <mxCell id="c_order" value="Order&#xa;(Bảng: Orders)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;" vertex="1" parent="1">
+          <mxGeometry x="960" y="90" width="250" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="c_order_f" value="- id: Integer {PK}&#xa;- orderCode: String&#xa;- user: User {FK}&#xa;- orderDate: LocalDateTime&#xa;- totalAmount: BigDecimal&#xa;- status: String (PENDING/CONFIRMED...)&#xa;- contactName: String&#xa;- contactPhone: String&#xa;- paymentMethod: String (VIETQR/VNPAY...)&#xa;- paymentStatus: String (PAID/UNPAID...)&#xa;- isB2B: Boolean&#xa;- discountPercent: Integer&#xa;- depositPercent: Integer&#xa;- depositAmount: BigDecimal&#xa;- cancellationFeePercent: Integer" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_order">
+          <mxGeometry y="30" width="250" height="260" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: OrderDetail -->
+        <mxCell id="c_detail" value="OrderDetail&#xa;(Bảng: OrderDetails)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#ffffff;strokeColor=#64748b;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="960" y="440" width="220" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="c_detail_f" value="- id: Integer {PK}&#xa;- order: Order {FK}&#xa;- tour: Tour {FK}&#xa;- quantity: Integer&#xa;- price: BigDecimal&#xa;+ calculateSubtotal(): BigDecimal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_detail">
+          <mxGeometry y="30" width="220" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: UserActivityHistory -->
+        <mxCell id="c_act" value="UserActivityHistory&#xa;(Bảng: UserActivityHistory)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f5f3ff;strokeColor=#7c3aed;fontColor=#5b21b6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="440" width="240" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="c_act_f" value="- id: Long {PK}&#xa;- user: User {FK, nullable}&#xa;- sessionId: String&#xa;- tour: Tour {FK}&#xa;- activityType: String (VIEW/CART/BOOK)&#xa;- score: Integer (1 / 3 / 5)&#xa;- createdAt: LocalDateTime" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_act">
+          <mxGeometry y="30" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: Company -->
+        <mxCell id="c_comp" value="Company&#xa;(Bảng: Companies)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fffbeb;strokeColor=#d97706;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="60" y="380" width="230" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="c_comp_f" value="- id: Integer {PK}&#xa;- name: String&#xa;- taxCode: String&#xa;- billingAddress: String&#xa;- contactEmail: String&#xa;- contactPhone: String&#xa;- createdAt: LocalDateTime" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_comp">
+          <mxGeometry y="30" width="230" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- CLASS: CorporateUser -->
+        <mxCell id="c_corp_user" value="CorporateUser&#xa;(Bảng: CorporateUsers)" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fffbeb;strokeColor=#d97706;fontColor=#92400e;" vertex="1" parent="1">
+          <mxGeometry x="360" y="380" width="220" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="c_corp_user_f" value="- id: Integer {PK}&#xa;- user: User {FK}&#xa;- company: Company {FK}&#xa;- employeeCode: String&#xa;- department: String&#xa;- isAuthorizedBooker: Boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=11;" vertex="1" parent="c_corp_user">
+          <mxGeometry y="30" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <!-- User - Order (1 - N) -->
+        <mxCell id="r_u_o" value="1        0..*" style="endArrow=open;html=1;strokeColor=#dc2626;strokeWidth=1.5;" edge="1" parent="1" source="c_user" target="c_order">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Category - Tour (1 - N) -->
+        <mxCell id="r_c_t" value="1        0..*" style="endArrow=open;html=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="c_cat" target="c_tour">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Order - OrderDetail (1 - N Composition) -->
+        <mxCell id="r_o_d" value="1        1..*" style="endArrow=diamondThin;endFill=1;html=1;strokeColor=#dc2626;strokeWidth=1.5;" edge="1" parent="1" source="c_detail" target="c_order">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Tour - OrderDetail (1 - N) -->
+        <mxCell id="r_t_d" value="1        0..*" style="endArrow=open;html=1;strokeColor=#d97706;strokeWidth=1.5;" edge="1" parent="1" source="c_tour" target="c_detail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Tour - Activity (1 - N) -->
+        <mxCell id="r_t_a" value="1        0..*" style="endArrow=open;html=1;strokeColor=#7c3aed;strokeWidth=1.5;" edge="1" parent="1" source="c_tour" target="c_act">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Company - CorporateUser (1 - N) -->
+        <mxCell id="r_cp_u" value="1        0..*" style="endArrow=open;html=1;strokeColor=#d97706;strokeWidth=1.5;" edge="1" parent="1" source="c_comp" target="c_corp_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

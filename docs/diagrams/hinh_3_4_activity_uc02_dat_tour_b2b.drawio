@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_3_4__s_____activity_uc02" name="Hinh 3.4: Sơ đồ Activity UC02">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1080" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t" value="SƠ ĐỒ ACTIVITY: ĐẶT TOUR ĐOÀN B2B VÀ TÍNH CHIẾT KHẤU BẬC THANG (UC02)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#d97706;strokeColor=#b45309;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="20" width="860" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane Khách Hàng B2B -->
+        <mxCell id="sw_b2b" value="DOANH NGHIỆP B2B (FPT_CORP)" style="swimlane;startSize=30;fillColor=#fffbeb;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="400" height="690" as="geometry" />
+        </mxCell>
+        <!-- Swimlane Hệ Thống -->
+        <mxCell id="sw_sys" value="HỆ THỐNG DU LỊCH VIỆT (ORDER SERVICE &amp; DB)" style="swimlane;startSize=30;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#334155;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="440" height="690" as="geometry" />
+        </mxCell>
+
+        <mxCell id="start" value="" style="ellipse;fillColor=#0f172a;strokeColor=none;" vertex="1" parent="sw_b2b">
+          <mxGeometry x="185" y="45" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b_act1" value="Chọn hành trình &amp; Nhập số lượng vé&#xa;(Ví dụ: Đoàn 15 khách teambuilding)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d97706;" vertex="1" parent="sw_b2b">
+          <mxGeometry x="100" y="100" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b_act2" value="Tick chọn 'Đặt tour B2B', nhập:&#xa;• Tên công ty &amp; Mã số thuế&#xa;• Địa chỉ xuất hóa đơn VAT&#xa;• Chọn phương thức thanh toán" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d97706;" vertex="1" parent="sw_b2b">
+          <mxGeometry x="100" y="175" width="200" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- System Discount Engine -->
+        <mxCell id="s_act1" value="Kích hoạt thuật toán chiết khấu&#xa;OrderService.calculateDiscountPercentage()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="110" y="180" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="s_dec1" value="Số khách (N)&#xa;thuộc bậc nào?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="145" y="260" width="150" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tier_0" value="N &lt; 10 khách:&#xa;Chiết khấu 0% (Giá gốc)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="10" y="350" width="130" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="tier_5" value="10 ≤ N ≤ 19 khách:&#xa;Chiết khấu 5% tổng tiền" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontStyle=1;fontColor=#065f46;" vertex="1" parent="sw_sys">
+          <mxGeometry x="150" y="350" width="140" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="tier_10" value="N ≥ 20 khách:&#xa;Chiết khấu 10% tổng tiền" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontStyle=1;fontColor=#0369a1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="300" y="350" width="135" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_act2" value="Giữ khóa bi quan @Lock PESSIMISTIC_WRITE&#xa;và kiểm tra số chỗ trống khả dụng" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="110" y="425" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_dec2" value="Đủ chỗ&#xa;trống?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;" vertex="1" parent="sw_sys">
+          <mxGeometry x="165" y="500" width="110" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_fail" value="Ném OverbookingException&#xa;Thông báo tour không đủ số chỗ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;fontColor=#991b1b;" vertex="1" parent="sw_sys">
+          <mxGeometry x="250" y="585" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_success" value="1. Khấu trừ số vé nguyên tử&#xa;2. Tạo bản ghi đơn hàng B2B&#xa;3. Ghi vết telemetry (+5đ BOOK)&#xa;4. Xuất mã E-Ticket &amp; Hóa đơn VAT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#065f46;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="sw_sys">
+          <mxGeometry x="20" y="580" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="end" value="" style="ellipse;fillColor=#0f172a;strokeColor=#cbd5e1;strokeWidth=3;" vertex="1" parent="sw_b2b">
+          <mxGeometry x="185" y="600" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="endArrow=block;html=1;strokeColor=#d97706;" edge="1" parent="1" source="start" target="b_act1" />
+        <mxCell id="e2" style="endArrow=block;html=1;strokeColor=#d97706;" edge="1" parent="1" source="b_act1" target="b_act2" />
+        <mxCell id="e3" style="endArrow=block;html=1;strokeColor=#d97706;" edge="1" parent="1" source="b_act2" target="s_act1" />
+        <mxCell id="e4" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act1" target="s_dec1" />
+        <mxCell id="e5_1" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_dec1" target="tier_0" />
+        <mxCell id="e5_2" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="s_dec1" target="tier_5" />
+        <mxCell id="e5_3" style="endArrow=block;html=1;strokeColor=#0284c7;" edge="1" parent="1" source="s_dec1" target="tier_10" />
+        <mxCell id="e6_1" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="tier_0" target="s_act2" />
+        <mxCell id="e6_2" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="tier_5" target="s_act2" />
+        <mxCell id="e6_3" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="tier_10" target="s_act2" />
+        <mxCell id="e7" style="endArrow=block;html=1;strokeColor=#64748b;" edge="1" parent="1" source="s_act2" target="s_dec2" />
+        <mxCell id="e8" value="Đủ" style="endArrow=block;html=1;strokeColor=#059669;" edge="1" parent="1" source="s_dec2" target="s_success" />
+        <mxCell id="e9" value="Thiếu" style="endArrow=block;html=1;strokeColor=#dc2626;" edge="1" parent="1" source="s_dec2" target="s_fail" />
+        <mxCell id="e10" style="endArrow=block;html=1;strokeColor=#0f172a;" edge="1" parent="1" source="s_success" target="end" />
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

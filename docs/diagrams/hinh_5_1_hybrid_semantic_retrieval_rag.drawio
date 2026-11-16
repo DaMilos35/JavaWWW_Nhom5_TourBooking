@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0" type="device">
+  <diagram id="hinh_5_1__s_____ki_n_tr_c_hybrid_semantic_retrieval___rag_pipeline" name="Hinh 5.1: Sơ đồ Kiến trúc Hybrid Semantic Retrieval &amp; RAG Pipeline">
+    <mxGraphModel dx="1420" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title Banner -->
+        <mxCell id="t0" value="KIẾN TRÚC TÌM KIẾM NGỮ NGHĨA LAI GHÉP (HYBRID RETRIEVAL) &amp; RAG PIPELINE VỚI STRICT GEOGRAPHIC ISOLATION" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="50" y="20" width="1300" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- User Query Input -->
+        <mxCell id="q_in" value="TRUY VẤN NGÔN NGỮ TỰ NHIÊN CỦA DU KHÁCH (USER QUERY)&#xa;'Tư vấn tour đi ngắm biển khu vực Châu Á - Thái Bình Dương giá rẻ dưới 10 triệu'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f9ff;strokeColor=#0284c7;fontColor=#0369a1;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="80" width="700" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Query Preprocessing Box -->
+        <mxCell id="pre" value="TIỀN XỬ LÝ TRUY VẤN &amp; RÀO CHẮN NGỮ NGHĨA ĐỊA LÝ (QUERY PREPROCESSING &amp; STRICT GEO-ISOLATION)&#xa;1. Chuẩn hóa tiếng Việt &amp; Xóa dấu (removeVietnameseTones)&#xa;2. Bộ lọc Cách ly Địa lý (Strict Geographic Isolation Guard): Tách biệt APAC vs Australia vs Americas vs Europe&#xa;3. Trích xuất thực thể ngân sách và thời lượng qua TypeChat Schema Engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#92400e;fontStyle=1;fontSize=11;align=left;spacingLeft=15;" vertex="1" parent="1">
+          <mxGeometry x="250" y="160" width="900" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- DUAL-BRANCH RETRIEVAL CONTAINER -->
+        <mxCell id="dual_box" value="HAI NHÁNH THU HỒI DỮ LIỆU SONG SONG (DUAL-BRANCH RETRIEVAL PIPELINE)" style="swimlane;startSize=28;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#334155;fontStyle=1;rounded=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="120" y="260" width="1160" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- Branch 1: Lexical -->
+        <mxCell id="b1_box" value="NHÁNH 1: THU HỒI TỪ VỰNG CHÍNH XÁC (LEXICAL / BM25)&#xa;• Đánh chỉ mục đảo (Inverted Index) trên MariaDB / Elastic&#xa;• Khớp từ khóa cụ thể: 'biển', 'châu á', 'thái bình dương'&#xa;• Ưu điểm: Tốc độ cực nhanh (0.11 ms), không trượt từ khóa chuẩn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0284c7;fontColor=#0369a1;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="dual_box">
+          <mxGeometry x="40" y="45" width="500" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="b1_res" value="Danh sách xếp hạng Rank_BM25 (Top 20 ứng viên)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontStyle=1;" vertex="1" parent="dual_box">
+          <mxGeometry x="90" y="145" width="400" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Branch 2: Dense Semantic -->
+        <mxCell id="b2_box" value="NHÁNH 2: THU HỒI NGỮ NGHĨA DENSE VECTOR (PGVECTOR HNSW)&#xa;• Mô hình nhúng: Google Text-Embedding-004 (768 chiều)&#xa;• Cấu trúc chỉ mục: HNSW Index (Hierarchical Navigable Small World)&#xa;• Ưu điểm: Hiểu ngữ cảnh trừu tượng ('nghỉ mát', 'chill', 'lãng mạn')" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#059669;fontColor=#065f46;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="dual_box">
+          <mxGeometry x="620" y="45" width="500" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="b2_res" value="Danh sách xếp hạng Rank_Vector (Top 20 Cosine Similarity)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontStyle=1;" vertex="1" parent="dual_box">
+          <mxGeometry x="670" y="145" width="400" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- FUSION LAYER: RRF -->
+        <mxCell id="rrf_box" value="LỚP DUNG HỢP THỨ HẠNG: RECIPROCAL RANK FUSION (RRF)&#xa;RRF_Score(d) = ∑ ( 1 / ( k + Rank_i(d) ) ) với k = 60 chuẩn NeurIPS&#xa;-> Trung hòa điểm số tuyệt đối, loại bỏ hiện tượng thiên lệch phân phối điểm và ngăn chặn Rò Rỉ Ngữ Nghĩa (Zero-Hallucination)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#10b981;fontColor=#065f46;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="480" width="1000" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- RAG GENERATION & GUARDRAILS -->
+        <mxCell id="rag_box" value="ĐƯỜNG ỐNG TẠO SINH TĂNG CƯỜNG THU HỒI (RAG) &amp; MÔ HÌNH NGÔN NGỮ LỚN GOOGLE GEMINI 1.5 FLASH" style="swimlane;startSize=28;fillColor=#fdf4ff;strokeColor=#c084fc;fontColor=#6b21a8;fontStyle=1;rounded=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="120" y="575" width="1160" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="rag_c1" value="Prompt Injection Context&#xa;• Augmented Top 5 RRF Tours&#xa;• Live Seats &amp; Rolling Dates&#xa;• OTA Domain Knowledge Base" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c084fc;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="rag_box">
+          <mxGeometry x="40" y="45" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rag_c2" value="Google Gemini 1.5 Flash&#xa;• Multimodal In-context Reasoning&#xa;• Bóc tách lịch trình thông minh&#xa;• Trích xuất thông số minh bạch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c084fc;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="rag_box">
+          <mxGeometry x="340" y="45" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rag_c3" value="Guardrails &amp; TypeChat Enforcement&#xa;• PII Redaction: Che giấu CCCD/SĐT&#xa;• JSON Schema Output Validator&#xa;• Khóa tuyệt đối sinh văn bản tự do" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c084fc;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="rag_box">
+          <mxGeometry x="640" y="45" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rag_c4" value="UI Output Renderer&#xa;• Hồi đáp Markdown tự nhiên&#xa;• Interactive Tour Cards&#xa;• 1-Click Booking Action Pills" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fae8ff;strokeColor=#a855f7;fontColor=#581c87;fontStyle=1;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="rag_box">
+          <mxGeometry x="930" y="45" width="190" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Connectors -->
+        <mxCell id="e1" style="endArrow=block;strokeColor=#0284c7;strokeWidth=2;html=1;" edge="1" parent="1" source="q_in" target="pre" />
+        <mxCell id="e2_1" style="endArrow=block;strokeColor=#0284c7;strokeWidth=2;html=1;" edge="1" parent="1" source="pre" target="b1_box" />
+        <mxCell id="e2_2" style="endArrow=block;strokeColor=#059669;strokeWidth=2;html=1;" edge="1" parent="1" source="pre" target="b2_box" />
+        <mxCell id="e3_1" style="endArrow=block;strokeColor=#0284c7;strokeWidth=2;html=1;" edge="1" parent="1" source="b1_res" target="rrf_box" />
+        <mxCell id="e3_2" style="endArrow=block;strokeColor=#059669;strokeWidth=2;html=1;" edge="1" parent="1" source="b2_res" target="rrf_box" />
+        <mxCell id="e4" style="endArrow=block;strokeColor=#10b981;strokeWidth=2;html=1;" edge="1" parent="1" source="rrf_box" target="rag_box" />
+    
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
