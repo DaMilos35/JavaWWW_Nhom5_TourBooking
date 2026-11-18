@@ -96,6 +96,14 @@ public class DataInitializer implements CommandLineRunner {
             log.debug("Bảng user_activity_history đã sẵn sàng: {}", e.getMessage());
         }
 
+        // 2b. Đảm bảo các cột bảng categories tồn tại (status cho soft-delete)
+        try {
+            jdbcTemplate.execute("ALTER TABLE categories ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'");
+            log.info("Bảng categories: cột status đã sẵn sàng.");
+        } catch (Exception e) {
+            log.debug("Cột status bảng categories: {}", e.getMessage());
+        }
+
         // 3. Đảm bảo các cột bảng users (hội viên, điểm thưởng, chi tiêu) tồn tại
         try {
             jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_tier VARCHAR(30) NOT NULL DEFAULT 'STANDARD'");

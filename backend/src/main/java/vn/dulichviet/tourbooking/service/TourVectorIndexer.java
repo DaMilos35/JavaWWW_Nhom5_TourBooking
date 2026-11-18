@@ -51,21 +51,23 @@ public class TourVectorIndexer {
     @Transactional(readOnly = true)
     public synchronized int indexAllTours() {
         long start = System.currentTimeMillis();
-        List<Tour> tours = tourRepository.findAllWithCategoryAndProvider();
         int count = 0;
-
-        for (Tour tour : tours) {
-            try {
-                indexTour(tour);
-                count++;
-            } catch (Exception e) {
-                log.warn("Failed to index vector for Tour ID {}: {}", tour.getId(), e.getMessage());
+        try {
+            List<Tour> tours = tourRepository.findAllWithCategoryAndProvider();
+            for (Tour tour : tours) {
+                try {
+                    indexTour(tour);
+                    count++;
+                } catch (Exception e) {
+                    log.warn("Failed to index vector for Tour ID {}: {}", tour.getId(), e.getMessage());
+                }
             }
+            long elapsed = System.currentTimeMillis() - start;
+            log.info("Indexed {} tours into In-Memory Vector Store in {} ms (Vector DB Size: {})",
+                    count, elapsed, vectorStoreService.size());
+        } catch (Exception e) {
+            log.error("Không thể quét danh mục tour để index vector database: {}", e.getMessage());
         }
-
-        long elapsed = System.currentTimeMillis() - start;
-        log.info("Indexed {} tours into In-Memory Vector Store in {} ms (Vector DB Size: {})",
-                count, elapsed, vectorStoreService.size());
         return count;
     }
 

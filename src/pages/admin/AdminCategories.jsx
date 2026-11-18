@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaSearch, FaLayerGroup, FaToggleOn, FaToggleOff, FaUndo } from 'react-icons/fa';
-import { adminApi, categoryApi } from '../../api/axiosConfig';
+import { adminApi, categoryApi, tourApi } from '../../api/axiosConfig';
 import { REAL_CATEGORIES } from '../../api/realTourDataApi';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
