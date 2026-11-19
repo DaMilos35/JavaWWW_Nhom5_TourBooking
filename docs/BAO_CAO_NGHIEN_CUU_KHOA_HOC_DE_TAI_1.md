@@ -32,3 +32,10 @@ Công trình này đề xuất một Kiến trúc Tìm kiếm Ngữ nghĩa Lai g
 | **3. Hybrid Retrieval (RRF Đề xuất)** | **52.5%** | **93.5%** | **0.930** | **0.901** | **0.0%** | **0.88 ms** |
 
 *File Word hoàn chỉnh đã được khởi tạo sẵn sàng nộp tại: `docs/BAO_CAO_NGHIEN_CUU_KHOA_HOC_DE_TAI_1.docx`*
+
+---
+
+### PHỤ LỤC CHUYÊN ĐỀ NCKH MỞ RỘNG (SECURITY EXPERIMENTATION)
+* **Chuyên đề bảo mật chuyên sâu**: [Nghiên cứu Lỗ hổng Xác thực API, Cơ chế Bypass JWT và Giải pháp Phòng vệ Đa tầng trên Java Spring Boot](file:///c:/Users/LENOVO/Downloads/JavaWWW_Nhom5_TourBooking-main/docs/CHUYEN_DE_NCKH_BAO_MAT_JAVA_API_JWT.md)
+* **Kịch bản thực nghiệm tự động Red Team vs Blue Team**: [security_lab/run_red_team_attack_sim.cjs](file:///c:/Users/LENOVO/Downloads/JavaWWW_Nhom5_TourBooking-main/security_lab/run_red_team_attack_sim.cjs)
+
