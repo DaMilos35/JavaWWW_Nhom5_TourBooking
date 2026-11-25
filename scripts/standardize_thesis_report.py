@@ -344,12 +344,12 @@ def main():
         print("Injected standard List of Abbreviations table before Chapter 1.")
 
     # =========================================================================
-    # 7. BỔ SUNG: DANH MỤC TÀI LIỆU THAM KHẢO CHUẨN IEEE (SAU CHƯƠNG 7)
+    # 7. BỔ SUNG: DANH MỤC TÀI LIỆU THAM KHẢO CHUẨN IEEE CÓ THÔNG TIN CHI TIẾT & HYPERLINK
     # =========================================================================
     ref_heading = doc.add_paragraph()
     ref_heading.paragraph_format.page_break_before = True
-    ref_heading.paragraph_format.space_before = Pt(18)
-    ref_heading.paragraph_format.space_after = Pt(12)
+    ref_heading.paragraph_format.space_before = Pt(24)
+    ref_heading.paragraph_format.space_after = Pt(16)
     ref_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
     r_head = ref_heading.add_run('TÀI LIỆU THAM KHẢO')
     r_head.font.name = 'Times New Roman'
@@ -357,31 +357,141 @@ def main():
     r_head.font.bold = True
     r_head.font.color.rgb = RGBColor(0, 0, 0)
 
-    references_list = [
-        "[1] Bộ Giáo dục và Đào tạo, \"Quy định về quy cách trình bày đồ án, khóa luận tốt nghiệp đại học,\" Thông tư số 08/2021/TT-BGDĐT, Hà Nội, 2021.",
-        "[2] Trường Đại học Công nghiệp TP. Hồ Chí Minh (IUH), \"Quy định thực hiện và trình bày đồ án, khóa luận tốt nghiệp ngành Kỹ thuật Phần mềm,\" Khoa Công nghệ Thông tin, 2024.",
-        "[3] Oracle Corporation, \"Java Platform, Standard Edition 17 LTS Specification & API Documentation,\" Oracle Technology Network, 2024.",
-        "[4] VMware, Inc., \"Spring Boot Reference Documentation (Version 3.5.x),\" Pivotal Software, https://docs.spring.io/spring-boot, 2026.",
-        "[5] Christian Bauer, Gavin King, and Gary Gregory, \"Java Persistence with Hibernate,\" 2nd Edition, Manning Publications, Shelter Island, NY, 2016.",
-        "[6] Robert C. Martin, \"Clean Architecture: A Craftsman's Guide to Software Structure and Design,\" Prentice Hall, Boston, MA, 2017.",
-        "[7] OWASP Foundation, \"OWASP API Security Top 10 (2023 Edition) - The Ten Most Critical API Security Risks,\" Open Web Application Security Project, 2023.",
-        "[8] Patrick Lewis et al., \"Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,\" Advances in Neural Information Processing Systems (NeurIPS), vol. 33, pp. 9459-9474, 2020.",
-        "[9] Martin Fowler, \"Patterns of Enterprise Application Architecture,\" Addison-Wesley Professional, Boston, MA, 2002."
+    def add_doc_hyperlink(paragraph, url, text):
+        part = paragraph.part
+        r_id = part.relate_to(url, docx.opc.constants.RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
+        hyperlink_xml = f'''<w:hyperlink xmlns:w="{w_ns}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="{r_id}">
+  <w:r>
+    <w:rPr>
+      <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
+      <w:color w:val="0563C1"/>
+      <w:u w:val="single"/>
+      <w:sz w:val="22"/>
+      <w:szCs w:val="22"/>
+    </w:rPr>
+    <w:t>{text}</w:t>
+  </w:r>
+</w:hyperlink>'''
+        hyperlink_elem = parse_xml(hyperlink_xml)
+        paragraph._p.append(hyperlink_elem)
+
+    detailed_references = [
+        {
+            "id": "[1]",
+            "citation": "Bộ Giáo dục và Đào tạo, \"Quy định về quy cách trình bày đồ án, khóa luận tốt nghiệp đại học,\" Thông tư số 08/2021/TT-BGDĐT, Hà Nội, 2021.",
+            "note": "Quy định chuẩn khung văn bản hành chính học thuật, cách phân chia chương mục, đánh số trang và quy cách đóng bìa đồ án tốt nghiệp đại học.",
+            "url": "https://moet.gov.vn/van-ban/van-ban-quan-ly/Pages/chi-tiet-van-ban.aspx?ItemID=1393"
+        },
+        {
+            "id": "[2]",
+            "citation": "Trường Đại học Công nghiệp TP. Hồ Chí Minh (IUH), \"Quy định thực hiện và trình bày đồ án, khóa luận tốt nghiệp ngành Kỹ thuật Phần mềm,\" Khoa Công nghệ Thông tin, 2024.",
+            "note": "Hướng dẫn chính quy của Khoa CNTT - IUH về các biểu mẫu nhận xét của Giảng viên hướng dẫn, Giảng viên phản biện, danh mục bảng biểu và tiêu chí nghiệm thu phần mềm.",
+            "url": "https://fit.iuh.edu.vn/"
+        },
+        {
+            "id": "[3]",
+            "citation": "Oracle Corporation, \"Java Platform, Standard Edition 17 LTS (Java SE 17) Specification & API Documentation,\" Oracle Technology Network, 2024.",
+            "note": "Đặc tả kỹ thuật nền tảng Java 17 LTS: cú pháp Record, Pattern Matching, Garbage Collection (G1GC) và tính năng tối ưu hóa đa luồng phục vụ xây dựng Backend tại Chương 2 và Chương 4.",
+            "url": "https://docs.oracle.com/en/java/javase/17/"
+        },
+        {
+            "id": "[4]",
+            "citation": "VMware Tanzu / Spring Team, \"Spring Boot Reference Documentation (Version 3.5.x),\" Pivotal Software, 2026.",
+            "note": "Cẩm nang kiến trúc vi dịch vụ và ứng dụng web doanh nghiệp: cơ chế Auto-Configuration, quản lý Dependency Injection, xây dựng RESTful API và tích hợp HikariCP connection pool cho MariaDB tại Chương 2 và Chương 4.",
+            "url": "https://docs.spring.io/spring-boot/docs/current/reference/html/"
+        },
+        {
+            "id": "[5]",
+            "citation": "Spring Security Team, \"Spring Security 6 Architecture & Stateless Authentication Guide,\" VMware, Inc., 2026.",
+            "note": "Tài liệu kiến trúc bảo mật đa tầng: xây dựng bộ lọc SecurityFilterChain, cơ chế xác thực phi trạng thái bằng JSON Web Token (JWT), phòng chống CSRF, CORS và phân quyền vai trò (@PreAuthorize) tại Chương 3 và Chương 4.",
+            "url": "https://docs.spring.io/spring-security/reference/"
+        },
+        {
+            "id": "[6]",
+            "citation": "Christian Bauer, Gavin King, and Gary Gregory, \"Java Persistence with Hibernate,\" 2nd Edition, Manning Publications, Shelter Island, NY, 2016.",
+            "note": "Giáo trình chuyên sâu về ORM/JPA: kỹ thuật tối ưu truy vấn giải quyết bài toán N+1 Selects, khóa bi quan (@Lock PESSIMISTIC_WRITE) chống bán vé vượt số lượng (overselling) và thiết kế CSDL 3NF tại Chương 3 và Chương 4.",
+            "url": "https://www.manning.com/books/java-persistence-with-hibernate"
+        },
+        {
+            "id": "[7]",
+            "citation": "Robert C. Martin (\"Uncle Bob\"), \"Clean Architecture: A Craftsman's Guide to Software Structure and Design,\" Prentice Hall, Boston, MA, 2017.",
+            "note": "Nguyên tắc kiến trúc sạch và hệ thống nguyên lý SOLID: thiết kế phân ranh giới độc lập giữa các tầng Controller, Service, Repository và Entity, nâng cao khả năng kiểm thử tự động TDD đạt 100% tại Chương 3 và Chương 5.",
+            "url": "https://www.pearson.com/en-us/subject-catalog/p/clean-architecture-a-craftsmans-guide-to-software-structure-and-design/P200000009514"
+        },
+        {
+            "id": "[8]",
+            "citation": "OWASP Foundation, \"OWASP API Security Top 10 - The Ten Most Critical API Security Risks,\" Open Web Application Security Project, 2023.",
+            "note": "Tiêu chuẩn an ninh mạng ứng dụng web quốc tế: rà soát và phòng chống các lỗ hổng Broken Object Level Authorization (BOLA/IDOR), SQL Injection, rò rỉ dữ liệu và kiểm soát phiên làm việc an toàn tại Chương 4 và Chương 5.",
+            "url": "https://owasp.org/www-project-api-security/"
+        },
+        {
+            "id": "[9]",
+            "citation": "Patrick Lewis, Ethan Perez, Aleksandara Piktus, et al., \"Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,\" Advances in Neural Information Processing Systems (NeurIPS), vol. 33, pp. 9459-9474, 2020.",
+            "note": "Công trình khoa học nền tảng định nghĩa kiến trúc RAG: kết hợp cơ sở dữ liệu Vector với mô hình ngôn ngữ lớn (Google Gemini AI) để xây dựng hệ thống Trợ lý ảo du lịch và tìm kiếm ngữ nghĩa lai ghép tại Chương 4 (mục 4.9).",
+            "url": "https://arxiv.org/abs/2005.11401"
+        },
+        {
+            "id": "[10]",
+            "citation": "Nhóm sinh viên thực hiện Đề tài 49, \"Kho mã nguồn mở Hệ thống Đặt Tour Du Lịch Trực Tuyến (Du Lịch Việt) & Bộ tài liệu kỹ thuật,\" Trường ĐH Công nghiệp TP.HCM, 2026.",
+            "note": "Toàn bộ mã nguồn mở Backend Spring Boot, Frontend React Desktop UI/UX, bộ kịch bản kiểm thử TDD/E2E, CSDL MariaDB và các sơ đồ kiến trúc hệ thống phục vụ hội đồng chấm đồ án.",
+            "url": "https://github.com/DaMilos35/JavaWWW_Nhom5_TourBooking"
+        }
     ]
 
-    for ref in references_list:
-        p_ref = doc.add_paragraph()
-        p_ref.paragraph_format.space_before = Pt(4)
-        p_ref.paragraph_format.space_after = Pt(4)
-        p_ref.paragraph_format.line_spacing = 1.3
-        p_ref.paragraph_format.left_indent = Cm(0.8)
-        p_ref.paragraph_format.first_line_indent = Cm(-0.8)  # Treo lề chuẩn IEEE
-        r_item = p_ref.add_run(ref)
-        r_item.font.name = 'Times New Roman'
-        r_item.font.size = Pt(12)
-        r_item.font.color.rgb = RGBColor(0, 0, 0)
+    for item in detailed_references:
+        # Đoạn 1: Trích dẫn chính (Citation)
+        p_cite = doc.add_paragraph()
+        p_cite.paragraph_format.space_before = Pt(8)
+        p_cite.paragraph_format.space_after = Pt(2)
+        p_cite.paragraph_format.line_spacing = 1.25
+        p_cite.paragraph_format.left_indent = Cm(0.8)
+        p_cite.paragraph_format.first_line_indent = Cm(-0.8)
 
-    print("Appended standard IEEE References section after Chapter 7.")
+        r_id = p_cite.add_run(f'{item["id"]} ')
+        r_id.font.name = 'Times New Roman'
+        r_id.font.size = Pt(12)
+        r_id.font.bold = True
+
+        r_text = p_cite.add_run(item["citation"])
+        r_text.font.name = 'Times New Roman'
+        r_text.font.size = Pt(12)
+        r_text.font.color.rgb = RGBColor(0, 0, 0)
+
+        # Đoạn 2: Ghi chú nội dung & Ứng dụng trong đồ án
+        p_note = doc.add_paragraph()
+        p_note.paragraph_format.space_before = Pt(1)
+        p_note.paragraph_format.space_after = Pt(2)
+        p_note.paragraph_format.line_spacing = 1.2
+        p_note.paragraph_format.left_indent = Cm(0.8)
+
+        r_note_lbl = p_note.add_run('• Nội dung & Ứng dụng: ')
+        r_note_lbl.font.name = 'Times New Roman'
+        r_note_lbl.font.size = Pt(11)
+        r_note_lbl.font.bold = True
+        r_note_lbl.font.color.rgb = RGBColor(70, 70, 70)
+
+        r_note_val = p_note.add_run(item["note"])
+        r_note_val.font.name = 'Times New Roman'
+        r_note_val.font.size = Pt(11)
+        r_note_val.font.italic = True
+        r_note_val.font.color.rgb = RGBColor(70, 70, 70)
+
+        # Đoạn 3: Đường dẫn tham khảo có thể click trực tiếp (Clickable Hyperlink)
+        p_link = doc.add_paragraph()
+        p_link.paragraph_format.space_before = Pt(1)
+        p_link.paragraph_format.space_after = Pt(8)
+        p_link.paragraph_format.line_spacing = 1.2
+        p_link.paragraph_format.left_indent = Cm(0.8)
+
+        r_link_lbl = p_link.add_run('• Liên kết tra cứu: ')
+        r_link_lbl.font.name = 'Times New Roman'
+        r_link_lbl.font.size = Pt(11)
+        r_link_lbl.font.bold = True
+        r_link_lbl.font.color.rgb = RGBColor(30, 64, 175)
+
+        add_doc_hyperlink(p_link, item["url"], item["url"])
+
+    print("Appended standard IEEE References section with full details and clickable hyperlinks.")
 
     # =========================================================================
     # 8. LƯU TÀI LIỆU VÀ CẬP NHẬT SETTINGS (UPDATEFIELDS = TRUE)
