@@ -79,9 +79,15 @@ CREATE TABLE tours (
     tour_name           VARCHAR(300)    NOT NULL,
     description         LONGTEXT        NULL,
     price               DECIMAL(18,2)   NOT NULL CHECK (price >= 0),
-    original_price      DECIMAL(18,2)   NULL,
     duration            INT             NOT NULL DEFAULT 1 CHECK (duration >= 1),
     departure_location  VARCHAR(200)    NULL,
+    image_url           VARCHAR(500)    NULL,
+    available_seats     INT             NOT NULL DEFAULT 0 CHECK (available_seats >= 0),
+    start_date          DATE            NULL,
+    end_date            DATE            NULL,
+    status              VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE')),
+    rating              DECIMAL(2,1)    NULL DEFAULT 4.8 CHECK (rating >= 0 AND rating <= 5),
+    original_price      DECIMAL(18,2)   NULL,
     vehicle             VARCHAR(150)    NULL DEFAULT 'Xe du lịch cao cấp',
     hotel_star          INT             NULL DEFAULT 3 CHECK (hotel_star BETWEEN 1 AND 5),
     badge               VARCHAR(50)     NULL,
@@ -89,12 +95,6 @@ CREATE TABLE tours (
     itinerary           LONGTEXT        NULL,
     inclusions          LONGTEXT        NULL,
     exclusions          LONGTEXT        NULL,
-    image_url           VARCHAR(500)    NULL,
-    available_seats     INT             NOT NULL DEFAULT 0 CHECK (available_seats >= 0),
-    start_date          DATE            NULL,
-    end_date            DATE            NULL,
-    status              VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE')),
-    rating              DECIMAL(2,1)    NULL DEFAULT 4.8 CHECK (rating >= 0 AND rating <= 5),
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT FK_Tours_Categories FOREIGN KEY (category_id) REFERENCES categories(category_id),
@@ -160,12 +160,8 @@ CREATE TABLE orderdetails (
     INDEX idx_orderdetails_order_tour (order_id, tour_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- View tương thích cho cú pháp PascalCase / CamelCase
-CREATE OR REPLACE VIEW OrderDetails AS SELECT * FROM orderdetails;
-CREATE OR REPLACE VIEW Orders AS SELECT * FROM orders;
-CREATE OR REPLACE VIEW Tours AS SELECT * FROM tours;
-CREATE OR REPLACE VIEW Categories AS SELECT * FROM categories;
-CREATE OR REPLACE VIEW Users AS SELECT * FROM users;
+-- View tương thích cho bảng order_details (tránh trùng tên bảng gốc trên Windows lower_case_table_names=1)
+CREATE OR REPLACE VIEW order_details AS SELECT * FROM orderdetails;
 
 -- =================================================================================
 -- BẢNG 6: USER_ACTIVITY_HISTORY (Lưu vết hành vi phục vụ Recommendation Engine)
@@ -245,51 +241,71 @@ CREATE TABLE corporate_users (
     corp_user_id        BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id             INT             NOT NULL,
     company_id          BIGINT          NOT NULL,
-    corp_role           VARCHAR(20)     NOT NULL DEFAULT 'EMPLOYEE',
+    corp_role           VARCHAR(20)     NOT NULL DEFAULT 'EMPLOYEE'
+                        CHECK (corp_role IN ('COMPANY_ADMIN','MANAGER','BOOKER','EMPLOYEE')),
     employee_grade      VARCHAR(50)     NULL,
     department          VARCHAR(100)    NULL,
     manager_corp_user_id BIGINT         NULL,
-    cost_center         VARCHAR(50)     NULL,
     is_active           TINYINT(1)      NOT NULL DEFAULT 1,
-    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    joined_at           DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT FK_CorpUser_Users   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT FK_CorpUser_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
+    CONSTRAINT FK_CorpUser_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+    CONSTRAINT FK_CorpUser_Manager FOREIGN KEY (manager_corp_user_id) REFERENCES corporate_users(corp_user_id) ON DELETE SET NULL,
+    UNIQUE INDEX uq_user_company   (user_id, company_id),
+    INDEX idx_corp_users_company   (company_id),
+    INDEX idx_corp_users_role      (corp_role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
 -- BẢNG 11: TRAVEL_POLICIES (Chính sách Hạn mức Đặt Tour Công Tác Doanh Nghiệp)
 -- =================================================================================
 CREATE TABLE travel_policies (
-    policy_id           BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    company_id          BIGINT          NOT NULL,
-    policy_name         VARCHAR(150)    NOT NULL,
-    description         VARCHAR(500)    NULL,
-    is_default          TINYINT(1)      NOT NULL DEFAULT 0,
-    applicable_grades   VARCHAR(200)    NULL,
-    max_amount_per_trip DECIMAL(18,2)   NOT NULL,
-    advance_booking_days_min INT        NOT NULL DEFAULT 3,
-    require_approval_above DECIMAL(18,2) NULL,
-    created_by          BIGINT          NULL,
-    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    policy_id               BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_id              BIGINT          NOT NULL,
+    policy_name             VARCHAR(150)    NOT NULL,
+    description             VARCHAR(500)    NULL,
+    is_default              TINYINT(1)      NOT NULL DEFAULT 0,
+    applicable_grades       JSON            NULL,
+    max_amount_per_trip     DECIMAL(18,2)   NOT NULL DEFAULT 5000000.00,
+    max_amount_per_year     DECIMAL(18,2)   NULL,
+    advance_booking_days_min INT            NOT NULL DEFAULT 3,
+    advance_booking_days_max INT            NULL DEFAULT 365,
+    allowed_tour_category_ids JSON          NULL,
+    max_hotel_star          INT             NULL DEFAULT 4,
+    allowed_vehicle_types   JSON            NULL,
+    require_approval_above  DECIMAL(18,2)   NULL,
+    created_by              BIGINT          NULL,
+    created_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    version                 INT             NOT NULL DEFAULT 1,
 
-    CONSTRAINT FK_Policy_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
+    CONSTRAINT FK_Policy_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+    INDEX idx_policy_company (company_id),
+    INDEX idx_policy_default (company_id, is_default)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
 -- BẢNG 12: CREDIT_LIMITS (Hạn mức Tín dụng & Công Nợ Doanh Nghiệp)
 -- =================================================================================
 CREATE TABLE credit_limits (
-    credit_id           BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    company_id          BIGINT          NOT NULL UNIQUE,
-    credit_limit        DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
-    used_credit         DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
-    account_status      VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE',
-    updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    credit_id               BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_id              BIGINT          NOT NULL UNIQUE,
+    credit_limit            DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    used_credit             DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    reserved_credit         DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    overdue_amount          DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    due_date                DATE            NULL,
+    last_payment_at         DATETIME        NULL,
+    last_payment_amount     DECIMAL(18,2)   NULL,
+    account_status          VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE'
+                            CHECK (account_status IN ('ACTIVE','WARNING','RESTRICTED','BLOCKED')),
+    warning_threshold_pct   INT             NOT NULL DEFAULT 80,
+    blocked_threshold_pct   INT             NOT NULL DEFAULT 100,
+    updated_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT FK_Credit_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
+    CONSTRAINT FK_Credit_Company FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+    INDEX idx_credit_status (account_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
@@ -303,13 +319,21 @@ CREATE TABLE corporate_bookings (
     traveler_corp_user_id BIGINT        NOT NULL,
     policy_id           BIGINT          NULL,
     tour_id             INT             NOT NULL,
+    tour_name           VARCHAR(300)    NOT NULL DEFAULT '',
+    tour_snapshot       JSON            NULL,
+    quantity            INT             NOT NULL DEFAULT 1,
+    unit_price          DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
     passenger_count     INT             NOT NULL DEFAULT 1,
-    total_amount        DECIMAL(18,2)   NOT NULL,
-    company_paid_amount DECIMAL(18,2)   NOT NULL,
+    total_amount        DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    discount_percent    INT             NOT NULL DEFAULT 0,
+    final_amount        DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    company_paid_amount DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
     employee_paid_amount DECIMAL(18,2)  NOT NULL DEFAULT 0.00,
     requires_approval   TINYINT(1)      NOT NULL DEFAULT 0,
-    booking_status      VARCHAR(30)     NOT NULL DEFAULT 'CONFIRMED',
-    payment_status      VARCHAR(30)     NOT NULL DEFAULT 'PAID',
+    is_over_policy      TINYINT(1)      NOT NULL DEFAULT 0,
+    booking_status      VARCHAR(30)     NOT NULL DEFAULT 'PENDING_APPROVAL',
+    payment_method      VARCHAR(20)     NOT NULL DEFAULT 'CREDIT_LINE',
+    payment_status      VARCHAR(30)     NOT NULL DEFAULT 'UNPAID',
     payment_type        VARCHAR(30)     NOT NULL DEFAULT 'CREDIT_LINE',
     invoice_code        VARCHAR(50)     NULL,
     trip_purpose        VARCHAR(255)    NULL,
@@ -324,7 +348,10 @@ CREATE TABLE corporate_bookings (
     cancellation_reason VARCHAR(255)    NULL,
 
     CONSTRAINT FK_CorpBooking_Company FOREIGN KEY (company_id) REFERENCES companies(company_id),
-    CONSTRAINT FK_CorpBooking_Tour    FOREIGN KEY (tour_id)    REFERENCES tours(tour_id)
+    CONSTRAINT FK_CorpBooking_Tour    FOREIGN KEY (tour_id)    REFERENCES tours(tour_id),
+    INDEX idx_corp_booking_company    (company_id),
+    INDEX idx_corp_booking_status     (booking_status),
+    INDEX idx_corp_booking_created    (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
