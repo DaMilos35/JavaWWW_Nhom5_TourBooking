@@ -53,9 +53,30 @@ public class TourService {
     private EmbeddingService embeddingService;
 
     public List<TourDto> findAll() {
-        return tourRepository.findAll().stream()
+        return tourRepository.findByStatus("ACTIVE").stream()
                 .map(TourDto::from)
                 .collect(Collectors.toList());
+    }
+
+    public List<TourDto> findAll(boolean includeInactive) {
+        return (includeInactive ? tourRepository.findAll() : tourRepository.findByStatus("ACTIVE")).stream()
+                .map(TourDto::from).collect(Collectors.toList());
+    }
+
+    public List<TourDto> findByProviderId(Integer providerId) {
+        return tourRepository.findByProvider_Id(providerId).stream()
+                .map(TourDto::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<TourDto> filterTours(vn.dulichviet.tourbooking.dto.TourFilterRequest filter,
+                                     boolean includeInactive,
+                                     Integer providerId) {
+        var scopedFilter = new vn.dulichviet.tourbooking.dto.TourFilterRequest(
+                filter.keyword(), filter.categoryId(), providerId, filter.departureLocation(), filter.minPrice(),
+                filter.maxPrice(), filter.minDuration(), filter.maxDuration(), filter.hotelStar(), filter.vehicle(),
+                filter.status(), filter.sortBy());
+        return filterTours(scopedFilter, includeInactive);
     }
 
     @Cacheable(value = "tour", key = "#id")
@@ -69,7 +90,7 @@ public class TourService {
         if (keyword == null || keyword.isBlank()) {
             return findAll();
         }
-        List<TourDto> sqlResults = tourRepository.findByNameContainingIgnoreCase(keyword).stream()
+        List<TourDto> sqlResults = tourRepository.findByNameContainingIgnoreCaseAndStatus(keyword, "ACTIVE").stream()
                 .map(TourDto::from)
                 .collect(Collectors.toList());
 
@@ -108,6 +129,10 @@ public class TourService {
      * Tim kiem va loc da tieu chi thong minh bang Spring Data JPA Specification & Criteria API
      */
     public List<TourDto> filterTours(vn.dulichviet.tourbooking.dto.TourFilterRequest filter) {
+        return filterTours(filter, false);
+    }
+
+    public List<TourDto> filterTours(vn.dulichviet.tourbooking.dto.TourFilterRequest filter, boolean includeInactive) {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(
                 org.springframework.data.domain.Sort.Direction.DESC, "rating")
                 .and(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
@@ -125,14 +150,17 @@ public class TourService {
             }
         }
 
-        var spec = vn.dulichviet.tourbooking.specification.TourSpecification.withFilter(filter);
+        var effectiveFilter = includeInactive ? filter : new vn.dulichviet.tourbooking.dto.TourFilterRequest(
+                filter.keyword(), filter.categoryId(), filter.providerId(), filter.departureLocation(), filter.minPrice(),
+                filter.maxPrice(), filter.minDuration(), filter.maxDuration(), filter.hotelStar(), filter.vehicle(), "ACTIVE", filter.sortBy());
+        var spec = vn.dulichviet.tourbooking.specification.TourSpecification.withFilter(effectiveFilter);
         return tourRepository.findAll(spec, sort).stream()
                 .map(TourDto::from)
                 .collect(Collectors.toList());
     }
 
     public List<TourDto> findByCategoryId(Integer categoryId) {
-        return tourRepository.findByCategoryId(categoryId).stream()
+        return tourRepository.findByCategoryIdAndStatus(categoryId, "ACTIVE").stream()
                 .map(TourDto::from)
                 .collect(Collectors.toList());
     }
@@ -184,7 +212,7 @@ public class TourService {
 
         // Kiểm tra quyền Provider: chỉ được sửa tour do chính đơn vị mình đăng
         if (currentUser != null && "PROVIDER".equalsIgnoreCase(currentUser.getRole().replace("ROLE_", ""))) {
-            if (tour.getProvider() != null && !currentUser.getId().equals(tour.getProvider().getId())) {
+            if (tour.getProvider() == null || !currentUser.getId().equals(tour.getProvider().getId())) {
                 throw new ApiException(403, "Bạn không có quyền chỉnh sửa tour của đơn vị lữ hành khác!");
             }
         }
@@ -192,7 +220,11 @@ public class TourService {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy danh mục"));
 
+        Integer currentSeats = tour.getAvailableSeats();
         mapToEntity(request, tour);
+        if (currentUser != null && "PROVIDER".equalsIgnoreCase(currentUser.getRole().replace("ROLE_", ""))) {
+            tour.setAvailableSeats(currentSeats);
+        }
         tour.setCategory(category);
         
         Tour saved = tourRepository.save(tour);
@@ -222,7 +254,7 @@ public class TourService {
 
         // Kiểm tra quyền Provider
         if (currentUser != null && "PROVIDER".equalsIgnoreCase(currentUser.getRole().replace("ROLE_", ""))) {
-            if (tour.getProvider() != null && !currentUser.getId().equals(tour.getProvider().getId())) {
+            if (tour.getProvider() == null || !currentUser.getId().equals(tour.getProvider().getId())) {
                 throw new ApiException(403, "Bạn không có quyền xóa tour của đơn vị lữ hành khác!");
             }
         }

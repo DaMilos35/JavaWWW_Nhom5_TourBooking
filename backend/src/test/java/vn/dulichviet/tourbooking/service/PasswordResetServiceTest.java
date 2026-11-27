@@ -66,6 +66,8 @@ class PasswordResetServiceTest {
     @DisplayName("1. Yêu cầu mã xác thực qua Email thành công")
     void testRequestReset_EmailSuccess() {
         when(rateLimiterService.tryAcquire(anyString(), anyInt(), anyLong())).thenReturn(true);
+        when(emailService.isEmailDeliveryConfigured()).thenReturn(true);
+        when(emailService.sendPasswordResetEmail(anyString(), anyString(), anyString())).thenReturn(true);
         when(userRepository.findFirstByEmailIgnoreCase("customer@dulichviet.vn")).thenReturn(Optional.of(sampleUser));
 
         ForgotPasswordRequest request = new ForgotPasswordRequest("EMAIL", "customer@dulichviet.vn");
@@ -74,7 +76,8 @@ class PasswordResetServiceTest {
         assertNotNull(response);
         assertEquals(true, response.get("success"));
         assertEquals("EMAIL", response.get("channel"));
-        assertNotNull(response.get("simulatedToken"));
+        assertFalse(response.containsKey("simulatedToken"));
+        assertFalse(response.containsKey("simulatedOtp"));
 
         // Kiểm tra lưu token với SHA-256 hash
         ArgumentCaptor<PasswordResetToken> tokenCaptor = ArgumentCaptor.forClass(PasswordResetToken.class);
@@ -94,6 +97,8 @@ class PasswordResetServiceTest {
     @DisplayName("2. Yêu cầu mã xác thực qua SMS OTP thành công")
     void testRequestReset_SmsSuccess() {
         when(rateLimiterService.tryAcquire(anyString(), anyInt(), anyLong())).thenReturn(true);
+        when(smsService.isConfigured()).thenReturn(true);
+        when(smsService.sendOtpSms(eq("0901234567"), anyString())).thenReturn(true);
         when(userRepository.findFirstByPhone("0901234567")).thenReturn(Optional.of(sampleUser));
 
         ForgotPasswordRequest request = new ForgotPasswordRequest("SMS", "0901234567");
@@ -102,7 +107,7 @@ class PasswordResetServiceTest {
         assertNotNull(response);
         assertEquals(true, response.get("success"));
         assertEquals("SMS", response.get("channel"));
-        assertNotNull(response.get("simulatedOtp"));
+        assertFalse(response.containsKey("simulatedOtp"));
 
         ArgumentCaptor<PasswordResetToken> tokenCaptor = ArgumentCaptor.forClass(PasswordResetToken.class);
         verify(tokenRepository).save(tokenCaptor.capture());
@@ -208,8 +213,6 @@ class PasswordResetServiceTest {
         resetToken.setAttempts(0);
         resetToken.setIsUsed(false);
 
-        when(tokenRepository.findByTokenHashAndTypeAndIsUsedFalse(tokenHash, "EMAIL_LINK"))
-                .thenReturn(Optional.empty());
         when(tokenRepository.findByTokenHashAndTypeAndIsUsedFalse(tokenHash, "RESET_TOKEN"))
                 .thenReturn(Optional.of(resetToken));
         when(passwordEncoder.encode("NewSecretPassword@2026")).thenReturn("$2a$10$newHashedPassword2026");
@@ -234,8 +237,6 @@ class PasswordResetServiceTest {
         String rawToken = "used-token-abc";
         String tokenHash = PasswordResetService.hashSha256(rawToken);
 
-        when(tokenRepository.findByTokenHashAndTypeAndIsUsedFalse(tokenHash, "EMAIL_LINK"))
-                .thenReturn(Optional.empty());
         when(tokenRepository.findByTokenHashAndTypeAndIsUsedFalse(tokenHash, "RESET_TOKEN"))
                 .thenReturn(Optional.empty());
 

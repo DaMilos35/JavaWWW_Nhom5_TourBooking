@@ -23,8 +23,12 @@ public class TourController {
 
     /** Công khai: lấy tất cả tour */
     @GetMapping
-    public ResponseEntity<List<TourDto>> getAll() {
-        return ResponseEntity.ok(tourService.findAll());
+    public ResponseEntity<List<TourDto>> getAll(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal vn.dulichviet.tourbooking.config.CustomUserDetails userDetails) {
+        if (isProvider(userDetails)) {
+            return ResponseEntity.ok(tourService.findByProviderId(userDetails.getUser().getId()));
+        }
+        return ResponseEntity.ok(tourService.findAll(isAdmin(userDetails)));
     }
 
     /** Công khai: lấy danh sách tour gợi ý cá nhân hóa dựa trên lịch sử hoạt động */
@@ -73,13 +77,17 @@ public class TourController {
             @RequestParam(required = false) Integer hotelStar,
             @RequestParam(required = false) String vehicle,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false, defaultValue = "bestseller") String sortBy
+            @RequestParam(required = false, defaultValue = "bestseller") String sortBy,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal vn.dulichviet.tourbooking.config.CustomUserDetails userDetails
     ) {
         vn.dulichviet.tourbooking.dto.TourFilterRequest filter = new vn.dulichviet.tourbooking.dto.TourFilterRequest(
                 keyword, categoryId, providerId, departureLocation, minPrice, maxPrice,
                 minDuration, maxDuration, hotelStar, vehicle, status, sortBy
         );
-        return ResponseEntity.ok(tourService.filterTours(filter));
+        if (isProvider(userDetails)) {
+            return ResponseEntity.ok(tourService.filterTours(filter, true, userDetails.getUser().getId()));
+        }
+        return ResponseEntity.ok(tourService.filterTours(filter, isAdmin(userDetails)));
     }
 
     /** Công khai: lấy chi tiết 1 tour */
@@ -88,6 +96,18 @@ public class TourController {
             @PathVariable Integer id,
             @RequestParam(required = false) String sessionId,
             @org.springframework.security.core.annotation.AuthenticationPrincipal vn.dulichviet.tourbooking.config.CustomUserDetails userDetails) {
+        if (isProvider(userDetails)) {
+            TourDto providerTour = tourService.findById(id);
+            if (!userDetails.getUser().getId().equals(providerTour.providerId())) {
+                throw new vn.dulichviet.tourbooking.exception.ApiException(404, "Không tìm thấy tour");
+            }
+        } else if (!isAdmin(userDetails)) {
+            // The public catalog never exposes hidden tours.
+            TourDto publicTour = tourService.findById(id);
+            if (!"ACTIVE".equalsIgnoreCase(publicTour.status())) {
+                throw new vn.dulichviet.tourbooking.exception.ApiException(404, "Không tìm thấy tour");
+            }
+        }
         TourDto tour = tourService.findById(id);
         // Tự động lưu vết xem tour
         Integer userId = userDetails != null ? userDetails.getUser().getId() : null;
@@ -139,9 +159,22 @@ public class TourController {
     }
 
     /** Công khai / Quản trị: Đồng bộ bộ dữ liệu 40 tour du lịch thực tế vào MariaDB */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/sync-real-data")
     public ResponseEntity<String> syncRealData(@RequestBody List<java.util.Map<String, Object>> tours) {
         int count = tourService.syncRealTours(tours);
         return ResponseEntity.ok("Đã đồng bộ thành công " + count + " tour du lịch thực tế vào cơ sở dữ liệu!");
+    }
+
+    private boolean isAdmin(vn.dulichviet.tourbooking.config.CustomUserDetails userDetails) {
+        return userDetails != null && userDetails.getUser() != null
+                && userDetails.getUser().getRole() != null
+                && "ADMIN".equalsIgnoreCase(userDetails.getUser().getRole().replace("ROLE_", ""));
+    }
+
+    private boolean isProvider(vn.dulichviet.tourbooking.config.CustomUserDetails userDetails) {
+        return userDetails != null && userDetails.getUser() != null
+                && userDetails.getUser().getRole() != null
+                && "PROVIDER".equalsIgnoreCase(userDetails.getUser().getRole().replace("ROLE_", ""));
     }
 }

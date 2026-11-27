@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
-@PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     private final OrderService orderService;
     private final UserRepository userRepository;

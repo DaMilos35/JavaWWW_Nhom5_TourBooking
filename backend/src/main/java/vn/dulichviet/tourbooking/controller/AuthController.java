@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import vn.dulichviet.tourbooking.config.CustomUserDetails;
 import vn.dulichviet.tourbooking.dto.ForgotPasswordRequest;
@@ -25,6 +26,13 @@ public class AuthController {
     public AuthController(AuthService authService, PasswordResetService passwordResetService) {
         this.authService = authService;
         this.passwordResetService = passwordResetService;
+    }
+
+    @GetMapping("/csrf")
+    public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
+        // Access the deferred token so CookieCsrfTokenRepository writes XSRF-TOKEN.
+        csrfToken.getToken();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/send-otp")

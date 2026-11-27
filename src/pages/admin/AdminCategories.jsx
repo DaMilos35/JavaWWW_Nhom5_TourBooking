@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaSearch, FaLayerGroup, FaToggleOn, FaToggleOff, FaUndo } from 'react-icons/fa';
 import { adminApi, categoryApi, tourApi } from '../../api/axiosConfig';
-import { REAL_CATEGORIES } from '../../api/realTourDataApi';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import FallbackImage from '../../components/common/FallbackImage';
@@ -22,8 +21,11 @@ const AdminCategories = () => {
         categoryApi.getAll(),
         tourApi.getAll()
       ]);
-      const catList = resCat.status === 'fulfilled' && resCat.value?.data ? resCat.value.data : REAL_CATEGORIES;
+      const catList = resCat.status === 'fulfilled' && Array.isArray(resCat.value?.data) ? resCat.value.data : [];
       setCategories(catList);
+      if (resCat.status === 'rejected') {
+        toast.error(resCat.reason?.response?.data?.message || 'Không tải được danh mục từ máy chủ');
+      }
 
       if (resTours.status === 'fulfilled' && Array.isArray(resTours.value?.data)) {
         const counts = {};
@@ -34,8 +36,8 @@ const AdminCategories = () => {
         setTourCounts(counts);
       }
     } catch (error) {
-      console.warn('Backend category API not reachable, falling back to REAL_CATEGORIES');
-      setCategories(REAL_CATEGORIES);
+      setCategories([]);
+      toast.error(error.response?.data?.message || 'Không tải được danh mục từ máy chủ');
     } finally {
       setLoading(false);
     }
@@ -94,24 +96,11 @@ const AdminCategories = () => {
         imageUrl: cat.imageUrl || '',
         status: newStatus
       });
-      // Cập nhật local storage / fallback dataset
-      const found = REAL_CATEGORIES.find(c => (c.id || c.categoryId) === catId);
-      if (found) found.status = newStatus;
-
       setCategories(prev => prev.map(c => (c.id === catId || c.categoryId === catId) ? { ...c, status: newStatus } : c));
       toast.success(newStatus === 'ACTIVE' 
         ? `Đã khôi phục danh mục sang trạng thái Đang mở bán` 
         : `Đã chuyển danh mục sang trạng thái Tạm ẩn`);
     } catch (error) {
-      const found = REAL_CATEGORIES.find(c => (c.id || c.categoryId) === catId);
-      if (found) {
-        found.status = newStatus;
-        setCategories(prev => prev.map(c => (c.id === catId || c.categoryId === catId) ? { ...c, status: newStatus } : c));
-        toast.success(newStatus === 'ACTIVE' 
-          ? `Đã khôi phục danh mục sang trạng thái Đang mở bán` 
-          : `Đã chuyển danh mục sang trạng thái Tạm ẩn`);
-        return;
-      }
       toast.error(error.response?.data?.message || 'Lỗi khi cập nhật trạng thái danh mục');
     }
   };

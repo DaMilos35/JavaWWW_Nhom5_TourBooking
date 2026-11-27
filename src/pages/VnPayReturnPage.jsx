@@ -49,20 +49,18 @@ const VnPayReturnPage = () => {
     );
   }
 
-  // Xác thực trạng thái thành công dựa trên response backend & mã vnp_ResponseCode
-  const responseCode = searchParams.get('vnp_ResponseCode');
+  // Only a backend-verified payment result is treated as successful.
   const isDeposit = result?.status === 'DEPOSITED' || result?.paymentStatus === 'PARTIALLY_PAID';
   const isSuccess = 
     result?.paymentStatus === 'PAID' || 
     result?.paymentStatus === 'PARTIALLY_PAID' ||
     result?.status === 'CONFIRMED' || 
     result?.status === 'DEPOSITED' || 
-    responseCode === '00' ||
     result?.success === true;
 
   const orderId = result?.id || searchParams.get('vnp_TxnRef');
   const orderCode = result?.orderCode || ('ORD-' + orderId);
-  const transactionId = result?.paymentTransactionId || searchParams.get('vnp_TransactionNo') || 'VNP-' + Date.now();
+  const transactionId = result?.paymentTransactionId || searchParams.get('vnp_TransactionNo') || 'Chưa có mã giao dịch';
   const totalAmount = result?.totalAmount || (searchParams.get('vnp_Amount') ? Number(searchParams.get('vnp_Amount')) / 100 : 0);
   const paidAmount = isDeposit && result?.depositAmount ? result.depositAmount : totalAmount;
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   FaHeart,
@@ -26,70 +26,12 @@ import { isInternationalTour } from '../../utils/travelBusinessRules';
 import { FaGlobeAsia } from 'react-icons/fa';
 import './TourCard.css';
 
-// Tính toán số lượng vé đã đặt trong môi trường offline/mock (đồng bộ logic với TourDetailPage)
-const computeBookedCount = (tId) => {
-  if (!tId) return 0;
-  try {
-    let count = 0;
-    // 1. Quét từ các đơn hàng thực tế đã tạo thành công
-    const rawOrders = localStorage.getItem('dulichviet_local_orders');
-    if (rawOrders) {
-      const orders = JSON.parse(rawOrders);
-      if (Array.isArray(orders)) {
-        orders.forEach((o) => {
-          if (o.status !== 'CANCELLED') {
-            (o.details || []).forEach((d) => {
-              const itemTourId = d.tour?.id || d.tour?.tourId || d.tourId;
-              if (String(itemTourId) === String(tId)) {
-                count += Number(d.quantity || 1);
-              }
-            });
-          }
-        });
-      }
-    }
-
-    // 2. Quét map theo dõi vé đã đặt tức thì
-    const rawMap = localStorage.getItem('tour_booked_seats_map');
-    if (rawMap) {
-      const map = JSON.parse(rawMap);
-      if (map) {
-        const directCount = Number(map[tId] || 0);
-        let dateCount = 0;
-        Object.keys(map).forEach((k) => {
-          if (k.startsWith(`${tId}_`)) {
-            dateCount = Math.max(dateCount, Number(map[k] || 0));
-          }
-        });
-        const extraCount = Math.max(directCount, dateCount);
-        count = Math.max(count, extraCount);
-      }
-    }
-
-    return count;
-  } catch {
-    return 0;
-  }
-};
-
 const TourCard = ({ tour }) => {
   const { isSaved, toggleSaved } = useWishlist();
   const { addToCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const tId = tour?.id || tour?.tourId;
-  const [bookedCount, setBookedCount] = useState(() => computeBookedCount(tId));
-
-  useEffect(() => {
-    setBookedCount(computeBookedCount(tId));
-    const handleStorageChange = () => {
-      setBookedCount(computeBookedCount(tId));
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [tId]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
@@ -110,11 +52,8 @@ const TourCard = ({ tour }) => {
   };
   const saved = isSaved(tour);
 
-  // Đồng bộ logic tính số chỗ khả dụng với TourDetailPage:
-  // Nếu tour có sẵn availableSeats <= 10 thì lấy đúng số đó, ngược lại mặc định 6 chỗ cho đợt 1
   const rawSeats = Number(tour?.availableSeats !== undefined ? tour.availableSeats : (tour?.available_seats !== undefined ? tour.available_seats : 6));
-  const nominalSeats = rawSeats <= 0 ? 0 : (rawSeats <= 10 ? rawSeats : 6);
-  const seats = Math.max(0, nominalSeats - bookedCount);
+  const seats = Math.max(0, rawSeats);
   const isTourActive = tour?.status ? tour.status === 'ACTIVE' : (tour?.isActive === false || tour?.is_active === 0 ? false : true);
   const price = Number(tour.price || 0);
   const originalPrice = Number(tour.originalPrice || tour.original_price || 0);

@@ -24,11 +24,12 @@ public class PaymentService {
     private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
     private final TourOrderRepository orderRepository;
+    private final OrderService orderService;
 
-    @Value("${vnpay.tmn-code:EDDY3G76}")
+    @Value("${vnpay.tmn-code:}")
     private String vnpTmnCode;
 
-    @Value("${vnpay.hash-secret:RAOCTPDUKSTAWGUSNJCGUIDYWXGZBWYW}")
+    @Value("${vnpay.hash-secret:}")
     private String vnpHashSecret;
 
     @Value("${vnpay.pay-url:https://sandbox.vnpay.vn/paymentv2/vpcpay.html}")
@@ -43,8 +44,9 @@ public class PaymentService {
     private final String accountNumber = "0383687150";
     private final String accountName = "CONG TY DU LICH VIET";
 
-    public PaymentService(TourOrderRepository orderRepository) {
+    public PaymentService(TourOrderRepository orderRepository, OrderService orderService) {
         this.orderRepository = orderRepository;
+        this.orderService = orderService;
     }
 
     /**
@@ -58,9 +60,13 @@ public class PaymentService {
         if (userId != null && order.getUser() != null && !order.getUser().getId().equals(userId)) {
             throw new ApiException(403, "Bạn không có quyền truy cập thông tin thanh toán đơn hàng này");
         }
+        if (!isAwaitingPayment(order)) {
+            throw new ApiException(400, "Đơn hàng hiện không chờ thanh toán.");
+        }
 
         String code = order.getOrderCode() != null ? order.getOrderCode() : ("ORD" + order.getId());
-        long amount = order.getTotalAmount() != null ? order.getTotalAmount().longValue() : 0L;
+        BigDecimal dueAmount = amountDue(order);
+        long amount = dueAmount.longValue();
         String transferContent = code.replaceAll("[^a-zA-Z0-9]", "");
 
         // Sinh link VietQR chuẩn Napas 247
@@ -73,7 +79,7 @@ public class PaymentService {
         return new PaymentDto.PaymentInfoDto(
                 order.getId(),
                 code,
-                order.getTotalAmount(),
+                dueAmount,
                 bankName,
                 bankCode,
                 accountNumber,
@@ -90,30 +96,30 @@ public class PaymentService {
      */
     @Transactional
     public PaymentDto.VnPayResponseDto createVnPayUrl(Integer orderId, Integer userId, String ipAddress, String clientReturnUrl) {
-        TourOrder order = orderRepository.findById(orderId)
+        requireVnPayCredentials();
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng id=" + orderId));
 
         if (userId != null && order.getUser() != null && !order.getUser().getId().equals(userId)) {
             throw new ApiException(403, "Bạn không có quyền thanh toán đơn hàng này");
         }
 
-        if ("PAID".equalsIgnoreCase(order.getPaymentStatus())) {
-            throw new ApiException(400, "Đơn hàng này đã được thanh toán trước đó");
+        if (!isAwaitingPayment(order)) {
+            throw new ApiException(400, "Đơn hàng hiện không ở trạng thái có thể thanh toán.");
+        }
+        if (order.getOrderDate() != null && order.getOrderDate().plusMinutes(30).isBefore(java.time.LocalDateTime.now())) {
+            throw new ApiException(400, "Thời gian giữ chỗ đã hết. Vui lòng tạo đơn mới.");
         }
 
         order.setPaymentMethod("VNPAY");
+        order.setPaymentStatus("PENDING_PAYMENT");
         orderRepository.save(order);
 
         String code = order.getOrderCode() != null ? order.getOrderCode() : ("ORD-" + order.getId());
-        BigDecimal chargeAmount = order.getTotalAmount();
-        if ("DEPOSIT".equalsIgnoreCase(order.getPaymentType()) && order.getDepositAmount() != null && order.getDepositAmount().compareTo(BigDecimal.ZERO) > 0 && !"DEPOSITED".equalsIgnoreCase(order.getStatus())) {
-            chargeAmount = order.getDepositAmount();
-        } else if ("DEPOSITED".equalsIgnoreCase(order.getStatus()) && order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0) {
-            chargeAmount = order.getRemainingAmount();
-        }
+        BigDecimal chargeAmount = amountDue(order);
         long amountInVnd = chargeAmount.longValue() * 100; // VNPay tính bằng đơn vị xu/đồng x 100
 
-        String returnUrl = (clientReturnUrl != null && !clientReturnUrl.isBlank()) ? clientReturnUrl : vnpReturnUrl;
+        String returnUrl = vnpReturnUrl;
         String vnpIp = (ipAddress != null && !ipAddress.isBlank() && !ipAddress.equals("0:0:0:0:0:0:0:1")) ? ipAddress : "127.0.0.1";
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -168,7 +174,7 @@ public class PaymentService {
         return new PaymentDto.VnPayResponseDto(
                 order.getId(),
                 code,
-                order.getTotalAmount(),
+                chargeAmount,
                 paymentUrl
         );
     }
@@ -178,6 +184,7 @@ public class PaymentService {
      */
     @Transactional
     public OrderDto processVnPayReturn(Map<String, String> params) {
+        requireVnPayCredentials();
         String secureHash = params.get("vnp_SecureHash");
         String responseCode = params.get("vnp_ResponseCode");
         String orderCode = params.get("vnp_TxnRef");
@@ -207,15 +214,33 @@ public class PaymentService {
         String checkHash = hmacSHA512(vnpHashSecret, hashData.toString());
         boolean isValidSignature = checkHash.equalsIgnoreCase(secureHash);
 
-        TourOrder order = orderRepository.findByOrderCode(orderCode)
+        TourOrder order = orderRepository.findByOrderCodeForUpdate(orderCode)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng mã " + orderCode));
 
         if (!isValidSignature) {
             log.warn("VNPay signature verification failed for order {}", orderCode);
-            // Không ném lỗi nặng nếu môi trường test, ghi log kiểm tra
+            throw new ApiException(403, "Chữ ký xác thực thanh toán không hợp lệ.");
         }
 
         if ("00".equals(responseCode)) {
+            if (transactionNo != null && transactionNo.equals(order.getPaymentTransactionId())) {
+                return OrderDto.from(order);
+            }
+            if (transactionNo != null && orderRepository.existsByPaymentTransactionIdAndIdNot(transactionNo, order.getId())) {
+                throw new ApiException(409, "Mã giao dịch VNPay đã được sử dụng cho một đơn hàng khác.");
+            }
+            String returnedAmount = params.get("vnp_Amount");
+            long expectedAmount = amountDue(order).longValue() * 100L;
+            if (returnedAmount == null || !returnedAmount.equals(Long.toString(expectedAmount))) {
+                throw new ApiException(400, "Số tiền trả về từ cổng thanh toán không khớp với đơn hàng.");
+            }
+            if (transactionNo == null || transactionNo.isBlank()) {
+                throw new ApiException(400, "Cổng thanh toán không trả về mã giao dịch hợp lệ.");
+            }
+            if (!isAwaitingPayment(order)) {
+                throw new ApiException(409, "Đơn hàng đã được thanh toán hoặc không còn chờ thanh toán.");
+            }
+            BigDecimal settledAmount = amountDue(order);
             boolean isDeposit = "DEPOSIT".equalsIgnoreCase(order.getPaymentType());
             if (isDeposit && order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0 && !"DEPOSITED".equalsIgnoreCase(order.getStatus())) {
                 order.setStatus("DEPOSITED");
@@ -226,10 +251,14 @@ public class PaymentService {
                 order.setRemainingAmount(BigDecimal.ZERO);
             }
             order.setPaymentMethod("VNPAY");
-            order.setPaymentTransactionId(transactionNo != null ? transactionNo : ("VNP-" + System.currentTimeMillis()));
+            order.setPaymentTransactionId(transactionNo);
+            orderService.recordVerifiedPayment(order.getUser(), settledAmount);
             log.info("VNPay payment SUCCESS for order {}. Status: {}, Transaction: {}", orderCode, order.getStatus(), transactionNo);
         } else {
             log.warn("VNPay payment FAILED or CANCELLED for order {}. Code: {}", orderCode, responseCode);
+            if ("PENDING_PAYMENT".equalsIgnoreCase(order.getPaymentStatus())) {
+                order.setPaymentStatus("DEPOSITED".equalsIgnoreCase(order.getStatus()) ? "PARTIALLY_PAID" : "UNPAID");
+            }
         }
 
         return OrderDto.from(orderRepository.save(order));
@@ -240,31 +269,45 @@ public class PaymentService {
      */
     @Transactional
     public OrderDto confirmPaymentSuccess(Integer orderId, Integer userId, String paymentMethod, String transactionId) {
-        TourOrder order = orderRepository.findById(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng id=" + orderId));
 
         if (userId != null && order.getUser() != null && !order.getUser().getId().equals(userId)) {
             throw new ApiException(403, "Bạn không có quyền thực hiện thao tác trên đơn hàng này");
         }
 
-        String pm = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim().toUpperCase() : "VIETQR";
-        String txId = (transactionId != null && !transactionId.isBlank()) ? transactionId.trim() : ("TX-" + System.currentTimeMillis());
-
-        boolean isDeposit = "DEPOSIT".equalsIgnoreCase(order.getPaymentType());
-        if (isDeposit && order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0 && !"DEPOSITED".equalsIgnoreCase(order.getStatus())) {
-            order.setStatus("DEPOSITED");
-            order.setPaymentStatus("PARTIALLY_PAID");
-        } else {
-            order.setStatus("CONFIRMED");
-            order.setPaymentStatus("PAID");
-            order.setRemainingAmount(BigDecimal.ZERO);
+        if (!isAwaitingPayment(order)) {
+            throw new ApiException(400, "Đơn hàng hiện không ở trạng thái có thể gửi xác nhận thanh toán.");
         }
-
+        String pm = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim().toUpperCase() : "VIETQR";
         order.setPaymentMethod(pm);
-        order.setPaymentTransactionId(txId);
-
-        log.info("Payment confirmed for order {}. Status: {}, Method: {}, TxId: {}", order.getId(), order.getStatus(), pm, txId);
+        order.setPaymentStatus("PENDING_PAYMENT");
+        // Mã giao dịch do khách nhập không phải bằng chứng đã nhận tiền.
+        log.info("Payment verification requested for order {} using {}", order.getId(), pm);
         return OrderDto.from(orderRepository.save(order));
+    }
+
+    private BigDecimal amountDue(TourOrder order) {
+        if ("DEPOSITED".equalsIgnoreCase(order.getStatus())) {
+            return order.getRemainingAmount() != null ? order.getRemainingAmount() : BigDecimal.ZERO;
+        }
+        if ("DEPOSIT".equalsIgnoreCase(order.getPaymentType())) {
+            return order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO;
+        }
+        return order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO;
+    }
+
+    private boolean isAwaitingPayment(TourOrder order) {
+        return ("PENDING".equalsIgnoreCase(order.getStatus())
+                    && ("UNPAID".equalsIgnoreCase(order.getPaymentStatus()) || "PENDING_PAYMENT".equalsIgnoreCase(order.getPaymentStatus())))
+                || ("DEPOSITED".equalsIgnoreCase(order.getStatus())
+                    && ("PARTIALLY_PAID".equalsIgnoreCase(order.getPaymentStatus()) || "PENDING_PAYMENT".equalsIgnoreCase(order.getPaymentStatus())));
+    }
+
+    private void requireVnPayCredentials() {
+        if (vnpTmnCode == null || vnpTmnCode.isBlank() || vnpHashSecret == null || vnpHashSecret.isBlank()) {
+            throw new ApiException(503, "Cổng VNPay chưa được cấu hình thông tin xác thực.");
+        }
     }
 
     /**

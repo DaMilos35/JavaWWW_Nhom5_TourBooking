@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 import vn.dulichviet.tourbooking.entity.User;
 import vn.dulichviet.tourbooking.repository.UserRepository;
 
@@ -17,6 +18,8 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+    @Value("${app.demo-data.enabled:false}")
+    private boolean demoDataEnabled;
 
     public DataInitializer(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
@@ -28,8 +31,16 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (!demoDataEnabled) {
+            log.info("Demo/bootstrap initializer disabled; database records will not be changed on startup.");
+            return;
+        }
         boolean h2 = isH2();
         log.info("Khởi chạy DataInitializer trên nền tảng CSDL: {}", h2 ? "H2 In-Memory" : "MariaDB/MySQL");
+        if (!h2) {
+            log.info("Database bootstrapping is limited to the disposable H2 profile; production data and schema are not modified on startup.");
+            return;
+        }
 
         // 1. Tự động tạo bảng remember-me persistent_logins (bảo vệ chống crash khi chọn Remember Me)
         try {
@@ -290,9 +301,7 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    /**
-     * Đồng bộ tài khoản demo: Tạo mới nếu chưa có, hoặc kích hoạt lại và đảm bảo mật khẩu khớp 123456
-     */
+    /** Create explicitly enabled demo users without changing existing accounts. */
     private void syncDemoUser(String username, String email, String rawPassword, String fullName, String role, String phone) {
         try {
             var opt = userRepository.findByUsername(username);
@@ -310,27 +319,7 @@ public class DataInitializer implements CommandLineRunner {
                 user.setTotalSpent(java.math.BigDecimal.ZERO);
                 user.setCreatedAt(LocalDateTime.now());
                 userRepository.save(user);
-                log.info("Tạo mới tài khoản demo: {} / {} ({})", username, rawPassword, role);
-            } else {
-                User user = opt.get();
-                boolean changed = false;
-                if (!Boolean.TRUE.equals(user.getActive())) {
-                    user.setActive(true);
-                    changed = true;
-                }
-                // Nếu mật khẩu trong DB chưa khớp với rawPassword chuẩn, cập nhật lại mã hóa
-                if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-                    user.setPassword(passwordEncoder.encode(rawPassword));
-                    changed = true;
-                    log.info("Cập nhật lại mật khẩu mã hóa cho demo user '{}'", username);
-                }
-                if (user.getRole() == null || !user.getRole().equalsIgnoreCase(role)) {
-                    user.setRole(role);
-                    changed = true;
-                }
-                if (changed) {
-                    userRepository.save(user);
-                }
+                log.info("Created opt-in demo account '{}' ({})", username, role);
             }
         } catch (Exception e) {
             log.warn("Không thể đồng bộ demo user {}: {}", username, e.getMessage());

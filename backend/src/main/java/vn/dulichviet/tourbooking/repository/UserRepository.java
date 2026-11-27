@@ -2,12 +2,18 @@ package vn.dulichviet.tourbooking.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.repository.query.Param;
 import vn.dulichviet.tourbooking.entity.User;
 
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM User u WHERE u.id = :id")
+    Optional<User> findByIdForUpdate(@Param("id") Integer id);
+
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
 

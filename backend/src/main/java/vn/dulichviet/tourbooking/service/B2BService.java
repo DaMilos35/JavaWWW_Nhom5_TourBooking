@@ -137,8 +137,16 @@ public class B2BService {
             String contactPhone, String contactEmail, String notes,
             Integer discountPercent) {
 
+        if (quantity == null || quantity < 1) throw new IllegalArgumentException("Số lượng khách phải từ 1 trở lên.");
+        if (discountPercent != null && (discountPercent < 0 || discountPercent > 30)) {
+            throw new IllegalArgumentException("Chiết khấu doanh nghiệp phải trong khoảng 0–30%.");
+        }
+
         Company company = companyRepo.findById(companyId)
                 .orElseThrow(() -> new NoSuchElementException("Công ty không tồn tại"));
+        if (!Boolean.TRUE.equals(company.getIsActive()) || !"VERIFIED".equalsIgnoreCase(company.getKybStatus())) {
+            throw new IllegalStateException("Công ty chưa được xác minh và kích hoạt.");
+        }
 
         // Kiểm tra credit limit
         CreditLimit creditLimit = creditLimitRepo.findByCompanyId(companyId).orElse(null);
@@ -150,8 +158,19 @@ public class B2BService {
                 .orElseThrow(() -> new NoSuchElementException("Booker không tồn tại"));
         CorporateUser traveler = corpUserRepo.findById(travelerCorpUserId)
                 .orElseThrow(() -> new NoSuchElementException("Traveler không tồn tại"));
-        Tour tour = tourRepo.findById(tourId)
+        if (!companyId.equals(booker.getCompany().getId()) || !companyId.equals(traveler.getCompany().getId())
+                || !Boolean.TRUE.equals(booker.getIsActive()) || !Boolean.TRUE.equals(traveler.getIsActive())) {
+            throw new IllegalStateException("Booker và Traveler phải là nhân sự đang hoạt động của công ty này.");
+        }
+        Tour tour = tourRepo.findByIdForUpdate(tourId)
                 .orElseThrow(() -> new NoSuchElementException("Tour không tồn tại"));
+        if (!"ACTIVE".equalsIgnoreCase(tour.getStatus()) || tour.getStartDate() == null
+                || tour.getStartDate().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalStateException("Tour chưa có lịch khởi hành còn hiệu lực.");
+        }
+        if (tour.getAvailableSeats() == null || tour.getAvailableSeats() < quantity) {
+            throw new IllegalStateException("Tour không còn đủ chỗ trống cho số khách đã chọn.");
+        }
 
         // Lấy policy áp dụng (policy mặc định của công ty)
         TravelPolicy policy = policyRepo.findByCompanyIdAndIsDefaultTrue(companyId)
@@ -191,17 +210,24 @@ public class B2BService {
         booking.setNotes(notes);
         booking.setPaymentMethod("CREDIT_LINE".equals(company.getPaymentMethod()) ? "CREDIT_LINE" : "PAY_AS_YOU_GO");
 
+        // Reserve capacity while approval/payment is pending.
+        tour.setAvailableSeats(tour.getAvailableSeats() - quantity);
+        tourRepo.save(tour);
+
         if (isOverPolicy) {
             booking.setBookingStatus("PENDING_APPROVAL");
-        } else {
+        } else if ("CREDIT_LINE".equals(booking.getPaymentMethod())) {
             booking.setBookingStatus("CONFIRMED");
             booking.setConfirmedAt(LocalDateTime.now());
-            // Trừ credit
-            if (creditLimit != null && "CREDIT_LINE".equals(company.getPaymentMethod())) {
-                creditLimit.setUsedCredit(creditLimit.getUsedCredit().add(finalAmount));
-                creditLimit.refreshStatus();
-                creditLimitRepo.save(creditLimit);
+            if (creditLimit == null || creditLimit.getAvailableCredit().compareTo(finalAmount) < 0) {
+                throw new IllegalStateException("Hạn mức tín dụng còn lại không đủ cho đơn này.");
             }
+            creditLimit.setUsedCredit(creditLimit.getUsedCredit().add(finalAmount));
+            creditLimit.refreshStatus();
+            creditLimitRepo.save(creditLimit);
+        } else {
+            // Pay-as-you-go bookings are not confirmed before payment is recorded.
+            booking.setBookingStatus("DRAFT");
         }
         CorporateBooking saved = bookingRepo.save(booking);
 
@@ -266,8 +292,13 @@ public class B2BService {
         }
         if (LocalDateTime.now().isAfter(ar.getTokenExpiresAt())) {
             ar.setStatus("EXPIRED");
+            CorporateBooking expiredBooking = ar.getBooking();
+            releaseCorporateBookingSeats(expiredBooking);
+            expiredBooking.setBookingStatus("CANCELLED");
+            expiredBooking.setCancelledAt(LocalDateTime.now());
             approvalRepo.save(ar);
-            throw new IllegalStateException("Yêu cầu đã hết hạn 24h.");
+            bookingRepo.save(expiredBooking);
+            return Map.of("approvalId", ar.getId(), "status", "EXPIRED", "bookingStatus", "CANCELLED");
         }
 
         CorporateUser approver = corpUserRepo.findById(approverCorpUserId)
@@ -280,17 +311,10 @@ public class B2BService {
         CorporateBooking booking = ar.getBooking();
 
         if ("APPROVE".equalsIgnoreCase(action)) {
-            ar.setStatus("APPROVED");
-            booking.setBookingStatus("CONFIRMED");
-            booking.setConfirmedAt(LocalDateTime.now());
-            // Trừ credit
-            creditLimitRepo.findByCompanyId(booking.getCompany().getId()).ifPresent(cl -> {
-                cl.setUsedCredit(cl.getUsedCredit().add(ar.getBookingAmount()));
-                cl.refreshStatus();
-                creditLimitRepo.save(cl);
-            });
+            approveCorporateBooking(ar, booking);
         } else {
             ar.setStatus("REJECTED");
+            releaseCorporateBookingSeats(booking);
             booking.setBookingStatus("CANCELLED");
             booking.setCancelledAt(LocalDateTime.now());
             booking.setCancellationReason("Từ chối bởi " + approver.getUser().getFullName() + ": " + note);
@@ -318,7 +342,12 @@ public class B2BService {
 
         if (LocalDateTime.now().isAfter(ar.getTokenExpiresAt())) {
             ar.setStatus("EXPIRED");
+            CorporateBooking expiredBooking = ar.getBooking();
+            releaseCorporateBookingSeats(expiredBooking);
+            expiredBooking.setBookingStatus("CANCELLED");
+            expiredBooking.setCancelledAt(LocalDateTime.now());
             approvalRepo.save(ar);
+            bookingRepo.save(expiredBooking);
             Map<String, Object> err = new LinkedHashMap<>();
             err.put("error", "TOKEN_EXPIRED");
             err.put("message", "Link phê duyệt đã hết hạn (24 giờ). Đơn hàng đã tự động hủy.");
@@ -337,11 +366,10 @@ public class B2BService {
         ar.setApproverNote(note);
 
         if ("APPROVE".equalsIgnoreCase(action)) {
-            ar.setStatus("APPROVED");
-            booking.setBookingStatus("CONFIRMED");
-            booking.setConfirmedAt(LocalDateTime.now());
+            approveCorporateBooking(ar, booking);
         } else {
             ar.setStatus("REJECTED");
+            releaseCorporateBookingSeats(booking);
             booking.setBookingStatus("CANCELLED");
             booking.setCancelledAt(LocalDateTime.now());
         }
@@ -362,6 +390,7 @@ public class B2BService {
         List<ApprovalRequest> expired = approvalRepo.findExpiredPendingRequests(LocalDateTime.now());
         for (ApprovalRequest ar : expired) {
             ar.setStatus("EXPIRED");
+            releaseCorporateBookingSeats(ar.getBooking());
             ar.getBooking().setBookingStatus("CANCELLED");
             ar.getBooking().setCancelledAt(LocalDateTime.now());
             ar.getBooking().setCancellationReason("Hết hạn phê duyệt 24h tự động hủy");
@@ -381,5 +410,32 @@ public class B2BService {
         String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String rand = String.format("%06d", (int)(Math.random() * 1000000));
         return prefix + "-" + ts + "-" + rand;
+    }
+
+    private void approveCorporateBooking(ApprovalRequest approval, CorporateBooking booking) {
+        approval.setStatus("APPROVED");
+        if ("CREDIT_LINE".equalsIgnoreCase(booking.getPaymentMethod())) {
+            CreditLimit credit = creditLimitRepo.findByCompanyId(booking.getCompany().getId())
+                    .orElseThrow(() -> new IllegalStateException("Công ty chưa có hạn mức tín dụng."));
+            if (credit.getAvailableCredit().compareTo(approval.getBookingAmount()) < 0) {
+                throw new IllegalStateException("Hạn mức tín dụng còn lại không đủ để phê duyệt đơn này.");
+            }
+            credit.setUsedCredit(credit.getUsedCredit().add(approval.getBookingAmount()));
+            credit.refreshStatus();
+            creditLimitRepo.save(credit);
+            booking.setBookingStatus("CONFIRMED");
+            booking.setConfirmedAt(LocalDateTime.now());
+        } else {
+            booking.setBookingStatus("DRAFT");
+        }
+    }
+
+    private void releaseCorporateBookingSeats(CorporateBooking booking) {
+        if (booking == null || booking.getTour() == null || booking.getQuantity() == null) return;
+        Tour tour = tourRepo.findByIdForUpdate(booking.getTour().getId()).orElse(null);
+        if (tour != null) {
+            tour.setAvailableSeats((tour.getAvailableSeats() == null ? 0 : tour.getAvailableSeats()) + booking.getQuantity());
+            tourRepo.save(tour);
+        }
     }
 }

@@ -102,6 +102,9 @@ public class PasswordResetService {
     }
 
     private Map<String, Object> processEmailChannel(String email) {
+        if (!emailService.isEmailDeliveryConfigured()) {
+            throw new ApiException(503, "Kênh gửi email đặt lại mật khẩu chưa được cấu hình.");
+        }
         Optional<User> userOpt = userRepository.findFirstByEmailIgnoreCase(email);
         if (userOpt.isEmpty()) {
             // Chống user enumeration: thông báo đồng nhất
@@ -131,25 +134,25 @@ public class PasswordResetService {
         resetToken.setAttempts(0);
         resetToken.setIsUsed(false);
         resetToken.setCreatedAt(LocalDateTime.now());
+        String resetLink = frontendUrl + "/forgot-password";
+        if (!emailService.sendPasswordResetEmail(user.getEmail(), resetLink, rawPin)) {
+            throw new ApiException(503, "Không gửi được email đặt lại mật khẩu. Vui lòng thử lại sau.");
+        }
         tokenRepository.save(resetToken);
-
-        String resetLink = frontendUrl + "/reset-password?pin=" + rawPin;
-        emailService.sendPasswordResetEmail(user.getEmail(), resetLink, rawPin);
 
         Map<String, Object> response = new java.util.LinkedHashMap<>();
         response.put("success", true);
         response.put("channel", "EMAIL");
         response.put("target", maskEmail(user.getEmail()));
-        response.put("fullTarget", user.getEmail());
         response.put("message", "Mã PIN xác thực gồm 6 chữ số đã được gửi đến hòm thư: " + maskEmail(user.getEmail()));
         response.put("expiresInSeconds", 900);
-        response.put("simulatedOtp", rawPin);
-        response.put("simulatedToken", rawPin);
-        response.put("resetLink", resetLink);
         return response;
     }
 
     private Map<String, Object> processSmsChannel(String phone) {
+        if (!smsService.isConfigured()) {
+            throw new ApiException(503, "Kênh gửi SMS đặt lại mật khẩu chưa được cấu hình.");
+        }
         Optional<User> userOpt = userRepository.findFirstByPhone(phone);
         if (userOpt.isEmpty()) {
             return Map.of(
@@ -178,17 +181,17 @@ public class PasswordResetService {
         resetToken.setAttempts(0);
         resetToken.setIsUsed(false);
         resetToken.setCreatedAt(LocalDateTime.now());
+        if (!smsService.sendOtpSms(user.getPhone(), rawOtp)) {
+            throw new ApiException(503, "Không gửi được mã SMS. Vui lòng thử lại sau.");
+        }
         tokenRepository.save(resetToken);
-
-        smsService.sendOtpSms(user.getPhone(), rawOtp);
 
         return Map.of(
                 "success", true,
                 "channel", "SMS",
                 "target", maskPhone(user.getPhone()),
                 "message", "Mã xác thực OTP gồm 6 chữ số đã được gửi đến số điện thoại: " + maskPhone(user.getPhone()),
-                "expiresInSeconds", 300,
-                "simulatedOtp", rawOtp
+                "expiresInSeconds", 300
         );
     }
 
@@ -304,11 +307,9 @@ public class PasswordResetService {
         // Tính SHA-256 hash của reset token
         String tokenHash = hashSha256(rawToken);
 
-        // Tìm token trong DB (chấp nhận cả EMAIL_LINK và RESET_TOKEN)
-        Optional<PasswordResetToken> tokenOpt = tokenRepository.findByTokenHashAndTypeAndIsUsedFalse(tokenHash, "EMAIL_LINK");
-        if (tokenOpt.isEmpty()) {
-            tokenOpt = tokenRepository.findByTokenHashAndTypeAndIsUsedFalse(tokenHash, "RESET_TOKEN");
-        }
+        // Only a high-entropy token issued after OTP verification may change a password.
+        // The six-digit email PIN is accepted only by verifyOtp, where attempts are limited.
+        Optional<PasswordResetToken> tokenOpt = tokenRepository.findByTokenHashAndTypeAndIsUsedFalse(tokenHash, "RESET_TOKEN");
 
         if (tokenOpt.isEmpty()) {
             throw new ApiException(400, "Mã xác thực hoặc token đặt lại mật khẩu không hợp lệ hoặc đã qua sử dụng.");

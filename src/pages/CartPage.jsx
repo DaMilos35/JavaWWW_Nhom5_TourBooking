@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import FallbackImage from '../components/common/FallbackImage';
 import { 
@@ -15,15 +15,14 @@ import {
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { hasTourDatePassed } from '../utils/tourDate';
-import { REAL_TOURS } from '../api/realTourDataApi';
+import { tourApi } from '../api/axiosConfig';
 import { toast } from 'react-toastify';
 import './CartPage.css';
 
 const isItemPassed = (item) => {
   const tour = item?.tour || {};
-  const chosenDate = tour.selectedDepartureDate || tour.departureDate;
-  if (chosenDate) return hasTourDatePassed(chosenDate);
-  return tour.endDate ? hasTourDatePassed(tour.endDate) : false;
+  const chosenDate = tour.selectedDepartureDate || tour.departureDate || tour.startDate;
+  return !chosenDate || hasTourDatePassed(chosenDate);
 };
 
 const isItemInactive = (item) => {
@@ -38,13 +37,14 @@ const CartPage = () => {
   const { items, updateQuantity, removeFromCart, getTotal } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [recommendedTours, setRecommendedTours] = useState([]);
   const hasExpiredTours = items.some(isItemPassed);
   const hasInactiveTours = items.some(isItemInactive);
 
-  const recommendedTours = useMemo(() => {
-    return (REAL_TOURS || [])
-      .filter(t => t.status === 'ACTIVE' || t.isActive !== false)
-      .slice(0, 3);
+  useEffect(() => {
+    tourApi.getRecommendations('', 3)
+      .then(res => setRecommendedTours(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setRecommendedTours([]));
   }, []);
 
   const popularSearches = [

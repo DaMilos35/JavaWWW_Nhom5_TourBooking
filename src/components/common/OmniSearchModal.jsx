@@ -14,7 +14,7 @@ import {
   FiTrendingUp,
   FiTag
 } from 'react-icons/fi';
-import { realTourApi } from '../../api/realTourDataApi';
+import { tourApi } from '../../api/axiosConfig';
 import { useAuth } from '../../context/AuthContext';
 import './OmniSearchModal.css';
 
@@ -68,7 +68,7 @@ const OmniSearchModal = ({ isOpen, onClose }) => {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await realTourApi.search(query.trim());
+        const res = await tourApi.search(query.trim());
         setMatchedTours((res.data || []).slice(0, 5));
       } catch {
         setMatchedTours([]);

@@ -25,7 +25,6 @@ const RegisterPage = () => {
   });
   const [step, setStep] = useState(1); // 1: Thông tin đăng ký, 2: Xác thực OTP qua Gmail
   const [otp, setOtp] = useState('');
-  const [simulatedOtp, setSimulatedOtp] = useState('');
   const [countdown, setCountdown] = useState(60);
   const [loading, setLoading] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -105,9 +104,6 @@ const RegisterPage = () => {
         username: cleanUsername
       });
       toast.success(res.data?.message || 'Mã OTP đã được gửi về Gmail của bạn!');
-      if (res.data?.simulatedOtp) {
-        setSimulatedOtp(res.data.simulatedOtp);
-      }
       setStep(2);
       setCountdown(60);
     } catch (error) {
@@ -130,9 +126,6 @@ const RegisterPage = () => {
         username: formData.username.trim()
       });
       toast.success('Đã gửi lại mã xác thực OTP mới!');
-      if (res.data?.simulatedOtp) {
-        setSimulatedOtp(res.data.simulatedOtp);
-      }
       setCountdown(60);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Lỗi gửi lại mã OTP');
@@ -360,11 +353,6 @@ const RegisterPage = () => {
                   )}
                 </div>
 
-                {simulatedOtp && (
-                  <div className="otp-test-hint">
-                    ⚡ <strong>Mã thử nghiệm cục bộ:</strong> <span style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '2px' }}>{simulatedOtp}</span>
-                  </div>
-                )}
               </div>
 
               <button 

@@ -10,7 +10,7 @@ import vn.dulichviet.tourbooking.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,6 +24,7 @@ public class AuthService {
 
     // Lưu trữ mã OTP trong bộ nhớ đệm an toàn với thời gian sống 5 phút
     private static final ConcurrentHashMap<String, OtpEntry> OTP_STORAGE = new ConcurrentHashMap<>();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private record OtpEntry(String code, LocalDateTime expiresAt) {}
 
@@ -65,18 +66,22 @@ public class AuthService {
             throw new ApiException(400, "Địa chỉ email '" + cleanEmail + "' đã được sử dụng bởi một tài khoản khác.");
         }
 
-        // Sinh mã OTP ngẫu nhiên 6 chữ số an toàn
-        String otpCode = String.format("%06d", new Random().nextInt(1_000_000));
-        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(5);
-        OTP_STORAGE.put(cleanEmail, new OtpEntry(otpCode, expiresAt));
+        if (!emailService.isEmailDeliveryConfigured()) {
+            throw new ApiException(503, "Kênh gửi email OTP chưa được cấu hình.");
+        }
 
-        // Gửi email bất đồng bộ qua Gmail SMTP
-        emailService.sendRegistrationOtp(cleanEmail, otpCode);
+        // Sinh mã OTP ngẫu nhiên 6 chữ số an toàn
+        String otpCode = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(5);
+
+        if (!emailService.sendRegistrationOtp(cleanEmail, otpCode)) {
+            throw new ApiException(503, "Không gửi được email OTP. Vui lòng thử lại sau.");
+        }
+        OTP_STORAGE.put(cleanEmail, new OtpEntry(otpCode, expiresAt));
 
         return Map.of(
             "message", "Mã xác thực OTP đã được gửi về Gmail: " + cleanEmail,
-            "email", cleanEmail,
-            "simulatedOtp", otpCode
+            "email", cleanEmail
         );
     }
 
@@ -101,19 +106,15 @@ public class AuthService {
             }
         }
 
-        // Xác thực mã OTP nếu người dùng cung cấp hoặc nếu hệ thống yêu cầu
-        if (request.otp() != null && !request.otp().trim().isBlank()) {
-            String submittedOtp = request.otp().trim();
-            OtpEntry entry = OTP_STORAGE.get(email);
-            if (entry == null || entry.expiresAt().isBefore(LocalDateTime.now())) {
-                throw new ApiException(400, "Mã xác thực OTP đã hết hạn hoặc không tồn tại. Vui lòng bấm gửi lại mã.");
-            }
-            if (!entry.code().equals(submittedOtp)) {
-                throw new ApiException(400, "Mã xác thực OTP không chính xác. Vui lòng kiểm tra lại hòm thư Gmail.");
-            }
-            // OTP hợp lệ, dọn dẹp mã đã dùng
-            OTP_STORAGE.remove(email);
+        String submittedOtp = request.otp() == null ? "" : request.otp().trim();
+        OtpEntry entry = OTP_STORAGE.get(email);
+        if (submittedOtp.isBlank() || entry == null || entry.expiresAt().isBefore(LocalDateTime.now())) {
+            throw new ApiException(400, "Mã xác thực OTP đã hết hạn hoặc không tồn tại. Vui lòng bấm gửi lại mã.");
         }
+        if (!entry.code().equals(submittedOtp)) {
+            throw new ApiException(400, "Mã xác thực OTP không chính xác. Vui lòng kiểm tra lại hòm thư Gmail.");
+        }
+        OTP_STORAGE.remove(email, entry);
 
         User user = new User();
         user.setUsername(username);

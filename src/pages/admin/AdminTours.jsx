@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi, categoryApi } from '../../api/axiosConfig';
-import { REAL_TOURS, REAL_CATEGORIES } from '../../api/realTourDataApi';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaToggleOn, FaToggleOff, FaFileExcel, FaUndo, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -27,9 +26,9 @@ const AdminTours = () => {
       setTours(toursRes.data || []);
       setCategories(catsRes.data || []);
     } catch (error) {
-      console.warn('Backend tour API not reachable, falling back to local REAL_TOURS dataset');
-      setTours(REAL_TOURS);
-      setCategories(REAL_CATEGORIES);
+      setTours([]);
+      setCategories([]);
+      toast.error(error.response?.data?.message || 'Không tải được danh sách tour từ máy chủ');
     } finally {
       setLoading(false);
     }
@@ -58,16 +57,12 @@ const AdminTours = () => {
         inclusions: tour.inclusions || null,
         exclusions: tour.exclusions || null,
         imageUrl: tour.imageUrl || '',
-        availableSeats: parseInt(tour.availableSeats) >= 0 ? parseInt(tour.availableSeats) : 20,
+        availableSeats: Number.isFinite(Number(tour.availableSeats)) && Number(tour.availableSeats) >= 0 ? Number(tour.availableSeats) : 0,
         startDate: tour.startDate || null,
         endDate: tour.endDate || null,
         status: newStatus,
         rating: parseFloat(tour.rating) || 5.0
       });
-
-      // Cập nhật bộ nhớ Smart Dual-Mode cho REAL_TOURS khi backend offline
-      const found = REAL_TOURS.find(t => Number(t.id || t.tourId) === Number(tour.id));
-      if (found) found.status = newStatus;
 
       setTours(prev => prev.map(t => (t.id === tour.id || t.tourId === tour.id) ? { ...t, status: newStatus } : t));
       toast.success(newStatus === 'ACTIVE' 
@@ -75,15 +70,6 @@ const AdminTours = () => {
         : 'Đã chuyển tour sang trạng thái Tạm ẩn');
       return true;
     } catch (error) {
-      const found = REAL_TOURS.find(t => Number(t.id || t.tourId) === Number(tour.id));
-      if (found) {
-        found.status = newStatus;
-        setTours(prev => prev.map(t => (t.id === tour.id || t.tourId === tour.id) ? { ...t, status: newStatus } : t));
-        toast.success(newStatus === 'ACTIVE' 
-          ? 'Đã khôi phục tour sang trạng thái Đang mở bán' 
-          : 'Đã chuyển tour sang trạng thái Tạm ẩn');
-        return true;
-      }
       toast.error(error.response?.data?.message || 'Lỗi khi cập nhật trạng thái tour');
       return false;
     }

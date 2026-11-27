@@ -6,39 +6,18 @@
 -- =================================================================================
 
 -- 1. Khởi tạo Cơ sở Dữ liệu với mã hóa UTF-8 Tiếng Việt đa ngữ
-CREATE DATABASE IF NOT EXISTS TourBookingDB
+CREATE DATABASE IF NOT EXISTS tourbookingdb
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
-USE TourBookingDB;
+USE tourbookingdb;
 
--- 2. Xóa các bảng cũ theo thứ tự ràng buộc khóa ngoại (Foreign Key Safe Drop)
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS approval_requests;
-DROP TABLE IF EXISTS corporate_bookings;
-DROP TABLE IF EXISTS credit_limits;
-DROP TABLE IF EXISTS travel_policies;
-DROP TABLE IF EXISTS corporate_users;
-DROP TABLE IF EXISTS companies;
-DROP TABLE IF EXISTS password_reset_tokens;
-DROP TABLE IF EXISTS persistent_logins;
-DROP TABLE IF EXISTS user_activity_history;
-DROP TABLE IF EXISTS orderdetails;
-DROP TABLE IF EXISTS OrderDetails;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS Orders;
-DROP TABLE IF EXISTS tours;
-DROP TABLE IF EXISTS Tours;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS Categories;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS Users;
-SET FOREIGN_KEY_CHECKS = 1;
+-- 2. Non-destructive schema setup; existing booking data is preserved.
 
 -- =================================================================================
 -- BẢNG 1: USERS (Người dùng, Phân quyền RBAC, Hội viên Loyalty)
 -- =================================================================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id             INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username            VARCHAR(50)     NOT NULL UNIQUE,
     password            VARCHAR(255)    NOT NULL,           -- BCrypt hash
@@ -60,7 +39,7 @@ CREATE TABLE users (
 -- =================================================================================
 -- BẢNG 2: CATEGORIES (Danh mục phân loại tuyến tour)
 -- =================================================================================
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     category_id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     category_name       VARCHAR(100)    NOT NULL,
     description         VARCHAR(500)    NULL,
@@ -72,7 +51,7 @@ CREATE TABLE categories (
 -- =================================================================================
 -- BẢNG 3: TOURS (Thông tin Tour du lịch, Lịch trình, Giá vé, Khách sạn, Nhà xe)
 -- =================================================================================
-CREATE TABLE tours (
+CREATE TABLE IF NOT EXISTS tours (
     tour_id             INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     category_id         INT             NOT NULL,
     provider_id         INT             NULL,
@@ -107,7 +86,7 @@ CREATE TABLE tours (
 -- =================================================================================
 -- BẢNG 4: ORDERS (Đơn đặt tour, Thanh toán VietQR/VNPAY, Đặt cọc & Chiết khấu B2B)
 -- =================================================================================
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     order_id            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id             INT             NOT NULL,
     order_code          VARCHAR(30)     NULL UNIQUE,
@@ -118,7 +97,7 @@ CREATE TABLE orders (
     contact_name        VARCHAR(150)    NOT NULL,
     contact_phone       VARCHAR(20)     NOT NULL,
     contact_email       VARCHAR(100)    NOT NULL,
-    notes               VARCHAR(500)    NULL,
+    notes               TEXT            NULL,
     is_b2b              TINYINT(1)      NOT NULL DEFAULT 0,
     discount_percent    INT             NOT NULL DEFAULT 0,
     payment_method      VARCHAR(50)     NULL DEFAULT 'CASH',
@@ -139,6 +118,8 @@ CREATE TABLE orders (
     points_used         INT             NOT NULL DEFAULT 0,
     points_discount     DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
     member_discount     DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
+    voucher_code        VARCHAR(40)     NULL,
+    voucher_discount    DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
 
     CONSTRAINT FK_Orders_Users FOREIGN KEY (user_id) REFERENCES users(user_id),
     INDEX idx_orders_user_date (user_id, order_date DESC),
@@ -148,16 +129,42 @@ CREATE TABLE orders (
 -- =================================================================================
 -- BẢNG 5: ORDERDETAILS (Chi tiết vé trong đơn hàng)
 -- =================================================================================
-CREATE TABLE orderdetails (
+CREATE TABLE IF NOT EXISTS orderdetails (
     order_detail_id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     order_id            INT             NOT NULL,
     tour_id             INT             NOT NULL,
     quantity            INT             NOT NULL DEFAULT 1 CHECK (quantity > 0),
     unit_price          DECIMAL(18,2)   NOT NULL,
+    departure_date      DATE            NULL,
 
     CONSTRAINT FK_OrderDetails_Orders FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     CONSTRAINT FK_OrderDetails_Tours  FOREIGN KEY (tour_id)  REFERENCES tours(tour_id),
     INDEX idx_orderdetails_order_tour (order_id, tour_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS order_passengers (
+    passenger_id        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    order_id            INT NOT NULL,
+    full_name           VARCHAR(150) NOT NULL,
+    gender              VARCHAR(20) NULL,
+    age_group           VARCHAR(50) NULL,
+    CONSTRAINT FK_OrderPassengers_Orders FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    INDEX idx_order_passengers_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS tour_reviews (
+    review_id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    tour_id             INT NOT NULL,
+    user_id             INT NOT NULL,
+    rating              TINYINT NOT NULL,
+    trip_type           VARCHAR(50) NULL,
+    comment             VARCHAR(2000) NOT NULL,
+    created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_TourReviews_Tours FOREIGN KEY (tour_id) REFERENCES tours(tour_id) ON DELETE CASCADE,
+    CONSTRAINT FK_TourReviews_Users FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT UQ_TourReviews_Tour_User UNIQUE (tour_id, user_id),
+    CONSTRAINT CK_TourReviews_Rating CHECK (rating BETWEEN 1 AND 5),
+    INDEX idx_tour_reviews_tour_created (tour_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- View tương thích cho bảng order_details (tránh trùng tên bảng gốc trên Windows lower_case_table_names=1)
@@ -166,7 +173,7 @@ CREATE OR REPLACE VIEW order_details AS SELECT * FROM orderdetails;
 -- =================================================================================
 -- BẢNG 6: USER_ACTIVITY_HISTORY (Lưu vết hành vi phục vụ Recommendation Engine)
 -- =================================================================================
-CREATE TABLE user_activity_history (
+CREATE TABLE IF NOT EXISTS user_activity_history (
     id                  BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id             INT             NULL,
     session_id          VARCHAR(100)    NULL,
@@ -184,7 +191,7 @@ CREATE TABLE user_activity_history (
 -- =================================================================================
 -- BẢNG 7: PERSISTENT_LOGINS (Spring Security Remember-Me Cookie Token)
 -- =================================================================================
-CREATE TABLE persistent_logins (
+CREATE TABLE IF NOT EXISTS persistent_logins (
     username            VARCHAR(64)     NOT NULL,
     series              VARCHAR(64)     PRIMARY KEY,
     token               VARCHAR(64)     NOT NULL,
@@ -194,7 +201,7 @@ CREATE TABLE persistent_logins (
 -- =================================================================================
 -- BẢNG 8: PASSWORD_RESET_TOKENS (Mã PIN & OTP Đặt lại Mật Khẩu qua Email)
 -- =================================================================================
-CREATE TABLE password_reset_tokens (
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id                  BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id             INT             NOT NULL,
     token_hash          VARCHAR(64)     NOT NULL,
@@ -212,7 +219,7 @@ CREATE TABLE password_reset_tokens (
 -- =================================================================================
 -- BẢNG 9: COMPANIES (Doanh nghiệp B2B & Thông tin Xuất Hóa Đơn VAT)
 -- =================================================================================
-CREATE TABLE companies (
+CREATE TABLE IF NOT EXISTS companies (
     company_id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     company_name        VARCHAR(255)    NOT NULL,
     tax_code            VARCHAR(20)     NOT NULL UNIQUE,
@@ -237,7 +244,7 @@ CREATE TABLE companies (
 -- =================================================================================
 -- BẢNG 10: CORPORATE_USERS (Người dùng thuộc doanh nghiệp B2B)
 -- =================================================================================
-CREATE TABLE corporate_users (
+CREATE TABLE IF NOT EXISTS corporate_users (
     corp_user_id        BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id             INT             NOT NULL,
     company_id          BIGINT          NOT NULL,
@@ -260,7 +267,7 @@ CREATE TABLE corporate_users (
 -- =================================================================================
 -- BẢNG 11: TRAVEL_POLICIES (Chính sách Hạn mức Đặt Tour Công Tác Doanh Nghiệp)
 -- =================================================================================
-CREATE TABLE travel_policies (
+CREATE TABLE IF NOT EXISTS travel_policies (
     policy_id               BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     company_id              BIGINT          NOT NULL,
     policy_name             VARCHAR(150)    NOT NULL,
@@ -288,7 +295,7 @@ CREATE TABLE travel_policies (
 -- =================================================================================
 -- BẢNG 12: CREDIT_LIMITS (Hạn mức Tín dụng & Công Nợ Doanh Nghiệp)
 -- =================================================================================
-CREATE TABLE credit_limits (
+CREATE TABLE IF NOT EXISTS credit_limits (
     credit_id               BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     company_id              BIGINT          NOT NULL UNIQUE,
     credit_limit            DECIMAL(18,2)   NOT NULL DEFAULT 0.00,
@@ -311,7 +318,7 @@ CREATE TABLE credit_limits (
 -- =================================================================================
 -- BẢNG 13: CORPORATE_BOOKINGS (Đơn đặt tour công tác B2B)
 -- =================================================================================
-CREATE TABLE corporate_bookings (
+CREATE TABLE IF NOT EXISTS corporate_bookings (
     booking_id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     booking_code        VARCHAR(30)     NOT NULL UNIQUE,
     company_id          BIGINT          NOT NULL,
@@ -357,7 +364,7 @@ CREATE TABLE corporate_bookings (
 -- =================================================================================
 -- BẢNG 14: APPROVAL_REQUESTS (Yêu cầu Phê duyệt Đơn Đặt Tour Vượt Hạn Mức B2B)
 -- =================================================================================
-CREATE TABLE approval_requests (
+CREATE TABLE IF NOT EXISTS approval_requests (
     approval_id         BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     approval_code       VARCHAR(30)     NOT NULL UNIQUE,
     company_id          BIGINT          NOT NULL,

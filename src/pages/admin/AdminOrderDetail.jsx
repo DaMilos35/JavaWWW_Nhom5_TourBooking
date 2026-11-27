@@ -41,32 +41,8 @@ const AdminOrderDetail = () => {
       const res = await adminApi.getOrderById(id);
       setOrder(res.data);
     } catch (error) {
-      console.warn('Backend order detail API not reachable, falling back to mock order detail');
-      setOrder({
-        id: Number(id) || 101,
-        orderCode: `ORD-${id || 101}`,
-        fullName: 'Nguyễn Văn Hùng',
-        email: 'hungnguyen@gmail.com',
-        phone: '0912345678',
-        address: '123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh',
-        notes: 'Yêu cầu phòng tầng cao, view đẹp',
-        totalAmount: 9780000,
-        status: 'CONFIRMED',
-        paymentStatus: 'PAID',
-        paymentMethod: 'VNPAY',
-        createdAt: '2026-11-03T10:30:00Z',
-        orderDetails: [
-          {
-            id: 1,
-            tourId: 3,
-            tourName: 'Đà Nẵng - Hội An - Bà Nà Hills 4N3Đ',
-            price: 4890000,
-            quantity: 2,
-            subtotal: 9780000,
-            imageUrl: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800'
-          }
-        ]
-      });
+      toast.error('Không thể tải đơn hàng từ hệ thống.');
+      setOrder(null);
     } finally {
       setLoading(false);
     }
@@ -185,7 +161,7 @@ const AdminOrderDetail = () => {
           </div>
           
           {/* Nút Admin xác nhận thanh toán nếu khách đã chuyển tiền */}
-          {order.status === 'PENDING' && order.paymentStatus !== 'PAID' && (
+          {order.status === 'PENDING' && order.paymentStatus === 'PENDING_PAYMENT' && (
             <div style={{ marginTop: '16px', padding: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px' }}>
               <div style={{ fontSize: '0.85rem', color: '#166534', marginBottom: '8px', fontWeight: 600 }}>
                 <FaLightbulb style={{ color: '#eab308', marginRight: '6px' }} /> Khách hàng thanh toán qua VietQR. Khi tiền đã vào tài khoản, bấm xác nhận để kích hoạt vé cho khách:

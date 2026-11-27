@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfException;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -34,33 +36,30 @@ public class SecurityConfig {
     @Value("${cors.allowed-origin}")
     private String allowedOrigin;
 
+    @Value("${app.security.remember-me-key:}")
+    private String rememberMeKey;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository tokenRepository, CustomUserDetailsService userDetailsService) throws Exception {
         http
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                // The SPA sends the raw cookie value in X-XSRF-TOKEN.
+                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 .ignoringRequestMatchers(
-                    "/api/auth/**",
-                    "/api/tours", "/api/tours/**",
-                    "/api/categories", "/api/categories/**",
-                    "/api/orders", "/api/orders/**",
-                    "/api/payment", "/api/payment/**",
-                    "/api/users", "/api/users/**",
-                    "/api/admin", "/api/admin/**",
-                    "/api/ai", "/api/ai/**",
-                    "/api/activity", "/api/activity/**",
-                    "/api/corporate", "/api/corporate/**"))
+                    "/api/corporate/approvals/token-action"))
             .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/**", "/api/ai", "/api/ai/**", "/api/activity", "/api/activity/**",
-                        "/api/corporate/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/ai", "/api/ai/**", "/api/activity", "/api/activity/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/corporate/approvals/token-action").permitAll()
+                .requestMatchers("/api/corporate/**").hasRole("ADMIN")
                 .requestMatchers("/api/payment/vnpay/return").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**", "/api/tours", "/api/tours/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/tours/*/activity", "/api/activity", "/api/activity/**").permitAll()
                 .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
-                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "PROVIDER")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/payment/**").authenticated()
                 .anyRequest().authenticated())
             .formLogin(form -> form
@@ -103,15 +102,21 @@ public class SecurityConfig {
                 .tokenRepository(tokenRepository)
                 .userDetailsService(userDetailsService)
                 .tokenValiditySeconds(7 * 24 * 60 * 60)
-                .key("tourbooking-remember-me-key"))
+                .key(rememberMeKey == null || rememberMeKey.isBlank()
+                        ? java.util.UUID.randomUUID().toString()
+                        : rememberMeKey))
             .sessionManagement(session -> session
                 .maximumSessions(1)
                 .maxSessionsPreventsLogin(false))
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) ->
                     writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "Vui lòng đăng nhập để tiếp tục."))
-                .accessDeniedHandler((request, response, accessDeniedException) ->
-                    writeError(response, HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập.")));
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    String message = accessDeniedException instanceof CsrfException
+                            ? "Phiên bảo mật đã hết hạn hoặc không hợp lệ. Vui lòng tải lại trang và thử lại."
+                            : "Bạn không có quyền truy cập.";
+                    writeError(response, HttpServletResponse.SC_FORBIDDEN, message);
+                }));
         return http.build();
     }
 
@@ -124,29 +129,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new PasswordEncoder() {
-            private final BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
-
-            @Override
-            public String encode(CharSequence rawPassword) {
-                return bcrypt.encode(rawPassword);
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                if (encodedPassword == null || rawPassword == null) return false;
-                // Nếu mật khẩu trong DB là BCrypt hash
-                if (encodedPassword.startsWith("$2a$") || encodedPassword.startsWith("$2b$") || encodedPassword.startsWith("$2y$")) {
-                    try {
-                        return bcrypt.matches(rawPassword, encodedPassword);
-                    } catch (Exception e) {
-                        return false;
-                    }
-                }
-                // Hỗ trợ fallback nếu quản trị viên hoặc người dùng gõ mật khẩu thô (plain-text) vào database
-                return rawPassword.toString().equals(encodedPassword);
-            }
-        };
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

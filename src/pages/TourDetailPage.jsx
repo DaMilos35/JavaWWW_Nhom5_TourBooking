@@ -41,7 +41,7 @@ import {
   FaExternalLinkAlt,
   FaTimes
 } from 'react-icons/fa';
-import { tourApi } from '../api/axiosConfig';
+import { tourApi, reviewApi } from '../api/axiosConfig';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
@@ -90,229 +90,84 @@ const TourDetailPage = () => {
   // Dynamic Departure Date Selection
   const [selectedDepartureDate, setSelectedDepartureDate] = useState(null);
 
-  // Reviews List and Interactive Review Form
+  // Reviews are loaded from the server and only completed travelers may submit one.
   const [reviewFilter, setReviewFilter] = useState('Tất cả');
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [newReviewName, setNewReviewName] = useState('');
   const [newReviewType, setNewReviewType] = useState('Gia đình');
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [newReviewComment, setNewReviewComment] = useState('');
-  const [helpfulVotes, setHelpfulVotes] = useState({});
+  const [reviewsList, setReviewsList] = useState([]);
+  const [reviewEligibility, setReviewEligibility] = useState(null);
 
-  const initialReviews = [
-    {
-      id: 1,
-      author: 'Nguyễn Hoàng Nam',
-      avatarText: 'HN',
-      avatarBg: '#0194F3',
-      tripType: 'Cặp đôi',
-      rating: 5,
-      date: '14/10/2026',
-      comment: 'Chuyến đi trên cả tuyệt vời! Hướng dẫn viên cực kỳ nhiệt tình, vui tính và chụp ảnh siêu có tâm. Khách sạn chuẩn tiện nghi, bữa sáng buffet rất phong phú nhiều món ngon. Xe đưa đón Universe êm ái không hề bị say xe. Nhất định sẽ quay lại đồng hành cùng Du Lịch Việt!',
-      photos: [
-        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=400',
-        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=400'
-      ],
-      cskhReply: {
-        date: '15/10/2026',
-        text: 'Dạ Du Lịch Việt xin chân thành cảm ơn anh Hoàng Nam và bạn đồng hành đã tin tưởng lựa chọn dịch vụ của công ty! Kính chúc anh luôn dồi dào sức khỏe, niềm vui và hẹn gặp lại anh trong những chuyến đi sắp tới ạ!'
-      },
-      helpfulCount: 34
-    },
-    {
-      id: 2,
-      author: 'Chị Phan Thu Trang (Gia đình)',
-      avatarText: 'TT',
-      avatarBg: '#10b981',
-      tripType: 'Gia đình',
-      rating: 5,
-      date: '08/10/2026',
-      comment: 'Nhà mình đi 4 người gồm 2 người lớn và 2 bé nhỏ. Điểm cộng lớn nhất là lịch trình sắp xếp cực kỳ hợp lý, không bị vội hay mệt mỏi. Các bữa ăn đầy đặn đặc sản vùng miền sạch sẽ. Khách sạn hỗ trợ nhận phòng sớm và có khu vui chơi cho các bé. Rất ưng ý!',
-      photos: [
-        'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=400'
-      ],
-      cskhReply: {
-        date: '09/10/2026',
-        text: 'Dạ Du Lịch Việt rất vinh hạnh được phục vụ gia đình chị Trang. Sự hài lòng và nụ cười của hai bé chính là động lực to lớn nhất của toàn thể đội ngũ ạ!'
-      },
-      helpfulCount: 28
-    },
-    {
-      id: 3,
-      author: 'Anh Trần Quốc Bảo (Đoàn FPT Telecom)',
-      avatarText: 'QB',
-      avatarBg: '#8b5cf6',
-      tripType: 'Khách đoàn B2B',
-      rating: 5,
-      date: '28/09/2026',
-      comment: 'Công ty mình đặt đoàn 36 người đi nghỉ dưỡng kết hợp Gala Dinner. Phải khen ngợi khâu tổ chức rất chuyên nghiệp: xe đưa đón đúng giờ, banner backdrop thiết kế riêng đẹp mắt, MC hoạt náo tràn đầy năng lượng. Chiết khấu B2B 5% và xuất hóa đơn điện tử VAT rất nhanh gọn!',
-      cskhReply: {
-        date: '29/09/2026',
-        text: 'Du Lịch Việt trân trọng cảm ơn Ban lãnh đạo và toàn thể CBNV quý công ty FPT Telecom đã gửi trọn niềm tin. Rất mong được tiếp tục đồng hành trong kỳ nghỉ hè năm sau!'
-      },
-      helpfulCount: 42
-    },
-    {
-      id: 4,
-      author: 'Đặng Tuấn Anh',
-      avatarText: 'TA',
-      avatarBg: '#f59e0b',
-      tripType: 'Nhóm bạn',
-      rating: 4,
-      date: '19/09/2026',
-      comment: 'Cảnh quan tuyệt đẹp, thời tiết ủng hộ nên ảnh chụp nhóm lung linh luôn. Đồ ăn tươi ngon, đặc biệt là tiệc nướng hải sản. Điểm trừ nhỏ là ngày thứ 2 di chuyển hơi nhiều bậc thang nên cần mang giày bám tốt. Đánh giá tổng quan 9.5/10 điểm!',
-      photos: [
-        'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=400',
-        'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=400'
-      ],
-      cskhReply: {
-        date: '20/09/2026',
-        text: 'Cảm ơn góp ý rất thiết thực của anh Tuấn Anh! Du Lịch Việt đã ghi nhận để hướng dẫn viên tư vấn kỹ hơn về trang phục trekking cho các đoàn tiếp theo ạ.'
-      },
-      helpfulCount: 19
-    },
-    {
-      id: 5,
-      author: 'Bác Vũ Minh Khang',
-      avatarText: 'MK',
-      avatarBg: '#0284c7',
-      tripType: 'Nghỉ dưỡng',
-      rating: 5,
-      date: '05/09/2026',
-      comment: 'Bác đi cùng hội bạn hưu trí, ban đầu cũng lo sức khỏe không theo kịp nhưng hướng dẫn viên rất chu đáo, luôn đi chậm chờ mọi người và hỗ trợ xách hành lý. Khách sạn có thang máy êm ái, phòng sạch sẽ thoáng mát. Rất cảm ơn công ty!',
-      cskhReply: {
-        date: '06/09/2026',
-        text: 'Kính chúc bác Khang và các bác trong hội luôn dồi dào sức khỏe và an vui bên gia đình!'
-      },
-      helpfulCount: 26
-    }
-  ];
-
-  const [reviewsList, setReviewsList] = useState(initialReviews);
-
-  // Lấy tổng số lượng vé đã đặt của tour này để khấu trừ số chỗ còn lại theo thời gian thực
-  const getBookedCount = (tId, dateStr) => {
-    try {
-      let count = 0;
-      // 1. Quét từ các đơn hàng thực tế đã tạo thành công
-      const rawOrders = localStorage.getItem('dulichviet_local_orders');
-      if (rawOrders) {
-        const orders = JSON.parse(rawOrders);
-        orders.forEach((o) => {
-          if (o.status !== 'CANCELLED') {
-            (o.details || []).forEach((d) => {
-              const itemTourId = d.tour?.id || d.tour?.tourId || d.tourId;
-              if (String(itemTourId) === String(tId)) {
-                if (!d.selectedDepartureDate || d.selectedDepartureDate === dateStr) {
-                  count += Number(d.quantity || 1);
-                }
-              }
-            });
-          }
-        });
-      }
-
-      // 2. Quét map theo dõi vé đã đặt tức thì
-      const rawMap = localStorage.getItem('tour_booked_seats_map');
-      if (rawMap) {
-        const map = JSON.parse(rawMap);
-        const keyWithDate = `${tId}_${dateStr}`;
-        const extraCount = map[keyWithDate] !== undefined ? map[keyWithDate] : (map[tId] || 0);
-        count = Math.max(count, extraCount);
-      }
-
-      return count;
-    } catch {
-      return 0;
-    }
-  };
-
-  // Generate 4 dynamic upcoming departure dates với số chỗ khấu trừ tự động
+  // Booking uses the actual departure date and inventory configured for this tour.
   const generateUpcomingDepartures = () => {
-    const dates = [];
-    const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-    const basePrice = Number(tour?.price || 4890000);
-    const now = new Date();
-    const tId = tour?.id || tour?.tourId;
-    
-    // Số chỗ cơ sở: Nếu tour có sẵn availableSeats <= 10 thì lấy đúng số đó, ngược lại mặc định 6 chỗ cho đợt 1
-    const rawSeats = Number(tour?.availableSeats !== undefined ? tour.availableSeats : (tour?.available_seats !== undefined ? tour.available_seats : 6));
-    const baseFirstBatchSeats = rawSeats > 0 && rawSeats <= 10 ? rawSeats : 6;
-    
-    for (let i = 1; i <= 4; i++) {
-      const d = new Date(now.getTime() + (i * 7 + 2) * 24 * 60 * 60 * 1000);
-      const dow = daysOfWeek[d.getDay()];
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
-      const dateStr = `${day}/${month}/${year}`;
-      
-      const nominalSeats = i === 1 ? baseFirstBatchSeats : (12 + (i * 4));
-      const booked = getBookedCount(tId, dateStr);
-      // Khấu trừ chính xác số vé đã đặt
-      const remainingSeats = Math.max(0, nominalSeats - booked);
-      const p = i === 2 ? Math.round(basePrice * 0.95) : basePrice;
-
-      dates.push({
-        dayOfWeek: dow,
-        dateStr: dateStr,
-        seats: remainingSeats,
-        price: p
-      });
-    }
-    return dates;
+    if (!tour?.startDate) return [];
+    const departure = new Date(`${tour.startDate}T00:00:00`);
+    if (Number.isNaN(departure.getTime())) return [];
+    return [{
+      isoDate: tour.startDate,
+      dayOfWeek: departure.toLocaleDateString('vi-VN', { weekday: 'long' }),
+      dateStr: departure.toLocaleDateString('vi-VN'),
+      seats: Math.max(0, Number(tour.availableSeats ?? tour.available_seats ?? 0)),
+      price: Number(tour.price || 0)
+    }];
   };
 
   const departureDatesList = tour ? generateUpcomingDepartures() : [];
 
-  const handleCustomReviewSubmit = (e) => {
+  const handleCustomReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!newReviewName.trim() || !newReviewComment.trim()) {
-      toast.warning('Vui lòng điền đầy đủ họ tên và nội dung đánh giá!');
+    if (!user) {
+      navigate('/login', { state: { from: location } });
       return;
     }
-
-    const newRev = {
-      id: Date.now(),
-      author: newReviewName.trim(),
-      avatarText: newReviewName.trim().substring(0, 2).toUpperCase(),
-      avatarBg: '#0194f3',
-      tripType: newReviewType,
-      rating: newReviewRating,
-      date: 'Hôm nay',
-      comment: newReviewComment.trim(),
-      helpfulCount: 1,
-      cskhReply: {
-        date: 'Vừa xong',
-        text: 'Dạ Du Lịch Việt xin chân thành cảm ơn đánh giá quý báu của anh/chị! Ý kiến đóng góp sẽ giúp nâng cao chất lượng dịch vụ ngày một hoàn thiện hơn.'
-      }
-    };
-
-    setReviewsList([newRev, ...reviewsList]);
-    setNewReviewName('');
-    setNewReviewComment('');
-    setShowReviewForm(false);
-    toast.success('Gửi đánh giá thành công! Cảm ơn nhận xét của bạn.');
+    if (!newReviewComment.trim()) {
+      toast.warning('Vui lòng nhập nội dung đánh giá');
+      return;
+    }
+    try {
+      await reviewApi.create(id, {
+        rating: newReviewRating,
+        tripType: newReviewType,
+        comment: newReviewComment.trim()
+      });
+      const [reviewsResponse, eligibilityResponse] = await Promise.all([
+        reviewApi.getByTour(id),
+        reviewApi.getEligibility(id)
+      ]);
+      setReviewsList(Array.isArray(reviewsResponse.data) ? reviewsResponse.data : []);
+      setReviewEligibility(eligibilityResponse.data);
+      setNewReviewComment('');
+      setShowReviewForm(false);
+      toast.success('Đánh giá đã được lưu. Cảm ơn bạn đã chia sẻ trải nghiệm.');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Không thể gửi đánh giá cho tour này');
+    }
   };
 
-  const handleHelpfulVote = (reviewId) => {
-    setHelpfulVotes(prev => ({
-      ...prev,
-      [reviewId]: (prev[reviewId] || (reviewsList.find(r => r.id === reviewId)?.helpfulCount || 10)) + 1
-    }));
-    toast.success('Cảm ơn bạn đã bình chọn đánh giá hữu ích!');
+  const handleOpenReviewForm = () => {
+    if (!user) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    if (!reviewEligibility?.canReview) {
+      toast.info(reviewEligibility?.alreadyReviewed
+        ? 'Bạn đã đánh giá tour này'
+        : 'Chỉ khách đã hoàn thành tour mới có thể gửi đánh giá');
+      return;
+    }
+    setShowReviewForm(value => !value);
   };
 
   const filteredReviews = reviewsList.filter(r => {
     if (reviewFilter === 'Tất cả') return true;
-    if (reviewFilter === 'Có hình ảnh') return r.photos && r.photos.length > 0;
     if (reviewFilter === '5 Sao') return r.rating === 5;
     if (reviewFilter === '4 Sao') return r.rating === 4;
-    if (reviewFilter === 'Gia đình') return r.tripType === 'Gia đình';
-    if (reviewFilter === 'Cặp đôi') return r.tripType === 'Cặp đôi';
-    if (reviewFilter === 'Khách đoàn B2B') return r.tripType === 'Khách đoàn B2B';
     return true;
   });
+  const averageReviewRating = reviewsList.length
+    ? reviewsList.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviewsList.length
+    : 0;
 
   const personaOptions = [
     { id: 'family', label: 'Gia đình có trẻ nhỏ', icon: FaUsers, advice: 'Lịch trình được tối ưu với nhịp độ thư thả, xe đưa đón điều hòa êm ái, các điểm tham quan có lối đi xe đẩy và thang máy. Thực đơn nhà hàng đảm bảo món thanh đạm, dinh dưỡng cho trẻ nhỏ.' },
@@ -323,6 +178,29 @@ const TourDetailPage = () => {
 
   const currentPersona = personaOptions.find(p => p.id === selectedPersona) || personaOptions[0]; // 'itinerary' | 'services' | 'policy'
   const [recommendedTours, setRecommendedTours] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    setReviewsList([]);
+    setReviewEligibility(null);
+    reviewApi.getByTour(id)
+      .then(res => {
+        if (active) setReviewsList(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch(() => {
+        if (active) setReviewsList([]);
+      });
+    if (user?.id) {
+      reviewApi.getEligibility(id)
+        .then(res => {
+          if (active) setReviewEligibility(res.data);
+        })
+        .catch(() => {
+          if (active) setReviewEligibility({ canReview: false, alreadyReviewed: false });
+        });
+    }
+    return () => { active = false; };
+  }, [id, user?.id]);
 
   // Tải thông tin chi tiết tour & restart lại giao diện sạch sẽ khi đổi tour
   useEffect(() => {
@@ -435,10 +313,10 @@ const TourDetailPage = () => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
   };
 
-  const activeDepartureDate = selectedDepartureDate || (departureDatesList.length > 0 ? departureDatesList[0].dateStr : null);
-  const selectedDateObj = departureDatesList.find(d => d.dateStr === activeDepartureDate) || departureDatesList[0];
+  const activeDepartureDate = selectedDepartureDate || (departureDatesList.length > 0 ? departureDatesList[0].isoDate : null);
+  const selectedDateObj = departureDatesList.find(d => d.isoDate === activeDepartureDate) || departureDatesList[0];
   const departureHasPassed = activeDepartureDate ? hasTourDatePassed(activeDepartureDate) : (tour.endDate ? hasTourDatePassed(tour.endDate) : false);
-  const availableSeats = selectedDateObj ? selectedDateObj.seats : (Number(tour.availableSeats) || 20);
+  const availableSeats = selectedDateObj ? selectedDateObj.seats : 0;
   const price = selectedDateObj ? selectedDateObj.price : Number(tour.price || 0);
   const originalPrice = Number(tour.originalPrice || tour.original_price || (price * 1.18));
   const hasDiscount = originalPrice > price;
@@ -1269,78 +1147,37 @@ const TourDetailPage = () => {
               </div>
             )}
 
-            {/* Tab 4: Customer Reviews & Real Insights */}
+            {/* Tab 4: Verified customer reviews */}
             {activeTab === 'ai_insights' && (
               <div className="tab-pane-content">
                 <div className="ai-sentiment-dashboard">
                   <div className="ai-sentiment-score-header">
                     <div className="ai-score-circle">
-                      <span className="score-num">4.9</span>
+                      <span className="score-num">{reviewsList.length ? averageReviewRating.toFixed(1) : '—'}</span>
                       <span className="score-max">/ 5.0</span>
                     </div>
                     <div className="ai-score-meta">
                       <div className="ai-score-rating">
                         {[...Array(5)].map((_, i) => (
-                          <FaStar key={i} style={{ color: '#f59e0b', fontSize: '1.1rem' }} />
+                          <FaStar key={i} style={{ color: i < Math.round(averageReviewRating) ? '#f59e0b' : '#cbd5e1', fontSize: '1.1rem' }} />
                         ))}
-                        <span className="ai-score-text">Độ Hài Lòng Rất Cao (98% Khuyên Đi)</span>
+                        <span className="ai-score-text">{reviewsList.length ? 'Điểm trung bình đánh giá' : 'Chưa có đánh giá'}</span>
                       </div>
                       <p className="ai-score-desc">
-                        Tổng hợp khách quan từ <strong>{reviewsList.length + 138} lượt phản hồi thực tế</strong> của du khách đã hoàn tất hành trình.
+                        Dựa trên <strong>{reviewsList.length} đánh giá</strong> của khách đã hoàn thành tour.
                       </p>
                     </div>
                   </div>
 
-                  {/* 3 Bento Summary Cards */}
                   <div className="ai-bento-grid">
-                    <div className="ai-bento-card bento-pros">
-                      <div className="bento-card-title text-success">
-                        <FaCheckCircle style={{ color: '#16a34a', marginRight: '6px' }} />
-                        Điểm Hài Lòng Nổi Bật
-                      </div>
-                      <ul className="bento-list">
-                        <li>Hướng dẫn viên nhiệt tình, am hiểu văn hóa sâu sắc và luôn hỗ trợ chụp ảnh chu đáo.</li>
-                        <li>Xe du lịch đưa đón đời mới, máy lạnh êm và khách sạn chuẩn tiện nghi như cam kết.</li>
-                        <li>Thực đơn phong phú, đầy ắp đặc sản vùng miền tươi ngon và vệ sinh an toàn thực phẩm.</li>
-                      </ul>
-                    </div>
-
-                    <div className="ai-bento-card bento-tips">
-                      <div className="bento-card-title text-amber">
-                        <FaLightbulb style={{ color: '#d97706', marginRight: '6px' }} />
-                        Kinh Nghiệm & Lưu Ý Hữu Ích
-                      </div>
-                      <ul className="bento-list">
-                        <li>Nên mang theo giày đế bám và mũ nón che nắng cho các chặng tham quan ngoài trời.</li>
-                        <li>Nên đem theo sạc dự phòng vì hành trình có nhiều điểm check-in phong cảnh tuyệt đẹp.</li>
-                        <li>Đoàn có em bé hoặc người cao tuổi có thể liên hệ trước để sắp xếp phòng tầng thấp.</li>
-                      </ul>
-                    </div>
-
-                    <div className="ai-bento-card bento-match">
+                    <div className="ai-bento-card">
                       <div className="bento-card-title text-primary">
-                        <FaCompass style={{ color: '#0194f3', marginRight: '6px' }} />
-                        Độ Phù Hợp Cho Từng Nhóm Khách
+                        <FaCheckCircle style={{ color: '#0194f3', marginRight: '6px' }} />
+                        Đánh giá từ khách đã hoàn thành tour
                       </div>
-                      <div className="match-progress-list">
-                        <div className="match-progress-row">
-                          <span>Gia đình có trẻ em & người lớn tuổi:</span>
-                          <b>96%</b>
-                        </div>
-                        <div className="progress-bg"><div className="progress-fill" style={{ width: '96%' }}></div></div>
-
-                        <div className="match-progress-row">
-                          <span>Cặp đôi nghỉ dưỡng & trăng mật:</span>
-                          <b>98%</b>
-                        </div>
-                        <div className="progress-bg"><div className="progress-fill" style={{ width: '98%' }}></div></div>
-
-                        <div className="match-progress-row">
-                          <span>Khách đoàn Doanh nghiệp (B2B):</span>
-                          <b>94%</b>
-                        </div>
-                        <div className="progress-bg"><div className="progress-fill" style={{ width: '94%' }}></div></div>
-                      </div>
+                      <p className="ai-score-desc">
+                        Mỗi tài khoản chỉ được đánh giá một lần sau khi đơn hàng có tour này được xác nhận hoàn thành.
+                      </p>
                     </div>
                   </div>
 
@@ -1349,16 +1186,21 @@ const TourDetailPage = () => {
                     <div className="reviews-section-header">
                       <h4 className="reviews-title">
                         <FaComments style={{ color: '#0194f3', marginRight: '8px' }} />
-                        Nhận xét từ du khách đã tham gia chuyến đi ({reviewsList.length} đánh giá)
+                        Nhận xét đã xác thực ({reviewsList.length} đánh giá)
                       </h4>
                       <button 
                         type="button" 
                         className="btn btn-outline-primary btn-sm btn-open-review"
-                        onClick={() => setShowReviewForm(!showReviewForm)}
+                        onClick={handleOpenReviewForm}
                       >
                         <FaPen style={{ marginRight: '6px' }} /> {showReviewForm ? 'Đóng biểu mẫu' : 'Viết đánh giá của bạn'}
                       </button>
                     </div>
+                    {user && !reviewEligibility?.canReview && !reviewEligibility?.alreadyReviewed && (
+                      <p style={{ color: '#64748b', fontSize: '0.86rem', marginBottom: '14px' }}>
+                        Bạn có thể đánh giá sau khi đơn đặt tour này được đánh dấu hoàn thành.
+                      </p>
+                    )}
 
                     {/* Review Form */}
                     {showReviewForm && (
@@ -1366,17 +1208,6 @@ const TourDetailPage = () => {
                         <h5 className="write-review-heading">Chia sẻ cảm nhận thực tế của bạn về chuyến đi</h5>
                         <form onSubmit={handleCustomReviewSubmit}>
                           <div className="form-row-grid">
-                            <div className="form-group">
-                              <label style={{ fontSize: '0.84rem', fontWeight: '600', color: '#334155' }}>Họ và tên của bạn:</label>
-                              <input 
-                                type="text" 
-                                className="form-control" 
-                                placeholder="Ví dụ: Nguyễn Văn An"
-                                value={newReviewName} 
-                                onChange={e => setNewReviewName(e.target.value)} 
-                                required 
-                              />
-                            </div>
                             <div className="form-group">
                               <label style={{ fontSize: '0.84rem', fontWeight: '600', color: '#334155' }}>Hình thức chuyến đi:</label>
                               <select 
@@ -1427,7 +1258,7 @@ const TourDetailPage = () => {
 
                     {/* Filter Pills */}
                     <div className="reviews-filter-pills mb-3">
-                      {['Tất cả', 'Có hình ảnh', '5 Sao', '4 Sao', 'Gia đình', 'Cặp đôi', 'Khách đoàn B2B'].map(f => (
+                      {['Tất cả', '5 Sao', '4 Sao'].map(f => (
                         <button 
                           key={f}
                           type="button" 
@@ -1445,19 +1276,19 @@ const TourDetailPage = () => {
                         <div key={r.id} className="review-card-item">
                           <div className="review-card-header">
                             <div className="reviewer-info-group">
-                              <div className="reviewer-avatar-circle" style={{ backgroundColor: r.avatarBg }}>
-                                {r.avatarText}
+                              <div className="reviewer-avatar-circle" style={{ backgroundColor: '#0194f3' }}>
+                                {(r.author || 'K').trim().slice(0, 2).toUpperCase()}
                               </div>
                               <div>
                                 <div className="reviewer-name-row">
                                   <span className="reviewer-name">{r.author}</span>
                                   <span className="reviewer-badge-verified">
-                                    <FaCheckCircle className="verified-icon" /> Đã đặt qua Du Lịch Việt
+                                    <FaCheckCircle className="verified-icon" /> Đã hoàn thành tour
                                   </span>
                                 </div>
                                 <div className="reviewer-meta-sub">
-                                  <span className="trip-type-tag">{r.tripType}</span>
-                                  <span className="review-date-text">{r.date}</span>
+                                  {r.tripType && <span className="trip-type-tag">{r.tripType}</span>}
+                                  <span className="review-date-text">{new Date(r.createdAt).toLocaleDateString('vi-VN')}</span>
                                 </div>
                               </div>
                             </div>
@@ -1469,37 +1300,13 @@ const TourDetailPage = () => {
                           </div>
 
                           <p className="review-body-text">{r.comment}</p>
-
-                          {r.photos && r.photos.length > 0 && (
-                            <div className="review-photos-thumbnails">
-                              {r.photos.map((photoUrl, pIdx) => (
-                                <img key={pIdx} src={photoUrl} alt="Ảnh chụp thực tế của khách" className="review-thumb-img" />
-                              ))}
-                            </div>
-                          )}
-
-                          {/* CSKH Response */}
-                          {r.cskhReply && (
-                            <div className="cskh-reply-box">
-                              <div className="cskh-reply-header">
-                                <span className="cskh-badge">Chăm sóc khách hàng Du Lịch Việt</span>
-                                <span className="cskh-time">{r.cskhReply.date}</span>
-                              </div>
-                              <p className="cskh-reply-content">{r.cskhReply.text}</p>
-                            </div>
-                          )}
-
-                          <div className="review-card-footer">
-                            <button 
-                              type="button" 
-                              className="helpful-vote-btn"
-                              onClick={() => handleHelpfulVote(r.id)}
-                            >
-                              <FaThumbsUp /> Hữu ích ({helpfulVotes[r.id] || r.helpfulCount || 12})
-                            </button>
-                          </div>
                         </div>
                       ))}
+                      {filteredReviews.length === 0 && (
+                        <p style={{ color: '#64748b', padding: '20px 0' }}>
+                          {reviewsList.length === 0 ? 'Chưa có đánh giá đã xác thực cho tour này.' : 'Không có đánh giá phù hợp bộ lọc.'}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1554,8 +1361,8 @@ const TourDetailPage = () => {
                   {departureDatesList.map((d, dIdx) => (
                     <div 
                       key={dIdx} 
-                      className={`schedule-pill-card ${selectedDepartureDate === d.dateStr || (!selectedDepartureDate && dIdx === 0) ? 'active' : ''}`}
-                      onClick={() => setSelectedDepartureDate(d.dateStr)}
+                      className={`schedule-pill-card ${selectedDepartureDate === d.isoDate || (!selectedDepartureDate && dIdx === 0) ? 'active' : ''}`}
+                      onClick={() => setSelectedDepartureDate(d.isoDate)}
                     >
                       <div className="schedule-pill-left">
                         <span className="schedule-pill-dow">{d.dayOfWeek}</span>

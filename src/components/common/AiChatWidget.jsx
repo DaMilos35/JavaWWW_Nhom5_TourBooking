@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaHeadset, FaPaperPlane, FaTimes, FaStar, FaRedo } from 'react-icons/fa';
-import { aiApi } from '../../api/axiosConfig';
-import { realTourApi, removeVietnameseTones, REAL_TOURS } from '../../api/realTourDataApi';
+import { aiApi, tourApi } from '../../api/axiosConfig';
+import { removeVietnameseTones } from '../../api/realTourDataApi';
 import { context7Engine } from '../../utils/context7Engine';
 import { travelReachEngine } from '../../utils/travelReachEngine';
 import { langfuseTraceEngine } from '../../utils/langfuseTraceEngine';
@@ -65,21 +65,16 @@ const filterToursByGeographicIntent = (toursList, userQuery) => {
 
   if (mentionsAPAC) {
     const apacOnly = list.filter(t => !isAus(t) && !isUs(t) && !isEu(t));
-    if (apacOnly.length > 0) return apacOnly.slice(0, 4);
-    // Nếu danh sách từ server rỗng hoặc bị loại hết, lấy trực tiếp tour Châu Á / Biển Đảo nổi bật từ REAL_TOURS
-    return REAL_TOURS.filter(t => !isAus(t) && !isUs(t) && !isEu(t)).slice(0, 4);
+    return apacOnly.slice(0, 4);
   }
   if (mentionsAus && !mentionsAPAC && !mentionsUs) {
-    const ausOnly = list.filter(isAus);
-    return ausOnly.length > 0 ? ausOnly.slice(0, 4) : REAL_TOURS.filter(isAus).slice(0, 4);
+    return list.filter(isAus).slice(0, 4);
   }
   if (mentionsUs && !mentionsAPAC && !mentionsAus) {
-    const usOnly = list.filter(isUs);
-    return usOnly.length > 0 ? usOnly.slice(0, 4) : REAL_TOURS.filter(isUs).slice(0, 4);
+    return list.filter(isUs).slice(0, 4);
   }
   if (mentionsEu) {
-    const euOnly = list.filter(isEu);
-    return euOnly.length > 0 ? euOnly.slice(0, 4) : REAL_TOURS.filter(isEu).slice(0, 4);
+    return list.filter(isEu).slice(0, 4);
   }
   return list.slice(0, 4);
 };
@@ -190,7 +185,7 @@ const AiChatWidget = () => {
     } catch {
       // Fallback tư vấn nội bộ hỗ trợ tiếng Việt không dấu, Context7 chính sách & Agent-Reach thông tin điểm đến
       try {
-        const searchRes = await realTourApi.search(textToSend);
+        const searchRes = await tourApi.search(textToSend);
         let matches = (searchRes.data || []).slice(0, 4);
         const unaccented = removeVietnameseTones(textToSend);
 

@@ -3,7 +3,7 @@
 -- TourBooking Platform - Nhóm 5
 -- ============================================================
 
-USE TourBookingDB;
+USE tourbookingdb;
 
 -- ============================================================
 -- BẢNG 1: companies

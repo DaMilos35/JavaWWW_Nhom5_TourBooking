@@ -17,12 +17,14 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "Orders")
+@Table(name = "orders")
 public class TourOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -114,9 +116,18 @@ public class TourOrder {
     @Column(name = "member_discount")
     private BigDecimal memberDiscount = BigDecimal.ZERO;
 
-    @Column(name = "notes")
+    @Column(name = "voucher_code", length = 40)
+    private String voucherCode;
+
+    @Column(name = "voucher_discount")
+    private BigDecimal voucherDiscount = BigDecimal.ZERO;
+
+    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> details = new ArrayList<>();
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrderPassenger> passengers = new LinkedHashSet<>();
 }

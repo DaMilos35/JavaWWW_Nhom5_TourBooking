@@ -38,6 +38,9 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String fromEmail;
 
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
+
     @Value("${app.email.relay-url:${EMAIL_RELAY_URL:}}")
     private String relayUrl;
 
@@ -47,13 +50,29 @@ public class EmailService {
     /**
      * Gửi mã xác thực OTP đăng ký tài khoản qua Gmail
      */
-    @Async
-    public void sendRegistrationOtp(String toEmail, String otpCode) {
-        if (toEmail == null || toEmail.isBlank()) return;
+    public boolean isEmailDeliveryConfigured() {
+        return isRelayConfigured() || isSmtpConfigured();
+    }
 
+    private boolean isRelayConfigured() {
+        if (relayUrl == null || relayUrl.isBlank()) return false;
         try {
-            String sender = (fromEmail != null && !fromEmail.isBlank()) ? fromEmail : "hotro@dulichviet.vn";
-            String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);'>"
+            return "https".equalsIgnoreCase(URI.create(relayUrl.trim()).getScheme());
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    private boolean isSmtpConfigured() {
+        return mailSender != null && fromEmail != null && !fromEmail.isBlank()
+                && mailPassword != null && !mailPassword.isBlank();
+    }
+
+    public boolean sendRegistrationOtp(String toEmail, String otpCode) {
+        if (toEmail == null || toEmail.isBlank() || otpCode == null || otpCode.isBlank()) return false;
+
+        String sender = (fromEmail != null && !fromEmail.isBlank()) ? fromEmail : "hotro@dulichviet.vn";
+        String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);'>"
                     + "<div style='background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 28px; text-align: center;'>"
                     + "<h1 style='margin: 0; font-size: 26px; letter-spacing: 1px;'>DU LỊCH VIỆT</h1>"
                     + "<p style='margin: 8px 0 0; font-size: 15px; opacity: 0.95;'>Xác Thực Tài Khoản Người Dùng Mới</p>"
@@ -77,21 +96,32 @@ public class EmailService {
                     + "</div>"
                     + "</div>";
 
-            if (mailSender != null && fromEmail != null && !fromEmail.isBlank()) {
+        try {
+            if (isSmtpConfigured()) {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
                 helper.setFrom(sender);
                 helper.setTo(toEmail);
-                helper.setSubject("[Du Lịch Việt] Mã xác thực OTP đăng ký tài khoản: " + otpCode);
+                helper.setSubject("[Du Lịch Việt] Mã xác thực OTP đăng ký tài khoản");
                 helper.setText(content, true);
                 mailSender.send(message);
-                log.info("Registration OTP email successfully dispatched to {}", toEmail);
-            } else {
-                log.info("[SIMULATED EMAIL] Registration OTP for {}: [{}]", toEmail, otpCode);
+                log.info("Registration OTP email successfully dispatched to {}", maskEmailForLogs(toEmail));
+                return true;
             }
         } catch (Exception e) {
-            log.warn("Failed to send registration OTP email to {}: {}", toEmail, e.getMessage());
+            log.warn("SMTP registration OTP delivery failed for {}", maskEmailForLogs(toEmail));
         }
+
+        try {
+            if (isRelayConfigured()
+                    && sendViaHttpRelay(toEmail, "[Du Lịch Việt] Mã xác thực OTP đăng ký tài khoản", content, null, otpCode)) {
+                return true;
+            }
+        } catch (Exception e) {
+            log.warn("Email relay registration OTP delivery failed for {}", maskEmailForLogs(toEmail));
+        }
+        log.warn("Registration OTP email could not be delivered to {}", maskEmailForLogs(toEmail));
+        return false;
     }
 
     /**
@@ -308,13 +338,12 @@ public class EmailService {
     /**
      * Gửi liên kết và mã xác thực đặt lại mật khẩu an toàn qua Email
      */
-    @Async
-    public void sendPasswordResetEmail(String toEmail, String resetLink, String rawToken) {
-        if (toEmail == null || toEmail.isBlank()) return;
+    public boolean sendPasswordResetEmail(String toEmail, String resetLink, String rawToken) {
+        if (toEmail == null || toEmail.isBlank() || rawToken == null || rawToken.isBlank()) return false;
 
         try {
             String sender = (fromEmail != null && !fromEmail.isBlank()) ? fromEmail : "hotro@dulichviet.vn";
-            String subject = "[Du Lịch Việt] Mã PIN xác thực đặt lại mật khẩu: " + rawToken;
+            String subject = "[Du Lịch Việt] Mã PIN xác thực đặt lại mật khẩu";
             String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);'>"
                     + "<div style='background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 28px; text-align: center;'>"
                     + "<h1 style='margin: 0; font-size: 26px; letter-spacing: 1px;'>DU LỊCH VIỆT</h1>"
@@ -340,15 +369,15 @@ public class EmailService {
                     + "</div>";
 
             // ƯU TIÊN 1: Chuyển tiếp qua Kênh Trung Gian HTTP Relay (Google Apps Script / Webhook - Không cần password)
-            if (relayUrl != null && !relayUrl.isBlank()) {
+            if (isRelayConfigured()) {
                 boolean sentViaRelay = sendViaHttpRelay(toEmail, subject, content, resetLink, rawToken);
                 if (sentViaRelay) {
-                    return;
+                    return true;
                 }
             }
 
             // ƯU TIÊN 2: Gửi qua SMTP Gmail nếu có cấu hình mật khẩu ứng dụng
-            if (mailSender != null && fromEmail != null && !fromEmail.isBlank()) {
+            if (isSmtpConfigured()) {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
                 helper.setFrom(sender);
@@ -356,13 +385,13 @@ public class EmailService {
                 helper.setSubject(subject);
                 helper.setText(content, true);
                 mailSender.send(message);
-                log.info("Password reset PIN email sent via SMTP to {}", toEmail);
-            } else {
-                log.info("[SIMULATED EMAIL RELAY] Password reset PIN for {}: PIN = [{}], Link = [{}]", toEmail, rawToken, resetLink);
+                log.info("Password reset email sent via SMTP to {}", maskEmailForLogs(toEmail));
+                return true;
             }
         } catch (Exception e) {
-            log.warn("Failed to send password reset PIN email to {}: {}", toEmail, e.getMessage());
+            log.warn("Password reset email delivery failed for {}", maskEmailForLogs(toEmail));
         }
+        return false;
     }
 
     /**
@@ -370,7 +399,7 @@ public class EmailService {
      * Hoàn toàn KHÔNG cần cấu hình mật khẩu email (No password required).
      */
     public boolean sendViaHttpRelay(String toEmail, String subject, String htmlContent, String resetLink, String rawToken) {
-        if (relayUrl == null || relayUrl.isBlank()) {
+        if (!isRelayConfigured()) {
             return false;
         }
 
@@ -412,16 +441,23 @@ public class EmailService {
             );
 
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                log.info("[HTTP RELAY SUCCESS] Đã gửi email PIN qua kênh trung gian tới {}. Status: {}", toEmail, response.statusCode());
+                log.info("Email relay accepted a message for {}. Status: {}", maskEmailForLogs(toEmail), response.statusCode());
                 return true;
             } else {
-                log.warn("[HTTP RELAY WARNING] Gửi email qua kênh trung gian trả về HTTP {}: {}", response.statusCode(), response.body());
+                log.warn("Email relay rejected a message for {} with HTTP {}", maskEmailForLogs(toEmail), response.statusCode());
                 return false;
             }
         } catch (Exception e) {
-            log.warn("[HTTP RELAY ERROR] Lỗi kết nối tới máy chủ trung gian ({}): {}", relayUrl, e.getMessage());
+            log.warn("Email relay request failed for {}", maskEmailForLogs(toEmail));
             return false;
         }
+    }
+
+    private String maskEmailForLogs(String email) {
+        if (email == null) return "unknown";
+        int at = email.indexOf('@');
+        if (at <= 1) return "***";
+        return email.charAt(0) + "***" + email.substring(at);
     }
 
     private String escapeJson(String raw) {

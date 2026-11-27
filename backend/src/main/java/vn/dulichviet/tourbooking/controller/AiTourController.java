@@ -1,6 +1,7 @@
 package vn.dulichviet.tourbooking.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.dulichviet.tourbooking.dto.AiChatRequest;
 import vn.dulichviet.tourbooking.dto.AiChatResponse;
@@ -43,6 +44,7 @@ public class AiTourController {
     }
 
     /** Trigger đánh chỉ mục lại toàn bộ Tour vào Vector Database */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/vector-db/reindex")
     public ResponseEntity<Map<String, Object>> reindexVectorDb() {
         int count = tourVectorIndexer.indexAllTours();

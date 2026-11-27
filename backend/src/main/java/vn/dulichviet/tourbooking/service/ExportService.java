@@ -128,6 +128,10 @@ public class ExportService {
     private String escapeCsv(String input) {
         if (input == null) return "";
         String s = input.trim().replace("\r", " ").replace("\n", " ");
+        // Excel interprets cells beginning with formula characters even when CSV is quoted.
+        if (s.matches("^[\\s\\u0000-\\u001F]*[=+@-].*")) {
+            s = "'" + s;
+        }
         if (s.contains(",") || s.contains("\"") || s.contains(";")) {
             return "\"" + s.replace("\"", "\"\"") + "\"";
         }

@@ -8,6 +8,7 @@ import vn.dulichviet.tourbooking.dto.DashboardDto;
 import vn.dulichviet.tourbooking.dto.OrderDto;
 import vn.dulichviet.tourbooking.dto.UpdateOrderStatusRequest;
 import vn.dulichviet.tourbooking.entity.OrderDetail;
+import vn.dulichviet.tourbooking.entity.OrderPassenger;
 import vn.dulichviet.tourbooking.entity.Tour;
 import vn.dulichviet.tourbooking.entity.TourOrder;
 import vn.dulichviet.tourbooking.entity.User;
@@ -17,6 +18,7 @@ import vn.dulichviet.tourbooking.repository.TourRepository;
 import vn.dulichviet.tourbooking.repository.UserRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +69,7 @@ public class OrderService {
             throw new ApiException(400, "Đơn hàng phải có ít nhất 1 tour");
         }
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy người dùng"));
 
         TourOrder order = new TourOrder();
@@ -78,6 +80,11 @@ public class OrderService {
         order.setContactPhone(request.contactPhone());
         order.setContactEmail(request.contactEmail());
         order.setNotes(request.notes());
+        if (request.paymentMethod() != null && !List.of("VIETQR", "VNPAY", "OFFICE", "CASH").contains(request.paymentMethod().trim().toUpperCase())) {
+            throw new ApiException(400, "Phương thức thanh toán chưa được tích hợp.");
+        }
+        String voucherCode = request.voucherCode() == null ? null : request.voucherCode().trim().toUpperCase();
+        order.setVoucherCode(voucherCode == null || voucherCode.isBlank() ? null : voucherCode);
 
         String payMethod = (request.paymentMethod() != null && !request.paymentMethod().isBlank())
                 ? request.paymentMethod().trim().toUpperCase()
@@ -90,12 +97,21 @@ public class OrderService {
 
         // Tạo mã đơn hàng nghiệp vụ chuẩn Báo cáo đề tài (VD: ORD-20261020-1234)
         String datePart = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String orderCode = "ORD-" + datePart + "-" + String.format("%04d", (int)(Math.random() * 10000));
+        String orderCode = "ORD-" + datePart + "-" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
         order.setOrderCode(orderCode);
 
         boolean isCorporate = Boolean.TRUE.equals(request.isB2b())
                 || (request.companyName() != null && !request.companyName().isBlank());
         order.setIsB2b(isCorporate);
+
+        String paymentType = request.paymentType() == null || request.paymentType().isBlank()
+                ? "FULL" : request.paymentType().trim().toUpperCase();
+        if (!List.of("FULL", "DEPOSIT").contains(paymentType)) {
+            throw new ApiException(400, "Hình thức thanh toán phải là FULL hoặc DEPOSIT.");
+        }
+        if (request.pointsUsed() != null && request.pointsUsed() < 0) {
+            throw new ApiException(400, "Số điểm sử dụng không được âm.");
+        }
 
         StringBuilder corporateNotes = new StringBuilder();
         if (request.companyName() != null && !request.companyName().isBlank()) {
@@ -106,12 +122,14 @@ public class OrderService {
         }
 
         BigDecimal total = BigDecimal.ZERO;
+        int totalQuantity = 0;
         int maxDiscountRatePercent = 0;
 
         for (CreateOrderRequest.Item item : request.items()) {
             if (item.quantity() == null || item.quantity() <= 0) {
                 throw new ApiException(400, "Số lượng phải lớn hơn 0");
             }
+            totalQuantity += item.quantity();
             // Pessimistic lock để tránh overselling
             Tour tour = tourRepository.findByIdForUpdate(item.tourId())
                     .orElseThrow(() -> new ApiException(404, "Không tìm thấy tour id=" + item.tourId()));
@@ -119,12 +137,12 @@ public class OrderService {
             if (!"ACTIVE".equalsIgnoreCase(tour.getStatus())) {
                 throw new ApiException(400, "Tour '" + tour.getName() + "' hiện không mở bán");
             }
-            if (tour.getStartDate() != null && tour.getStartDate().isBefore(java.time.LocalDate.now())) {
-                // Tour đang mở bán nhưng ngày khởi hành mẫu trong DB đã qua -> Tự động gia hạn sang đợt khởi hành kế tiếp (+7 ngày)
-                int dur = (tour.getDuration() != null && tour.getDuration() > 0) ? tour.getDuration() : 3;
-                tour.setStartDate(java.time.LocalDate.now().plusDays(7));
-                tour.setEndDate(java.time.LocalDate.now().plusDays(7 + dur));
-                tourRepository.save(tour);
+            if (tour.getStartDate() == null || tour.getStartDate().isBefore(java.time.LocalDate.now())) {
+                throw new ApiException(400, "Tour '" + tour.getName() + "' chưa có lịch khởi hành còn hiệu lực");
+            }
+            java.time.LocalDate departureDate = item.departureDate() != null ? item.departureDate() : tour.getStartDate();
+            if (!tour.getStartDate().equals(departureDate)) {
+                throw new ApiException(400, "Ngày khởi hành đã chọn không còn khả dụng cho tour '" + tour.getName() + "'");
             }
             if (tour.getAvailableSeats() < item.quantity()) {
                 throw new ApiException(400, "Tour '" + tour.getName() + "' chỉ còn " + tour.getAvailableSeats() + " chỗ trống");
@@ -152,6 +170,7 @@ public class OrderService {
             detail.setTour(tour);
             detail.setQuantity(item.quantity());
             detail.setUnitPrice(unitPrice);
+            detail.setDepartureDate(departureDate);
             order.getDetails().add(detail);
 
             total = total.add(unitPrice.multiply(BigDecimal.valueOf(item.quantity())));
@@ -162,6 +181,24 @@ public class OrderService {
                 if (corporateNotes.length() > 0) corporateNotes.append("; ");
                 corporateNotes.append(noteTag);
             }
+        }
+
+        if (request.passengers() == null || request.passengers().size() != totalQuantity) {
+            throw new ApiException(400, "Danh sách hành khách phải khớp với tổng số vé đã đặt");
+        }
+        for (CreateOrderRequest.Passenger passenger : request.passengers()) {
+            if (passenger == null || passenger.fullName() == null || passenger.fullName().isBlank()
+                    || passenger.fullName().trim().length() > 150
+                    || (passenger.gender() != null && passenger.gender().length() > 20)
+                    || (passenger.ageGroup() != null && passenger.ageGroup().length() > 50)) {
+                throw new ApiException(400, "Thông tin mỗi hành khách không hợp lệ.");
+            }
+            OrderPassenger savedPassenger = new OrderPassenger();
+            savedPassenger.setOrder(order);
+            savedPassenger.setFullName(passenger.fullName().trim());
+            savedPassenger.setGender(passenger.gender());
+            savedPassenger.setAgeGroup(passenger.ageGroup());
+            order.getPassengers().add(savedPassenger);
         }
 
         order.setDiscountPercent(maxDiscountRatePercent);
@@ -188,17 +225,20 @@ public class OrderService {
             order.setMemberDiscount(BigDecimal.ZERO);
         }
 
+        BigDecimal voucherDiscount = calculateVoucherDiscount(voucherCode, total);
+        total = total.subtract(voucherDiscount).max(BigDecimal.ZERO);
+        order.setVoucherDiscount(voucherDiscount);
+
         // 2. Đổi điểm thưởng tích lũy (Loyalty Points Redemption: 1 điểm = 1.000 VNĐ)
         BigDecimal pointsDiscountAmt = BigDecimal.ZERO;
         if (request.pointsUsed() != null && request.pointsUsed() > 0) {
             int currentPoints = user.getLoyaltyPoints() != null ? user.getLoyaltyPoints() : 0;
-            int pointsToDeduct = Math.min(request.pointsUsed(), currentPoints);
+            if (request.pointsUsed() > currentPoints) {
+                throw new ApiException(400, "Số điểm sử dụng vượt quá số điểm hiện có");
+            }
+            int pointsToDeduct = Math.min(request.pointsUsed(), total.divideToIntegralValue(new BigDecimal("1000")).intValue());
             if (pointsToDeduct > 0) {
                 pointsDiscountAmt = BigDecimal.valueOf(pointsToDeduct * 1000L);
-                if (pointsDiscountAmt.compareTo(total) > 0) {
-                    pointsDiscountAmt = total;
-                    pointsToDeduct = (int)(total.longValue() / 1000L);
-                }
                 total = total.subtract(pointsDiscountAmt);
                 user.setLoyaltyPoints(currentPoints - pointsToDeduct);
                 userRepository.save(user);
@@ -214,9 +254,12 @@ public class OrderService {
         order.setTotalAmount(total);
 
         // 3. Cơ chế Đặt Cọc giữ chỗ (DEPOSIT: mặc định 30%) hoặc Thanh Toán Trọn Gói (FULL)
-        boolean isDeposit = "DEPOSIT".equalsIgnoreCase(request.paymentType());
+        boolean isDeposit = "DEPOSIT".equals(paymentType);
         if (isDeposit) {
-            int depPercent = (request.depositPercent() != null && request.depositPercent() > 0) ? request.depositPercent() : 30;
+            int depPercent = request.depositPercent() == null ? 30 : request.depositPercent();
+            if (depPercent < 1 || depPercent > 100) {
+                throw new ApiException(400, "Tỷ lệ đặt cọc phải từ 1 đến 100%.");
+            }
             order.setPaymentType("DEPOSIT");
             order.setDepositPercent(depPercent);
             BigDecimal depAmt = total.multiply(BigDecimal.valueOf(depPercent))
@@ -262,6 +305,23 @@ public class OrderService {
         return OrderDto.from(savedOrder);
     }
 
+    private BigDecimal calculateVoucherDiscount(String code, BigDecimal subtotal) {
+        if (code == null || code.isBlank()) return BigDecimal.ZERO;
+        BigDecimal discount = switch (code) {
+            case "TRAVELOKA2026" -> subtotal.multiply(new BigDecimal("0.10"))
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+            case "DULICHVIET" -> new BigDecimal("200000.00").min(subtotal);
+            case "SUMMER500" -> {
+                if (subtotal.compareTo(new BigDecimal("5000000")) < 0) {
+                    throw new ApiException(400, "Mã SUMMER500 áp dụng cho đơn từ 5.000.000₫");
+                }
+                yield new BigDecimal("500000.00").min(subtotal);
+            }
+            default -> throw new ApiException(400, "Mã ưu đãi không hợp lệ hoặc đã hết hạn");
+        };
+        return discount.min(subtotal.max(BigDecimal.ZERO));
+    }
+
     /** Huỷ đơn hàng khi đã thanh toán kèm thông tin tài khoản ngân hàng nhận hoàn tiền */
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
@@ -272,7 +332,7 @@ public class OrderService {
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
     public OrderDto cancelOrder(Integer orderId, Integer userId, vn.dulichviet.tourbooking.dto.CancelOrderRequest request) {
-        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
         if (!order.getUser().getId().equals(userId)) {
             throw new ApiException(403, "Bạn không có quyền huỷ đơn hàng này");
@@ -282,6 +342,9 @@ public class OrderService {
         }
         if ("COMPLETED".equalsIgnoreCase(order.getStatus())) {
             throw new ApiException(400, "Chuyến đi đã hoàn thành, không thể hủy đơn hàng này");
+        }
+        if ("PENDING_PAYMENT".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new ApiException(409, "Thanh toán đang chờ xác minh; vui lòng liên hệ hỗ trợ trước khi yêu cầu hủy.");
         }
 
         // Kiểm tra xem đơn hàng đã được thanh toán (toàn bộ hoặc đặt cọc) hay chưa
@@ -310,17 +373,11 @@ public class OrderService {
             order.setNotes((cancelTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
 
             // Hoàn lại điểm thưởng tích lũy nếu có sử dụng trong đơn hàng
-            if (order.getPointsUsed() != null && order.getPointsUsed() > 0) {
-                User customer = order.getUser();
-                if (customer != null) {
-                    customer.setLoyaltyPoints((customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0) + order.getPointsUsed());
-                    userRepository.save(customer);
-                }
-            }
+            addLoyaltyPoints(order.getUser(), order.getPointsUsed());
 
             // Hoàn lại số ghế trống khả dụng cho các Tour trong đơn hàng
             for (OrderDetail detail : order.getDetails()) {
-                Tour tour = detail.getTour();
+                Tour tour = detail.getTour() == null ? null : tourRepository.findByIdForUpdate(detail.getTour().getId()).orElse(null);
                 if (tour != null) {
                     tour.setAvailableSeats(tour.getAvailableSeats() + detail.getQuantity());
                     tourRepository.save(tour);
@@ -380,13 +437,7 @@ public class OrderService {
         order.setStatus("CANCELLED");
 
         // 3. HOÀN LẠI ĐIỂM THƯỞNG TÍCH LŨY (LOYALTY POINTS ROLLBACK)
-        if (order.getPointsUsed() != null && order.getPointsUsed() > 0) {
-            User customer = order.getUser();
-            if (customer != null) {
-                customer.setLoyaltyPoints((customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0) + order.getPointsUsed());
-                userRepository.save(customer);
-            }
-        }
+        addLoyaltyPoints(order.getUser(), order.getPointsUsed());
 
         if (request != null) {
             order.setRefundBankName(request.refundBankName());
@@ -409,7 +460,7 @@ public class OrderService {
 
         // Hoàn lại số ghế trống khả dụng cho các Tour trong đơn hàng
         for (OrderDetail detail : order.getDetails()) {
-            Tour tour = detail.getTour();
+            Tour tour = detail.getTour() == null ? null : tourRepository.findByIdForUpdate(detail.getTour().getId()).orElse(null);
             if (tour != null) {
                 tour.setAvailableSeats(tour.getAvailableSeats() + detail.getQuantity());
                 tourRepository.save(tour);
@@ -424,7 +475,7 @@ public class OrderService {
     /** Khách hàng hoàn tất thanh toán (Xác nhận chuyển khoản / cổng thanh toán) */
     @Transactional
     public OrderDto payOrder(Integer orderId, Integer userId, String paymentMethod, String transactionCode) {
-        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
         if (!order.getUser().getId().equals(userId)) {
             throw new ApiException(403, "Bạn không có quyền thao tác trên đơn hàng này");
@@ -433,69 +484,28 @@ public class OrderService {
             throw new ApiException(400, "Đơn hàng đã được xử lý (trạng thái: " + order.getStatus() + ")");
         }
 
-        String method = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim() : "Chuyển khoản VietQR";
-        String tx = (transactionCode != null && !transactionCode.isBlank()) ? transactionCode.trim() : ("TXN" + System.currentTimeMillis());
-
-        boolean isDepositOrder = "DEPOSIT".equalsIgnoreCase(order.getPaymentType());
-        BigDecimal amountPaidNow;
-        if (isDepositOrder) {
-            order.setStatus("DEPOSITED");
-            order.setPaymentStatus("PARTIALLY_PAID");
-            amountPaidNow = order.getDepositAmount() != null ? order.getDepositAmount() : order.getTotalAmount();
-        } else {
-            order.setStatus("CONFIRMED");
-            order.setPaymentStatus("PAID");
-            order.setRemainingAmount(BigDecimal.ZERO);
-            amountPaidNow = order.getTotalAmount();
+        if (!"UNPAID".equalsIgnoreCase(order.getPaymentStatus()) && !"PENDING_PAYMENT".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new ApiException(400, "Đơn hàng không còn chờ xác nhận thanh toán");
         }
-        String paymentTag = String.format("[Đã thanh toán %s qua %s - Mã GD: %s]", 
-                isDepositOrder ? "đặt cọc 30%" : "trọn gói", method, tx);
-        String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
-        order.setNotes((paymentTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
-
-        TourOrder saved = orderRepository.save(order);
-
-        // Tích điểm thưởng & tự động thăng hạng hội viên theo số tiền thực tế vừa thanh toán
-        updateUserLoyalty(order.getUser(), amountPaidNow);
-
-        emailService.sendOrderConfirmation(saved);
-        return OrderDto.from(saved);
+        order.setPaymentMethod(paymentMethod != null && !paymentMethod.isBlank() ? paymentMethod.trim().toUpperCase() : "VIETQR");
+        order.setPaymentStatus("PENDING_PAYMENT");
+        return OrderDto.from(orderRepository.save(order));
     }
 
     /** Tất toán 100% số tiền còn lại cho đơn đặt cọc */
     @Transactional
     public OrderDto payRemainingBalance(Integer orderId, Integer userId, String paymentMethod, String transactionCode) {
-        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
         if (!order.getUser().getId().equals(userId)) {
             throw new ApiException(403, "Bạn không có quyền thao tác trên đơn hàng này");
         }
-        if (!"DEPOSITED".equalsIgnoreCase(order.getStatus()) && !"PARTIALLY_PAID".equalsIgnoreCase(order.getPaymentStatus())) {
+        if (!"DEPOSITED".equalsIgnoreCase(order.getStatus()) || !"PARTIALLY_PAID".equalsIgnoreCase(order.getPaymentStatus())) {
             throw new ApiException(400, "Đơn hàng này không ở trạng thái chờ tất toán phần còn lại");
         }
-
-        String method = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod.trim() : "Chuyển khoản VietQR";
-        String tx = (transactionCode != null && !transactionCode.isBlank()) ? transactionCode.trim() : ("TXN-REM-" + System.currentTimeMillis());
-
-        // Tích điểm & thăng hạng cho phần còn lại thực tế vừa thanh toán (70%)
-        BigDecimal remainingSettled = order.getRemainingAmount() != null && order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0
-                ? order.getRemainingAmount()
-                : order.getTotalAmount().subtract(order.getDepositAmount() != null ? order.getDepositAmount() : BigDecimal.ZERO);
-
-        order.setStatus("CONFIRMED");
-        order.setPaymentStatus("PAID");
-        order.setRemainingAmount(BigDecimal.ZERO);
-
-        String paymentTag = String.format("[Đã tất toán 100%% phần còn lại qua %s - Mã GD: %s]", method, tx);
-        String origNotes = order.getNotes() != null ? order.getNotes().trim() : "";
-        order.setNotes((paymentTag + (origNotes.isEmpty() ? "" : " - " + origNotes)).trim());
-
-        TourOrder saved = orderRepository.save(order);
-
-        updateUserLoyalty(order.getUser(), remainingSettled);
-
-        emailService.sendOrderConfirmation(saved);
-        return OrderDto.from(saved);
+        order.setPaymentMethod(paymentMethod != null && !paymentMethod.isBlank() ? paymentMethod.trim().toUpperCase() : "VIETQR");
+        order.setPaymentStatus("PENDING_PAYMENT");
+        return OrderDto.from(orderRepository.save(order));
     }
 
     /** Cập nhật tổng chi tiêu, tích điểm thưởng và thăng hạng thành viên tự động */
@@ -526,14 +536,62 @@ public class OrderService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void recordVerifiedPayment(User user, BigDecimal amountPaid) {
+        if (user == null || amountPaid == null) return;
+        User lockedUser = userRepository.findByIdForUpdate(user.getId()).orElse(user);
+        updateUserLoyalty(lockedUser, amountPaid);
+    }
+
+    private void addLoyaltyPoints(User user, Integer points) {
+        if (user == null || points == null || points <= 0) return;
+        User lockedUser = userRepository.findByIdForUpdate(user.getId()).orElse(user);
+        int currentPoints = lockedUser.getLoyaltyPoints() == null ? 0 : lockedUser.getLoyaltyPoints();
+        lockedUser.setLoyaltyPoints(currentPoints + points);
+        userRepository.save(lockedUser);
+    }
+
+    /** Release seats held by abandoned unpaid checkouts after thirty minutes. */
+    @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 60000)
+    @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "tour", allEntries = true)
+    public void expireAbandonedOrders() {
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(30);
+        for (Integer orderId : orderRepository.findExpiredUnpaidOrderIds(cutoff)) {
+            TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId).orElse(null);
+            boolean expiredPayment = order != null
+                    && "PENDING_PAYMENT".equalsIgnoreCase(order.getPaymentStatus())
+                    && "VNPAY".equalsIgnoreCase(order.getPaymentMethod());
+            boolean unpaid = order != null && "UNPAID".equalsIgnoreCase(order.getPaymentStatus());
+            if (order == null || !"PENDING".equalsIgnoreCase(order.getStatus())
+                    || (!unpaid && !expiredPayment) || !order.getOrderDate().isBefore(cutoff)) {
+                continue;
+            }
+            addLoyaltyPoints(order.getUser(), order.getPointsUsed());
+            for (OrderDetail detail : order.getDetails()) {
+                if (detail.getTour() == null) continue;
+                Tour tour = tourRepository.findByIdForUpdate(detail.getTour().getId()).orElse(null);
+                if (tour != null) {
+                    tour.setAvailableSeats(tour.getAvailableSeats() + detail.getQuantity());
+                    tourRepository.save(tour);
+                }
+            }
+            order.setStatus("CANCELLED");
+            order.setPaymentStatus("UNPAID");
+            order.setNotes("[Hệ thống tự hủy đơn chưa thanh toán sau 30 phút]" +
+                    (order.getNotes() == null || order.getNotes().isBlank() ? "" : " - " + order.getNotes()));
+            orderRepository.save(order);
+        }
+    }
+
     // ============ ADMIN & PROVIDER ============
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OrderDto> getAllOrders() {
         return getAllOrders(null);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OrderDto> getAllOrders(User currentUser) {
         List<TourOrder> orders = orderRepository.findAllWithDetails();
         if (currentUser != null && "PROVIDER".equalsIgnoreCase(currentUser.getRole().replace("ROLE_", ""))) {
@@ -548,75 +606,116 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public OrderDto getOrderById(Integer orderId) {
         return orderRepository.findByIdWithDetails(orderId)
                 .map(OrderDto::from)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public OrderDto updateOrderStatus(Integer orderId, UpdateOrderStatusRequest request) {
-        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
         String newStatus = request.status();
-        List<String> valid = List.of("PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "PAID");
-        if (!valid.contains(newStatus)) {
+        if (newStatus == null) {
             throw new ApiException(400, "Trạng thái không hợp lệ: " + newStatus);
         }
+        String oldStatus = order.getStatus() == null ? "" : order.getStatus().toUpperCase();
+        newStatus = newStatus.trim().toUpperCase();
+        if (oldStatus.equals(newStatus)) return OrderDto.from(order);
 
-        String oldStatus = order.getStatus();
-        // Nếu chuyển sang CANCELLED và trước đó chưa phải CANCELLED: hoàn lại chỗ
-        if (!"CANCELLED".equalsIgnoreCase(oldStatus) && "CANCELLED".equalsIgnoreCase(newStatus)) {
+        if ("CANCELLED".equals(newStatus)) {
+            if (!"PENDING".equals(oldStatus) || !"UNPAID".equalsIgnoreCase(order.getPaymentStatus())) {
+                throw new ApiException(400, "Đơn đã thanh toán phải hủy qua quy trình yêu cầu hoàn tiền.");
+            }
+            addLoyaltyPoints(order.getUser(), order.getPointsUsed());
             for (OrderDetail detail : order.getDetails()) {
-                Tour tour = detail.getTour();
+                Tour tour = detail.getTour() == null ? null : tourRepository.findByIdForUpdate(detail.getTour().getId()).orElse(null);
                 if (tour != null) {
                     tour.setAvailableSeats(tour.getAvailableSeats() + detail.getQuantity());
                     tourRepository.save(tour);
                 }
             }
+            order.setStatus("CANCELLED");
+            order.setPaymentStatus("UNPAID");
+            return OrderDto.from(orderRepository.save(order));
         }
-        // Nếu khôi phục từ CANCELLED sang trạng thái khác: kiểm tra và trừ lại chỗ
-        else if ("CANCELLED".equalsIgnoreCase(oldStatus) && !"CANCELLED".equalsIgnoreCase(newStatus)) {
+        if ("CONFIRMED".equals(newStatus)
+                && "PAID".equalsIgnoreCase(order.getPaymentStatus())
+                && "PENDING".equals(oldStatus)) {
+            order.setStatus("CONFIRMED");
+            return OrderDto.from(orderRepository.save(order));
+        }
+        if ("COMPLETED".equals(newStatus)
+                && "CONFIRMED".equals(oldStatus)
+                && "PAID".equalsIgnoreCase(order.getPaymentStatus())) {
+            LocalDate today = LocalDate.now();
             for (OrderDetail detail : order.getDetails()) {
                 Tour tour = detail.getTour();
-                if (tour != null) {
-                    if (tour.getAvailableSeats() < detail.getQuantity()) {
-                        throw new ApiException(400, "Tour '" + tour.getName() + "' không còn đủ chỗ trống để khôi phục đơn hàng");
+                if (tour == null) {
+                    throw new ApiException(400, "Không thể hoàn thành đơn khi thiếu thông tin tour.");
+                }
+                LocalDate endDate = tour.getEndDate();
+                if (endDate == null) {
+                    LocalDate startDate = detail.getDepartureDate() != null
+                            ? detail.getDepartureDate() : tour.getStartDate();
+                    if (startDate == null) {
+                        throw new ApiException(400, "Không thể hoàn thành đơn khi tour chưa có ngày khởi hành.");
                     }
-                    tour.setAvailableSeats(tour.getAvailableSeats() - detail.getQuantity());
-                    tourRepository.save(tour);
+                    int durationDays = tour.getDuration() == null ? 1 : Math.max(1, tour.getDuration());
+                    endDate = startDate.plusDays(durationDays - 1L);
+                }
+                if (!today.isAfter(endDate)) {
+                    throw new ApiException(400, "Chỉ có thể hoàn thành đơn sau khi tất cả tour đã kết thúc.");
                 }
             }
+            order.setStatus("COMPLETED");
+            return OrderDto.from(orderRepository.save(order));
         }
-
-        // Tự động đồng bộ paymentStatus khi Admin duyệt đơn
-        if ("CONFIRMED".equalsIgnoreCase(newStatus) || "PAID".equalsIgnoreCase(newStatus)) {
-            order.setStatus("CONFIRMED");
-            order.setPaymentStatus("PAID");
-        } else {
-            order.setStatus(newStatus);
-        }
-
-        return OrderDto.from(orderRepository.save(order));
+        throw new ApiException(400, "Không thể chuyển trạng thái từ " + oldStatus + " sang " + newStatus);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public OrderDto adminConfirmPayment(Integer orderId) {
-        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
-        order.setStatus("CONFIRMED");
-        order.setPaymentStatus("PAID");
+        if (!"PENDING_PAYMENT".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new ApiException(400, "Đơn hàng chưa có yêu cầu thanh toán cần xác minh.");
+        }
+        BigDecimal paidNow;
+        if ("DEPOSITED".equalsIgnoreCase(order.getStatus())) {
+            paidNow = order.getRemainingAmount() != null ? order.getRemainingAmount() : BigDecimal.ZERO;
+            order.setStatus("CONFIRMED");
+            order.setPaymentStatus("PAID");
+            order.setRemainingAmount(BigDecimal.ZERO);
+        } else if ("PENDING".equalsIgnoreCase(order.getStatus()) && "DEPOSIT".equalsIgnoreCase(order.getPaymentType())
+                && order.getDepositAmount() != null && order.getDepositAmount().compareTo(order.getTotalAmount()) < 0) {
+            paidNow = order.getDepositAmount();
+            order.setStatus("DEPOSITED");
+            order.setPaymentStatus("PARTIALLY_PAID");
+        } else if ("PENDING".equalsIgnoreCase(order.getStatus())) {
+            paidNow = order.getTotalAmount();
+            order.setStatus("CONFIRMED");
+            order.setPaymentStatus("PAID");
+            order.setRemainingAmount(BigDecimal.ZERO);
+        } else {
+            throw new ApiException(400, "Đơn hàng không thể xác nhận thanh toán ở trạng thái hiện tại.");
+        }
+        recordVerifiedPayment(order.getUser(), paidNow);
         return OrderDto.from(orderRepository.save(order));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public OrderDto confirmOrderRefund(Integer orderId) {
-        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
+        if (!"CANCELLED".equalsIgnoreCase(order.getStatus()) || !"REFUND_PENDING".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new ApiException(400, "Đơn hàng hiện không chờ xác nhận hoàn tiền.");
+        }
         order.setPaymentStatus("REFUNDED");
         java.text.NumberFormat curFormat = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
         String confirmTag = String.format("[Admin đã chuyển tiền hoàn %s cho khách qua STK %s - %s (%s)]",
@@ -629,27 +728,38 @@ public class OrderService {
         return OrderDto.from(orderRepository.save(order));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public OrderDto updateOrderDetailQuantity(Integer orderId, Integer detailId, Integer newQuantity) {
         return updateOrderDetailQuantity(orderId, detailId, newQuantity, null);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public OrderDto updateOrderDetailQuantity(Integer orderId, Integer detailId, Integer newQuantity, User currentUser) {
         if (newQuantity == null || newQuantity < 1) {
             throw new ApiException(400, "Số lượng người tham gia phải từ 1 trở lên");
         }
-        TourOrder order = orderRepository.findByIdWithDetails(orderId)
+        TourOrder order = orderRepository.findByIdForUpdateWithDetails(orderId)
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy đơn hàng"));
+
+        if (!"PENDING".equalsIgnoreCase(order.getStatus()) || !"UNPAID".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new ApiException(400, "Chỉ đơn chưa thanh toán mới được chỉnh sửa số lượng.");
+        }
+
+        User lockedCustomer = order.getUser() == null ? null
+                : userRepository.findByIdForUpdate(order.getUser().getId()).orElse(order.getUser());
 
         OrderDetail targetDetail = order.getDetails().stream()
                 .filter(d -> d.getId().equals(detailId))
                 .findFirst()
                 .orElseThrow(() -> new ApiException(404, "Không tìm thấy chi tiết tour trong đơn hàng"));
 
-        Tour tour = targetDetail.getTour();
+        Tour tour = targetDetail.getTour() == null ? null
+                : tourRepository.findByIdForUpdate(targetDetail.getTour().getId()).orElse(null);
+        if (targetDetail.getTour() != null && tour == null) {
+            throw new ApiException(404, "Không tìm thấy tour của chi tiết đơn hàng");
+        }
 
         // Kiểm tra quyền Provider: chỉ được thao tác trên đơn hàng có tour của mình
         if (currentUser != null && "PROVIDER".equalsIgnoreCase(currentUser.getRole().replace("ROLE_", ""))) {
@@ -683,9 +793,39 @@ public class OrderService {
         targetDetail.setQuantity(newQuantity);
 
         // Tính lại tổng tiền
-        BigDecimal newTotal = order.getDetails().stream()
+        BigDecimal lineTotal = order.getDetails().stream()
                 .map(d -> d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        String tier = order.getUser() != null && order.getUser().getMembershipTier() != null
+                ? order.getUser().getMembershipTier().toUpperCase() : "STANDARD";
+        int memberRate = switch (tier) {
+            case "VIP_PLATINUM" -> 8;
+            case "DIAMOND" -> 5;
+            case "GOLD" -> 3;
+            default -> 0;
+        };
+        BigDecimal memberDiscount = lineTotal.multiply(BigDecimal.valueOf(memberRate)).divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+        BigDecimal afterMemberDiscount = lineTotal.subtract(memberDiscount).max(BigDecimal.ZERO);
+        BigDecimal voucherDiscount = calculateVoucherDiscount(order.getVoucherCode(), afterMemberDiscount);
+        BigDecimal beforePoints = afterMemberDiscount.subtract(voucherDiscount).max(BigDecimal.ZERO);
+        int oldPointsUsed = order.getPointsUsed() == null ? 0 : Math.max(0, order.getPointsUsed());
+        int newPointsUsed = Math.min(oldPointsUsed, beforePoints.divideToIntegralValue(new BigDecimal("1000")).intValue());
+        BigDecimal pointsDiscount = BigDecimal.valueOf(newPointsUsed * 1000L);
+        BigDecimal newTotal = beforePoints.subtract(pointsDiscount).max(BigDecimal.ZERO);
+        if (oldPointsUsed > newPointsUsed && lockedCustomer != null) {
+            int currentPoints = lockedCustomer.getLoyaltyPoints() == null ? 0 : lockedCustomer.getLoyaltyPoints();
+            lockedCustomer.setLoyaltyPoints(currentPoints + oldPointsUsed - newPointsUsed);
+            userRepository.save(lockedCustomer);
+        }
+        order.setPointsUsed(newPointsUsed);
+        int maxDiscountRatePercent = order.getDetails().stream()
+                .mapToInt(detail -> detail.getQuantity() >= 20 ? 10 : detail.getQuantity() >= 10 ? 5 : 0)
+                .max()
+                .orElse(0);
+        order.setDiscountPercent(maxDiscountRatePercent);
+        order.setMemberDiscount(memberDiscount);
+        order.setVoucherDiscount(voucherDiscount);
+        order.setPointsDiscount(pointsDiscount);
         order.setTotalAmount(newTotal);
 
         if ("DEPOSIT".equalsIgnoreCase(order.getPaymentType())) {
@@ -703,12 +843,12 @@ public class OrderService {
         return OrderDto.from(orderRepository.save(order));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public DashboardDto getDashboard() {
         return getDashboard(null);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROVIDER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public DashboardDto getDashboard(User currentUser) {
         long totalTours = tourRepository.count();
         long totalOrders = orderRepository.countOrders();

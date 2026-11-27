@@ -10,10 +10,11 @@ Nhằm đảm bảo sự tường minh, chuẩn hóa theo quy chuẩn phát tri�
 
 | Tên Tệp Tin | Định Dạng / Công Nghệ | Vai Trò & Chức Năng Chính |
 | :--- | :---: | :--- |
-| **`01_schema_mariadb.sql`** | MariaDB / MySQL DDL | **Khởi tạo cấu trúc bảng (DDL):** Tạo CSDL `TourBookingDB`, thiết lập bảng mã `utf8mb4_unicode_ci`, tạo đầy đủ 14 bảng quan hệ, khóa chính, khóa ngoại, ràng buộc kiểm tra `CHECK` và các view tương thích. |
+| **`01_schema_mariadb.sql`** | MariaDB / MySQL DDL | **Khởi tạo cấu trúc bảng (DDL):** Tạo CSDL `tourbookingdb`, thiết lập bảng mã `utf8mb4_unicode_ci`, tạo các bảng quan hệ, khóa chính, khóa ngoại, ràng buộc kiểm tra `CHECK` và các view tương thích. |
 | **`02_seed_data_mariadb.sql`** | MariaDB / MySQL DML | **Nạp dữ liệu mẫu đầy đủ (DML):** Dữ liệu mẫu sạch 100% tiếng Việt UTF-8 (không lỗi font), gồm 8 danh mục, 40 tour thực tế chuẩn OTA, 20+ tài khoản người dùng đầy đủ các vai trò (Admin, Provider, Customer, B2B), lịch sử đặt tour và đánh giá. |
 | **`03_high_concurrency_indexes.sql`** | MariaDB / MySQL DDL | **Bộ chỉ mục hiệu năng cao:** Bổ sung các chỉ mục phức hợp (Covering Indexes) trên các trường thường xuyên tìm kiếm, lọc giá, lọc ngày và đăng nhập, tối ưu hóa thời gian phản hồi dưới 1ms cho hệ thống chịu tải cao. |
 | **`04_b2b_corporate_migration.sql`** | MariaDB / MySQL DDL+DML | **Phân hệ Khách hàng Doanh nghiệp (B2B):** Bảng công ty, người dùng nội bộ, chính sách công tác (Travel Policy), hạn mức tín dụng công nợ (Credit Line) và phê duyệt đơn hàng vượt hạn mức. |
+| **`05_booking_integrity_migration.sql`** | MariaDB DDL | Bổ sung cột ngày khởi hành, thông tin hành khách, voucher và đánh giá tour cho cơ sở dữ liệu hiện có. Chỉ chạy sau khi đã sao lưu và kiểm tra môi trường đích. |
 | **`05_postgresql_pgvector_schema.sql`** | PostgreSQL 16 + pgvector | **Kiến trúc Vector Database Hiện Đại:** Bản thiết kế CSDL tương đương trên PostgreSQL tích hợp extension `pgvector`, hỗ trợ cột `embedding vector(768)` và chỉ mục HNSW phục vụ tìm kiếm tương đồng Cosine Similarity trực tiếp trong DB (định hướng bài báo khoa học & triển khai Cloud quy mô lớn). |
 | **`schema.sql`** | MariaDB / MySQL DDL | Tệp hợp nhất cấu trúc DDL chuẩn (tương thích ngược với các script tự động). |
 | **`data.sql` / `seed_vi.sql`** | MariaDB / MySQL DML | Tệp hợp nhất dữ liệu DML chuẩn tiếng Việt (tương thích ngược với các script tự động). |
@@ -83,10 +84,10 @@ Mở PowerShell hoặc Command Prompt tại thư mục gốc của dự án:
 mysql -u root -p < database/01_schema_mariadb.sql
 
 # Bước 2: Nạp toàn bộ dữ liệu mẫu sạch Tiếng Việt
-mysql -u root -p TourBookingDB < database/02_seed_data_mariadb.sql
+mysql -u root -p tourbookingdb < database/02_seed_data_mariadb.sql
 
 # Bước 3: Tối ưu hóa chỉ mục hiệu năng cao
-mysql -u root -p TourBookingDB < database/03_high_concurrency_indexes.sql
+mysql -u root -p tourbookingdb < database/03_high_concurrency_indexes.sql
 ```
 
 ---
@@ -107,6 +108,11 @@ docker-compose up -d db adminer
 # Truy cập giao diện quản trị web tại: http://localhost:8088
 # Hệ thống tự động nạp toàn bộ cấu trúc và dữ liệu từ database/
 ```
+
+Nếu `db_data` đã tồn tại từ lần chạy trước, MariaDB **không chạy lại** các tệp trong
+`/docker-entrypoint-initdb.d`. Với database hiện có, hãy sao lưu trước rồi chạy
+`database/05_booking_integrity_migration.sql` trên đúng database `tourbookingdb`;
+file này bổ sung `voucher_code`, `voucher_discount` và các cấu trúc booking mới.
 
 ---
 

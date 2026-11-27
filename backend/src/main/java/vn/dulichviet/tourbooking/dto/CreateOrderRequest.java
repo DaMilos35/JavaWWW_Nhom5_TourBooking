@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.time.LocalDate;
 
 /**
  * DTO yêu cầu đặt tour với đầy đủ validation và hỗ trợ Đặt Cọc (DEPOSIT) & Điểm Thưởng Hội Viên
@@ -34,14 +35,23 @@ public record CreateOrderRequest(
 
         @NotEmpty(message = "Đơn hàng phải chứa ít nhất 1 tour du lịch")
         @Valid
-        List<Item> items) {
+        List<Item> items,
+        String voucherCode,
+        List<Passenger> passengers) {
 
     public CreateOrderRequest(String contactName, String contactPhone, String contactEmail, String notes, List<Item> items) {
-        this(contactName, contactPhone, contactEmail, notes, false, null, null, "CASH", "FULL", 0, 0, items);
+        this(contactName, contactPhone, contactEmail, notes, false, null, null, "CASH", "FULL", 0, 0, items, null, List.of());
     }
 
     public CreateOrderRequest(String contactName, String contactPhone, String contactEmail, String notes, Boolean isB2b, String companyName, String taxId, List<Item> items) {
-        this(contactName, contactPhone, contactEmail, notes, isB2b, companyName, taxId, "CASH", "FULL", 0, 0, items);
+        this(contactName, contactPhone, contactEmail, notes, isB2b, companyName, taxId, "CASH", "FULL", 0, 0, items, null, List.of());
+    }
+
+    public CreateOrderRequest(String contactName, String contactPhone, String contactEmail, String notes,
+                              Boolean isB2b, String companyName, String taxId, String paymentMethod,
+                              String paymentType, Integer depositPercent, Integer pointsUsed, List<Item> items) {
+        this(contactName, contactPhone, contactEmail, notes, isB2b, companyName, taxId, paymentMethod,
+                paymentType, depositPercent, pointsUsed, items, null, List.of());
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -50,6 +60,14 @@ public record CreateOrderRequest(
             Integer tourId,
 
             @NotNull(message = "Số lượng vé không được để trống")
-            Integer quantity) {
+            Integer quantity,
+            LocalDate departureDate) {
+        public Item(Integer tourId, Integer quantity) {
+            this(tourId, quantity, null);
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Passenger(String fullName, String gender, String ageGroup) {
     }
 }

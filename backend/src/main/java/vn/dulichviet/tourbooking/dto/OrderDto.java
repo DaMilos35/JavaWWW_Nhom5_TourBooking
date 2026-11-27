@@ -42,7 +42,10 @@ public record OrderDto(
         Integer pointsUsed,
         BigDecimal pointsDiscount,
         BigDecimal memberDiscount,
-        List<OrderDetailDto> details) {
+        List<OrderDetailDto> details,
+        String voucherCode,
+        BigDecimal voucherDiscount,
+        List<OrderPassengerDto> passengers) {
 
     public static OrderDto from(TourOrder o) {
         String username = o.getUser() != null ? o.getUser().getUsername() : null;
@@ -73,7 +76,9 @@ public record OrderDto(
                 o.getRefundBankName(), o.getRefundAccountNumber(), o.getRefundAccountName(),
                 o.getCancellationReason(),
                 payType, depPercent, depAmt, remAmt, o.getDepositDeadline(), ptsUsed, ptsDisc, memDisc,
-                o.getDetails() != null ? o.getDetails().stream().map(OrderDetailDto::from).toList() : List.of()
+                o.getDetails() != null ? o.getDetails().stream().map(OrderDetailDto::from).toList() : List.of(),
+                o.getVoucherCode(), o.getVoucherDiscount() != null ? o.getVoucherDiscount() : BigDecimal.ZERO,
+                o.getPassengers() != null ? o.getPassengers().stream().map(OrderPassengerDto::from).toList() : List.of()
         );
     }
 }

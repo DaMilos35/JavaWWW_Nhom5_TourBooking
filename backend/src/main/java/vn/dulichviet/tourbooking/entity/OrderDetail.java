@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -37,4 +38,7 @@ public class OrderDetail {
 
     @Column(name = "unit_price", nullable = false)
     private BigDecimal unitPrice;
+
+    @Column(name = "departure_date")
+    private LocalDate departureDate;
 }

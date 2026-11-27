@@ -51,7 +51,7 @@ const ForgotPasswordPage = () => {
     if (urlPin) {
       setOtp(urlPin);
       setStep(2);
-      toast.info(`Đã nhận diện mã PIN: ${urlPin}`);
+      toast.info('Đã điền mã PIN từ liên kết email.');
     }
     const urlToken = searchParams.get('token');
     if (urlToken) {

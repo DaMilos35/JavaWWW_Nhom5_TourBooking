@@ -4,30 +4,7 @@ import { authApi } from '../api/axiosConfig';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('user_display');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.username) {
-          const cleanRole = (parsed.role || '').replace(/^ROLE_/, '').trim().toUpperCase();
-          return {
-            id: parsed.id || (cleanRole === 'ADMIN' ? 1 : 2),
-            username: parsed.username,
-            email: parsed.email || `${parsed.username}@dulichviet.com.vn`,
-            role: cleanRole,
-            fullName: parsed.fullName || parsed.username,
-            phone: parsed.phone || '1900 1839',
-            address: parsed.address || 'Hồ Chí Minh',
-            membershipTier: parsed.membershipTier || (cleanRole === 'ADMIN' ? 'DIAMOND' : 'STANDARD'),
-            loyaltyPoints: parsed.loyaltyPoints || 500,
-            totalSpent: parsed.totalSpent || 50000000
-          };
-        }
-      }
-    } catch (_) {}
-    return null;
-  });
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Khi app khởi động: kiểm tra session trên server còn sống không
@@ -59,11 +36,9 @@ export const AuthProvider = ({ children }) => {
         }));
       })
       .catch(() => {
-        // Nếu server tạm thời không phản hồi nhưng localStorage có thông tin phiên làm việc, giữ nguyên để không làm gián đoạn admin
-        const saved = localStorage.getItem('user_display');
-        if (!saved) {
-          setUser(null);
-        }
+        // Local storage is display-only; it must never restore an authenticated role without a server session.
+        localStorage.removeItem('user_display');
+        setUser(null);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -105,56 +80,8 @@ export const AuthProvider = ({ children }) => {
         message = 'Tên đăng nhập hoặc mật khẩu không chính xác.';
       } else if (status === 403) {
         message = 'Tài khoản của bạn đã bị khóa hoặc không có quyền truy cập.';
-      } else if (
-        status === 500 ||
-        status === 502 || 
-        status === 503 || 
-        status === 504 || 
-        error.code === 'ERR_NETWORK' || 
-        error.code === 'ECONNABORTED' ||
-        error.message?.includes('Network Error') || 
-        error.message?.includes('timeout') ||
-        !error.response
-      ) {
-        // Fallback thông minh: Cho phép đăng nhập demo ngoại tuyến khi Backend Port 8080 chưa mở
-        const DEMO_ACCOUNTS = {
-          admin: { role: 'ADMIN', fullName: 'Quản Trị Viên Hệ Thống', email: 'admin@dulichviet.com.vn', membershipTier: 'DIAMOND', loyaltyPoints: 1250 },
-          vietravel: { role: 'PROVIDER', fullName: 'Công Ty Cổ Phần Du Lịch Vietravel', email: 'contact@vietravel.com', membershipTier: 'GOLD', loyaltyPoints: 800 },
-          saigontourist: { role: 'PROVIDER', fullName: 'Lữ Hành Saigontourist', email: 'info@saigontourist.net', membershipTier: 'GOLD', loyaltyPoints: 750 },
-          fpt_corp: { role: 'CUSTOMER', fullName: 'Tập Đoàn FPT (Khách Đoàn B2B)', email: 'booking@fpt.com.vn', membershipTier: 'PLATINUM', loyaltyPoints: 2100 },
-          customer: { role: 'CUSTOMER', fullName: 'Khách Hàng Trải Nghiệm', email: 'customer@dulichviet.com.vn', membershipTier: 'SILVER', loyaltyPoints: 450 },
-          nguyenvanan: { role: 'CUSTOMER', fullName: 'Nguyễn Văn An', email: 'an.nguyen@gmail.com', membershipTier: 'STANDARD', loyaltyPoints: 120 }
-        };
-
-        const uname = (credentials.username || '').trim().toLowerCase();
-        const pwd = credentials.password || '';
-        if (DEMO_ACCOUNTS[uname] && pwd === '123456') {
-          const acc = DEMO_ACCOUNTS[uname];
-          const demoUser = {
-            id: uname === 'admin' ? 1 : (uname.includes('travel') || uname.includes('tourist') ? 10 : 2),
-            username: uname,
-            email: acc.email,
-            role: acc.role,
-            fullName: acc.fullName,
-            phone: '0901234567',
-            address: 'Hồ Chí Minh, Việt Nam',
-            membershipTier: acc.membershipTier,
-            loyaltyPoints: acc.loyaltyPoints,
-            totalSpent: 15000000
-          };
-          setUser(demoUser);
-          localStorage.setItem('user_display', JSON.stringify({
-            id: demoUser.id,
-            username: demoUser.username,
-            email: demoUser.email,
-            fullName: demoUser.fullName,
-            role: demoUser.role,
-            membershipTier: demoUser.membershipTier
-          }));
-          return { success: true, user: demoUser, isOfflineDemo: true };
-        }
-
-        message = 'Không thể kết nối đến máy chủ Backend (Port 8080). Vui lòng đảm bảo Spring Boot Backend đã được khởi động!';
+      } else if (!error.response) {
+        message = 'Không thể kết nối máy chủ. Vui lòng thử lại sau.';
       }
       return { success: false, error: message };
     }

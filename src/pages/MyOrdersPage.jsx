@@ -77,30 +77,6 @@ const MyOrdersPage = () => {
   const [cancelModalOrder, setCancelModalOrder] = useState(null);
   // Modal xác nhận hủy tour khi CHƯA THANH TOÁN (Miễn phí 100%)
   const [unpaidCancelModalOrder, setUnpaidCancelModalOrder] = useState(null);
-  const [payRemainingModalOrder, setPayRemainingModalOrder] = useState(null);
-  const [payingRemaining, setPayingRemaining] = useState(false);
-
-  const handleOpenPayRemaining = (order) => {
-    setPayRemainingModalOrder(order);
-  };
-
-  const handleConfirmPayRemaining = async () => {
-    if (!payRemainingModalOrder) return;
-    setPayingRemaining(true);
-    try {
-      await orderApi.payRemaining(payRemainingModalOrder.id, {
-        paymentMethod: 'VIETQR',
-        transactionCode: `TXN-REM-${Date.now().toString().slice(-6)}`
-      });
-      toast.success(`Đã tất toán 100% chuyến đi cho đơn #${payRemainingModalOrder.id}! Chúc quý khách có chuyến du lịch tuyệt vời!`);
-      setPayRemainingModalOrder(null);
-      fetchOrders();
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Có lỗi khi tất toán số tiền còn lại');
-    } finally {
-      setPayingRemaining(false);
-    }
-  };
   const [refundForm, setRefundForm] = useState({
     bankName: 'MBBank (Quân Đội)',
     accountNumber: '',
@@ -136,12 +112,14 @@ const MyOrdersPage = () => {
   // Mở modal quét VietQR cho đơn chưa thanh toán
   const handleOpenPayment = async (order) => {
     setPaymentModalOrder(order);
+    setPaymentInfo(null);
     setLoadingPayInfo(true);
     try {
       const res = await paymentApi.getInfo(order.id);
       setPaymentInfo(res.data);
     } catch (err) {
-      console.warn('Không tải được thông tin thanh toán:', err);
+      setPaymentModalOrder(null);
+      toast.error(err.response?.data?.message || 'Không tải được thông tin thanh toán. Vui lòng thử lại.');
     } finally {
       setLoadingPayInfo(false);
     }
@@ -153,8 +131,7 @@ const MyOrdersPage = () => {
     try {
       await paymentApi.confirm({
         orderId: paymentModalOrder.id,
-        paymentMethod: 'VIETQR',
-        transactionId: 'TXN-' + Date.now().toString().slice(-6)
+        paymentMethod: 'VIETQR'
       });
       toast.success('Đã gửi thông báo chuyển khoản! Ban Quản Trị (Admin) sẽ kiểm tra và xác nhận đơn hàng của bạn.');
       setPaymentModalOrder(null);
@@ -314,7 +291,7 @@ const MyOrdersPage = () => {
     const is50 = order?.depositPercent === 50 || (order?.depositAmount && order?.totalAmount && Math.round((order.depositAmount / order.totalAmount) * 100) === 50);
     const depositLabel = is50 ? 'Đã cọc 50%' : (order?.depositPercent ? `Đã cọc ${order.depositPercent}%` : 'Đã cọc giữ chỗ');
     const statusMap = {
-      'PENDING': { label: 'Chờ Admin xác nhận', bg: '#fef3c7', color: '#b45309' },
+      'PENDING': { label: order?.paymentStatus === 'PENDING_PAYMENT' ? 'Chờ xác minh thanh toán' : 'Chờ thanh toán', bg: '#fef3c7', color: '#b45309' },
       'CONFIRMED': { label: 'Đã xác nhận', bg: '#dcfce7', color: '#15803d' },
       'CANCELLED': { label: 'Đã hủy', bg: '#fee2e2', color: '#b91c1c' },
       'COMPLETED': { label: 'Hoàn thành', bg: '#e0f2fe', color: '#0369a1' },
@@ -338,10 +315,11 @@ const MyOrdersPage = () => {
 
   const getPaymentBadge = (paymentStatus, paymentMethod) => {
     const isPaid = paymentStatus === 'PAID';
+    const isPendingPayment = paymentStatus === 'PENDING_PAYMENT';
     const isRefundPending = paymentStatus === 'REFUND_PENDING';
     const isRefunded = paymentStatus === 'REFUNDED';
 
-    let label = 'Chờ Admin xác nhận thanh toán';
+    let label = isPendingPayment ? 'Đang chờ đối soát' : 'Chưa thanh toán';
     let bg = 'rgba(234, 179, 8, 0.15)';
     let color = '#eab308';
 
@@ -358,6 +336,7 @@ const MyOrdersPage = () => {
       bg = 'rgba(168, 85, 247, 0.15)';
       color = '#a855f7';
     }
+    const methodLabel = paymentMethod === 'VNPAY' ? 'VNPay' : paymentMethod === 'OFFICE' ? 'Văn phòng' : 'VietQR';
 
     return (
       <span style={{
@@ -372,7 +351,7 @@ const MyOrdersPage = () => {
         color: color,
         border: `1px solid ${color}`
       }}>
-        {label} · VietQR
+        {label} · {methodLabel}
       </span>
     );
   };
@@ -422,7 +401,8 @@ const MyOrdersPage = () => {
               const isCancelled = order.status === 'CANCELLED';
               const isDeposited = order.status === 'DEPOSITED' || order.paymentStatus === 'PARTIALLY_PAID';
               const isPaid = order.paymentStatus === 'PAID';
-              const isUnpaid = !isPaid && !isDeposited && order.paymentStatus !== 'REFUND_PENDING' && order.paymentStatus !== 'REFUNDED';
+              const isPaymentPending = order.paymentStatus === 'PENDING_PAYMENT';
+              const isUnpaid = !isPaid && !isDeposited && !isPaymentPending && order.paymentStatus !== 'REFUND_PENDING' && order.paymentStatus !== 'REFUNDED';
               const policy = getCancellationPolicy(order);
               const canCancel = (isPaid || isDeposited) && !isCancelled && order.status !== 'COMPLETED' && policy.canCancel;
 
@@ -466,13 +446,14 @@ const MyOrdersPage = () => {
                     <div className="order-details">
                       <h4 style={{ color: '#0f172a', margin: '0 0 12px', fontSize: '1rem', fontWeight: 700 }}>Chi tiết các tour đã đặt:</h4>
                       <ul className="order-items-list">
-                        {order.orderDetails?.map(detail => {
+                        {(order.details || order.orderDetails || []).map(detail => {
                           const tourName = detail.tour?.name || detail.tour?.tourName || 'Tour du lịch';
                           const unitPrice = detail.price || detail.unitPrice || 0;
                           return (
                             <li key={detail.id || detail.orderDetailId} className="order-item-row">
                               <span className="oi-name">{tourName}</span>
                               <span className="oi-qty">Số lượng: {detail.quantity} vé</span>
+                              {detail.departureDate && <span className="oi-qty">Khởi hành: {new Date(`${detail.departureDate}T00:00:00`).toLocaleDateString('vi-VN')}</span>}
                               <span className="oi-price">{formatPrice(unitPrice * detail.quantity)}</span>
                             </li>
                           );
@@ -518,14 +499,18 @@ const MyOrdersPage = () => {
                         <p><strong>Người liên hệ:</strong> {order.fullName || order.contactName}</p>
                         <p><strong>Số điện thoại:</strong> {order.phone || order.contactPhone}</p>
                         <p><strong>Email nhận vé:</strong> {order.email || order.contactEmail}</p>
-                        <p><strong>Phương thức:</strong> Quét mã VietQR (Napas 24/7)</p>
+                        <p><strong>Phương thức:</strong> {order.paymentMethod || 'Chưa chọn'}</p>
                         <p><strong>Trạng thái thanh toán:</strong> {
                           order.paymentStatus === 'PAID' ? 'Đã thanh toán (Admin đã duyệt)' :
+                          order.paymentStatus === 'PENDING_PAYMENT' ? 'Đang chờ xác minh giao dịch' :
                           order.paymentStatus === 'REFUND_PENDING' ? 'Chờ Admin hoàn tiền 97%' :
                           order.paymentStatus === 'REFUNDED' ? 'Đã hoàn tiền thành công' :
                           'Chưa thanh toán / Chờ Admin xác nhận chuyển khoản'
                         }</p>
                         <p><strong>Ghi chú:</strong> {order.notes || 'Không có ghi chú'}</p>
+                        {Array.isArray(order.passengers) && order.passengers.length > 0 && (
+                          <p><strong>Hành khách:</strong> {order.passengers.map(p => p.fullName).join(', ')}</p>
+                        )}
                       </div>
 
                       {/* Hiển thị chi tiết khấu trừ và thông tin STK nhận tiền nếu đơn đã hủy */}
@@ -641,6 +626,20 @@ const MyOrdersPage = () => {
                           </>
                         )}
 
+                        {isDeposited && !isPaymentPending && !isCancelled && (
+                          <button
+                            onClick={() => handleOpenPayment(order)}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: '6px',
+                              padding: '8px 16px', borderRadius: '6px', background: '#2563eb',
+                              color: '#fff', border: 'none', fontSize: '0.85rem', fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <FaQrcode /> Thanh toán phần còn lại
+                          </button>
+                        )}
+
                         <button 
                           onClick={() => setInvoiceOrder(order)}
                           style={{
@@ -724,7 +723,7 @@ const MyOrdersPage = () => {
               QUÉT MÃ VIETQR THANH TOÁN
             </h3>
             <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '16px' }}>
-              Đơn hàng: <strong>{paymentModalOrder.orderCode || '#' + paymentModalOrder.id}</strong> · Tổng tiền: <strong style={{ color: '#f97316' }}>{formatPrice(paymentModalOrder.totalAmount)}</strong>
+              Đơn hàng: <strong>{paymentModalOrder.orderCode || '#' + paymentModalOrder.id}</strong> · Số tiền cần thanh toán: <strong style={{ color: '#f97316' }}>{formatPrice(paymentInfo?.amount ?? paymentModalOrder.totalAmount)}</strong>
             </p>
 
             {loadingPayInfo ? (
@@ -747,24 +746,24 @@ const MyOrdersPage = () => {
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <span style={{ color: '#64748b' }}>Ngân hàng:</span>
-                    <strong>{paymentInfo?.bankName || 'MBBank (Quân Đội)'}</strong>
+                    <strong>{paymentInfo?.bankName}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span style={{ color: '#64748b' }}>Số tài khoản:</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <strong style={{ color: '#0194f3', fontFamily: 'monospace', fontSize: '1.05rem' }}>{paymentInfo?.accountNumber || '0383687150'}</strong>
-                      <button onClick={() => handleCopy(paymentInfo?.accountNumber || '0383687150', 'Số tài khoản')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><FaCopy /></button>
+                      <strong style={{ color: '#0194f3', fontFamily: 'monospace', fontSize: '1.05rem' }}>{paymentInfo?.accountNumber}</strong>
+                      <button onClick={() => handleCopy(paymentInfo?.accountNumber, 'Số tài khoản')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><FaCopy /></button>
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span style={{ color: '#64748b' }}>Chủ tài khoản:</span>
-                    <strong>{paymentInfo?.accountName || 'CONG TY DU LICH VIET'}</strong>
+                    <strong>{paymentInfo?.accountName}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: '#64748b' }}>Nội dung CK:</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <strong style={{ color: '#15803d', fontFamily: 'monospace' }}>{paymentInfo?.transferContent || paymentModalOrder.orderCode}</strong>
-                      <button onClick={() => handleCopy(paymentInfo?.transferContent || paymentModalOrder.orderCode, 'Nội dung')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><FaCopy /></button>
+                      <strong style={{ color: '#15803d', fontFamily: 'monospace' }}>{paymentInfo?.transferContent}</strong>
+                      <button onClick={() => handleCopy(paymentInfo?.transferContent, 'Nội dung')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><FaCopy /></button>
                     </span>
                   </div>
                 </div>
@@ -776,6 +775,7 @@ const MyOrdersPage = () => {
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                   <button 
                     onClick={handleConfirmModalPaid}
+                    disabled={!paymentInfo}
                     style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                   >
                     <FaCheckCircle /> Tôi Đã Chuyển Khoản Xong

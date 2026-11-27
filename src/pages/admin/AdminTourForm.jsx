@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { adminApi, categoryApi, tourApi } from '../../api/axiosConfig';
-import { REAL_TOURS, REAL_CATEGORIES } from '../../api/realTourDataApi';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import FallbackImage from '../../components/common/FallbackImage';
@@ -109,10 +108,10 @@ const AdminTourForm = () => {
     hotelStar: 4,
     badge: 'BÁN CHẠY NHẤT',
     imageUrl: '',
-    availableSeats: 20,
+    availableSeats: 0,
     startDate: '',
     endDate: '',
-    rating: 4.8,
+    rating: '',
     status: 'ACTIVE',
     highlights: '',
     itinerary: '',
@@ -135,11 +134,8 @@ const AdminTourForm = () => {
         setFormData(prev => ({ ...prev, categoryId: res.data[0].id || res.data[0].categoryId }));
       }
     } catch (error) {
-      console.warn('Backend categories API not reachable, falling back to REAL_CATEGORIES');
-      setCategories(REAL_CATEGORIES);
-      if (!isEdit && REAL_CATEGORIES.length > 0) {
-        setFormData(prev => ({ ...prev, categoryId: REAL_CATEGORIES[0].id }));
-      }
+      setCategories([]);
+      toast.error(error.response?.data?.message || 'Không tải được danh mục từ máy chủ');
     }
   };
 
@@ -159,10 +155,10 @@ const AdminTourForm = () => {
         hotelStar: tour.hotelStar ?? 4,
         badge: tour.badge || '',
         imageUrl: tour.imageUrl || '',
-        availableSeats: tour.availableSeats ?? 20,
+        availableSeats: tour.availableSeats ?? 0,
         startDate: tour.startDate || '',
         endDate: tour.endDate || '',
-        rating: tour.rating ?? 4.8,
+        rating: tour.rating ?? '',
         status: tour.status || 'ACTIVE',
         highlights: formatListForInput(tour.highlights),
         itinerary: formatListForInput(tour.itinerary),
@@ -170,34 +166,8 @@ const AdminTourForm = () => {
         exclusions: formatListForInput(tour.exclusions)
       });
     } catch (error) {
-      const localTour = REAL_TOURS.find(t => String(t.id || t.tourId) === String(id));
-      if (localTour) {
-        setFormData({
-          name: localTour.name || localTour.tourName || '',
-          categoryId: localTour.category?.id || localTour.categoryId || '',
-          description: localTour.description || '',
-          price: localTour.price ?? '',
-          originalPrice: localTour.originalPrice ?? '',
-          duration: localTour.duration ?? '3',
-          departureLocation: localTour.departureLocation || '',
-          vehicle: localTour.vehicle || '',
-          hotelStar: localTour.hotelStar ?? 4,
-          badge: localTour.badge || '',
-          imageUrl: localTour.imageUrl || '',
-          availableSeats: localTour.availableSeats ?? 20,
-          startDate: localTour.startDate || '',
-          endDate: localTour.endDate || '',
-          rating: localTour.rating ?? 4.8,
-          status: localTour.status || 'ACTIVE',
-          highlights: formatListForInput(localTour.highlights),
-          itinerary: formatListForInput(localTour.itinerary),
-          inclusions: formatListForInput(localTour.inclusions),
-          exclusions: formatListForInput(localTour.exclusions)
-        });
-      } else {
-        toast.error('Không thể tải dữ liệu tour');
-        navigate('/admin/tours');
-      }
+      toast.error(error.response?.data?.message || 'Không thể tải dữ liệu tour');
+      navigate('/admin/tours');
     } finally {
       setLoading(false);
     }
@@ -253,10 +223,10 @@ const AdminTourForm = () => {
         hotelStar: parseInt(formData.hotelStar) || 3,
         badge: formData.badge?.trim() || null,
         imageUrl: formData.imageUrl?.trim() || '',
-        availableSeats: parseInt(formData.availableSeats) || 0,
+        availableSeats: Number.isFinite(Number(formData.availableSeats)) ? Number(formData.availableSeats) : 0,
         startDate: formData.startDate || null,
         endDate: formData.endDate || null,
-        rating: parseFloat(formData.rating) || 5.0,
+        rating: formData.rating === '' ? null : parseFloat(formData.rating),
         status: formData.status || 'ACTIVE',
         highlights: formatListForSubmit(formData.highlights),
         itinerary: formatItineraryForSubmit(formData.itinerary),

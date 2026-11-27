@@ -35,6 +35,7 @@ const AdminLayout = () => {
 
   // Tải số lượng đơn hàng đang chờ xử lý để hiển thị thông báo
   useEffect(() => {
+    if (isProvider) return;
     const fetchPendingOrders = async () => {
       try {
         const res = await adminApi.getOrders();
@@ -46,7 +47,7 @@ const AdminLayout = () => {
       }
     };
     fetchPendingOrders();
-  }, [location.pathname]);
+  }, [location.pathname, isProvider]);
 
   // Đóng sidebar khi đổi trang trên màn hình di động
   useEffect(() => {
@@ -55,12 +56,18 @@ const AdminLayout = () => {
     }
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (isProvider && location.pathname === '/admin') {
+      navigate('/admin/tours', { replace: true });
+    }
+  }, [isProvider, location.pathname, navigate]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const navItems = [
+  const allNavItems = [
     { path: '/admin', name: 'Dashboard', icon: <FaTachometerAlt /> },
     { path: '/admin/tours', name: 'Quản Lý Tour', icon: <FaMapMarkedAlt /> },
     { path: '/admin/categories', name: 'Danh Mục', icon: <FaTags /> },
@@ -74,6 +81,9 @@ const AdminLayout = () => {
     { path: '/admin/b2b', name: 'B2B Doanh Nghiệp', icon: <FaBuilding /> },
     { path: '/admin/activity-log', name: 'Nhật Ký Hệ Thống', icon: <FaHistory /> },
   ];
+  const navItems = isProvider
+    ? allNavItems.filter(item => item.path === '/admin/tours')
+    : allNavItems;
 
   const getInitial = (name) => name ? name.charAt(0).toUpperCase() : 'A';
 
@@ -91,7 +101,7 @@ const AdminLayout = () => {
       {/* Thanh điều hướng bên trái (Sidebar) */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-brand">
-          <Link to="/admin">
+          <Link to={isProvider ? '/admin/tours' : '/admin'}>
             <div className="brand-icon"><FaCompass /></div>
             {sidebarOpen && <span className="brand-text">{isProvider ? 'Portal Đối Tác' : 'Admin Panel'}</span>}
           </Link>
@@ -179,16 +189,18 @@ const AdminLayout = () => {
           
           <div className="header-right">
             {/* Chuông thông báo đơn hàng chờ xử lý */}
-            <Link 
-              to="/admin/orders" 
-              className="icon-btn" 
-              title={pendingOrdersCount > 0 ? `${pendingOrdersCount} đơn hàng mới đang chờ xử lý` : 'Không có đơn chờ'}
-            >
-              <FaBell />
-              {pendingOrdersCount > 0 && (
-                <span className="badge">{pendingOrdersCount}</span>
-              )}
-            </Link>
+            {!isProvider && (
+              <Link
+                to="/admin/orders"
+                className="icon-btn"
+                title={pendingOrdersCount > 0 ? `${pendingOrdersCount} đơn hàng mới đang chờ xử lý` : 'Không có đơn chờ'}
+              >
+                <FaBell />
+                {pendingOrdersCount > 0 && (
+                  <span className="badge">{pendingOrdersCount}</span>
+                )}
+              </Link>
+            )}
 
             {/* Nút quay về trang bán tour */}
             <Link 

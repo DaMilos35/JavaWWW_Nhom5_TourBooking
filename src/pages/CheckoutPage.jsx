@@ -127,15 +127,15 @@ const CheckoutPage = () => {
   // Trạng thái đơn hàng
   const [loading, setLoading] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
-  const [isPaidSuccess, setIsPaidSuccess] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState(null);
   const [copiedKey, setCopiedKey] = useState(null);
 
   const isItemPassed = (item) => {
-    // Với cơ chế Rolling Departure Schedule, hệ thống tự động gia hạn sang đợt kế tiếp nên không khóa đặt chỗ
-    return false;
+    const departureDate = item?.tour?.selectedDepartureDate || item?.tour?.departureDate || item?.tour?.startDate;
+    return !departureDate || hasTourDatePassed(departureDate);
   };
 
-  const hasExpiredTours = false;
+  const hasExpiredTours = (items || []).some(isItemPassed);
 
   const hasInactiveTours = useMemo(() => {
     return (items || []).some(item => {
@@ -161,38 +161,42 @@ const CheckoutPage = () => {
   const subTotal = getTotal();
 
   // Chiết khấu đoàn B2B / Khách đoàn: >=20 người giảm 10%, >=10 người giảm 5%
-  const b2bDiscountPercent = useMemo(() => {
-    if (totalTravelers >= 20) return 10;
-    if (totalTravelers >= 10) return 5;
-    return 0;
-  }, [totalTravelers]);
+  const b2bDiscountAmount = useMemo(() => items.reduce((sum, item) => {
+    const quantity = Number(item.quantity || 1);
+    const rate = quantity >= 20 ? 0.10 : quantity >= 10 ? 0.05 : 0;
+    const unitPrice = Number(item.price || item.tour?.price || 0);
+    return sum + unitPrice * quantity * rate;
+  }, 0), [items]);
+  const b2bDiscountPercent = useMemo(() => items.reduce((maxRate, item) => {
+    const quantity = Number(item.quantity || 1);
+    return Math.max(maxRate, quantity >= 20 ? 10 : quantity >= 10 ? 5 : 0);
+  }, 0), [items]);
+  const afterGroupDiscount = Math.max(0, subTotal - b2bDiscountAmount);
 
-  const b2bDiscountAmount = (subTotal * b2bDiscountPercent) / 100;
+  // Membership discount is applied before a voucher on the server.
+  const tierInfo = useMemo(() => getTierInfo(user?.membershipTier, user?.totalSpent), [user]);
+  const memberDiscountAmount = useMemo(() => {
+    return Math.round(afterGroupDiscount * (tierInfo.discountRate || 0));
+  }, [afterGroupDiscount, tierInfo]);
 
   // Chiết khấu voucher
   const voucherDiscountAmount = useMemo(() => {
     if (!appliedVoucher) return 0;
     if (appliedVoucher.type === 'PERCENT') {
-      return (subTotal * appliedVoucher.value) / 100;
+      return Math.min(afterGroupDiscount - memberDiscountAmount, (Math.max(0, afterGroupDiscount - memberDiscountAmount) * appliedVoucher.value) / 100);
     }
-    return appliedVoucher.value;
-  }, [appliedVoucher, subTotal]);
-
-  // 1. Chiết khấu Hạng Thành Viên VIP (Loyalty Tier Discount)
-  const tierInfo = useMemo(() => getTierInfo(user?.membershipTier, user?.totalSpent), [user]);
-  const memberDiscountAmount = useMemo(() => {
-    return Math.round(subTotal * (tierInfo.discountRate || 0));
-  }, [subTotal, tierInfo]);
+    return Math.min(afterGroupDiscount - memberDiscountAmount, appliedVoucher.value);
+  }, [appliedVoucher, afterGroupDiscount, memberDiscountAmount]);
 
   // 2. Điểm thưởng tích lũy (Points Redemption: 1 điểm = 1.000 VNĐ)
   const userLoyaltyPoints = user?.loyaltyPoints || 0;
-  const maxSpendBeforePoints = Math.max(0, subTotal - b2bDiscountAmount - voucherDiscountAmount - memberDiscountAmount);
+  const maxSpendBeforePoints = Math.max(0, afterGroupDiscount - voucherDiscountAmount - memberDiscountAmount);
   const maxPointsUsable = Math.min(userLoyaltyPoints, Math.floor(maxSpendBeforePoints / 1000));
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const pointsDiscountAmount = useLoyaltyPoints ? (maxPointsUsable * 1000) : 0;
 
   // 3. Tổng giá trị đơn sau toàn bộ chiết khấu
-  const finalTotalAmount = Math.max(0, subTotal - b2bDiscountAmount - voucherDiscountAmount - memberDiscountAmount - pointsDiscountAmount);
+  const finalTotalAmount = Math.max(0, afterGroupDiscount - memberDiscountAmount - voucherDiscountAmount - pointsDiscountAmount);
 
   // 4. Kế hoạch thanh toán: FULL (100%) vs DEPOSIT (30%)
   const [paymentPlan, setPaymentPlan] = useState('FULL'); // 'FULL' or 'DEPOSIT'
@@ -218,7 +222,7 @@ const CheckoutPage = () => {
       setVoucherError('Mã ưu đãi không tồn tại hoặc đã hết hạn.');
       return;
     }
-    if (voucher.minSpend && subTotal < voucher.minSpend) {
+    if (voucher.minSpend && (afterGroupDiscount - memberDiscountAmount) < voucher.minSpend) {
       setVoucherError(`Mã này chỉ áp dụng cho đơn từ ${formatPrice(voucher.minSpend)} trở lên.`);
       return;
     }
@@ -287,6 +291,10 @@ const CheckoutPage = () => {
       toast.error('Tour đã hết hạn khởi hành. Vui lòng kiểm tra lại giỏ hàng.');
       return;
     }
+    if (!['VIETQR', 'VNPAY'].includes(paymentMethod)) {
+      toast.error('Phương thức thanh toán này chưa được tích hợp. Vui lòng chọn VietQR hoặc VNPay.');
+      return;
+    }
 
     if (paymentMethod === 'CREDIT_CARD') {
       const cardNum = cardInfo.cardNumber || cardInfo.number;
@@ -305,19 +313,26 @@ const CheckoutPage = () => {
         contactEmail: formData.contactEmail,
         notes: [
           formData.notes,
-          appliedVoucher ? `[Voucher: ${appliedVoucher.code}]` : null,
           `[Phương thức: ${paymentMethod}]`,
           formData.companyName ? `[Doanh nghiệp: ${formData.companyName} | MST: ${formData.taxId}]` : null
         ].filter(Boolean).join(' - '),
         isB2b: isB2bInvoice || b2bDiscountPercent > 0 || isCorporateAccount,
         companyName: isB2bInvoice ? formData.companyName : null,
         taxId: isB2bInvoice ? formData.taxId : null,
+        paymentMethod,
         paymentType: paymentPlan,
         depositPercent: paymentPlan === 'DEPOSIT' ? depositPercent : 100,
         pointsUsed: useLoyaltyPoints ? maxPointsUsable : 0,
+        voucherCode: appliedVoucher?.code || null,
+        passengers: passengers.map(p => ({
+          fullName: (p.name || p.fullName || '').trim(),
+          gender: p.gender,
+          ageGroup: p.ageGroup
+        })),
         items: items.map(item => ({
           tourId: item?.tour?.id || item?.tour?.tourId || item?.tourId || item?.id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          departureDate: item.selectedDepartureDate || item.departureDate || item.tour?.startDate || null
         }))
       };
 
@@ -335,54 +350,31 @@ const CheckoutPage = () => {
             return;
           }
         } catch (vnpayErr) {
-          console.warn('VnPay create url fallback to direct pay:', vnpayErr);
+          console.warn('VNPay is unavailable:', vnpayErr);
+          toast.error(vnpayErr.response?.data?.message || 'Cổng VNPay chưa sẵn sàng; đơn vẫn chờ thanh toán bằng chuyển khoản.');
+          setPaymentMethod('VIETQR');
+          try {
+            const infoRes = await paymentApi.getInfo(newOrder.id);
+            setPaymentInfo(infoRes.data);
+          } catch (infoErr) {
+            console.warn('Không tải được thông tin thanh toán dự phòng:', infoErr);
+          }
         }
       }
 
-      // Nếu phương thức thanh toán là trực tuyến (VietQR, VNPAY, MOMO, Thẻ):
-      // Xác nhận thanh toán qua API /pay
-      if (['VIETQR', 'VNPAY', 'MOMO', 'CREDIT_CARD'].includes(paymentMethod)) {
+      if (paymentMethod === 'VIETQR') {
         try {
-          const payRes = await orderApi.payOrder(newOrder.id, {
-            paymentMethod: paymentMethod,
-            transactionCode: `TXN-${Date.now().toString().slice(-6)}`
-          });
-          let finalOrder = newOrder;
-          if (payRes && payRes.data) {
-            finalOrder = payRes.data;
-            setCreatedOrder(payRes.data);
-            setIsPaidSuccess(true);
-          }
-        } catch (payErr) {
-          console.warn('Auto pay confirm fallback:', payErr);
+          const infoRes = await paymentApi.getInfo(newOrder.id);
+          setPaymentInfo(infoRes.data);
+        } catch (infoErr) {
+          console.warn('Không tải được thông tin VietQR:', infoErr);
         }
-      }
-
-      // Cập nhật số chỗ đã đặt tức thì vào persistent storage
-      try {
-        const rawMap = localStorage.getItem('tour_booked_seats_map');
-        const map = rawMap ? JSON.parse(rawMap) : {};
-        items.forEach((it) => {
-          const tId = it?.tour?.id || it?.tour?.tourId || it?.tourId || it?.id;
-          const qty = Number(it.quantity || 1);
-          const dateStr = it.selectedDepartureDate || it.tour?.selectedDepartureDate;
-          if (tId) {
-            map[tId] = (map[tId] || 0) + qty;
-            if (dateStr) {
-              map[`${tId}_${dateStr}`] = (map[`${tId}_${dateStr}`] || 0) + qty;
-            }
-          }
-        });
-        localStorage.setItem('tour_booked_seats_map', JSON.stringify(map));
-        window.dispatchEvent(new Event('storage'));
-      } catch (storageErr) {
-        console.warn('Cập nhật tour_booked_seats_map:', storageErr);
       }
 
       setStep(3); // Chuyển sang màn hình E-Ticket TRƯỚC khi dọn giỏ hàng
       clearCart();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      toast.success('Đặt tour và giữ chỗ thành công! Vé điện tử đã được phát hành.');
+      toast.success('Đơn đặt tour đã được tạo. Chỗ được giữ tạm trong 30 phút.');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.');
     } finally {
@@ -390,12 +382,15 @@ const CheckoutPage = () => {
     }
   };
 
-  // Dữ liệu ngân hàng VietQR
-  const bankAccount = {
-    bankName: 'Ngân hàng TMCP Quân Đội (MB Bank)',
-    accountNumber: '0901234567899',
-    accountHolder: 'CONG TY CP DU LICH VIET MEDIA CORP',
-    qrUrl: `https://api.vietqr.io/image/970422-0901234567899-compact2.jpg?amount=${amountToPayNow}&addInfo=DULICHVIET%20${(user?.username || 'GUEST').toUpperCase()}`
+  const handlePaymentNotice = async () => {
+    if (!createdOrder) return;
+    try {
+      const res = await paymentApi.confirm({ orderId: createdOrder.id, paymentMethod: 'VIETQR' });
+      setCreatedOrder(res.data);
+      toast.success('Đã gửi thông báo chuyển khoản; đơn sẽ được xác nhận sau khi đối soát.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể gửi thông báo thanh toán.');
+    }
   };
 
   // ==============================================================
@@ -411,11 +406,11 @@ const CheckoutPage = () => {
             <div className="success-icon-wrap">
               <FaCheckCircle className="success-icon" />
             </div>
-            <h1 className="success-title">ĐẶT CHỖ & XÁC NHẬN THÀNH CÔNG!</h1>
+            <h1 className="success-title">ĐƠN ĐẶT TOUR ĐÃ ĐƯỢC TẠO</h1>
             <p className="success-subtitle">
               Mã đơn hàng: <strong className="highlight-code">{createdOrder.orderCode || `ORD-${createdOrder.id}`}</strong>
               <span className="badge-paid-pill ml-2">
-                <FaCheck /> {isPaidSuccess ? 'ĐÃ THANH TOÁN (PAID)' : 'ĐÃ XÁC NHẬN (CONFIRMED)'}
+                <FaCheck /> {createdOrder.paymentStatus === 'PAID' ? 'ĐÃ THANH TOÁN' : createdOrder.paymentStatus === 'PENDING_PAYMENT' ? 'CHỜ XÁC MINH THANH TOÁN' : 'CHỜ THANH TOÁN'}
               </span>
             </p>
           </div>
@@ -426,10 +421,10 @@ const CheckoutPage = () => {
             <div className="eticket-header">
               <div className="eticket-brand">
                 <span className="brand-logo-text"><FaPlaneDeparture style={{ marginRight: "8px", color: "#0194F3" }} /> DU LỊCH VIỆT</span>
-                <span className="brand-tag">VÉ ĐIỆN TỬ XÁC NHẬN ĐẶT TOUR (E-TICKET)</span>
+                <span className="brand-tag">THÔNG TIN ĐƠN ĐẶT TOUR</span>
               </div>
               <div className="eticket-status-badge">
-                <FaShieldAlt /> ĐÃ BẢO LƯU CHỖ NGỒI
+                <FaShieldAlt /> GIỮ CHỖ TẠM THỜI 30 PHÚT
               </div>
             </div>
 
@@ -485,11 +480,12 @@ const CheckoutPage = () => {
                         <div className="tour-meta-row">
                           <span><FaMapMarkerAlt style={{ color: '#0194F3', marginRight: '4px' }} /> Điểm đón: <b>{t.departureLocation || 'TP. Hồ Chí Minh'}</b></span>
                           <span><FaClock aria-hidden="true" style={{ color: '#0194F3', marginRight: '4px' }} /> Thời lượng: <b>{t.duration || 3} ngày</b></span>
+                          {(item.departureDate || t.startDate) && <span><FaCalendarAlt style={{ color: '#0194F3', marginRight: '4px' }} /> Khởi hành: <b>{new Date((item.departureDate || t.startDate) + 'T00:00:00').toLocaleDateString('vi-VN')}</b></span>}
                           <span><FaUsers style={{ color: '#0194F3', marginRight: '4px' }} /> Số vé: <b>{item.quantity || 1} khách</b></span>
                         </div>
                       </div>
                       <div className="tour-price-box text-right">
-                        <span className="price-tag">{formatPrice((t.price || item.unitPrice) * (item.quantity || 1))}</span>
+                        <span className="price-tag">{formatPrice((item.unitPrice || t.price) * (item.quantity || 1))}</span>
                       </div>
                     </div>
                   );
@@ -503,19 +499,19 @@ const CheckoutPage = () => {
                 <div className="barcode-box">
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=TOURBOOKING-${createdOrder.orderCode || createdOrder.id}`}
-                    alt="Ticket QR Code"
+                    alt="Mã QR tra cứu đơn đặt tour"
                     className="qr-img"
                   />
                   <div className="barcode-caption">
-                    <span>Quét mã QR để xuất trình</span>
+                    <span>Mã tra cứu đơn đặt tour, chưa phải vé lên tour</span>
                     <strong>{createdOrder.orderCode || `ORD-${createdOrder.id}`}</strong>
                   </div>
                 </div>
 
                 <div className="final-amount-box text-right">
-                  <span className="final-label">TỔNG TIỀN ĐÃ XÁC NHẬN</span>
+                <span className="final-label">TỔNG GIÁ TRỊ ĐƠN HÀNG</span>
                   <span className="final-val">{formatPrice(createdOrder.totalAmount || finalTotalAmount)}</span>
-                  <span className="tax-included-note">(Đã bao gồm thuế GTGT & bảo hiểm du lịch)</span>
+                  <span className="tax-included-note">Chỗ được giữ tạm 30 phút; đơn chỉ được xác nhận sau khi thanh toán được đối soát.</span>
                 </div>
               </div>
             </div>
@@ -524,9 +520,32 @@ const CheckoutPage = () => {
             <div className="eticket-notice">
               <FaEnvelope className="notice-icon" />
               <span>
-                Bản vé điện tử chi tiết và hóa đơn GTGT đã được tự động gửi đến hòm thư <b>{createdOrder.contactEmail || user?.email}</b>. Quý khách có thể xuất trình vé trên điện thoại khi lên xe.
+                Thông tin đơn hàng được lưu trong tài khoản của quý khách. Đây chưa phải vé xác nhận khởi hành.
               </span>
             </div>
+            {paymentMethod === 'VIETQR' && paymentInfo && createdOrder.paymentStatus !== 'PAID' && (
+              <div className="vietqr-details-box mt-4">
+                <h3>Thanh toán bằng chuyển khoản ngân hàng</h3>
+                <div className="vietqr-row">
+                  <div className="vietqr-image-wrapper"><img src={paymentInfo.vietQrUrl} alt="Mã VietQR thanh toán đơn hàng" className="vietqr-img" /></div>
+                  <div className="vietqr-info-list">
+                    <div className="info-item"><span className="lbl">Ngân hàng:</span><span className="val">{paymentInfo.bankName}</span></div>
+                    <div className="info-item"><span className="lbl">Số tài khoản:</span><span className="val">{paymentInfo.accountNumber}</span></div>
+                    <div className="info-item"><span className="lbl">Chủ tài khoản:</span><span className="val">{paymentInfo.accountName}</span></div>
+                    <div className="info-item"><span className="lbl">Số tiền cần chuyển:</span><span className="val text-danger font-bold">{formatPrice(paymentInfo.amount)}</span></div>
+                    <div className="info-item"><span className="lbl">Nội dung chuyển khoản:</span><span className="val font-mono font-bold">{paymentInfo.transferContent}</span></div>
+                    {createdOrder.paymentStatus !== 'PENDING_PAYMENT' && (
+                      <button type="button" className="btn btn-primary mt-3" onClick={handlePaymentNotice}>Tôi đã chuyển khoản</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            {paymentMethod === 'VIETQR' && !paymentInfo && createdOrder.paymentStatus !== 'PAID' && (
+              <div className="vietqr-details-box mt-4">
+                <p>Chưa tải được thông tin chuyển khoản. Đơn hàng đã được lưu; bạn có thể mở lại mục “Đơn hàng của tôi” để thử thanh toán.</p>
+              </div>
+            )}
           </div>
 
           {/* Các nút hành động */}
@@ -918,7 +937,7 @@ const CheckoutPage = () => {
                         <span className="plan-badge full">TẶNG +100 ĐIỂM</span>
                       </div>
                       <div className="plan-price-row">{formatPrice(finalTotalAmount)}</div>
-                      <p className="plan-desc">Tất toán toàn bộ chi phí chuyến đi. Phát hành vé điện tử E-Ticket QR Check-in tức thì.</p>
+                      <p className="plan-desc">Thanh toán toàn bộ giá trị đơn; đơn được xác nhận sau khi hệ thống đối soát giao dịch.</p>
                     </div>
 
                     {/* Option 2: Đặt cọc */}
@@ -1046,9 +1065,9 @@ const CheckoutPage = () => {
                     <div className="option-info-col">
                       <div className="option-title-row">
                         <span className="option-name">Chuyển khoản Ngân hàng (Quét mã VietQR 24/7)</span>
-                        <span className="badge-recommend">KHUYÊN DÙNG · 0đ PHÍ</span>
+                        <span className="badge-recommend">CHUYỂN KHOẢN</span>
                       </div>
-                      <p className="option-desc">Tự động điền số tiền và nội dung chuyển khoản. Xác nhận tức thì trong 30 giây.</p>
+                      <p className="option-desc">Mã QR điền sẵn số tiền và nội dung. Thanh toán được xác nhận sau khi đối soát.</p>
                     </div>
                     <div className="option-logo-col">
                       <FaQrcode className="payment-icon text-primary" />
@@ -1058,61 +1077,7 @@ const CheckoutPage = () => {
                   {/* Chi tiết hiển thị khi chọn VietQR */}
                   {paymentMethod === 'VIETQR' && (
                     <div className="vietqr-details-box animate-fade-in">
-                      <div className="vietqr-row">
-                        <div className="vietqr-image-wrapper">
-                          <img src={bankAccount.qrUrl} alt="VietQR Thanh Toán" className="vietqr-img" />
-                          <small className="qr-hint">Mở ứng dụng ngân hàng bất kỳ để quét mã</small>
-                        </div>
-                        <div className="vietqr-info-list">
-                          <div className="info-item">
-                            <span className="lbl">Ngân hàng thụ hưởng:</span>
-                            <span className="val">{bankAccount.bankName}</span>
-                          </div>
-                          <div className="info-item">
-                            <span className="lbl">Số tài khoản:</span>
-                            <div className="val-with-copy">
-                              <span className="val text-primary font-bold">{bankAccount.accountNumber}</span>
-                              <button
-                                type="button"
-                                className="btn-copy"
-                                onClick={() => copyToClipboard(bankAccount.accountNumber, 'acc')}
-                              >
-                                {copiedKey === 'acc' ? <FaCheck className="text-success" /> : <FaCopy />}
-                              </button>
-                            </div>
-                          </div>
-                          <div className="info-item">
-                            <span className="lbl">Chủ tài khoản:</span>
-                            <span className="val">{bankAccount.accountHolder}</span>
-                          </div>
-                          <div className="info-item">
-                            <span className="lbl">Số tiền thanh toán:</span>
-                            <div className="val-with-copy">
-                              <span className="val text-danger font-bold text-lg">{formatPrice(finalTotalAmount)}</span>
-                              <button
-                                type="button"
-                                className="btn-copy"
-                                onClick={() => copyToClipboard(finalTotalAmount.toString(), 'amount')}
-                              >
-                                {copiedKey === 'amount' ? <FaCheck className="text-success" /> : <FaCopy />}
-                              </button>
-                            </div>
-                          </div>
-                          <div className="info-item">
-                            <span className="lbl">Nội dung chuyển khoản:</span>
-                            <div className="val-with-copy">
-                              <span className="val font-mono font-bold">DULICHVIET {(user?.username || 'GUEST').toUpperCase()}</span>
-                              <button
-                                type="button"
-                                className="btn-copy"
-                                onClick={() => copyToClipboard(`DULICHVIET ${(user?.username || 'GUEST').toUpperCase()}`, 'note')}
-                              >
-                                {copiedKey === 'note' ? <FaCheck className="text-success" /> : <FaCopy />}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <p>Hệ thống sẽ tạo mã VietQR với đúng số tiền và nội dung đơn hàng sau khi đơn được lưu.</p>
                     </div>
                   )}
 
@@ -1169,22 +1134,22 @@ const CheckoutPage = () => {
                   {/* 3. Ví Điện Tử MoMo */}
                   <div
                     className={`payment-option-card ${paymentMethod === 'MOMO' ? 'selected' : ''}`}
-                    onClick={() => setPaymentMethod('MOMO')}
+                    style={{ opacity: 0.55, cursor: 'not-allowed' }}
                   >
                     <div className="option-radio-col">
                       <input
                         type="radio"
                         name="payment"
                         checked={paymentMethod === 'MOMO'}
-                        onChange={() => setPaymentMethod('MOMO')}
+                        disabled
                       />
                     </div>
                     <div className="option-info-col">
                       <div className="option-title-row">
-                        <span className="option-name">Ví Điện Tử MoMo</span>
-                        <span className="badge-pill-soft">Siêu Nhanh</span>
+                        <span className="option-name">Ví điện tử MoMo (chưa tích hợp)</span>
+                        <span className="badge-pill-soft">Chưa khả dụng</span>
                       </div>
-                      <p className="option-desc">Quét mã QR MoMo trên điện thoại hoặc đăng nhập ví.</p>
+                      <p className="option-desc">Phương thức này chưa nhận thanh toán trong hệ thống.</p>
                     </div>
                     <div className="option-logo-col">
                       <span className="brand-pill-momo">MoMo</span>
@@ -1242,22 +1207,22 @@ const CheckoutPage = () => {
                   {/* 4. Thẻ Quốc Tế Visa / MasterCard */}
                   <div
                     className={`payment-option-card ${paymentMethod === 'CREDIT_CARD' ? 'selected' : ''}`}
-                    onClick={() => setPaymentMethod('CREDIT_CARD')}
+                    style={{ opacity: 0.55, cursor: 'not-allowed' }}
                   >
                     <div className="option-radio-col">
                       <input
                         type="radio"
                         name="payment"
                         checked={paymentMethod === 'CREDIT_CARD'}
-                        onChange={() => setPaymentMethod('CREDIT_CARD')}
+                        disabled
                       />
                     </div>
                     <div className="option-info-col">
                       <div className="option-title-row">
-                        <span className="option-name">Thẻ Tín Dụng / Ghi Nợ Quốc Tế (Visa, MasterCard, JCB)</span>
-                        <span className="badge-pill-soft">PCI-DSS Level 1</span>
+                        <span className="option-name">Thẻ quốc tế (chưa tích hợp)</span>
+                        <span className="badge-pill-soft">Chưa khả dụng</span>
                       </div>
-                      <p className="option-desc">Bảo mật mã hóa đầu cuối 3D-Secure OTP.</p>
+                      <p className="option-desc">Không nhập thông tin thẻ tại thời điểm này.</p>
                     </div>
                     <div className="option-logo-col">
                       <FaCreditCard className="payment-icon text-muted" />
@@ -1321,22 +1286,22 @@ const CheckoutPage = () => {
                   {/* 5. Thanh toán tại văn phòng */}
                   <div
                     className={`payment-option-card ${paymentMethod === 'OFFICE' ? 'selected' : ''}`}
-                    onClick={() => setPaymentMethod('OFFICE')}
+                    style={{ opacity: 0.55, cursor: 'not-allowed' }}
                   >
                     <div className="option-radio-col">
                       <input
                         type="radio"
                         name="payment"
                         checked={paymentMethod === 'OFFICE'}
-                        onChange={() => setPaymentMethod('OFFICE')}
+                        disabled
                       />
                     </div>
                     <div className="option-info-col">
                       <div className="option-title-row">
-                        <span className="option-name">Thanh toán tiền mặt tại Văn Phòng Du Lịch Việt</span>
-                        <span className="badge-pill-soft">Giữ Chỗ 24h</span>
+                        <span className="option-name">Thanh toán tại văn phòng (chưa tích hợp)</span>
+                        <span className="badge-pill-soft">Chưa khả dụng</span>
                       </div>
-                      <p className="option-desc">Tới văn phòng TP.HCM / Hà Nội trong vòng 24 giờ để hoàn tất thủ tục vé.</p>
+                      <p className="option-desc">Phương thức này chưa nhận thanh toán trong hệ thống.</p>
                     </div>
                     <div className="option-logo-col">
                       <FaMoneyBillWave className="payment-icon text-muted" />
@@ -1402,10 +1367,10 @@ const CheckoutPage = () => {
                     onClick={handlePlaceOrder}
                   >
                     {loading ? (
-                      'Đang xử lý đặt chỗ & gửi vé điện tử...'
+                      'Đang lưu đơn đặt tour...'
                     ) : (
                       paymentPlan === 'DEPOSIT' ? (
-                        <>Xác Nhận Đặt Cọc 30% ({formatPrice(amountToPayNow)})</>
+                        <>Xác Nhận Đặt Cọc {depositPercent}% ({formatPrice(amountToPayNow)})</>
                       ) : (
                         <>Xác Nhận Đặt Tour & Thanh Toán {formatPrice(amountToPayNow)}</>
                       )
@@ -1602,7 +1567,7 @@ const CheckoutPage = () => {
                 </div>
                 <div className="trust-item">
                   <FaCheckCircle className="trust-ico" />
-                  <span>Xác nhận vé điện tử tức thì qua Email</span>
+                  <span>Thông tin đơn hàng được gửi qua Email</span>
                 </div>
                 <div className="trust-item">
                   <FaPhone className="trust-ico" />

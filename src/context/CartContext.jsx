@@ -55,7 +55,7 @@ export const CartProvider = ({ children }) => {
     }
 
     const tourId = tour.id || tour.tourId;
-    const availableSeats = Number(tour.availableSeats) || 20;
+    const availableSeats = Math.max(0, Number(tour.availableSeats ?? tour.available_seats ?? 0));
     const existingItem = items.find((item) => String(item.tour.id || item.tour.tourId) === String(tourId));
     const nextQuantity = (existingItem?.quantity || 0) + quantity;
 
@@ -107,7 +107,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
     const item = items.find((cartItem) => String(cartItem.tour.id || cartItem.tour.tourId) === String(tourId));
-    const availableSeats = Number(item?.tour.availableSeats) || 20;
+    const availableSeats = Math.max(0, Number(item?.tour.availableSeats ?? item?.tour.available_seats ?? 0));
     if (item && (!Number.isFinite(availableSeats) || quantity > availableSeats)) {
       toast.error(`Số lượng không thể vượt quá ${Number.isFinite(availableSeats) ? availableSeats : 0} chỗ còn lại`, CART_TOAST_CONFIG);
       return;

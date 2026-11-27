@@ -13,6 +13,8 @@ import java.util.Optional;
 
 public interface TourRepository extends JpaRepository<Tour, Integer>, JpaSpecificationExecutor<Tour> {
     List<Tour> findByStatus(String status);
+    List<Tour> findByProvider_Id(Integer providerId);
+    List<Tour> findByProvider_IdAndStatus(Integer providerId, String status);
     List<Tour> findByCategoryId(Integer categoryId);
     List<Tour> findByCategoryIdAndStatus(Integer categoryId, String status);
     List<Tour> findByNameContainingIgnoreCase(String keyword);

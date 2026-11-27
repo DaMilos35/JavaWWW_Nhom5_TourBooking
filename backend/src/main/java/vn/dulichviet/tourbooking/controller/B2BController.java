@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import vn.dulichviet.tourbooking.entity.*;
 import vn.dulichviet.tourbooking.service.B2BService;
 
@@ -13,6 +14,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/corporate")
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class B2BController {
 
@@ -228,6 +230,7 @@ public class B2BController {
     }
 
     @PostMapping("/approvals/token-action")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> approveByToken(@RequestBody Map<String, String> body) {
         try {
             Map<String, Object> result = b2bService.resolveByToken(

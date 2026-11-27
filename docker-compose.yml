@@ -18,6 +18,7 @@ services:
       - ./database/b2b_migration.sql:/docker-entrypoint-initdb.d/02_b2b.sql:ro
       - ./database/data.sql:/docker-entrypoint-initdb.d/03_data.sql:ro
       - ./database/high_concurrency_indexes.sql:/docker-entrypoint-initdb.d/04_indexes.sql:ro
+      - ./database/05_booking_integrity_migration.sql:/docker-entrypoint-initdb.d/05_booking_integrity_migration.sql:ro
     ports:
       - "3306:3306"
     networks:
